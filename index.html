@@ -67,7 +67,7 @@ html,body{overflow-x:hidden;max-width:100vw}.force-mobile .sidebar{display:none!
 // Paste the SAME Firebase web config used in admin.html so both apps share
 // one project/database. This config is public by design (security comes
 // from Firestore Rules below, not from hiding this object).
-const FIREBASE_CONFIG={apiKey:"",authDomain:"",projectId:"",storageBucket:"",messagingSenderId:"",appId:""};
+const FIREBASE_CONFIG={apiKey:"AIzaSyC9soIo8J-NP5bc4STi_eOB1oP94IvcOL8",authDomain:"linngametopupstore.firebaseapp.com",projectId:"linngametopupstore",storageBucket:"linngametopupstore.firebasestorage.app",messagingSenderId:"1081466939722",appId:"1:1081466939722:web:affbccdedc64a28ca439b3"};
 let fsdb=null,fsUid=null;
 function initStoreFirebase(){if(!FIREBASE_CONFIG.apiKey){console.warn('[LINN] Firebase config not set — store running in local-only (no real-time sync) mode');return}try{if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);fsdb=firebase.firestore();firebase.auth().signInAnonymously().then(cred=>{fsUid=cred.user.uid;attachStoreListeners()}).catch(err=>console.warn('[LINN] anonymous sign-in failed',err))}catch(err){console.warn('[LINN] Firebase init failed',err)}}
 function attachStoreListeners(){if(!fsdb||!fsUid)return;
