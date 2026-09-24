@@ -533,7 +533,7 @@ async function sendOtpCode(email){
     const res=await fetch(AUTH_BASE+'/auth/send-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
     if(!res.ok){const d=await res.json().catch(()=>({}));showToast(d.error||'Code ပို့မရပါ — Worker route စစ်ပါ','bad');return false}
     return true;
-  }catch(e){showToast('Network error — code ပို့မရပါ','bad');return false}
+  }catch(e){console.error('[LINN] send-code failed',e);showToast('Worker ကို ချိတ်မရပါ — AUTH_BASE URL နဲ့ deploy စစ်ပါ','bad');return false}
 }
 function submitEmailForm(){authState.mode==='register'?registerWithEmail():loginWithEmail()}
 async function registerWithEmail(){
