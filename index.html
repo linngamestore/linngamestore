@@ -79,6 +79,20 @@ html,body{overflow-x:hidden;max-width:100vw}.force-mobile .sidebar{display:none!
 .hero-card,.hero-visual,.hero-banner{border:1px solid var(--glass-b)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 34px rgba(60,20,90,.2)}
 .hero-promo{backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 .status,.badge,.badge-new,.balance-pill,.avatar,.verified-badge,.toast-ico,.profile-photo-edit,.podium-avatar,.lb-avatar,.order-icon,.id-dot{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+
+/* ===== Readability boost + pure pink buttons ===== */
+:root{--muted:#d6cfe8}
+.theme-light{--muted:#4a3f5c}
+.nav-label,.footer-note{color:var(--muted)!important}
+.field label,.field-soft label{color:var(--text)!important;font-size:12px;font-weight:600;opacity:.95}
+.field input::placeholder,.field-soft input::placeholder,.search input::placeholder{color:var(--muted);opacity:.7}
+.notice.info{color:#d4f8ff!important}.notice.success{color:#d2fce6!important}.notice.warning{color:#ffeebd!important}
+.theme-light .notice.info{color:#0d4d5c!important}.theme-light .notice.success{color:#0e5a34!important}.theme-light .notice.warning{color:#6a4700!important}
+.chip{color:var(--text)}
+.btn-primary,.btn-check-soft,.catalog-tab.active,.lb-tab.active,.theme-light .catalog-tab.active{background:linear-gradient(180deg,rgba(255,255,255,.24),transparent 52%),linear-gradient(135deg,#ff5fae,#f5268c)!important;color:#fff!important;border:1px solid rgba(255,255,255,.4)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 8px 22px rgba(245,38,140,.32)!important;text-shadow:0 1px 1px rgba(120,0,60,.3)}
+.btn-primary:disabled,.btn-check-soft:disabled{opacity:.6}
+.btn-soft{color:var(--text)}
+.otp-input{letter-spacing:8px;text-align:center;font-size:20px!important;font-weight:700}
 </style>
 </head>
 <body>
@@ -164,12 +178,13 @@ html,body{overflow-x:hidden;max-width:100vw}.force-mobile .sidebar{display:none!
 
 <div id="authStepEmail" class="hide">
 <div style="display:flex;gap:3px;background:linear-gradient(180deg,var(--glass-hi),transparent 60%),var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);border-radius:13px;padding:3px;margin-bottom:14px">
-<button type="button" class="btn" id="authTabLogin" style="flex:1;background:linear-gradient(180deg,rgba(255,255,255,.3),transparent 55%),linear-gradient(135deg,var(--purple),#7a4fe0);border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)" onclick="setAuthMode('login')">Login</button>
+<button type="button" class="btn btn-primary" id="authTabLogin" style="flex:1" onclick="setAuthMode('login')">Login</button>
 <button type="button" class="btn btn-soft" id="authTabRegister" style="flex:1;border:0" onclick="setAuthMode('register')">Register</button>
 </div>
 <div class="field full hide" id="authNameField"><label>Display name</label><input id="authName" placeholder="Your name" maxlength="30" /></div>
 <div class="field full"><label>Email address</label><input id="authEmail" type="email" placeholder="you@example.com" /></div>
-<div class="field full"><label>Password</label><input id="authPassword" type="password" placeholder="At least 6 characters" /></div>
+<div class="field full" id="authPasswordField"><label>Password</label><input id="authPassword" type="password" placeholder="Password" /></div>
+<div class="notice info hide" id="authRegisterHint" style="margin-top:0">Email ကို OTP code ပို့ပေးပါမယ် — code မှန်ရင် Password ထည့်ရပါမယ်။</div>
 <div class="notice warning hide" id="authEmailError"></div>
 <div style="display:flex;gap:10px;margin-top:4px">
 <button class="btn btn-soft" style="flex:none" onclick="setAuthStep('method')">← Back</button>
@@ -179,13 +194,23 @@ html,body{overflow-x:hidden;max-width:100vw}.force-mobile .sidebar{display:none!
 
 <div id="authStepOtp" class="hide">
 <div class="notice info">Verification code ကို <strong id="authOtpEmailLabel"></strong> ကို ပို့ထားပါသည်။ 5 မိနစ်အတွင်း ရိုက်ထည့်ပါ။</div>
-<div class="field full"><label>6-digit code</label><input id="authOtpCode" inputmode="numeric" maxlength="6" placeholder="000000" style="letter-spacing:6px;text-align:center;font-size:18px" /></div>
+<div class="field full"><label>6-digit code</label><input id="authOtpCode" class="otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')submitOtpCode()" /></div>
 <div class="notice warning hide" id="authOtpError"></div>
 <div style="display:flex;gap:10px;margin-top:4px">
 <button class="btn btn-soft" style="flex:none" onclick="setAuthStep('email')">← Back</button>
 <button class="btn btn-primary" style="flex:1" id="authOtpSubmitBtn" onclick="submitOtpCode()">Verify</button>
 </div>
 <button class="btn btn-soft" style="width:100%;margin-top:10px" onclick="resendOtpCode()">Resend code</button>
+</div>
+
+<div id="authStepPassword" class="hide">
+<div class="notice success">✓ Email verify ပြီးပါပြီ — <strong id="authPwEmailLabel"></strong><br>Account အတွက် Password သတ်မှတ်ပါ။</div>
+<div class="field full"><label>New password</label><input id="authNewPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters" /></div>
+<div class="field full"><label>Confirm password</label><input id="authConfirmPassword" type="password" autocomplete="new-password" placeholder="Password ပြန်ရိုက်ပါ" onkeydown="if(event.key==='Enter')confirmPassword()" /></div>
+<div class="notice warning hide" id="authPasswordError"></div>
+<div style="display:flex;gap:10px;margin-top:4px">
+<button class="btn btn-primary" style="flex:1" id="authPwSubmitBtn" onclick="confirmPassword()">Confirm</button>
+</div>
 </div>
 
 </div></div></div>
@@ -410,23 +435,24 @@ function openAuthModal(){
 }
 function closeAuthModal(){document.getElementById('authModal').classList.remove('show')}
 function setAuthStep(step){
-  ['method','email','otp'].forEach(s=>{
+  ['method','email','otp','password'].forEach(s=>{
     const el=document.getElementById('authStep'+s.charAt(0).toUpperCase()+s.slice(1));
     if(el)el.classList.toggle('hide',s!==step);
   });
-  const titles={method:'Sign in',email:authState.mode==='register'?'Create account':'Login',otp:'Verify email'};
+  const titles={method:'Sign in',email:authState.mode==='register'?'Create account':'Login',otp:'Verify email',password:'Set password'};
   document.getElementById('authModalTitle').textContent=titles[step]||'Sign in';
   if(step==='email')setAuthMode(authState.mode||'login');
 }
 function setAuthMode(mode){
   authState.mode=mode;
-  document.getElementById('authTabLogin').className='btn'+(mode==='login'?'':' btn-soft');
-  document.getElementById('authTabLogin').style.background=mode==='login'?'var(--purple)':'';
-  document.getElementById('authTabRegister').className='btn'+(mode==='register'?'':' btn-soft');
-  document.getElementById('authTabRegister').style.background=mode==='register'?'var(--purple)':'';
-  document.getElementById('authNameField').classList.toggle('hide',mode!=='register');
-  document.getElementById('authEmailSubmitBtn').textContent=mode==='register'?'Register':'Login';
-  document.getElementById('authModalTitle').textContent=mode==='register'?'Create account':'Login';
+  const reg=mode==='register';
+  document.getElementById('authTabLogin').className='btn '+(reg?'btn-soft':'btn-primary');
+  document.getElementById('authTabRegister').className='btn '+(reg?'btn-primary':'btn-soft');
+  document.getElementById('authNameField').classList.toggle('hide',!reg);
+  document.getElementById('authPasswordField').classList.toggle('hide',reg);
+  document.getElementById('authRegisterHint').classList.toggle('hide',!reg);
+  document.getElementById('authEmailSubmitBtn').textContent=reg?'Send OTP':'Login';
+  document.getElementById('authModalTitle').textContent=reg?'Create account':'Login';
   const err=document.getElementById('authEmailError');err.classList.add('hide');err.textContent='';
 }
 function authErrorMessage(e){
@@ -493,20 +519,24 @@ function submitEmailForm(){authState.mode==='register'?registerWithEmail():login
 async function registerWithEmail(){
   const name=document.getElementById('authName').value.trim();
   const email=document.getElementById('authEmail').value.trim();
-  const pass=document.getElementById('authPassword').value;
   const err=document.getElementById('authEmailError');err.classList.add('hide');
   if(!name){err.textContent='Name ထည့်ပါ';err.classList.remove('hide');return}
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Email ပုံစံ မမှန်ကန်ပါ';err.classList.remove('hide');return}
-  if(pass.length<6){err.textContent='Password အနည်းဆုံး ၆ လုံး ရှိရပါမည်';err.classList.remove('hide');return}
-  const btn=document.getElementById('authEmailSubmitBtn');btn.disabled=true;btn.textContent='...';
+  const btn=document.getElementById('authEmailSubmitBtn');btn.disabled=true;btn.textContent='Sending...';
   try{
-    await firebase.auth().createUserWithEmailAndPassword(email,pass);
-    if(fsdb)fsdb.collection('emailVerifications').doc(email.toLowerCase()).set({name,verified:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(()=>{});
-    authState.pendingEmail=email;authState.pendingName=name;
+    // Stop early if this email already has a password account
+    try{const m=await firebase.auth().fetchSignInMethodsForEmail(email);if(m&&m.length){err.textContent=authErrorMessage({code:'auth/email-already-in-use'});err.classList.remove('hide');return}}catch(_){}
+    authState.pendingEmail=email;authState.pendingName=name;authState.flow='register';
     const sent=await sendOtpCode(email);
-    if(sent){document.getElementById('authOtpEmailLabel').textContent=email;setAuthStep('otp')}
+    if(sent){
+      document.getElementById('authOtpEmailLabel').textContent=email;
+      document.getElementById('authOtpCode').value='';
+      const oe=document.getElementById('authOtpError');oe.classList.add('hide');
+      setAuthStep('otp');
+      setTimeout(()=>{const i=document.getElementById('authOtpCode');if(i)i.focus()},150);
+    }
   }catch(e){err.textContent=authErrorMessage(e);err.classList.remove('hide')}
-  finally{btn.disabled=false;btn.textContent='Register'}
+  finally{btn.disabled=false;btn.textContent='Send OTP'}
 }
 async function loginWithEmail(){
   const email=document.getElementById('authEmail').value.trim();
@@ -517,7 +547,7 @@ async function loginWithEmail(){
     await firebase.auth().signInWithEmailAndPassword(email,pass);
     const doc=fsdb?await fsdb.collection('emailVerifications').doc(email.toLowerCase()).get():null;
     if(!doc||!doc.exists||!doc.data().verified){
-      authState.pendingEmail=email;authState.pendingName=(doc&&doc.exists&&doc.data().name)||'';
+      authState.pendingEmail=email;authState.flow='verifyExisting';authState.pendingName=(doc&&doc.exists&&doc.data().name)||'';
       const sent=await sendOtpCode(email);
       if(sent){document.getElementById('authOtpEmailLabel').textContent=email;showToast('Email verify လုပ်ရန် code ပို့ထားပါသည်','warn');setAuthStep('otp')}
       return;
@@ -542,16 +572,48 @@ async function submitOtpCode(){
     const data=await res.json().catch(()=>({}));
     if(!res.ok||!data.valid){err.textContent=data.error||'Code မှားနေပါသည် (သို့) သက်တမ်းကုန်သွားပါပြီ';err.classList.remove('hide');return}
     if(data.conflict){closeAuthModal();await switchToCanonicalGuest(data.canonicalGuestId);return}
-    const wasGuest=!localStorage.getItem('linn_auth_method');
+    if(authState.flow==='register'){
+      authState.otpVerified=true;
+      document.getElementById('authPwEmailLabel').textContent=authState.pendingEmail;
+      ['authNewPassword','authConfirmPassword'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('authPasswordError').classList.add('hide');
+      setAuthStep('password');
+      setTimeout(()=>{const i=document.getElementById('authNewPassword');if(i)i.focus()},150);
+      return;
+    }
     if(fsdb)await fsdb.collection('emailVerifications').doc(authState.pendingEmail.toLowerCase()).set({verified:true,name:authState.pendingName||''},{merge:true}).catch(()=>{});
-    localStorage.setItem('linn_customer_name',localStorage.getItem('linn_customer_name')||authState.pendingName||'');
-    localStorage.setItem('linn_google_email',authState.pendingEmail);
-    localStorage.setItem('linn_auth_method',localStorage.getItem('linn_auth_method')||'email');
-    updateProfileHeader();syncCustomerProfile();loadAccountLinks();
-    showToast('Email ချိတ်ဆက်ပြီးပါပြီ','ok');
-    if(wasGuest){closeAuthModal();if(pendingAfterAuth){const fn=pendingAfterAuth;pendingAfterAuth=null;fn()}}
+    finishEmailAuth();
   }catch(e){err.textContent='Network error — ပြန်ကြိုးစားပါ';err.classList.remove('hide')}
   finally{btn.disabled=false;btn.textContent='Verify'}
+}
+
+function finishEmailAuth(){
+  const wasGuest=!localStorage.getItem('linn_auth_method');
+  localStorage.setItem('linn_customer_name',localStorage.getItem('linn_customer_name')||authState.pendingName||'');
+  localStorage.setItem('linn_google_email',authState.pendingEmail);
+  localStorage.setItem('linn_auth_method',localStorage.getItem('linn_auth_method')||'email');
+  updateProfileHeader();syncCustomerProfile();loadAccountLinks();
+  showToast('Email ချိတ်ဆက်ပြီးပါပြီ','ok');
+  if(wasGuest){closeAuthModal();if(pendingAfterAuth){const fn=pendingAfterAuth;pendingAfterAuth=null;fn()}}
+  else setAuthStep('method');
+}
+async function confirmPassword(){
+  const pass=document.getElementById('authNewPassword').value;
+  const pass2=document.getElementById('authConfirmPassword').value;
+  const err=document.getElementById('authPasswordError');err.classList.add('hide');
+  const fail=m=>{err.textContent=m;err.classList.remove('hide')};
+  if(!authState.otpVerified||!authState.pendingEmail){fail('OTP အရင် verify လုပ်ပါ');setAuthStep('email');return}
+  if(pass.length<6)return fail('Password အနည်းဆုံး ၆ လုံး ရှိရပါမည်');
+  if(pass!==pass2)return fail('Password နှစ်ခု မတူပါ — ပြန်စစ်ပါ');
+  const btn=document.getElementById('authPwSubmitBtn');btn.disabled=true;btn.textContent='...';
+  try{
+    await firebase.auth().createUserWithEmailAndPassword(authState.pendingEmail,pass);
+    if(fsdb)await fsdb.collection('emailVerifications').doc(authState.pendingEmail.toLowerCase()).set({name:authState.pendingName||'',verified:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(()=>{});
+    authState.otpVerified=false;
+    showToast('Account ဖန်တီးပြီးပါပြီ 🎉','ok');
+    finishEmailAuth();
+  }catch(e){fail(authErrorMessage(e))}
+  finally{btn.disabled=false;btn.textContent='Confirm'}
 }
 
 let unsubOrders=null;
