@@ -286,13 +286,11 @@
         }
         .header-lang-toggle:active { transform: scale(0.94); }
         .header-lang-toggle-thumb {
-            width: 27px; height: 26px; border-radius: 13px; background: #fff; color: var(--accent);
-            font-size: 11.5px; font-weight: 700; letter-spacing: 0.2px;
-            display: flex; align-items: center; justify-content: center;
+            width: 26px; height: 26px; border-radius: 50%; background: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.14);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.2s ease;
         }
-        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(24px); }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(24px); background: var(--accent); }
         /* Messenger / Telegram quick-contact circles in the header */
         .header-social-btn {
             width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
@@ -304,6 +302,10 @@
         .header-social-btn svg { width: 17px; height: 17px; }
         .header-social-btn.messenger-btn { background: linear-gradient(135deg,#4facfe,#2266dd); }
         .header-social-btn.telegram-btn { background: linear-gradient(135deg,#5ac8fa,#0088cc); }
+        /* Skeleton state (before settings/social resolves): plain shimmer
+           circle, brand gradient + icon hidden underneath. */
+        .header-social-btn.skel { background: linear-gradient(90deg, var(--border) 25%, var(--skel-shine) 37%, var(--border) 63%); background-size: 400% 100%; }
+        .header-social-btn.skel svg { display: none; }
         /* "slice" (not the default "meet") crops the wide 60x40 flag to fill
            the whole circle instead of letterboxing it into a smaller
            rounded-square in the middle. */
@@ -339,7 +341,7 @@
             overflow: hidden;
         }
         .onboarding-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
-        .onboarding-title { font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 22px; }
+        .onboarding-title { font-size: 19px; font-weight: 600; color: var(--text); margin-bottom: 22px; }
         .onboarding-sub { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 20px; line-height: 1.5; }
         .onboarding-spinner {
             display: inline-block; width: 26px; height: 26px; margin: 10px 0;
@@ -362,7 +364,7 @@
         }
         .onboarding-start-btn {
             width: 100%; padding: 13px 12px; border: none; border-radius: 14px; cursor: pointer;
-            font-size: 15px; font-weight: 700; color: #fff;
+            font-size: 15px; font-weight: 600; color: #fff;
             background: linear-gradient(135deg, #8B5CF6, #7C3AED);
             box-shadow: 0 8px 20px rgba(124,58,237,0.4);
             animation: onboard-start-in 0.35s ease;
@@ -408,7 +410,7 @@
            #software so each page-section shows the correct active state
            without extra JS; switching still just calls showPage(). */
         .game-subtab-bar { display:flex; gap:6px; background:var(--surface-alt); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:14px; }
-        .game-subtab-btn { flex:1; text-align:center; padding:9px 0; border-radius:11px; font-size:13.5px; font-weight:700; color:var(--text-secondary); cursor:pointer; transition:background .18s,color .18s; user-select:none; }
+        .game-subtab-btn { flex:1; text-align:center; padding:9px 0; border-radius:11px; font-size:13.5px; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:background .18s,color .18s; user-select:none; }
         .game-subtab-btn.active { background:var(--accent); color:#fff; }
         .skel-software-card { border-radius:14px; overflow:hidden; background:var(--surface); border:1px solid var(--border); }
         .skel-software-card .skel-img { aspect-ratio:1/1; }
@@ -424,10 +426,10 @@
         .dash-stat-wallet .dash-stat-label { color:rgba(255,255,255,0.75); }
         .dash-stat-wallet .dash-stat-value { color:#fff; }
         .dash-stat-label { display:block; font-size:11.5px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; }
-        .dash-stat-value { font-size:18px; font-weight:700; color:var(--text); margin-top:4px; font-variant-numeric:tabular-nums; }
+        .dash-stat-value { font-size:18px; font-weight:600; color:var(--text); margin-top:4px; font-variant-numeric:tabular-nums; }
         .dash-guide-steps { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
         .dash-guide-step { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
-        .dash-guide-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-size:13.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+        .dash-guide-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:center; }
         .dash-guide-text { font-size:13.5px; font-weight:500; color:var(--text); }
         .push-toggle-thumb {
             width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(160deg,#fff,#dfe8f5);
@@ -498,7 +500,7 @@
         .notif-badge {
             position: absolute; display: none; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box;
             border-radius: 9px; background: #E53935; color: #fff; border: 2px solid var(--surface);
-            font-size: 10px; font-weight: 700; line-height: 14px; text-align: center; pointer-events: none;
+            font-size: 10px; font-weight: 600; line-height: 14px; text-align: center; pointer-events: none;
         }
         .notif-badge.show { display: block; animation: notifPulse 1.8s ease-in-out infinite; }
         .header-icon .notif-badge { top: -5px; right: -5px; }
@@ -528,7 +530,7 @@
         .order-ok-check .ui-icon { width: 34px; height: 34px; stroke-width: 3; }
         .order-ok-overlay.show .order-ok-check { animation: orderOkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both; }
         @keyframes orderOkPop { from { transform: scale(0); } to { transform: scale(1); } }
-        .order-ok-title { font-size: 20px; font-weight: 700; letter-spacing: 0.2px; }
+        .order-ok-title { font-size: 20px; font-weight: 600; letter-spacing: 0.2px; }
         .order-ok-sub { margin-top: 6px; font-size: 13px; opacity: 0.92; word-break: break-word; }
         /* Favorite (star) toggle on the game detail page header - filled gold
            when this game is in the customer's favorites, outline otherwise. */
@@ -710,7 +712,7 @@
         .notif-item .notif-kv .v { font-size: 12.5px; color: var(--text); font-weight: 500; text-align: right; min-width: 0; word-break: break-all; }
         .notif-item .notif-kv .v.mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
         /* Unread count inside the "Unread" tab + "Mark all read" link */
-        .notif-tab-count { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #E53935; color: #fff; font-size: 10.5px; font-weight: 700; line-height: 18px; text-align: center; }
+        .notif-tab-count { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #E53935; color: #fff; font-size: 10.5px; font-weight: 600; line-height: 18px; text-align: center; }
         .notif-markall { margin-left: auto; flex-shrink: 0; background: none; border: none; padding: 6px 2px; font-size: 12.5px; font-weight: 600; color: var(--accent); cursor: pointer; }
         .notif-markall:active { opacity: 0.6; }
         /* Unread <-> Read switch (tap or swipe): the list slides in from the side the finger moved towards */
@@ -744,7 +746,7 @@
             background: #1877F2;
             color: #fff;
             font-size: 9px;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: 0.3px;
             padding: 4px 8px;
             border-radius: 10px;
@@ -798,10 +800,10 @@
         }
         .flash-sale-icon { font-size: 26px; flex-shrink: 0; }
         .flash-sale-body { flex: 1; min-width: 0; }
-        .flash-sale-title { font-weight: 700; font-size: 14.5px; }
+        .flash-sale-title { font-weight: 600; font-size: 14.5px; }
         .flash-sale-desc { font-size: 12.5px; opacity: 0.92; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .flash-sale-countdown {
-            flex-shrink: 0; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 13.5px;
+            flex-shrink: 0; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13.5px;
             background: rgba(255,255,255,0.22); padding: 6px 10px; border-radius: 10px;
             animation: flashSalePulse 1.4s ease-in-out infinite;
         }
@@ -814,16 +816,16 @@
            Each slide is a 16:9 image; until its <img> loads (or if it
            fails/has no src), the slide just shows the shimmering skeleton
            — no text/icon placeholder underneath. */
-        .home-banner-carousel { margin-bottom: 18px; }
+        .home-banner-carousel { margin-bottom: 18px; overflow: hidden; border-radius: 8px; }
         .home-banner-track {
-            display: flex; width: 300%; border-radius: 8px; overflow: hidden;
+            display: flex; border-radius: 8px;
             transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
             touch-action: pan-y;
         }
         .home-banner-track.dragging { transition: none; }
         .home-banner-slide {
-            position: relative; width: 33.3333%; flex-shrink: 0; aspect-ratio: 16 / 9;
-            overflow: hidden;
+            position: relative; flex: 0 0 100%; width: 100%; aspect-ratio: 16 / 9;
+            overflow: hidden; border-radius: 8px;
             background: linear-gradient(90deg, var(--border) 25%, var(--skel-shine) 37%, var(--border) 63%);
             background-size: 400% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite;
             user-select: none; -webkit-user-select: none;
@@ -831,16 +833,20 @@
         .home-banner-slide.img-ready { animation: none; background: var(--border); }
         .home-banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.25s ease; }
         .home-banner-slide.img-ready img { opacity: 1; }
-        /* Sheen sweep: a soft light band glides across the loaded banner
-           image every few seconds, then pauses off-screen before repeating —
-           purely decorative, only runs once the real image is showing. */
-        .home-banner-slide.img-ready::after {
+        /* Light-sweep spotlight: a bright band glides across the slide and
+           its image pops in with a slight overshoot, one shot, only when
+           that slide becomes the active one (swipe or auto-advance) — not
+           a continuous idle loop. Triggered by adding .slide-enter in JS. */
+        .home-banner-slide::after {
             content: ''; position: absolute; top: 0; left: -60%; width: 50%; height: 100%;
-            background: linear-gradient(115deg, transparent, rgba(255,255,255,0.35), transparent);
-            animation: bannerSheen 3s ease-in-out infinite; pointer-events: none;
+            background: linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent);
+            opacity: 0; pointer-events: none; mix-blend-mode: overlay;
         }
-        @keyframes bannerSheen { 0% { left: -60%; } 20% { left: 120%; } 100% { left: 120%; } }
-        @media (prefers-reduced-motion: reduce) { .home-banner-slide { animation: none; } .home-banner-slide.img-ready::after { animation: none; display: none; } }
+        .home-banner-slide.slide-enter::after { animation: bannerSweepOnce 0.7s ease-out; }
+        .home-banner-slide.slide-enter img { animation: bannerPopOnce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes bannerSweepOnce { 0% { left: -60%; opacity: 1; } 70% { opacity: 1; } 100% { left: 120%; opacity: 0; } }
+        @keyframes bannerPopOnce { 0% { transform: scale(0.94); } 55% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .home-banner-slide { animation: none; } .home-banner-slide.slide-enter::after, .home-banner-slide.slide-enter img { animation: none; } }
         .home-banner-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
         .home-banner-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.25s, width 0.25s; }
         .home-banner-dot.active { width: 16px; border-radius: 3px; background: var(--accent); }
@@ -1112,7 +1118,7 @@
         }
         .voucher-card-tag {
             position: absolute; top: 8px; left: 8px; z-index: 2;
-            padding: 3px 8px; border-radius: 8px; font-size: 8.5px; font-weight: 700;
+            padding: 3px 8px; border-radius: 8px; font-size: 8.5px; font-weight: 600;
             letter-spacing: 0.4px; text-transform: uppercase; color: #fff;
             background: rgba(60,20,110,0.55); border: 1px solid rgba(255,255,255,0.3);
         }
@@ -1154,7 +1160,7 @@
         .history-date-header { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 16px 2px 8px; }
         .history-date-header:first-of-type { margin-top: 2px; }
 
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; }
+        .badge { padding: 5px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; }
         .badge-success { background: #E6F7EC; color: #1E8E4F; }
         .badge-warning { background: #FFF4CC; color: #9A6B00; }
         .badge-danger { background: #FDE8E8; color: #C0392B; }
@@ -1166,7 +1172,7 @@
         @keyframes statusPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.55); } }
         .status-anim-spin { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border: 2px solid rgba(24,119,242,0.25); border-top-color: #1877F2; border-radius: 50%; animation: statusSpin 0.7s linear infinite; }
         @keyframes statusSpin { to { transform: rotate(360deg); } }
-        .status-anim-check { display: inline-block; margin-right: 3px; font-weight: 800; animation: statusPop 0.35s ease; }
+        .status-anim-check { display: inline-block; margin-right: 3px; font-weight: 700; animation: statusPop 0.35s ease; }
         @keyframes statusPop { 0% { transform: scale(0); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
 
         /* ===================== ORDER STATUS TIMELINE =====================
@@ -1203,9 +1209,9 @@
         .otm-line.done { background: #1E8E4F; }
         .otm-line.fail { background: #D93025; }
 
-        .od-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--bg); font-size: 13px; }
-        .od-row span { color: var(--text-secondary); }
-        .od-row b { color: var(--text); font-weight: 500; text-align: right; }
+        .od-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--bg); font-size: 14.5px; line-height: 1.4; }
+        .od-row span { color: var(--text-secondary); flex-shrink: 0; }
+        .od-row b { color: var(--text); font-weight: 600; text-align: right; word-break: break-word; }
         .od-row:last-of-type { border-bottom: none; }
 
         /* Prominent "your voucher code" card — shown at the very top of the
@@ -1273,7 +1279,7 @@
         .lb-row { display: flex; align-items: center; gap: 12px; padding: 12px 10px; margin-bottom: 8px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform .15s ease; }
         .lb-row:active { transform: scale(0.98); }
         .lb-row:last-child { margin-bottom: 0; }
-        .lb-rank { width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: var(--surface-alt); text-align: center; font-size: 13px; font-weight: 700; color: var(--text-muted); }
+        .lb-rank { width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: var(--surface-alt); text-align: center; font-size: 13px; font-weight: 600; color: var(--text-muted); }
         .lb-rank.lb-rank-1 { color: #fff; background: linear-gradient(135deg, #F4D06F, #D4A017); box-shadow: 0 2px 6px rgba(212,160,23,0.35); }
         .lb-rank.lb-rank-2 { color: #fff; background: linear-gradient(135deg, #C7CFDA, #8E9AAF); box-shadow: 0 2px 6px rgba(142,154,175,0.35); }
         .lb-rank.lb-rank-3 { color: #fff; background: linear-gradient(135deg, #C98B5E, #A9673A); box-shadow: 0 2px 6px rgba(169,103,58,0.35); }
@@ -1281,7 +1287,7 @@
         .lb-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .lb-info { flex: 1; min-width: 0; }
         .lb-info .lb-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .lb-amount { text-align: right; font-size: 13.5px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+        .lb-amount { text-align: right; font-size: 13.5px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
         .lb-you-row { background: var(--accent-soft); border-radius: 14px; margin-top: 10px; border: 1px dashed var(--accent); padding: 12px 10px; }
 
         /* Top-3 podium — the #1/#2/#3 spenders get an elevated card layout
@@ -1291,20 +1297,20 @@
         .lb-podium-slot.rank-1 { order: 2; padding-top: 22px; padding-bottom: 18px; background: linear-gradient(180deg, rgba(212,160,23,0.14), var(--surface) 55%); border-color: rgba(212,160,23,0.45); }
         .lb-podium-slot.rank-2 { order: 1; background: linear-gradient(180deg, rgba(142,154,175,0.14), var(--surface) 55%); border-color: rgba(142,154,175,0.4); }
         .lb-podium-slot.rank-3 { order: 3; background: linear-gradient(180deg, rgba(169,103,58,0.14), var(--surface) 55%); border-color: rgba(169,103,58,0.4); }
-        .lb-podium-medal { position: absolute; top: -12px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
+        .lb-podium-medal { position: absolute; top: -12px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
         .lb-podium-slot.rank-1 .lb-podium-medal { background: linear-gradient(135deg, #F4D06F, #D4A017); }
         .lb-podium-slot.rank-2 .lb-podium-medal { background: linear-gradient(135deg, #C7CFDA, #8E9AAF); }
         .lb-podium-slot.rank-3 .lb-podium-medal { background: linear-gradient(135deg, #C98B5E, #A9673A); }
-        .lb-podium-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; overflow: hidden; border: 3px solid var(--surface); box-shadow: 0 0 0 2px currentColor; }
+        .lb-podium-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 20px; overflow: hidden; border: 3px solid var(--surface); box-shadow: 0 0 0 2px currentColor; }
         .lb-podium-slot.rank-1 .lb-podium-avatar { width: 68px; height: 68px; font-size: 24px; }
         .lb-podium-slot.rank-1 .lb-podium-avatar { color: #D4A017; }
         .lb-podium-slot.rank-2 .lb-podium-avatar { color: #8E9AAF; }
         .lb-podium-slot.rank-3 .lb-podium-avatar { color: #A9673A; }
         .lb-podium-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .lb-podium-name { font-size: 13px; font-weight: 600; color: var(--text); text-align: center; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-        .lb-podium-amount { font-size: 12.5px; font-weight: 700; color: var(--text-secondary); }
+        .lb-podium-amount { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); }
         .lb-title { display: flex; align-items: center; gap: 10px; }
-        .live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: 0.6px; padding: 3px 8px; border-radius: 7px; background: rgba(239,68,68,0.12); color: #DC2626; }
+        .live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; letter-spacing: 0.6px; padding: 3px 8px; border-radius: 7px; background: rgba(239,68,68,0.12); color: #DC2626; }
         .live-badge i { width: 6px; height: 6px; border-radius: 50%; background: #EF4444; animation: liveDotPulse 1.4s ease-in-out infinite; }
         .live-badge.off { background: var(--surface-alt); color: var(--text-muted); }
         .live-badge.off i { background: var(--text-muted); animation: none; }
@@ -1315,8 +1321,8 @@
         .lb-strip { display: flex; gap: 12px; overflow-x: auto; padding: 8px 2px 12px; margin-bottom: 6px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scrollbar-width: none; }
         .lb-strip::-webkit-scrollbar { display: none; }
         .lb-st { flex: 0 0 auto; width: 62px; text-align: center; position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .lb-st-av { width: 58px; height: 58px; border-radius: 18px; background: var(--accent-soft); color: var(--accent); border: 2.5px solid var(--st-c, var(--border)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; margin: 0 auto 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.06); }
-        .lb-st-badge { position: absolute; top: -5px; right: 0; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 8px; background: var(--st-c, var(--text-muted)); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--bg); z-index: 1; }
+        .lb-st-av { width: 58px; height: 58px; border-radius: 18px; background: var(--accent-soft); color: var(--accent); border: 2.5px solid var(--st-c, var(--border)); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 20px; margin: 0 auto 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.06); }
+        .lb-st-badge { position: absolute; top: -5px; right: 0; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 8px; background: var(--st-c, var(--text-muted)); color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--bg); z-index: 1; }
         .lb-st-name { font-size: 11.5px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .lb-st.rank-1 { --st-c: #D4A017; } .lb-st.rank-1 .lb-st-av { background: linear-gradient(160deg, rgba(212,160,23,0.18), var(--accent-soft)); }
         .lb-st.rank-2 { --st-c: #8E9AAF; } .lb-st.rank-2 .lb-st-av { background: linear-gradient(160deg, rgba(142,154,175,0.18), var(--accent-soft)); }
@@ -1502,13 +1508,13 @@
         .ld-grid i:nth-child(9) { animation-delay: .4s; }
         @keyframes ldGrid { 0%, 100% { opacity: .2; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
         /* Animated "LINN" wordmark: letters rise and glow in sequence */
-        .linn-anim { display: inline-flex; gap: 3px; margin-top: 14px; font-size: 15px; font-weight: 800; letter-spacing: 2px; }
+        .linn-anim { display: inline-flex; gap: 3px; margin-top: 14px; font-size: 15px; font-weight: 700; letter-spacing: 2px; }
         .linn-anim span { color: var(--text-muted); animation: linnLetter 1.2s ease-in-out infinite; }
         .linn-anim span:nth-child(2) { animation-delay: .15s; } .linn-anim span:nth-child(3) { animation-delay: .3s; } .linn-anim span:nth-child(4) { animation-delay: .45s; }
         @keyframes linnLetter { 0%, 60%, 100% { transform: translateY(0); color: var(--text-muted); } 30% { transform: translateY(-5px); color: var(--accent); } }
         @media (prefers-reduced-motion: reduce) { .ld-bars i, .ld-dots i, .ld-flip, .ld-bar i, .ld-ripple i, .ld-grid i, .linn-anim span { animation: none; } }
         .page-loading-label {
-            margin-top: 12px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+            margin-top: 12px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
             color: var(--text-muted);
         }
 
@@ -1532,7 +1538,7 @@
         .pay-type-tab { flex: 1; text-align: center; padding: 9px 0; border: none; background: transparent; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: 0.15s; }
         .pay-type-tab.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
         .wallet-pay-box .wallet-pay-balance-label { font-size: 12.5px; color: var(--text-secondary); }
-        .wallet-pay-box .wallet-pay-balance-amount { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 2px; }
+        .wallet-pay-box .wallet-pay-balance-amount { font-size: 20px; font-weight: 600; color: var(--text); margin-top: 2px; }
         .wallet-pay-box .wallet-pay-note { font-size: 12.5px; margin-top: 6px; line-height: 1.4; }
         .wallet-pay-box .wallet-pay-note.ok { color: #31A24C; }
         .wallet-pay-box .wallet-pay-note.low { color: #E53935; }
@@ -1628,7 +1634,7 @@
             margin-top: 0; padding: 7px 6px; background: rgba(255,255,255,0.14);
             border-top: 1px solid rgba(255,255,255,0.22);
         }
-        .package-card.type-currency .pc-price { font-size: 12px; color: #fff; font-weight: 700; }
+        .package-card.type-currency .pc-price { font-size: 12px; color: #fff; font-weight: 600; }
         .package-card.type-currency.selected { box-shadow: 0 0 0 2.5px #fff, 0 0 0 5px rgba(var(--accent-rgb),0.35); }
         /* Direct top-up price card — plain product-card layout (image on
            top, currency/amount name as a normal label, price as a footer
@@ -1698,7 +1704,7 @@
         .pc-stock-badge.stock-low { color: #E11D2E; }
         html[data-theme="dark"] .pc-stock-badge.stock-low { color: #FF6B6B; }
         .pc-stock-badge.stock-out {
-            color: #E11D2E; font-weight: 700; text-transform: uppercase;
+            color: #E11D2E; font-weight: 600; text-transform: uppercase;
             font-size: 8.5px; letter-spacing: 0.2px;
         }
         html[data-theme="dark"] .pc-stock-badge.stock-out { color: #FF6B6B; }
@@ -1712,7 +1718,7 @@
         .pc-tag {
             display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0;
             padding: 2px 7px 2px 5px; border-radius: 10px;
-            font-size: 9.5px; font-weight: 700; letter-spacing: 0.2px; color: #fff;
+            font-size: 9.5px; font-weight: 600; letter-spacing: 0.2px; color: #fff;
             white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.25);
         }
         .pc-tag-icon { width: 9px; height: 9px; flex-shrink: 0; }
@@ -1733,7 +1739,7 @@
         .package-card.type-topup .pc-price, .package-card.type-currency .pc-price {
             display: inline-flex; align-items: baseline; justify-content: center; gap: 2px;
             box-sizing: border-box; min-width: 88px; max-width: 100%;
-            padding: 3px 6px; border-radius: 8px; color: #fff; font-size: 12px; font-weight: 700; line-height: 1.3;
+            padding: 3px 6px; border-radius: 8px; color: #fff; font-size: 12px; font-weight: 600; line-height: 1.3;
             background: #1877F2;
             box-shadow: none;
             text-shadow: none;
@@ -1793,7 +1799,7 @@
             position: relative; display: flex; align-items: center; justify-content: center; gap: 6px;
             width: 100%; margin-top: 12px; padding: 11px 14px; border: none; border-radius: 11px;
             background: linear-gradient(135deg, #9B5CF6, #7C3AED); color: #fff;
-            font-size: 13.5px; font-weight: 700; cursor: pointer;
+            font-size: 13.5px; font-weight: 600; cursor: pointer;
             box-shadow: 0 4px 14px -4px rgba(124,58,237,0.55);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
@@ -1808,7 +1814,7 @@
             position: relative; display: flex; align-items: center; justify-content: center; gap: 6px;
             width: 100%; margin-top: 12px; padding: 11px 14px; border: none; border-radius: 11px;
             background: linear-gradient(135deg, #22C55E, #16A34A); color: #fff;
-            font-size: 13.5px; font-weight: 700; cursor: pointer;
+            font-size: 13.5px; font-weight: 600; cursor: pointer;
             box-shadow: 0 4px 14px -4px rgba(22,163,74,0.55);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
@@ -1930,7 +1936,7 @@
         .pm-qr-info-row .pm-qr-img { width: 92px; height: 92px; flex-shrink: 0; margin: 0; }
         .pm-qr-info-row .pm-info-grid { flex: 1; min-width: 0; justify-content: center; }
         .pm-info-box { min-width: 0; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 9px; padding: 6px 8px; }
-        .pm-info-box-label { display: block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 2px; }
+        .pm-info-box-label { display: block; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 2px; }
         .pm-info-box-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
         .pm-info-box-row p { font-size: 12.5px; font-weight: 600; color: var(--text); margin: 0; overflow-wrap: anywhere; line-height: 1.2; }
         .pm-info-box .pm-copy-btn { width: 22px; height: 22px; }
@@ -2055,7 +2061,7 @@
         .wallet-preset-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-color); box-shadow: 0 5px 14px rgba(var(--accent-rgb),0.35); }
         /* Minimum top-up notice: always visible under the presets, turns red when the typed amount is below the minimum */
         .wallet-min-note { margin: 10px 2px 0; font-size: 12px; line-height: 1.4; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-        .wallet-min-note::before { content: 'i'; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+        .wallet-min-note::before { content: 'i'; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
         .wallet-min-note.warn { color: #FF6B6B; font-weight: 600; }
         .wallet-min-hint { margin: 10px 0 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.6); position: relative; z-index: 2; }
         /* Modal open: drop the floating bottom nav underneath the sheet so it never covers the slide-to-submit button
@@ -2768,7 +2774,7 @@
         .or-actions .btn { flex: 1; margin: 0; }
         .or-btn-edit { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
         .or-id-val { font-family: monospace; font-size: 14px; letter-spacing: 0.3px; }
-        .od-total b { font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
+        .od-total b { font-size: 22px; font-weight: 600; color: var(--accent); letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
         .payment-option, .history-date-chip, .cat-filter-chip { border-radius: 18px; }
         .upload-shot-box { border-radius: 20px; }
 
@@ -2952,11 +2958,11 @@
 </head>
 <body>
 
-    <!-- Onboarding gate: Google sign-in -> language choice -> purple "Get
-         Started" button. Shown once per device; completing it sets
+    <!-- Onboarding gate: Google sign-in (or Guest), then straight into the
+         app. Shown once per device; completing it sets
          localStorage['linn_onboarded']='1' so it's skipped on every later
-         visit. If a Google session already exists (returning device), the
-         login step is skipped and this opens straight on language choice. -->
+         visit. If a Google session already exists (returning device),
+         onboarding completes immediately with no login step shown. -->
     <div class="onboarding-overlay" id="onboarding-overlay" style="display:none;">
         <div class="onboarding-card">
             <div class="onboarding-logo" id="onboarding-logo">
@@ -2975,7 +2981,6 @@
 
             <!-- Step 1: Google sign-in -->
             <div class="onboarding-step" id="onboard-step-login" style="display:none;">
-                <p class="onboarding-sub">Sign in with Google, or continue as a guest.<br>Google ဖြင့် အကောင့်ဝင်ပါ၊ သို့မဟုတ် ဧည့်သည်အဖြစ် ဆက်လက်ကြည့်ရှုနိုင်ပါသည်။</p>
                 <div id="onboard-google-gis" class="gis-btn-slot"></div>
                 <div id="onboard-telegram-widget" style="margin-top:10px;display:flex;justify-content:center;"></div>
                 <button type="button" class="google-login-btn gis-fallback" id="onboard-google-btn" onclick="handleOnboardGoogleSignIn()">
@@ -2990,17 +2995,6 @@
                 <button type="button" class="onboarding-guest-btn" id="onboard-guest-btn" onclick="handleOnboardGuestContinue()">
                     Continue as Guest<br><span style="font-size:11.5px;opacity:.75;">ဧည့်သည်အဖြစ် ဆက်လက်ရန်</span>
                 </button>
-            </div>
-
-            <!-- Step 2: language choice, then the purple Get Started button
-                 appears once a language is picked. -->
-            <div class="onboarding-step" id="onboard-step-lang" style="display:none;">
-                <p class="onboarding-sub">Choose your language.<br>ဘာသာစကား ရွေးပါ။</p>
-                <div class="onboarding-lang-choices">
-                    <div class="onboarding-lang-chip" id="onboard-lang-en" onclick="selectOnboardLanguage('en')">English</div>
-                    <div class="onboarding-lang-chip" id="onboard-lang-my" onclick="selectOnboardLanguage('my')">မြန်မာ</div>
-                </div>
-                <button type="button" class="onboarding-start-btn" id="onboard-start-btn" style="display:none;" onclick="completeOnboarding()">Get Started</button>
             </div>
         </div>
     </div>
@@ -3191,12 +3185,12 @@
         </div>
         <div class="header-icons-group" style="display:flex;align-items:center;gap:10px;">
             <div class="header-lang-toggle" id="header-lang-toggle" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
-                <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb">EN</span>
+                <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb"></span>
             </div>
-            <a class="header-social-btn messenger-btn" id="header-messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
+            <a class="header-social-btn messenger-btn skel" id="header-messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
                 <svg><use href="#icon-messenger-filled"></use></svg>
             </a>
-            <a class="header-social-btn telegram-btn" id="header-telegram-btn" href="https://t.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Telegram">
+            <a class="header-social-btn telegram-btn skel" id="header-telegram-btn" href="https://t.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Telegram">
                 <svg><use href="#icon-telegram-filled"></use></svg>
             </a>
             <div class="header-icon header-menu-btn" id="drawer-toggle-btn" onclick="openDrawer()" role="button" aria-label="Open menu">
@@ -3521,7 +3515,7 @@
                 <div class="modal-close" onclick="closeWalletGoogleGate()" style="position:absolute;top:14px;right:14px;">
                     <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
                 </div>
-                <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Sign in to use Wallet</div>
+                <div style="font-size:15px;font-weight:600;margin-bottom:8px;">Sign in to use Wallet</div>
                 <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0 0 18px;">
                     Wallet ကို အသုံးပြုရန် Google account ဖြင့် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။<br>
                     A Google sign-in keeps your Wallet balance and top-up history safe across devices.
@@ -3656,7 +3650,7 @@
                         <div class="wallet-pay-info-card">
                             <p class="wallet-pay-info-label">Send exactly</p>
                             <div class="pm-info-box-row">
-                                <p id="crypto-pm-amount" style="font-weight:700;font-size:17px;"></p>
+                                <p id="crypto-pm-amount" style="font-weight:600;font-size:17px;"></p>
                                 <button type="button" class="pm-copy-btn" onclick="copyPaymentField('crypto-pm-amount', this)" title="Copy amount">
                                     <svg class="ui-icon"><use href="#icon-copy"></use></svg>
                                 </button>
@@ -4578,6 +4572,11 @@
                 sell_err_price: 'Please enter your asking price.', sell_err_contact: 'Please enter a way to contact you.',
                 sell_success: 'Submitted! Our team will review it and reach out to you.',
                 title_history: 'Transaction History', logo_connecting: 'Connecting…', logo_updating: 'Updating…', hist_status_all: 'All', hist_no_status_t: 'No {status} orders', hist_no_status_s: 'Try a different status or date.', title_leaderboard: 'Top Spenders',
+                status_pending: 'Pending', status_processing: 'Processing', status_success: 'Completed', status_fail: 'Failed',
+                od_package: 'Package', od_payment_method: 'Payment Method', od_transaction_id: 'Transaction ID', od_ingame_id: 'In-Game ID',
+                od_ingame_name: 'In-Game Name', od_server_id: 'Server ID', od_server: 'Server', od_ordered_at: 'Ordered At',
+                od_success_at: 'Success At', od_order_id: 'Order ID', od_confirmed_in: 'Confirmed In', od_amount_paid: 'Amount Paid',
+                od_payment_receipt: 'Payment Receipt', od_reason: 'Reason', od_note: 'Note', od_download_receipt: 'Download Receipt',
                 title_wallet: 'My Wallet', title_profile: 'My Profile',
                 sec_account_info: 'Account Info', lbl_rank: 'Rank', lbl_server: 'Server', sec_description: 'Description',
                 sec_skins_included: 'Skins Included', sec_how_pay: 'How do you want to pay?',
@@ -4712,6 +4711,11 @@
                 sell_err_price: 'ရောင်းလိုသောစျေးနှုန်းထည့်ပါ။', sell_err_contact: 'ဆက်သွယ်ရန်အချက်အလက်ထည့်ပါ။',
                 sell_success: 'ပို့ပြီးပါပြီ! ကျွန်ုပ်တို့အဖွဲ့မှ စစ်ဆေးပြီး ဆက်သွယ်ပါမည်။',
                 title_history: 'ငွေလွှဲမှတ်တမ်း', logo_connecting: 'Connecting…', logo_updating: 'Updating…', hist_status_all: 'အားလုံး', hist_no_status_t: '{status} အော်ဒါ မရှိပါ', hist_no_status_s: 'တခြား status သို့မဟုတ် ရက်စွဲကို ရွေးကြည့်ပါ။', title_leaderboard: 'အများဆုံးသုံးစွဲသူများ',
+                status_pending: 'စောင့်ဆိုင်းနေဆဲ', status_processing: 'လုပ်ဆောင်နေဆဲ', status_success: 'ပြီးမြောက်ပြီ', status_fail: 'မအောင်မြင်ပါ',
+                od_package: 'ပက်ကေ့ခ်ျ', od_payment_method: 'ငွေပေးချေမှုနည်း', od_transaction_id: 'ငွေလွှဲ ID', od_ingame_id: 'ဂိမ်း ID',
+                od_ingame_name: 'ဂိမ်းထဲက အမည်', od_server_id: 'ဆာဗာ ID', od_server: 'ဆာဗာ', od_ordered_at: 'အော်ဒါတင်ချိန်',
+                od_success_at: 'ပြီးမြောက်ချိန်', od_order_id: 'အော်ဒါ ID', od_confirmed_in: 'ပြီးမြောက်ရန်ကြာချိန်', od_amount_paid: 'ပေးချေငွေပမာဏ',
+                od_payment_receipt: 'ငွေလွှဲပြေစာ', od_reason: 'အကြောင်းရင်း', od_note: 'မှတ်ချက်', od_download_receipt: 'ပြေစာ ဒေါင်းလုဒ်ဆွဲမည်',
                 title_wallet: 'ကျွန်ုပ်၏ပိုက်ဆံအိတ်', title_profile: 'ကျွန်ုပ်၏ပရိုဖိုင်',
                 sec_account_info: 'အကောင့်အချက်အလက်', lbl_rank: 'အဆင့်', lbl_server: 'ဆာဗာ', sec_description: 'ဖော်ပြချက်',
                 sec_skins_included: 'ပါဝင်သောစကင်များ', sec_how_pay: 'ဘယ်လိုငွေပေးချေမလဲ?',
@@ -4793,12 +4797,10 @@
                 if (mmFlag) mmFlag.style.display = showEn ? 'none' : 'block';
             });
             const headerLangToggle = document.getElementById('header-lang-toggle');
-            const headerLangThumb = document.getElementById('header-lang-toggle-thumb');
-            if (headerLangToggle && headerLangThumb) {
-                // Same convention as the flag toggle: show the language a tap would switch TO.
-                const showEnHeader = currentLang === 'my';
-                headerLangThumb.textContent = showEnHeader ? 'EN' : 'MY';
-                headerLangToggle.classList.toggle('is-right', !showEnHeader);
+            if (headerLangToggle) {
+                // White dot docked left = Myanmar (default); slides right and
+                // turns accent-blue when switched to English. No text label.
+                headerLangToggle.classList.toggle('is-right', currentLang === 'en');
             }
             if (window.renderMiniProfileGreeting) window.renderMiniProfileGreeting();
             if (window.onNotifLangChange) window.onNotifLangChange();
@@ -7211,7 +7213,7 @@
                     <div class="voucher-code-highlight">
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                             <svg class="ui-icon" style="width:20px;height:20px;color:#B8860B;"><use href="#icon-gift"></use></svg>
-                            <span class="vch-label" style="font-size:13px;font-weight:700;color:#7A5B00;text-transform:uppercase;letter-spacing:0.3px;">Voucher Code Unavailable</span>
+                            <span class="vch-label" style="font-size:13px;font-weight:600;color:#7A5B00;text-transform:uppercase;letter-spacing:0.3px;">Voucher Code Unavailable</span>
                         </div>
                         <p style="font-size:13px;color:#7A5B00;margin:0;">Your order is marked Success but no code was found. Please contact support with this order's ID and we'll sort it out.</p>
                     </div>`;
@@ -7222,8 +7224,8 @@
                 const maxed = (voucherCodeCopyCounts[copyKey] || 0) >= VOUCHER_CODE_COPY_LIMIT;
                 return `
                 <div class="vch-row" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.65);border-radius:10px;padding:10px 12px;${i > 0 ? 'margin-top:8px;' : ''}">
-                    <span class="vch-row-num" style="font-size:12px;font-weight:700;color:#B8860B;flex-shrink:0;min-width:16px;">${i + 1}.</span>
-                    <span class="mono vch-code" style="flex:1;min-width:0;font-size:15px;font-weight:700;color:#7A5B00;word-break:break-all;">${escapeHtml(String(c))}</span>
+                    <span class="vch-row-num" style="font-size:12px;font-weight:600;color:#B8860B;flex-shrink:0;min-width:16px;">${i + 1}.</span>
+                    <span class="mono vch-code" style="flex:1;min-width:0;font-size:15px;font-weight:600;color:#7A5B00;word-break:break-all;">${escapeHtml(String(c))}</span>
                     <button type="button" class="voucher-copy-btn${maxed ? ' copy-maxed' : ''}" ${maxed ? 'disabled' : ''} onclick="copyVoucherCode('${jsSafe(c)}', this, '${jsSafe(copyKey)}')" aria-label="Copy code" title="${maxed ? 'Copy limit reached' : 'Copy code'}">
                         <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-copy"></use></svg>
                     </button>
@@ -7235,7 +7237,7 @@
                 <div class="voucher-code-highlight">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                         <svg class="ui-icon" style="width:20px;height:20px;color:#B8860B;"><use href="#icon-gift"></use></svg>
-                        <span class="vch-label" style="font-size:13px;font-weight:700;color:#7A5B00;text-transform:uppercase;letter-spacing:0.3px;">Redeem Code List</span>
+                        <span class="vch-label" style="font-size:13px;font-weight:600;color:#7A5B00;text-transform:uppercase;letter-spacing:0.3px;">Redeem Code List</span>
                     </div>
                     ${rows}
                     ${copyAllBtn}
@@ -8138,16 +8140,17 @@
         // badge text shown to the customer changes). Same mapping as admin.html:
         // Pending→Pending, Processing→Processing, success-class
         // (Success/Completed)→Completed, danger-class (Fail/Rejected)→Failed.
-        const ORDER_STATUS_DISPLAY_LABELS = {
-            Pending: 'Pending',
-            Processing: 'Processing',
-            Success: 'Completed',
-            Completed: 'Completed',
-            Fail: 'Failed',
-            Rejected: 'Failed'
+        const ORDER_STATUS_DISPLAY_KEYS = {
+            Pending: 'status_pending',
+            Processing: 'status_processing',
+            Success: 'status_success',
+            Completed: 'status_success',
+            Fail: 'status_fail',
+            Rejected: 'status_fail'
         };
         function orderStatusLabel(status) {
-            return ORDER_STATUS_DISPLAY_LABELS[status] || status;
+            const key = ORDER_STATUS_DISPLAY_KEYS[status];
+            return key ? t(key) : status;
         }
         window.orderStatusLabel = orderStatusLabel;
 
@@ -9640,7 +9643,7 @@
 
         function showOnboardStep(step) {
             onboardCurrentStep = step;
-            ['checking', 'login', 'lang'].forEach((s) => {
+            ['checking', 'login'].forEach((s) => {
                 const el = document.getElementById('onboard-step-' + s);
                 if (el) el.style.display = (s === step) ? 'block' : 'none';
             });
@@ -9652,42 +9655,32 @@
             } catch (e) { /* private browsing - fall through and show onboarding */ }
             const overlay = document.getElementById('onboarding-overlay');
             if (!overlay) return;
-            overlay.style.display = 'flex';
             if (!onboardAuthChecked) {
                 onboardAuthChecked = true;
-                showOnboardStep(user ? 'lang' : 'login');
+                if (user) { completeOnboarding(); return; }
+                overlay.style.display = 'flex';
+                showOnboardStep('login');
             } else if (user && onboardCurrentStep === 'login') {
-                showOnboardStep('lang'); // just signed in from the onboarding step
+                completeOnboarding(); // just signed in from the onboarding step
             }
         }
 
         async function handleOnboardGoogleSignIn() {
             await handleGoogleSignIn('onboard-google-btn');
             // If sign-in succeeded, onAuthStateChanged -> handleOnboardAuthState
-            // above advances to the language step automatically.
+            // above completes onboarding automatically.
         }
         window.handleOnboardGoogleSignIn = handleOnboardGoogleSignIn;
 
         // Guest browsing: the store already runs fully on the localStorage
         // guestId (see getGuestId()) for browsing, orders, and wallet - Google
         // sign-in is only needed for cross-device profile sync and the
-        // account marketplace gate. So skipping straight to language choice
+        // account marketplace gate. So finishing onboarding straight from
         // here is safe and doesn't block any core purchase flow.
         function handleOnboardGuestContinue() {
-            showOnboardStep('lang');
+            completeOnboarding();
         }
         window.handleOnboardGuestContinue = handleOnboardGuestContinue;
-
-        function selectOnboardLanguage(lang) {
-            setLanguage(lang);
-            const enChip = document.getElementById('onboard-lang-en');
-            const myChip = document.getElementById('onboard-lang-my');
-            if (enChip) enChip.classList.toggle('selected', lang === 'en');
-            if (myChip) myChip.classList.toggle('selected', lang === 'my');
-            const startBtn = document.getElementById('onboard-start-btn');
-            if (startBtn) startBtn.style.display = 'block';
-        }
-        window.selectOnboardLanguage = selectOnboardLanguage;
 
         function completeOnboarding() {
             try { localStorage.setItem(ONBOARD_KEY, '1'); } catch (e) { /* private browsing */ }
@@ -10320,6 +10313,7 @@
                 btn.innerHTML = image
                     ? `<img src="${image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                     : headerSupportBtnDefaultHTML[id];
+                btn.classList.remove('skel');
             });
         }
 
@@ -11634,28 +11628,28 @@
             const badgeClass = historyBadgeClassFor(data.status);
             const gameImg = findGameImage(data.game, data.serverRegion);
             const durationRow = (data.status === 'Success' && data.confirmedAt && data.timestamp)
-                ? `<div class="od-row"><span>Confirmed In</span><b>${formatDuration(data.confirmedAt.toMillis() - data.timestamp.toMillis())}</b></div>`
+                ? `<div class="od-row"><span>${t('od_confirmed_in')}</span><b>${formatDuration(data.confirmedAt.toMillis() - data.timestamp.toMillis())}</b></div>`
                 : '';
             const orderedAtRow = data.timestamp
-                ? `<div class="od-row"><span>Ordered At</span><b>${historyDateTimeFmt.format(data.timestamp.toDate())}</b></div>`
+                ? `<div class="od-row"><span>${t('od_ordered_at')}</span><b>${historyDateTimeFmt.format(data.timestamp.toDate())}</b></div>`
                 : '';
             const completedAtRow = (data.status === 'Success' && data.confirmedAt)
-                ? `<div class="od-row"><span>Success At</span><b style="color:#1E8E4F;">${historyDateTimeFmt.format(data.confirmedAt.toDate())}</b></div>`
+                ? `<div class="od-row"><span>${t('od_success_at')}</span><b style="color:#1E8E4F;">${historyDateTimeFmt.format(data.confirmedAt.toDate())}</b></div>`
                 : '';
             // Same rule as the history card: the real provider Order ID only
             // shows up once the order is actually Success — never before.
             const providerOrderId = data.g2bulkOrderId || data.jcplaysOrderId || data.fazercardOrderId;
             const orderIdRow = (data.status === 'Success' && providerOrderId)
-                ? `<div class="od-row"><span>Order ID</span><b style="font-family:monospace;">${providerOrderId}</b></div>`
+                ? `<div class="od-row"><span>${t('od_order_id')}</span><b style="font-family:monospace;">${providerOrderId}</b></div>`
                 : '';
             const inGameNameRow = data.inGameName
-                ? `<div class="od-row"><span>In-Game Name</span><b>${data.inGameName}</b></div>`
+                ? `<div class="od-row"><span>${t('od_ingame_name')}</span><b>${data.inGameName}</b></div>`
                 : '';
             const serverIdRow = data.serverId
-                ? `<div class="od-row"><span>Server ID</span><b>${data.serverId}</b></div>`
+                ? `<div class="od-row"><span>${t('od_server_id')}</span><b>${data.serverId}</b></div>`
                 : '';
             const serverRegionRow = data.serverRegion
-                ? `<div class="od-row"><span>Server</span><b>${data.serverRegion}</b></div>`
+                ? `<div class="od-row"><span>${t('od_server')}</span><b>${data.serverRegion}</b></div>`
                 : '';
             document.getElementById('order-detail-body').innerHTML = `
                 ${voucherCodeBlockHTML(data, data.id)}
@@ -11663,8 +11657,8 @@
                     <div class="od-receipt-head">
                         <div class="hc-thumb" style="width:52px;height:52px;">${gameImg ? `<img src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
                         <div style="flex:1;min-width:0;">
-                            <h4 style="font-size:17px;font-weight: 600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${data.game}</h4>
-                            <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${dateStr}</p>
+                            <h4 style="font-size:18px;font-weight: 600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${data.game}</h4>
+                            <p style="font-size:12.5px;color:var(--text-muted);margin-top:3px;">${dateStr}</p>
                         </div>
                         <span class="badge ${badgeClass}">${historyStatusIconHTML(data.status)}${orderStatusLabel(data.status)}</span>
                     </div>
@@ -11672,10 +11666,10 @@
                     ${orderTimelineHTML(data)}
 
                     <div class="od-rows">
-                        <div class="od-row"><span>Package</span><b>${data.itemAmount || '-'}</b></div>
-                        <div class="od-row"><span>Payment Method</span><b>${data.paymentMethod || '-'}</b></div>
-                        ${data.transactionId ? `<div class="od-row"><span>Transaction ID</span><b style="font-family:monospace;">${escapeHtml(data.transactionId)}</b></div>` : ''}
-                        <div class="od-row"><span>In-Game ID</span><b>${escapeHtml(data.playerId || '-')}</b></div>
+                        <div class="od-row"><span>${t('od_package')}</span><b>${data.itemAmount || '-'}</b></div>
+                        <div class="od-row"><span>${t('od_payment_method')}</span><b>${data.paymentMethod || '-'}</b></div>
+                        ${data.transactionId ? `<div class="od-row"><span>${t('od_transaction_id')}</span><b style="font-family:monospace;">${escapeHtml(data.transactionId)}</b></div>` : ''}
+                        <div class="od-row"><span>${t('od_ingame_id')}</span><b>${escapeHtml(data.playerId || '-')}</b></div>
                         ${inGameNameRow}
                         ${serverIdRow}
                         ${serverRegionRow}
@@ -11686,23 +11680,23 @@
                     </div>
 
                     <div class="od-divider"></div>
-                    <div class="od-total"><span>Amount Paid</span><b>${Number(data.price).toLocaleString()} MMK</b></div>
+                    <div class="od-total"><span>${t('od_amount_paid')}</span><b>${Number(data.price).toLocaleString()} MMK</b></div>
                 </div>
 
                 ${data.receiptUrl ? `
-                    <p class="detail-section-title" style="margin:16px 0 8px;">Payment Receipt</p>
+                    <p class="detail-section-title" style="margin:18px 0 8px;">${t('od_payment_receipt')}</p>
                     <img src="${escapeHtml(data.receiptUrl)}" style="width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:var(--surface-alt);border:1px solid var(--border);">
                 ` : ''}
 
                 ${data.statusNote ? `
-                    <p class="detail-section-title" style="margin:16px 0 8px;">${data.status === 'Fail' ? 'Reason' : 'Note'}</p>
-                    <p style="font-size:13px;line-height:1.5;color:var(--text);background:var(--surface-alt);border-radius:10px;padding:10px 12px;white-space:pre-wrap;">${escapeHtml(data.statusNote)}</p>
+                    <p class="detail-section-title" style="margin:18px 0 8px;">${data.status === 'Fail' ? t('od_reason') : t('od_note')}</p>
+                    <p style="font-size:14px;line-height:1.6;color:var(--text);background:var(--surface-alt);border-radius:10px;padding:12px 14px;white-space:pre-wrap;">${escapeHtml(data.statusNote)}</p>
                 ` : ''}
 
                 ${data.status === 'Success' ? `
                     <button type="button" class="btn btn-primary" style="width:100%;margin-top:18px;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="downloadOrderReceipt(${index})">
                         <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-download"></use></svg>
-                        Download Receipt
+                        ${t('od_download_receipt')}
                     </button>
                 ` : ''}
             `;
@@ -14149,8 +14143,19 @@
             if (!track || !dotsWrap) return;
             const slides = track.children;
             const count = slides.length;
+            // Each slide is flex: 0 0 100% (100% of the visible frame, i.e.
+            // .home-banner-carousel's width), and the track itself is a
+            // plain block-level flex container with no fixed width, so its
+            // own box stays exactly one frame wide no matter how many
+            // slides overflow out of it. That means translateX(-100%) always
+            // means "shift by exactly one frame," for any slide count — no
+            // width math keyed to `count` is needed (a prior version set
+            // width:300%/33.3333% by hand, which only lined up for exactly
+            // 3 slides and broke — half-cut, trailing blank space — for any
+            // other count, e.g. 2 admin-uploaded banners).
             if (count <= 1) { dotsWrap.style.display = 'none'; return; }
             let index = 0;
+            let prevIndex = 0;
             let autoTimer = null;
             const AUTO_MS = 4000;
             const RESUME_DELAY_MS = 5000;
@@ -14164,9 +14169,18 @@
             const dots = dotsWrap.children;
 
             function render() {
-                track.style.transform = `translateX(${-index * (100 / count)}%)`;
+                track.style.transform = `translateX(${-index * 100}%)`;
                 for (let i = 0; i < dots.length; i++) {
                     dots[i].classList.toggle('active', i === index);
+                }
+                if (index !== prevIndex) {
+                    const activeSlide = slides[index];
+                    activeSlide.classList.remove('slide-enter');
+                    void activeSlide.offsetWidth; // restart the animation even if it's mid-play
+                    activeSlide.classList.add('slide-enter');
+                    clearTimeout(activeSlide._enterTimer);
+                    activeSlide._enterTimer = setTimeout(() => activeSlide.classList.remove('slide-enter'), 750);
+                    prevIndex = index;
                 }
             }
             function goTo(i) {
@@ -14197,7 +14211,7 @@
             function pointerMove(x) {
                 if (!dragging) return;
                 deltaX = x - startX;
-                const basePct = -index * (100 / count);
+                const basePct = -index * 100;
                 const dragPct = (deltaX / trackWidth) * 100;
                 track.style.transform = `translateX(${basePct + dragPct}%)`;
             }
@@ -14233,7 +14247,7 @@
          install criteria: manifest + registered service worker over HTTPS).
          Lets a visitor install straight from the website itself, no Play
          Store needed. Hidden by default; JS toggles it visible. -->
-    <button id="install-app-btn" onclick="installApp()" style="display:none;position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:9999;padding:13px 16px;border:none;border-radius:14px;background:#2563EB;color:#fff;font-size:15px;font-weight:700;box-shadow:0 8px 24px rgba(37,99,235,0.35);align-items:center;justify-content:center;gap:8px;">
+    <button id="install-app-btn" onclick="installApp()" style="display:none;position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:9999;padding:13px 16px;border:none;border-radius:14px;background:#2563EB;color:#fff;font-size:15px;font-weight:600;box-shadow:0 8px 24px rgba(37,99,235,0.35);align-items:center;justify-content:center;gap:8px;">
         ⬇️ App ကို Download လုပ်ပါ
     </button>
 
