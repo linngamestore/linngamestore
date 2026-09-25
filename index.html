@@ -305,10 +305,8 @@
         }
         .onboarding-logo {
             position: relative;
-            width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 16px;
+            width: 76px; height: 76px; border-radius: 20px; margin: 0 auto 16px;
             display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, rgba(var(--accent-rgb),0.95), rgba(var(--accent-rgb),0.75));
-            box-shadow: 0 8px 20px rgba(var(--accent-rgb),0.35);
             overflow: hidden;
         }
         .onboarding-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: block; }
@@ -375,6 +373,33 @@
             display: flex; align-items: center; padding: 3px; transition: background 0.2s ease;
         }
         .push-toggle.on { background: var(--accent-soft); }
+
+        /* Game tab's internal sub-tab bar (Top Up / Voucher / Software) —
+           identical markup repeated at the top of #home, #voucher and
+           #software so each page-section shows the correct active state
+           without extra JS; switching still just calls showPage(). */
+        .game-subtab-bar { display:flex; gap:6px; background:var(--surface-alt); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:14px; }
+        .game-subtab-btn { flex:1; text-align:center; padding:9px 0; border-radius:11px; font-size:13.5px; font-weight:700; color:var(--text-secondary); cursor:pointer; transition:background .18s,color .18s; user-select:none; }
+        .game-subtab-btn.active { background:var(--accent); color:#fff; }
+        .skel-software-card { border-radius:14px; overflow:hidden; background:var(--surface); border:1px solid var(--border); }
+        .skel-software-card .skel-img { aspect-ratio:1/1; }
+
+        /* Home dashboard: Wallet + Order-count summary grid, and the
+           4-step "how it works" guide. */
+        .dash-stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+        .dash-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+        .dash-stat-icon { width:34px; height:34px; border-radius:10px; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+        .dash-stat-icon .ui-icon { width:18px; height:18px; }
+        .dash-stat-wallet .dash-stat-icon { background:rgba(255,255,255,0.2); color:#fff; }
+        .dash-stat-wallet { background:linear-gradient(135deg, rgba(var(--accent-rgb),0.95), rgba(var(--accent-rgb),0.75)); border-color:transparent; }
+        .dash-stat-wallet .dash-stat-label { color:rgba(255,255,255,0.75); }
+        .dash-stat-wallet .dash-stat-value { color:#fff; }
+        .dash-stat-label { display:block; font-size:11.5px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; }
+        .dash-stat-value { font-size:18px; font-weight:700; color:var(--text); margin-top:4px; font-variant-numeric:tabular-nums; }
+        .dash-guide-steps { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+        .dash-guide-step { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
+        .dash-guide-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-size:13.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+        .dash-guide-text { font-size:13.5px; font-weight:500; color:var(--text); }
         .push-toggle-thumb {
             width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(160deg,#fff,#dfe8f5);
             display: flex; align-items: center; justify-content: center; color: var(--text-muted);
@@ -399,20 +424,24 @@
         .header { background-color: var(--surface); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .logo { color: var(--accent); font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .logo-icon-wrap {
-            width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            width: 52px; height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
             border-radius: 12px; background-color: var(--accent);
             background-image: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0) 60%);
             color: #fff;
         }
         .logo-icon-wrap .ui-icon { width: 26px; height: 26px; }
         .logo-icon-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 11px; display: block; }
+        /* Header logo specifically: no accent-color frame behind the image,
+           and a touch bigger than the shared badge size above. */
+        #header-logo .logo-icon-wrap { width: 52px; height: 52px; background: none; }
+        #header-logo .logo-icon-wrap img { border-radius: 13px; }
         /* Logo loading state: a shimmer badge + "Connecting… / Updating…" stands in
            until the logo is ready, then the real logo replaces it. Only the
            header logo (#header-logo) carries the .logo-loading class. */
         .logo .logo-status { display: none; align-items: center; gap: 10px; }
         .logo.logo-loading .logo-status { display: flex; }
         .logo.logo-loading .logo-icon-wrap { display: none; }
-        .logo-status-skel { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; }
+        .logo-status-skel { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; }
         .logo-status-text { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); animation: logoStatusPulse 1.2s ease-in-out infinite; }
         .onboarding-logo-status { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); margin: -6px 0 14px; animation: logoStatusPulse 1.2s ease-in-out infinite; }
         @keyframes logoStatusPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
@@ -500,8 +529,9 @@
         }
         /* Sidebar header: enlarged logo badge only (text hidden to fit the narrow panel) */
         .drawer-header .logo { font-size: 0; gap: 0; }
-        .drawer-header .logo-icon-wrap { width: 34px !important; height: 34px !important; border-radius: 10px; background-size: 9px 9px; }
-        .drawer-header .logo-icon-wrap .ui-icon { width: 20px !important; height: 20px !important; }
+        .drawer-header .logo-icon-wrap { width: 40px !important; height: 40px !important; border-radius: 10px; background: none !important; }
+        .drawer-header .logo-icon-wrap .ui-icon { width: 22px !important; height: 22px !important; }
+        .drawer-header .logo-icon-wrap img { border-radius: 10px; }
         .drawer-close {
             width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -2829,7 +2859,7 @@
         <div class="onboarding-card">
             <div class="onboarding-logo" id="onboarding-logo">
                 <div class="skel" id="onboarding-logo-skeleton" style="position:absolute;inset:0;border-radius:20px;"></div>
-                <svg class="ui-icon" id="onboarding-logo-default-icon" style="width:32px;height:32px;color:#fff;display:none;"><use href="#icon-gamepad"></use></svg>
+                <svg class="ui-icon" id="onboarding-logo-default-icon" style="width:32px;height:32px;color:var(--accent);display:none;"><use href="#icon-gamepad"></use></svg>
                 <img id="onboarding-logo-img" src="" alt="" style="display:none;">
             </div>
             <div class="onboarding-logo-status" id="onboarding-logo-status">Connecting…</div>
@@ -3045,7 +3075,7 @@
     <header class="header">
         <div class="logo logo-loading" id="header-logo" onclick="window.open('https://t.me/pca_gamestore','_blank')" role="button" aria-label="Open Linn Game Store Telegram channel">
             <span class="logo-icon-wrap">
-                <svg class="ui-icon" id="header-logo-default-icon" style="color:#fff;"><use href="#icon-gamepad"></use></svg>
+                <svg class="ui-icon" id="header-logo-default-icon" style="color:var(--accent);"><use href="#icon-gamepad"></use></svg>
                 <img id="header-logo-img" src="" alt="Linn Game Store" style="display:none;">
             </span>
             <span class="logo-status" id="header-logo-status">
@@ -3081,7 +3111,7 @@
             <div class="drawer-header">
                 <div class="logo" style="font-size:16px;">
                     <span class="logo-icon-wrap" style="width:24px;height:24px;">
-                        <svg class="ui-icon" id="drawer-logo-default-icon" style="color:#fff;width:14px;"><use href="#icon-gamepad"></use></svg>
+                        <svg class="ui-icon" id="drawer-logo-default-icon" style="color:var(--accent);width:14px;"><use href="#icon-gamepad"></use></svg>
                         <img id="drawer-logo-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;">
                     </span>
                     Linn Game Store
@@ -3176,8 +3206,11 @@
     <!-- Main Content Area -->
     <main class="content-area">
         
-        <!-- HOME PAGE (Firebase Orders) -->
-        <div id="home" class="page-section active">
+        <!-- HOME DASHBOARD — the app's landing tab: mini-profile strip + LIVE
+             bullet chat sit just above this in the DOM (toggled by isHome),
+             then flash-sale banner, wallet/order summary, popular games and
+             the 4-step "how it works" guide, all live here. -->
+        <div id="dashboard" class="page-section active">
             <div class="flash-sale-banner" id="flash-sale-banner" style="display:none;" onclick="openFlashSaleGame()">
                 <div class="flash-sale-icon">⚡</div>
                 <div class="flash-sale-body">
@@ -3186,9 +3219,17 @@
                 </div>
                 <div class="flash-sale-countdown" id="flash-sale-countdown">--:--:--</div>
             </div>
-            <div id="favorite-games-section" style="display:none;">
-                <h2 class="title-header" data-i18n="title_favorites">My Favorites</h2>
-                <div class="popular-scroll-wrap" id="favorite-games-scroll"></div>
+            <div class="dash-stats-grid">
+                <div class="dash-stat-card dash-stat-wallet" onclick="showPage('wallet')" role="button">
+                    <div class="dash-stat-icon"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
+                    <span class="dash-stat-label" data-i18n="nav_wallet">Wallet</span>
+                    <div class="dash-stat-value" id="dash-wallet-amount">0 MMK</div>
+                </div>
+                <div class="dash-stat-card" onclick="drawerNavigate('history')" role="button">
+                    <div class="dash-stat-icon"><svg class="ui-icon"><use href="#icon-history"></use></svg></div>
+                    <span class="dash-stat-label" data-i18n="dash_orders">Orders</span>
+                    <div class="dash-stat-value" id="dash-order-count">0</div>
+                </div>
             </div>
             <div id="popular-games-section">
                 <h2 class="title-header" data-i18n="title_popular_games">Popular Games</h2>
@@ -3198,6 +3239,38 @@
                     <div class="skel-popular-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
                     <div class="skel-popular-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
                 </div>
+            </div>
+            <h2 class="title-header section-title-spaced" data-i18n="title_guide">How It Works</h2>
+            <div class="dash-guide-steps">
+                <div class="dash-guide-step">
+                    <div class="dash-guide-num">1</div>
+                    <div class="dash-guide-text" data-i18n="dash_step1">Choose your game and package</div>
+                </div>
+                <div class="dash-guide-step">
+                    <div class="dash-guide-num">2</div>
+                    <div class="dash-guide-text" data-i18n="dash_step2">Enter your In-Game ID</div>
+                </div>
+                <div class="dash-guide-step">
+                    <div class="dash-guide-num">3</div>
+                    <div class="dash-guide-text" data-i18n="dash_step3">Pay from Wallet or upload a receipt</div>
+                </div>
+                <div class="dash-guide-step">
+                    <div class="dash-guide-num">4</div>
+                    <div class="dash-guide-text" data-i18n="dash_step4">Get your order delivered instantly</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOME PAGE (Firebase Orders) -->
+        <div id="home" class="page-section">
+            <div class="game-subtab-bar">
+                <div class="game-subtab-btn active" onclick="showPage('home')" data-i18n="nav_topup">Top Up</div>
+                <div class="game-subtab-btn" onclick="showPage('voucher')" data-i18n="nav_voucher">Voucher</div>
+                <div class="game-subtab-btn" onclick="showPage('software')" data-i18n="nav_software">Software</div>
+            </div>
+            <div id="favorite-games-section" style="display:none;">
+                <h2 class="title-header" data-i18n="title_favorites">My Favorites</h2>
+                <div class="popular-scroll-wrap" id="favorite-games-scroll"></div>
             </div>
             <div class="all-games-title-row section-title-spaced" id="all-games-title-row">
                 <h2 class="title-header"><span data-i18n="title_all_games">All Games</span> <span id="all-games-count" class="games-count-badge"></span></h2>
@@ -3226,6 +3299,11 @@
              'g2bulk_voucher' in the admin game editor). Same card grid and
              purchase flow as Home, just pre-filtered to voucher-only entries. -->
         <div id="voucher" class="page-section">
+            <div class="game-subtab-bar">
+                <div class="game-subtab-btn" onclick="showPage('home')" data-i18n="nav_topup">Top Up</div>
+                <div class="game-subtab-btn active" onclick="showPage('voucher')" data-i18n="nav_voucher">Voucher</div>
+                <div class="game-subtab-btn" onclick="showPage('software')" data-i18n="nav_software">Software</div>
+            </div>
             <div id="popular-vouchers-section">
                 <h2 class="title-header" data-i18n="title_popular">Popular</h2>
                 <div class="popular-scroll-wrap" id="popular-vouchers-scroll">
@@ -3241,6 +3319,28 @@
                     <div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
                     <div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
                     <div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOFTWARE PAGE — placeholder tab inside the merged Game nav item.
+             No live catalogue yet (will be imported from G2Bulk later), so
+             this only ever shows a static skeleton grid; nothing renders it. -->
+        <div id="software" class="page-section">
+            <div class="game-subtab-bar">
+                <div class="game-subtab-btn" onclick="showPage('home')" data-i18n="nav_topup">Top Up</div>
+                <div class="game-subtab-btn" onclick="showPage('voucher')" data-i18n="nav_voucher">Voucher</div>
+                <div class="game-subtab-btn active" onclick="showPage('software')" data-i18n="nav_software">Software</div>
+            </div>
+            <h2 class="title-header" data-i18n="title_software">Software</h2>
+            <div class="games-grid-scroll">
+                <div class="cards-grid" id="software-games-grid">
+                    <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
                 </div>
             </div>
         </div>
@@ -4146,13 +4246,13 @@
     <!-- Bottom navigation: the 5 main tabs. showPage() toggles .active on #btn-<page>
          and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer. -->
     <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
-        <div class="nav-item active" id="btn-home" onclick="showPage('home')" role="button">
+        <div class="nav-item active" id="btn-dashboard" onclick="showPage('dashboard')" role="button">
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-home"></use></svg></div>
-            <span class="nav-label" data-i18n="nav_topup">Top Up</span>
+            <span class="nav-label" data-i18n="nav_home">Home</span>
         </div>
-        <div class="nav-item" id="btn-voucher" onclick="showPage('voucher')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-gift"></use></svg></div>
-            <span class="nav-label" data-i18n="nav_voucher">Voucher</span>
+        <div class="nav-item" id="btn-game" onclick="showPage(window.lastGameSubTab || 'home')" role="button">
+            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-gamepad"></use></svg></div>
+            <span class="nav-label" data-i18n="nav_game">Game</span>
         </div>
         <div class="nav-item nav-item-wallet" id="btn-wallet" onclick="showPage('wallet')" role="button">
             <div class="nav-icon-wrap nav-icon-wrap-wallet"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
@@ -4270,7 +4370,7 @@
         const I18N = {
             en: {
                 nav_home: 'Home', nav_voucher: 'Voucher',
-                nav_topup: 'Top Up',
+                nav_topup: 'Top Up', nav_game: 'Game', nav_software: 'Software',
                 nav_history: 'History', nav_leaderboard: 'Leaderboard', nav_wallet: 'Wallet',
                 nav_profile: 'Profile', nav_notifications: 'Notifications', nav_theme: 'Dark Mode',
                 nav_terms: 'Terms & Policy', nav_support: 'Support', nav_language: 'Language', nc_title: 'Name Check', nc_clear: 'Clear', nc_select_game: 'Select game', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Select server / region', nc_global: 'Global', nc_server: 'Server', nc_unavailable: "Couldn't check right now. Please try again later.", pc_wallet_balance: 'Wallet balance', pc_topup: 'Top up', pc_orders: 'Orders', pc_total_spent: 'Total spent', pc_edit: 'Edit profile',
@@ -4327,7 +4427,10 @@
                 biz_identity_pre: 'Operator: Linn Game Store \u00a0\u00b7\u00a0 Site: linngamestore.com \u00a0\u00b7\u00a0 Support: ',
                 title_favorites: 'My Favorites', title_popular_games: 'Popular Games',
                 title_all_games: 'All Games', title_popular: 'Popular',
-                title_vouchers: 'Vouchers & Gift Cards',
+                title_vouchers: 'Vouchers & Gift Cards', title_software: 'Software',
+                title_guide: 'How It Works', dash_orders: 'Orders',
+                dash_step1: 'Choose your game and package', dash_step2: 'Enter your In-Game ID',
+                dash_step3: 'Pay from Wallet or upload a receipt', dash_step4: 'Get your order delivered instantly',
                 btn_sell_tab: 'Sell',
                 sell_modal_title: 'Sell Your Account',
                 sell_modal_sub: 'Tell us about the account you want to sell. Our team will review it and contact you.',
@@ -4401,7 +4504,7 @@
             },
             my: {
                 nav_home: 'ပင်မ', nav_voucher: 'ဗောက်ချာ',
-                nav_topup: 'ငွေဖြည့်',
+                nav_topup: 'ငွေဖြည့်', nav_game: 'ဂိမ်း', nav_software: 'ဆော့ဖ်ဝဲ',
                 nav_history: 'မှတ်တမ်း', nav_leaderboard: 'ထိပ်တန်းစာရင်း', nav_wallet: 'ပိုက်ဆံအိတ်',
                 nav_profile: 'ပရိုဖိုင်', nav_notifications: 'အသိပေးချက်များ', nav_theme: 'အနက်ရောင်မုဒ်',
                 nav_terms: 'စည်းမျဉ်းစည်းကမ်း', nav_support: 'အကူအညီ', nav_language: 'ဘာသာစကား', nc_title: 'အမည်စစ်ဆေးရန်', nc_clear: 'ရှင်းမည်', nc_select_game: 'ဂိမ်းရွေးပါ', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Server / Region ရွေးပါ', nc_global: 'Global', nc_server: 'Server', nc_unavailable: 'ယခု စစ်ဆေး၍မရပါ၊ ခဏနေမှ ပြန်ကြိုးစားပါ', pc_wallet_balance: 'Wallet လက်ကျန်ငွေ', pc_topup: 'ငွေဖြည့်ရန်', pc_orders: 'အော်ဒါများ', pc_total_spent: 'စုစုပေါင်းသုံးငွေ', pc_edit: 'ပရိုဖိုင်ပြင်ရန်',
@@ -4458,7 +4561,10 @@
                 biz_identity_pre: 'လုပ်ငန်းရှင်: Linn Game Store \u00a0\u00b7\u00a0 ဝက်ဘ်ဆိုက်: linngamestore.com \u00a0\u00b7\u00a0 အကူအညီ: ',
                 title_favorites: 'အနှစ်သက်ဆုံးများ', title_popular_games: 'ခေတ်စားနေသောဂိမ်းများ',
                 title_all_games: 'ဂိမ်းအားလုံး', title_popular: 'ခေတ်စားနေသော',
-                title_vouchers: 'ဗောက်ချာနှင့် လက်ဆောင်ကတ်များ',
+                title_vouchers: 'ဗောက်ချာနှင့် လက်ဆောင်ကတ်များ', title_software: 'ဆော့ဖ်ဝဲ',
+                title_guide: 'ဘယ်လိုအလုပ်လုပ်လဲ', dash_orders: 'အော်ဒါများ',
+                dash_step1: 'ဂိမ်းနှင့် Package ရွေးပါ', dash_step2: 'သင့် In-Game ID ရိုက်ထည့်ပါ',
+                dash_step3: 'Wallet ဖြင့်ဖြစ်စေ Receipt တင်ပြီးဖြစ်စေ ပေးချေပါ', dash_step4: 'အော်ဒါကို ချက်ချင်းလက်ခံရယူပါ',
                 btn_sell_tab: 'ရောင်းမည်',
                 sell_modal_title: 'သင့်အကောင့် ရောင်းလိုက်ပါ',
                 sell_modal_sub: 'ရောင်းလိုသော အကောင့်အကြောင်း ပြောပြပါ။ ကျွန်ုပ်တို့အဖွဲ့မှ စစ်ဆေးပြီး ဆက်သွယ်ပါမည်။',
@@ -4696,14 +4802,20 @@
             const target = document.getElementById(pageId);
             if (swipeDir) target.classList.add(swipeDir);
             target.classList.add('active');
-            const navBtn = document.getElementById(`btn-${pageId}`);
+            // Top Up / Voucher / Software share one "Game" nav button, so
+            // remember which of the three was last opened (used when the
+            // Game nav item itself is tapped again) and light up btn-game
+            // for all three instead of a per-page button.
+            const GAME_TAB_PAGES = ['home', 'voucher', 'software'];
+            if (GAME_TAB_PAGES.includes(pageId)) window.lastGameSubTab = pageId;
+            const navBtn = document.getElementById(`btn-${pageId}`) || (GAME_TAB_PAGES.includes(pageId) ? document.getElementById('btn-game') : null);
             if (navBtn) navBtn.classList.add('active');
             document.querySelectorAll('.drawer-nav-item[data-page]').forEach(el => {
                 el.classList.toggle('active', el.dataset.page === pageId);
             });
             // Name+Tier mini-profile strip and the LIVE bullet-chat ticker are
             // only meant for the Home tab — hide both on every other page.
-            const isHome = pageId === 'home';
+            const isHome = pageId === 'dashboard';
             const miniBar = document.getElementById('mini-profile-bar');
             if (miniBar) miniBar.classList.toggle('home-hidden', !isHome);
             const bulletWrapper = document.getElementById('bullet-chat-wrapper');
@@ -4711,7 +4823,7 @@
             // Support Chat FAB: only shown on the game-detail (product) page.
             const supportFab = document.getElementById('support-fab');
             if (supportFab) supportFab.classList.toggle('fab-page-hidden', pageId !== 'game-detail');
-            const MAIN_TAB_PAGES = ['home', 'voucher', 'name-check', 'history', 'leaderboard', 'wallet', 'profile'];
+            const MAIN_TAB_PAGES = ['dashboard', 'home', 'voucher', 'software', 'name-check', 'history', 'leaderboard', 'wallet', 'profile'];
             document.body.classList.toggle('no-bottom-nav', !MAIN_TAB_PAGES.includes(pageId));
             window.scrollTo(0,0);
             window.currentStorePage = pageId;
@@ -4735,7 +4847,7 @@
             // listenGames() is already started unconditionally at load for
             // that reason, so this hook only needs to stop it on every other
             // page and restart it if the user navigates back.
-            const GAMES_PAGES = ['home', 'voucher', 'game-detail'];
+            const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'game-detail'];
             if (GAMES_PAGES.includes(pageId) && window.listenGames) window.listenGames();
             else if (!GAMES_PAGES.includes(pageId) && window.stopListenGames) window.stopListenGames();
             // Coupon availability: only needed while a package/checkout is
@@ -4746,8 +4858,8 @@
             if (pageId === 'wallet' && window.listenWalletTopups) window.listenWalletTopups();
             else if (pageId !== 'wallet' && window.stopListenWalletTopups) window.stopListenWalletTopups();
             // Flash sale banner: only lives inside the Home page-section.
-            if (pageId === 'home' && window.listenFlashSale) window.listenFlashSale();
-            else if (pageId !== 'home' && window.stopListenFlashSale) window.stopListenFlashSale();
+            if (pageId === 'dashboard' && window.listenFlashSale) window.listenFlashSale();
+            else if (pageId !== 'dashboard' && window.stopListenFlashSale) window.stopListenFlashSale();
             // Payment methods: needed wherever a payment-method picker or the
             // wallet top-up modal can appear - game-detail's checkout, and the
             // Wallet page itself.
@@ -7858,6 +7970,8 @@
                 if (el && window.formatMMK) el.innerText = window.formatMMK(bal);
                 const pcBal = document.getElementById('profile-card-balance');
                 if (pcBal && window.formatMMK) pcBal.innerText = window.formatMMK(bal);
+                const dashBal = document.getElementById('dash-wallet-amount');
+                if (dashBal && window.formatMMK) dashBal.innerText = window.formatMMK(bal);
                 // If the customer currently has the "pay with Wallet" box open
                 // on a checkout, keep it live too — e.g. an admin approving a
                 // top-up should instantly flip "Not enough balance" to "Enough".
@@ -9657,6 +9771,8 @@
                 document.getElementById('vip-stat-orders').innerText = String(count);
                 const pcOrders = document.getElementById('profile-card-orders');
                 if (pcOrders) pcOrders.innerText = String(count);
+                const dashOrders = document.getElementById('dash-order-count');
+                if (dashOrders) dashOrders.innerText = String(count);
                 const pcSpent = document.getElementById('profile-card-spent');
                 if (pcSpent) pcSpent.innerText = formatMMK(total);
 
@@ -12221,7 +12337,7 @@
             if (window.__suppressNextCardClick) { window.__suppressNextCardClick = false; return; }
             const group = HOME_GAME_GROUPS[idx];
             if (!group) return;
-            gameDetailReturnPage = 'home';
+            gameDetailReturnPage = window.currentStorePage === 'dashboard' ? 'dashboard' : 'home';
             if (group.ids.length <= 1) {
                 openGameDetail(group.ids[0]);
             } else {
@@ -12234,7 +12350,7 @@
         function openServerSelect(idx, groups = HOME_GAME_GROUPS) {
             const group = groups[idx];
             if (!group) return;
-            serverSelectReturnPage = window.currentStorePage === 'voucher' ? 'voucher' : 'home';
+            serverSelectReturnPage = window.currentStorePage === 'voucher' ? 'voucher' : (window.currentStorePage === 'dashboard' ? 'dashboard' : 'home');
             document.getElementById('server-select-title').innerText = group.name;
             const grid = document.getElementById('server-select-grid');
             grid.innerHTML = group.ids.map((id, i) => {
@@ -13642,7 +13758,7 @@
             if (page === 'terms' && window.closeTermsPage) return closeTermsPage();
             if (page === 'guide-page' && window.closeGuidePage) return closeGuidePage();
             // Otherwise, step back to the Home tab instead of exiting.
-            if (page && page !== 'home' && window.showPage) return showPage('home');
+            if (page && page !== 'dashboard' && window.showPage) return showPage('dashboard');
             // Already on Home with nothing open - nothing left to unwind
             // in-app; the guard entry re-pushed below just keeps the app open.
         }
