@@ -235,7 +235,7 @@
 
         body { background-color: var(--bg); color: var(--text); padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px)); }
         /* Room for the floating bottom nav; the nav itself hides on sub-pages (game detail, terms...). */
-        body:not(.no-bottom-nav) { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+        body:not(.no-bottom-nav) { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
         body.no-bottom-nav .bottom-nav, body.no-bottom-nav .nav-notch-bubble { display: none; }
         /* Was background-attachment: fixed on body, which forces a full repaint on every scroll frame on mobile. A fixed pseudo-element is composited instead. */
         body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: var(--bg-gradient); }
@@ -471,7 +471,7 @@
         .logo-icon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
         /* Header logo specifically: no accent-color frame behind the image,
            and a touch bigger than the shared badge size above. */
-        #header-logo .logo-icon-wrap { width: 52px; height: 52px; background: none; }
+        #header-logo .logo-icon-wrap { width: 60px; height: 60px; background: none; }
         #header-logo .logo-icon-wrap img { border-radius: 0; }
         /* Logo loading state: a shimmer badge + "Connecting… / Updating…" stands in
            until the logo is ready, then the real logo replaces it. Only the
@@ -2552,28 +2552,17 @@
            updateNavNotch) — so whichever tab is active reads as sitting IN
            a hole in the bar's own shape, with the row wrapping around it. */
         .bottom-nav {
-            --notch-x: 45px;
-            left: 0; right: 0; width: 100%; bottom: 0;
+            left: 12px; right: 12px; width: auto;
+            bottom: calc(12px + env(safe-area-inset-bottom, 0px));
             background: var(--glass-bg-strong);
             -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
             border: 1px solid var(--glass-border);
-            border-bottom: none;
-            border-radius: 16px 16px 0 0;
-            padding: 4px 4px calc(4px + env(safe-area-inset-bottom, 0px));
+            border-radius: 24px;
+            padding: 12px 6px;
             box-shadow: 0 16px 40px -10px rgba(20,30,60,0.35), inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 8px rgba(0,0,0,0.04);
             position: fixed;
             transform: translateZ(0); will-change: transform;
             transition: transform 0.32s cubic-bezier(.4,0,.2,1);
-            mask-image: radial-gradient(circle 28px at var(--notch-x) 0, transparent 99%, black 100%);
-            -webkit-mask-image: radial-gradient(circle 28px at var(--notch-x) 0, transparent 99%, black 100%);
-        }
-        @property --notch-x {
-            syntax: '<length>';
-            inherits: true;
-            initial-value: 45px;
-        }
-        @supports (transition: --notch-x) {
-            .bottom-nav { transition: transform 0.32s cubic-bezier(.4,0,.2,1), --notch-x 0.32s cubic-bezier(.34,1.56,.64,1); }
         }
         /* Applied by JS on scroll-down, removed on scroll-up/near-top — same
            listener that drives .header.header-hidden above. */
@@ -2597,21 +2586,21 @@
            doesn't jump. */
         .nav-item.active .nav-icon-wrap { visibility: hidden; }
 
-        /* The floating notch bubble: one shared element (not per-tab) that
-           JS slides horizontally to sit above whichever tab is active,
-           and whose icon JS swaps to match. Same accent color as before —
-           only the layout/behavior changed, not the palette. */
+        /* The active-tab bubble: one shared element (not per-tab) that
+           JS slides horizontally to sit centered over whichever tab is
+           active, and whose icon JS swaps to match. Same accent color as
+           before — only the layout/behavior changed, not the palette. */
         .nav-notch-bubble {
             position: fixed;
             left: 0;
-            bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+            bottom: calc(28px + env(safe-area-inset-bottom, 0px));
             transform: translateX(-50%);
             width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: linear-gradient(150deg, var(--accent), var(--accent-dark));
             box-shadow:
                 0 8px 18px -4px rgba(var(--accent-rgb),0.65),
-                0 0 0 4px var(--bg), 0 0 14px 2px rgba(var(--accent-rgb),0.55),
+                0 0 0 4px var(--bg), 0 0 0 7px rgba(var(--accent-rgb),0.30), 0 0 16px 3px rgba(var(--accent-rgb),0.55),
                 inset 0 1px 1px rgba(255,255,255,0.5);
             z-index: 101;
             pointer-events: none;
@@ -4360,10 +4349,9 @@
     <!-- Bottom navigation: the 5 main tabs. showPage() toggles .active on #btn-<page>
          and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer.
          The active tab's icon is hidden in the row (see .nav-item.active .nav-icon-wrap)
-         and instead shown, enlarged, inside #nav-notch-bubble — a separate floating
-         circle that JS (updateNavNotch) slides to sit directly above whichever tab
-         is active, punched through a matching circular hole in the bar's own
-         mask-image so the row visibly wraps around it. -->
+         and instead shown, enlarged, inside #nav-notch-bubble — a glowing circle that
+         JS (updateNavNotch) slides to sit just above whichever tab is active, poking
+         slightly above the floating pill bar. -->
     <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
         <div class="nav-item active" id="btn-dashboard" onclick="showPage('dashboard')" role="button">
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-home"></use></svg></div>
