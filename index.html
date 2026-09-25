@@ -319,7 +319,7 @@
         /* ===================== ONBOARDING (Google sign-in -> language -> Get Started) =====================
            Full-screen gate shown once per device on first visit. Sits above
            everything (including modals) via z-index. Completing it stores
-           'pca_onboarded'=1 in localStorage so it never shows again unless
+           'linn_onboarded'=1 in localStorage so it never shows again unless
            that key is cleared. */
         .onboarding-overlay {
             position: fixed; inset: 0; z-index: 999999;
@@ -1476,7 +1476,7 @@
 
         /* ===================== LOADERS (one style per place) =====================
            bars: button | dots: wallet | flip: vouchers | bar: chat photo upload |
-           ripple: startup | grid: games. PCA label animates letter by letter. */
+           ripple: startup | grid: games. LINN label animates letter by letter. */
         .ld-bars { display: inline-flex; align-items: center; gap: 2px; height: 28px; }
         .ld-bars i { width: 5px; height: 100%; border-radius: 2px; background: var(--accent); animation: ldBar 1s ease-in-out infinite; }
         .ld-bars i:nth-child(2) { animation-delay: .15s; } .ld-bars i:nth-child(3) { animation-delay: .3s; } .ld-bars i:nth-child(4) { animation-delay: .45s; }
@@ -1501,12 +1501,12 @@
         .ld-grid i:nth-child(6), .ld-grid i:nth-child(8) { animation-delay: .3s; }
         .ld-grid i:nth-child(9) { animation-delay: .4s; }
         @keyframes ldGrid { 0%, 100% { opacity: .2; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
-        /* Animated "PCA" wordmark: letters rise and glow in sequence */
-        .pca-anim { display: inline-flex; gap: 3px; margin-top: 14px; font-size: 15px; font-weight: 800; letter-spacing: 2px; }
-        .pca-anim span { color: var(--text-muted); animation: pcaLetter 1.2s ease-in-out infinite; }
-        .pca-anim span:nth-child(2) { animation-delay: .15s; } .pca-anim span:nth-child(3) { animation-delay: .3s; }
-        @keyframes pcaLetter { 0%, 60%, 100% { transform: translateY(0); color: var(--text-muted); } 30% { transform: translateY(-5px); color: var(--accent); } }
-        @media (prefers-reduced-motion: reduce) { .ld-bars i, .ld-dots i, .ld-flip, .ld-bar i, .ld-ripple i, .ld-grid i, .pca-anim span { animation: none; } }
+        /* Animated "LINN" wordmark: letters rise and glow in sequence */
+        .linn-anim { display: inline-flex; gap: 3px; margin-top: 14px; font-size: 15px; font-weight: 800; letter-spacing: 2px; }
+        .linn-anim span { color: var(--text-muted); animation: linnLetter 1.2s ease-in-out infinite; }
+        .linn-anim span:nth-child(2) { animation-delay: .15s; } .linn-anim span:nth-child(3) { animation-delay: .3s; } .linn-anim span:nth-child(4) { animation-delay: .45s; }
+        @keyframes linnLetter { 0%, 60%, 100% { transform: translateY(0); color: var(--text-muted); } 30% { transform: translateY(-5px); color: var(--accent); } }
+        @media (prefers-reduced-motion: reduce) { .ld-bars i, .ld-dots i, .ld-flip, .ld-bar i, .ld-ripple i, .ld-grid i, .linn-anim span { animation: none; } }
         .page-loading-label {
             margin-top: 12px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
             color: var(--text-muted);
@@ -2954,7 +2954,7 @@
 
     <!-- Onboarding gate: Google sign-in -> language choice -> purple "Get
          Started" button. Shown once per device; completing it sets
-         localStorage['pca_onboarded']='1' so it's skipped on every later
+         localStorage['linn_onboarded']='1' so it's skipped on every later
          visit. If a Google session already exists (returning device), the
          login step is skipped and this opens straight on language choice. -->
     <div class="onboarding-overlay" id="onboarding-overlay" style="display:none;">
@@ -4861,7 +4861,7 @@
         };
         window.LOADER_MARKUP = LOADER_MARKUP;
         function loadingStateHTML(type = 'grid') {
-            return `<div class="empty-state page-loading">${LOADER_MARKUP[type] || LOADER_MARKUP.grid}<div class="pca-anim"><span>P</span><span>C</span><span>A</span></div></div>`;
+            return `<div class="empty-state page-loading">${LOADER_MARKUP[type] || LOADER_MARKUP.grid}<div class="linn-anim"><span>L</span><span>I</span><span>N</span><span>N</span></div></div>`;
         }
         window.loadingStateHTML = loadingStateHTML;
 
@@ -7148,7 +7148,7 @@
             }
         }
 
-        // Copies just the user's ID itself (e.g. "PCA-1234"), not the "ID: "
+        // Copies just the user's ID itself (e.g. "LINN-1234"), not the "ID: "
         // label shown next to it in the profile hero card.
         function copyProfileId(btnEl) {
             const text = getGuestId();
@@ -7749,10 +7749,10 @@
         // A stable random ID for anyone who hasn't set a name yet, so the mini profile
         // strip always has something to show instead of a blank "Guest".
         //
-        // NEW IDs are "PCA-" + 8 random characters (e.g. PCA-K7M2Q9XR) drawn
+        // NEW IDs are "LINN-" + 8 random characters (e.g. LINN-K7M2Q9XR) drawn
         // from a 31-symbol alphabet with no look-alikes (no 0/O/1/I/L) —
         // ~8.5e11 combinations, so two devices colliding is practically
-        // impossible. (The old format was PCA-1000..9999: only 9,000 IDs,
+        // impossible. (The old format was LINN-1000..9999: only 9,000 IDs,
         // ~50% chance of a clash at ~110 users.) IDs that already exist in
         // users' localStorage / Firestore are left untouched, so nobody's
         // wallet or orders change.
@@ -7776,13 +7776,13 @@
                 out = '';
                 for (let i = 0; i < len; i++) out += GUEST_ID_ALPHABET[Math.floor(Math.random() * n)];
             }
-            return 'PCA-' + out;
+            return 'LINN-' + out;
         }
         window.makeGuestId = makeGuestId;
 
         // Private browsing / storage blocked: keep one unique ID for the
         // life of this page instead of returning a shared constant (the old
-        // 'PCA-0000' made every such visitor the SAME user — same wallet,
+        // 'LINN-0000' made every such visitor the SAME user — same wallet,
         // orders, ban status). A signed-in Google account still restores its
         // own canonical ID via applyGoogleProfile().
         let memoryGuestId = null;
@@ -8001,7 +8001,7 @@
         // calling api.imgbb.com directly, so the ImgBB API key stays server-side
         // and never ships in this file's client-side JS (same "key never reaches
         // the browser" pattern as the fazercards-functions Worker).
-        const IMGBB_UPLOAD_URL = 'https://imgbb-functions.pca-game-store.workers.dev';
+        const IMGBB_UPLOAD_URL = 'https://imgbb-function.linngamestore.workers.dev';
 
         async function uploadReceiptToImgBB(file) {
             const statusEl = document.getElementById('receipt-upload-status');
@@ -8825,7 +8825,7 @@
                 // neutral loading state, not the "No top up requests" empty
                 // state (which would misleadingly flash before real data).
                 list.innerHTML = '';
-                empty.innerHTML = `<div class="empty-state page-loading" style="min-height:30vh;">${LOADER_MARKUP.dots}<div class="pca-anim"><span>P</span><span>C</span><span>A</span></div></div>`;
+                empty.innerHTML = `<div class="empty-state page-loading" style="min-height:30vh;">${LOADER_MARKUP.dots}<div class="linn-anim"><span>L</span><span>I</span><span>N</span><span>N</span></div></div>`;
                 empty.style.display = 'block';
                 return;
             }
@@ -9188,7 +9188,7 @@
         async function generateFreshGuestId() {
             // Same 8-char format as getGuestId(); the Firestore existence
             // check is kept as a cheap second line of defence.
-            const make = window.makeGuestId || (() => 'PCA-' + Math.random().toString(36).slice(2, 10).toUpperCase());
+            const make = window.makeGuestId || (() => 'LINN-' + Math.random().toString(36).slice(2, 10).toUpperCase());
             for (let i = 0; i < 10; i++) {
                 const gid = make();
                 try {
@@ -9620,7 +9620,7 @@
                     // Clear the "already onboarded" flag and reload: every live listener
                     // (wallet, VIP, orders, chat) drops the old ID, and the app comes back
                     // up on the very first Login screen (the onboarding sign-in step).
-                    try { localStorage.removeItem('pca_onboarded'); } catch (e) { /* private browsing */ }
+                    try { localStorage.removeItem('linn_onboarded'); } catch (e) { /* private browsing */ }
                     location.reload();
                 })
                 .catch((e) => console.error('Google sign out error:', e));
@@ -9634,7 +9634,7 @@
         // already active when this first checks (returning device that
         // hasn't completed onboarding, or one signed in before this feature
         // shipped), the login step is skipped and it opens on language choice.
-        const ONBOARD_KEY = 'pca_onboarded';
+        const ONBOARD_KEY = 'linn_onboarded';
         let onboardAuthChecked = false;
         let onboardCurrentStep = null;
 
