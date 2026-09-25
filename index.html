@@ -224,7 +224,7 @@
            itself) would otherwise re-blur on every frame because the pixels
            behind them are animating — that's the stutter on tap. Drop the blur
            for just that window; it's back before the color fade even finishes. */
-        html.theme-switching .header, html.theme-switching .bottom-nav,
+        html.theme-switching .header, html.theme-switching .bottom-nav, html.theme-switching .nav-notch-bubble,
         html.theme-switching .theme-toggle, html.theme-switching .modal-box,
         html.theme-switching .modal-overlay, html.theme-switching .success-overlay,
         html.theme-switching #toast, html.theme-switching .glass-panel {
@@ -236,7 +236,7 @@
         body { background-color: var(--bg); color: var(--text); padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px)); }
         /* Room for the floating bottom nav; the nav itself hides on sub-pages (game detail, terms...). */
         body:not(.no-bottom-nav) { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
-        body.no-bottom-nav .bottom-nav { display: none; }
+        body.no-bottom-nav .bottom-nav, body.no-bottom-nav .nav-notch-bubble { display: none; }
         /* Was background-attachment: fixed on body, which forces a full repaint on every scroll frame on mobile. A fixed pseudo-element is composited instead. */
         body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: var(--bg-gradient); }
 
@@ -1943,7 +1943,7 @@
         .wallet-min-hint { margin: 10px 0 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.6); position: relative; z-index: 2; }
         /* Modal open: drop the floating bottom nav underneath the sheet so it never covers the slide-to-submit button
            (the overlay lives inside main.content-area's stacking context, which sits below the nav's z-index:100). */
-        body:has(.modal-overlay.show) .bottom-nav { z-index: 0; pointer-events: none; }
+        body:has(.modal-overlay.show) .bottom-nav, body:has(.modal-overlay.show) .nav-notch-bubble { z-index: 0; pointer-events: none; }
         .modal-box { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
 
         /* Payment method picker */
@@ -2422,8 +2422,14 @@
            nav's body padding-bottom below. */
         body { padding-top: calc(84px + env(safe-area-inset-top, 0px)); }
 
-        /* Bottom nav = a floating 3D glass dock, detached from the screen edge */
+        /* Bottom nav = a floating 3D glass dock, detached from the screen edge.
+           mask-image bites a circular notch out of the top edge, at whatever
+           x-position --notch-x currently holds (a px offset from the bar's
+           own left edge, kept in sync with #nav-notch-bubble by JS/
+           updateNavNotch) — so whichever tab is active reads as sitting IN
+           a hole in the bar's own shape, with the row wrapping around it. */
         .bottom-nav {
+            --notch-x: 45px;
             left: 12px; right: 12px; width: auto; bottom: 12px;
             background: var(--glass-bg-strong);
             -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
@@ -2435,6 +2441,16 @@
             position: fixed;
             transform: translateZ(0); will-change: transform;
             transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+            mask-image: radial-gradient(circle 28px at var(--notch-x) 0, transparent 99%, black 100%);
+            -webkit-mask-image: radial-gradient(circle 28px at var(--notch-x) 0, transparent 99%, black 100%);
+        }
+        @property --notch-x {
+            syntax: '<length>';
+            inherits: true;
+            initial-value: 45px;
+        }
+        @supports (transition: --notch-x) {
+            .bottom-nav { transition: transform 0.32s cubic-bezier(.4,0,.2,1), --notch-x 0.32s cubic-bezier(.34,1.56,.64,1); }
         }
         /* Applied by JS on scroll-down, removed on scroll-up/near-top — same
            listener that drives .header.header-hidden above. */
@@ -2444,75 +2460,44 @@
         .nav-label { transition: transform 0.2s ease, opacity 0.2s ease; }
         .nav-item.active .nav-label { transform: translateY(-1px); font-weight: 600; }
 
-        /* Each icon sits in its own little 3D glass button — flat by default,
-           and "pops" up out of the dock with a glossy highlight + drop shadow
-           when active, like a physical glass key being pressed up from below. */
         .nav-icon-wrap {
             position: relative;
-            background: rgba(var(--accent-rgb), 0.06);
-            border: 1px solid transparent;
-            transform: translateY(0) scale(1);
-            transition: transform 0.32s cubic-bezier(.34,1.56,.64,1), background 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
-            overflow: hidden;
+            width: 27px; height: 27px;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.15s ease;
         }
-        .nav-item:active .nav-icon-wrap { transform: translateY(0) scale(0.9); }
-        .nav-item.active .nav-icon-wrap {
-            background: linear-gradient(150deg, rgba(var(--accent-rgb),0.5), rgba(var(--accent-rgb),0.22) 60%, rgba(var(--accent-rgb),0.32));
-            border-color: rgba(255,255,255,0.5);
-            box-shadow:
-                0 10px 18px -6px rgba(var(--accent-rgb),0.55),
-                0 2px 4px rgba(0,0,0,0.08),
-                inset 0 1px 1px rgba(255,255,255,0.75),
-                inset 0 -4px 8px rgba(0,0,0,0.12);
-            transform: translateY(-7px) scale(1.08);
-        }
-        html[data-theme="dark"] .nav-item.active .nav-icon-wrap {
-            box-shadow:
-                0 10px 20px -6px rgba(var(--accent-rgb),0.6),
-                0 2px 6px rgba(0,0,0,0.4),
-                inset 0 1px 1px rgba(255,255,255,0.25),
-                inset 0 -4px 8px rgba(0,0,0,0.3);
-        }
-        /* Specular glass highlight streak across the top of the active bubble */
-        .nav-icon-wrap::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 55%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0));
-            opacity: 0; transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .nav-item.active .nav-icon-wrap::before { opacity: 1; }
-        .nav-item.active .nav-icon-wrap .ui-icon { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.12)); }
+        .nav-item:active .nav-icon-wrap { opacity: 0.6; }
+        /* The active tab's own icon is hidden in the row — it's shown
+           instead, enlarged, inside the floating #nav-notch-bubble that
+           sits in the bar's notch directly above this slot. Keep the
+           layout space (visibility, not display:none) so the label below
+           doesn't jump. */
+        .nav-item.active .nav-icon-wrap { visibility: hidden; }
 
-        /* Wallet tab: always-on glowing bubble that floats above the dock,
-           like a FAB, so it reads as the shortcut to add/manage money even
-           when it isn't the active tab. Stays lit (not just on .active) so
-           it's never mistaken for a disabled/inactive icon. */
-        .nav-item-wallet { overflow: visible; }
-        .nav-icon-wrap-wallet {
-            width: 36px; height: 36px; border-radius: 50%;
+        /* The floating notch bubble: one shared element (not per-tab) that
+           JS slides horizontally to sit above whichever tab is active,
+           and whose icon JS swaps to match. Same accent color as before —
+           only the layout/behavior changed, not the palette. */
+        .nav-notch-bubble {
+            position: fixed;
+            left: 0;
+            bottom: calc(12px + 40px + env(safe-area-inset-bottom, 0px));
+            transform: translateX(-50%);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             background: linear-gradient(150deg, var(--accent), var(--accent-dark));
-            transform: translateY(-9px);
             box-shadow:
-                0 6px 16px -2px rgba(var(--accent-rgb),0.65),
-                0 0 0 3px var(--bg), 0 0 12px 2px rgba(var(--accent-rgb),0.55),
+                0 8px 18px -4px rgba(var(--accent-rgb),0.65),
+                0 0 0 4px var(--bg), 0 0 14px 2px rgba(var(--accent-rgb),0.55),
                 inset 0 1px 1px rgba(255,255,255,0.5);
-            animation: walletGlowPulse 2.4s ease-in-out infinite;
+            z-index: 101;
+            pointer-events: none;
+            transition: left 0.32s cubic-bezier(.34,1.56,.64,1), transform 0.32s cubic-bezier(.4,0,.2,1);
         }
-        .nav-icon-wrap-wallet .ui-icon { width: 18px; height: 18px; stroke: #fff; }
-        .nav-item-wallet:active .nav-icon-wrap-wallet { transform: translateY(-9px) scale(0.92); }
-        .nav-item-wallet.active .nav-icon-wrap-wallet,
-        .nav-item.active .nav-icon-wrap-wallet {
-            background: linear-gradient(150deg, var(--accent), var(--accent-dark));
-            transform: translateY(-9px) scale(1.06);
-        }
-        .nav-item-wallet .nav-label { color: var(--accent); font-weight: 600; }
-        @keyframes walletGlowPulse {
-            0%, 100% { box-shadow: 0 6px 16px -2px rgba(var(--accent-rgb),0.65), 0 0 0 4px var(--bg), 0 0 14px 2px rgba(var(--accent-rgb),0.55), inset 0 1px 1px rgba(255,255,255,0.5); }
-            50% { box-shadow: 0 6px 18px -2px rgba(var(--accent-rgb),0.85), 0 0 0 4px var(--bg), 0 0 22px 6px rgba(var(--accent-rgb),0.8), inset 0 1px 1px rgba(255,255,255,0.5); }
-        }
+        .nav-notch-bubble.nav-hidden { transform: translateX(-50%) translateY(calc(100% + 24px)); }
+        .nav-notch-bubble .ui-icon { width: 17px; height: 17px; stroke: #fff; }
         @media (prefers-reduced-motion: reduce) {
-            .nav-icon-wrap-wallet { animation: none; }
+            .nav-notch-bubble { transition: transform 0.32s cubic-bezier(.4,0,.2,1); }
         }
 
         /* Cards
@@ -2918,8 +2903,10 @@
             </radialGradient>
         </defs>
         <symbol id="icon-gamepad" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path></symbol>
+        <symbol id="icon-gamepad-nav" viewBox="0 0 24 24"><path d="M7 8h10a4 4 0 0 1 4 4v3.2a2.3 2.3 0 0 1-3.9 1.65L15.6 15.4a2 2 0 0 0-1.4-.58h-4.4a2 2 0 0 0-1.4.58l-1.5 1.45A2.3 2.3 0 0 1 3 15.2V12a4 4 0 0 1 4-4Z"></path><line x1="7.2" y1="11.5" x2="9.4" y2="11.5"></line><line x1="8.3" y1="10.4" x2="8.3" y2="12.6"></line><circle cx="16" cy="10.8" r="0.9" fill="currentColor" stroke="none"></circle><circle cx="17.7" cy="12.5" r="0.9" fill="currentColor" stroke="none"></circle></symbol>
         <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></symbol>
         <symbol id="icon-history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="3" x2="12" y2="4.5"></line><line x1="12" y1="19.5" x2="12" y2="21"></line><line x1="3" y1="12" x2="4.5" y2="12"></line><line x1="19.5" y1="12" x2="21" y2="12"></line><polyline points="12 7 12 12.5 16 15"></polyline></symbol>
+        <symbol id="icon-history-nav" viewBox="0 0 24 24"><path d="M5 4.5h11.5a2.5 2.5 0 0 1 2.5 2.5v12.2c0 .55-.6.9-1.08.62l-1.86-1.08a1 1 0 0 0-1 0l-1.36.79a1 1 0 0 1-1 0l-1.36-.79a1 1 0 0 0-1 0l-1.36.79a1 1 0 0 1-1 0L6.1 17.75a1 1 0 0 0-1 0L3.5 18.7V7A2.5 2.5 0 0 1 5 4.5Z"></path><line x1="7.5" y1="8.5" x2="14.5" y2="8.5"></line><line x1="7.5" y1="12" x2="14.5" y2="12"></line><line x1="7.5" y1="15.5" x2="11.5" y2="15.5"></line></symbol>
         <symbol id="icon-wallet" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path></symbol>
         <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
 
@@ -3086,9 +3073,6 @@
         <div class="header-icons-group" style="display:flex;align-items:center;">
             <div class="header-icon" id="header-guide-btn" onclick="window.openGuidePage(); window.switchSupportTab('guide');" role="button" aria-label="Open User Guide" style="margin-right:8px;">
                 <svg class="ui-icon" style="width:19px;height:19px;"><use href="#icon-book"></use></svg>
-            </div>
-            <div class="header-icon" id="header-history-btn" onclick="drawerNavigate('history')" role="button" aria-label="Order History" style="margin-right:8px;">
-                <svg class="ui-icon" style="width:19px;height:19px;"><use href="#icon-history"></use></svg>
             </div>
             <div class="header-icon header-menu-btn" id="drawer-toggle-btn" onclick="openDrawer()" role="button" aria-label="Open menu">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
@@ -4244,25 +4228,37 @@
     </main>
 
     <!-- Bottom navigation: the 5 main tabs. showPage() toggles .active on #btn-<page>
-         and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer. -->
+         and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer.
+         The active tab's icon is hidden in the row (see .nav-item.active .nav-icon-wrap)
+         and instead shown, enlarged, inside #nav-notch-bubble — a separate floating
+         circle that JS (updateNavNotch) slides to sit directly above whichever tab
+         is active, punched through a matching circular hole in the bar's own
+         mask-image so the row visibly wraps around it. -->
     <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
         <div class="nav-item active" id="btn-dashboard" onclick="showPage('dashboard')" role="button">
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-home"></use></svg></div>
             <span class="nav-label" data-i18n="nav_home">Home</span>
         </div>
         <div class="nav-item" id="btn-game" onclick="showPage(window.lastGameSubTab || 'home')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-gamepad"></use></svg></div>
+            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-gamepad-nav"></use></svg></div>
             <span class="nav-label" data-i18n="nav_game">Game</span>
         </div>
-        <div class="nav-item nav-item-wallet" id="btn-wallet" onclick="showPage('wallet')" role="button">
-            <div class="nav-icon-wrap nav-icon-wrap-wallet"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
+        <div class="nav-item" id="btn-wallet" onclick="showPage('wallet')" role="button">
+            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
             <span class="nav-label" data-i18n="nav_wallet">Wallet</span>
+        </div>
+        <div class="nav-item" id="btn-history" onclick="showPage('history')" role="button">
+            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-history-nav"></use></svg></div>
+            <span class="nav-label" data-i18n="nav_history">History</span>
         </div>
         <div class="nav-item" id="btn-profile" onclick="showPage('profile')" role="button">
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-user"></use></svg></div>
             <span class="nav-label" data-i18n="nav_profile">Profile</span>
         </div>
     </nav>
+    <div class="nav-notch-bubble" id="nav-notch-bubble" aria-hidden="true">
+        <svg class="ui-icon"><use id="nav-notch-icon" href="#icon-home" xlink:href="#icon-home"></use></svg>
+    </div>
 
     <!-- Order Success Screen -->
     <div class="success-overlay" id="success-overlay">
@@ -4810,6 +4806,7 @@
             if (GAME_TAB_PAGES.includes(pageId)) window.lastGameSubTab = pageId;
             const navBtn = document.getElementById(`btn-${pageId}`) || (GAME_TAB_PAGES.includes(pageId) ? document.getElementById('btn-game') : null);
             if (navBtn) navBtn.classList.add('active');
+            if (navBtn && window.updateNavNotch) window.updateNavNotch(navBtn);
             document.querySelectorAll('.drawer-nav-item[data-page]').forEach(el => {
                 el.classList.toggle('active', el.dataset.page === pageId);
             });
@@ -4937,10 +4934,44 @@
             if (e.key === 'Escape') closeDrawer();
         });
 
+        // Slides #nav-notch-bubble to sit centered above whichever nav-item
+        // is active, swaps its icon to match, and moves the bar's own
+        // --notch-x mask position to the same spot (see .bottom-nav CSS) so
+        // the bubble reads as popping up through a hole in the bar rather
+        // than floating on top of it. Called from showPage() on every tab
+        // switch, once on load, and again on resize (tab centers shift with
+        // bar width).
+        function updateNavNotch(navBtn) {
+            const bar = document.getElementById('bottom-nav');
+            const bubble = document.getElementById('nav-notch-bubble');
+            const bubbleIcon = document.getElementById('nav-notch-icon');
+            if (!bar || !bubble || !navBtn) return;
+            const barRect = bar.getBoundingClientRect();
+            const btnRect = navBtn.getBoundingClientRect();
+            const centerX = btnRect.left + btnRect.width / 2;
+            bubble.style.left = `${centerX}px`;
+            bar.style.setProperty('--notch-x', `${centerX - barRect.left}px`);
+            const srcUse = navBtn.querySelector('.nav-icon-wrap use');
+            const href = srcUse && (srcUse.getAttribute('href') || srcUse.getAttribute('xlink:href'));
+            if (href && bubbleIcon) {
+                bubbleIcon.setAttribute('href', href);
+                bubbleIcon.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', href);
+            }
+        }
+        window.updateNavNotch = updateNavNotch;
+        window.addEventListener('resize', () => {
+            const activeBtn = document.querySelector('.nav-item.active');
+            if (activeBtn) updateNavNotch(activeBtn);
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeBtn = document.querySelector('.nav-item.active') || document.getElementById('btn-dashboard');
+            if (activeBtn) updateNavNotch(activeBtn);
+        });
+
         // Swipe left/right on the main content to move between bottom-nav
-        // tabs, same order as the nav bar (Home -> Voucher -> History ->
-        // Top -> Wallet -> Profile). Only fires while on one of those six
-        // pages (sub-pages like game-detail/server-select are left alone),
+        // tabs, same order as the nav bar (Home -> Voucher -> Wallet ->
+        // History -> Profile). Only fires while on one of those pages
+        // (sub-pages like game-detail/server-select are left alone),
         // and backs off entirely if the gesture actually scrolled a
         // horizontally-scrolling row under the finger (e.g. Popular Games)
         // instead of moving across the whole screen.
@@ -4951,13 +4982,13 @@
         // whose swipe-left/swipe-right animation slides the next page in
         // the rest of the way from off-screen.
         (function initTabSwipe() {
-            // Only the 4 pages actually shown in the bottom nav bar - keeps
+            // Only the pages actually shown in the bottom nav bar - keeps
             // left/right swipe in sync with what's visibly highlighted down
-            // there. Name Check / History / Leaderboard are drawer-only
-            // pages (no bottom-nav tab), so they're deliberately excluded -
-            // swiping past Wallet/Profile used to land on one of them with
+            // there. Name Check / Leaderboard are drawer-only pages (no
+            // bottom-nav tab), so they're deliberately excluded - swiping
+            // past Wallet/History/Profile used to land on one of them with
             // no nav item lit up, which looked like the swipe "went nowhere".
-            const TAB_ORDER = ['home', 'voucher', 'wallet', 'profile'];
+            const TAB_ORDER = ['home', 'voucher', 'wallet', 'history', 'profile'];
             const content = document.querySelector('main.content-area');
             if (!content) return;
 
@@ -5707,17 +5738,21 @@
             let ticking = false;
             const headerEl = document.querySelector('.header');
             const navEl = document.getElementById('bottom-nav');
+            const notchBubbleEl = document.getElementById('nav-notch-bubble');
             function applyHeaderVisibility() {
                 const y = window.scrollY;
                 if (y < 40) {
                     if (headerEl) headerEl.classList.remove('header-hidden');
                     if (navEl) navEl.classList.remove('nav-hidden');
+                    if (notchBubbleEl) notchBubbleEl.classList.remove('nav-hidden');
                 } else if (y > lastY + 4) {
                     if (headerEl) headerEl.classList.add('header-hidden');
                     if (navEl) navEl.classList.add('nav-hidden');
+                    if (notchBubbleEl) notchBubbleEl.classList.add('nav-hidden');
                 } else if (y < lastY - 4) {
                     if (headerEl) headerEl.classList.remove('header-hidden');
                     if (navEl) navEl.classList.remove('nav-hidden');
+                    if (notchBubbleEl) notchBubbleEl.classList.remove('nav-hidden');
                 }
                 lastY = y;
                 ticking = false;
