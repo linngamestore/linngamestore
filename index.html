@@ -651,6 +651,27 @@
         .admin-status-bar { width: fit-content; padding: 3px 10px; font-size: 10.5px; font-weight: 600; gap: 5px; }
         .admin-status-bar.online-text { background: rgba(49,162,76,0.12); border-color: rgba(49,162,76,0.35); }
         .admin-status-bar .admin-status-dot { width: 6px; height: 6px; }
+        /* Row holding the admin status pill and the wallet top-up toast
+           side by side; either can be hidden independently (no data yet)
+           without leaving a gap. */
+        .home-status-row { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; margin: 8px 15px 0; }
+        .home-status-row > .admin-status-bar, .home-status-row > .wallet-topup-toast { margin: 0; }
+        .wallet-topup-toast {
+            display: none; align-items: center; gap: 6px; min-width: 0;
+            width: fit-content; max-width: 100%; padding: 3px 12px 3px 10px;
+            font-size: 10.5px; font-weight: 500; color: var(--text-secondary);
+            background: var(--surface-alt); border: 1px solid var(--border); border-radius: 20px;
+        }
+        .wallet-topup-toast.show { display: inline-flex; }
+        .wallet-topup-toast svg { color: var(--accent); }
+        .wallet-topup-toast-msg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .wallet-topup-toast-msg b { color: var(--accent); font-weight: 600; }
+        .wallet-topup-toast-msg.toast-cycle { animation: walletToastCycle 3.5s ease-in-out; }
+        @keyframes walletToastCycle {
+            0% { opacity: 0; transform: translateY(6px); }
+            12%, 78% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-6px); }
+        }
         .notif-item { background: var(--surface); padding: 14px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
         .notif-item h5 { font-size: 15px; color: var(--text); margin-bottom: 4px; font-weight: 500; }
         .notif-item p { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
@@ -685,14 +706,16 @@
         /* Live Ticker (real top-up activity, only shows when real orders exist) */
         .bullet-chat-wrapper {
             margin: 8px 15px 0;
-            border-radius: 9px;
+            padding: 4px;
+            gap: 6px;
+            border-radius: 12px;
             background: var(--surface);
             border: 1px solid var(--border);
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             display: none;
-            align-items: stretch;
+            align-items: center;
             overflow: hidden;
-            height: 29px;
+            height: 32px;
         }
         .bullet-chat-wrapper.show { display: flex; }
         .bullet-chat-wrapper.home-hidden { display: none !important; }
@@ -702,20 +725,22 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            background: var(--accent);
-            color: var(--on-color);
+            background: #1877F2;
+            color: #fff;
             font-size: 9px;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.3px;
-            padding: 0 8px;
+            padding: 4px 8px;
+            border-radius: 10px;
         }
+        html[data-theme="dark"] .bullet-chat-badge { background: #EF4444; }
         .bullet-chat-badge .live-dot {
             width: 5px; height: 5px; border-radius: 50%;
-            background: var(--surface);
+            background: #fff;
             animation: liveDotPulse 1.4s ease-in-out infinite;
         }
         @keyframes liveDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-        .bullet-chat-container { flex: 1; background: var(--surface-alt); color: var(--text); padding: 0; overflow: hidden; white-space: nowrap; min-width: 0; display: flex; align-items: center; }
+        .bullet-chat-container { flex: 1; background: var(--surface-alt); color: var(--text); padding: 0; overflow: hidden; white-space: nowrap; min-width: 0; display: flex; align-items: center; border-radius: 8px; }
         .bullet-chat { display: inline-block; animation-name: moveBullet; animation-timing-function: linear; animation-iteration-count: 1; animation-fill-mode: forwards; }
         .bullet-chat span { display: inline-flex; align-items: center; gap: 4px; margin-right: 7px; font-size: 11px; line-height: 1; background: var(--surface); color: var(--text); padding: 3.5px 10px; border-radius: 12px; font-weight: 500; border: 1px solid #E9EBEE; }
         .bullet-chat span svg { width: 11px; height: 11px; flex-shrink: 0; }
@@ -765,6 +790,44 @@
             animation: flashSalePulse 1.4s ease-in-out infinite;
         }
         @keyframes flashSalePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+        /* Home banner carousel replacing the old Wallet/Orders stat grid.
+           Auto-advances on a timer; also swipeable by touch/drag. Track
+           width is numSlides*100%, each slide 100%/numSlides of the track
+           so translateX(-slideIndex/numSlides*100%) lines each one up.
+           Each slide is a 16:9 image; until its <img> loads (or if it
+           fails/has no src), the slide just shows the shimmering skeleton
+           — no text/icon placeholder underneath. */
+        .home-banner-carousel { margin-bottom: 18px; }
+        .home-banner-track {
+            display: flex; width: 300%; border-radius: 8px; overflow: hidden;
+            transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+            touch-action: pan-y;
+        }
+        .home-banner-track.dragging { transition: none; }
+        .home-banner-slide {
+            position: relative; width: 33.3333%; flex-shrink: 0; aspect-ratio: 16 / 9;
+            overflow: hidden;
+            background: linear-gradient(90deg, var(--border) 25%, var(--skel-shine) 37%, var(--border) 63%);
+            background-size: 400% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite;
+            user-select: none; -webkit-user-select: none;
+        }
+        .home-banner-slide.img-ready { animation: none; background: var(--border); }
+        .home-banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.25s ease; }
+        .home-banner-slide.img-ready img { opacity: 1; }
+        /* Sheen sweep: a soft light band glides across the loaded banner
+           image every few seconds, then pauses off-screen before repeating —
+           purely decorative, only runs once the real image is showing. */
+        .home-banner-slide.img-ready::after {
+            content: ''; position: absolute; top: 0; left: -60%; width: 50%; height: 100%;
+            background: linear-gradient(115deg, transparent, rgba(255,255,255,0.35), transparent);
+            animation: bannerSheen 3s ease-in-out infinite; pointer-events: none;
+        }
+        @keyframes bannerSheen { 0% { left: -60%; } 20% { left: 120%; } 100% { left: 120%; } }
+        @media (prefers-reduced-motion: reduce) { .home-banner-slide { animation: none; } .home-banner-slide.img-ready::after { animation: none; display: none; } }
+        .home-banner-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+        .home-banner-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.25s, width 0.25s; }
+        .home-banner-dot.active { width: 16px; border-radius: 3px; background: var(--accent); }
         
         /* Cards & Lists */
         .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -2465,12 +2528,12 @@
            a hole in the bar's own shape, with the row wrapping around it. */
         .bottom-nav {
             --notch-x: 45px;
-            left: 12px; right: 12px; width: auto; bottom: 12px;
+            left: 0; right: 0; width: 100%; bottom: 0;
             background: var(--glass-bg-strong);
             -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
             border: 1px solid var(--glass-border);
-            border-top: 1px solid var(--glass-border);
-            border-radius: 16px;
+            border-bottom: none;
+            border-radius: 16px 16px 0 0;
             padding: 4px 4px calc(4px + env(safe-area-inset-bottom, 0px));
             box-shadow: 0 16px 40px -10px rgba(20,30,60,0.35), inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 8px rgba(0,0,0,0.04);
             position: fixed;
@@ -2516,7 +2579,7 @@
         .nav-notch-bubble {
             position: fixed;
             left: 0;
-            bottom: calc(12px + 40px + env(safe-area-inset-bottom, 0px));
+            bottom: calc(40px + env(safe-area-inset-bottom, 0px));
             transform: translateX(-50%);
             width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -3193,10 +3256,19 @@
 
     <!-- Admin online/offline status: reflects settings/presence, written every 60s
          by admin.html while an admin is signed in there. Hidden until the first
-         reading arrives so it never flashes a wrong state on load. -->
-    <div class="admin-status-bar" id="admin-status-bar" style="display:none;">
-        <span class="admin-status-dot" id="admin-status-dot"></span>
-        <span id="admin-status-text">Checking admin status...</span>
+         reading arrives so it never flashes a wrong state on load.
+         Wallet top-up toast: cycles recent completed wallet top-ups from
+         ANY user (masked name), so everyone can see live top-up activity —
+         a toast rises in, holds, then fades before the next one appears. -->
+    <div class="home-status-row" id="home-status-row">
+        <div class="admin-status-bar" id="admin-status-bar" style="display:none;">
+            <span class="admin-status-dot" id="admin-status-dot"></span>
+            <span id="admin-status-text">Checking admin status...</span>
+        </div>
+        <div class="wallet-topup-toast" id="wallet-topup-toast">
+            <svg class="ui-icon" style="width:12px;height:12px;flex-shrink:0;"><use href="#icon-wallet"></use></svg>
+            <span id="wallet-topup-toast-msg"></span>
+        </div>
     </div>
 
     <!-- Mini Profile Strip: shows saved name/photo, or a Guest ID if none set yet -->
@@ -3239,17 +3311,19 @@
                 </div>
                 <div class="flash-sale-countdown" id="flash-sale-countdown">--:--:--</div>
             </div>
-            <div class="dash-stats-grid">
-                <div class="dash-stat-card dash-stat-wallet" onclick="showPage('wallet')" role="button">
-                    <div class="dash-stat-icon"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
-                    <span class="dash-stat-label" data-i18n="nav_wallet">Wallet</span>
-                    <div class="dash-stat-value" id="dash-wallet-amount">0 MMK</div>
+            <div class="home-banner-carousel" id="home-banner-carousel">
+                <div class="home-banner-track" id="home-banner-track">
+                    <div class="home-banner-slide skel">
+                        <img src="/banners/banner-1.jpg" alt="" loading="eager" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
+                    </div>
+                    <div class="home-banner-slide skel">
+                        <img src="/banners/banner-2.jpg" alt="" loading="lazy" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
+                    </div>
+                    <div class="home-banner-slide skel">
+                        <img src="/banners/banner-3.jpg" alt="" loading="lazy" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
+                    </div>
                 </div>
-                <div class="dash-stat-card" onclick="drawerNavigate('history')" role="button">
-                    <div class="dash-stat-icon"><svg class="ui-icon"><use href="#icon-history-nav"></use></svg></div>
-                    <span class="dash-stat-label" data-i18n="dash_orders">Orders</span>
-                    <div class="dash-stat-value" id="dash-order-count">0</div>
-                </div>
+                <div class="home-banner-dots" id="home-banner-dots"></div>
             </div>
             <div id="popular-games-section">
                 <h2 class="title-header" data-i18n="title_popular_games">Popular Games</h2>
@@ -10845,7 +10919,7 @@
             track.style.animation = 'none';
             void track.offsetWidth; // force reflow so the animation restarts
             const distance = window.innerWidth + track.offsetWidth;
-            const PIXELS_PER_SECOND = 70; // slowed down from 110 for easier reading
+            const PIXELS_PER_SECOND = 55; // slowed further from 70 for easier reading
             const duration = Math.min(45, Math.max(14, distance / PIXELS_PER_SECOND));
             track.style.animation = '';
             track.style.animationDuration = duration + 's';
@@ -10879,6 +10953,58 @@
             });
         }
         deferInit(() => { listenAnnouncements(); listenTierSettings(); });
+
+        // Wallet top-up toast: shows recent COMPLETED top-ups from every
+        // user (not just the current one), one at a time, so people can see
+        // that others are actively topping up. Names are masked for privacy
+        // (e.g. "Ko***g") since this is visible to any visitor.
+        function maskDisplayName(name) {
+            const clean = String(name || '').trim();
+            if (!clean) return 'A user';
+            if (clean.length <= 2) return clean[0] + '***';
+            return clean.slice(0, 2) + '***' + clean.slice(-1);
+        }
+        let walletToastQueue = [];
+        let walletToastIndex = 0;
+        let walletToastTimer = null;
+        const WALLET_TOAST_CYCLE_MS = 4200; // slightly longer than the 3.5s rise/hold/fade animation
+
+        function playNextWalletToast() {
+            const wrap = document.getElementById('wallet-topup-toast');
+            const msgEl = document.getElementById('wallet-topup-toast-msg');
+            if (!wrap || !msgEl) return;
+            if (walletToastTimer) { clearTimeout(walletToastTimer); walletToastTimer = null; }
+            if (walletToastQueue.length === 0) {
+                wrap.classList.remove('show');
+                return;
+            }
+            wrap.classList.add('show');
+            const item = walletToastQueue[walletToastIndex % walletToastQueue.length];
+            walletToastIndex = (walletToastIndex + 1) % walletToastQueue.length;
+            msgEl.innerHTML = `<b>${maskDisplayName(item.name)}</b> topped up ${(item.amount || 0).toLocaleString()} MMK`;
+            msgEl.classList.remove('toast-cycle');
+            void msgEl.offsetWidth; // restart the css animation
+            msgEl.classList.add('toast-cycle');
+            walletToastTimer = setTimeout(playNextWalletToast, WALLET_TOAST_CYCLE_MS);
+        }
+
+        let walletToastListenerAttached = false;
+        function listenWalletTopupToasts() {
+            if (walletToastListenerAttached) return;
+            walletToastListenerAttached = true;
+            const q = query(collection(db, "walletTopups"), where("status", "==", "Completed"), orderBy("timestamp", "desc"), limit(15));
+            onSnapshot(q, (snap) => {
+                walletToastQueue = snap.docs.map(docSnap => {
+                    const d = docSnap.data();
+                    return { name: d.userName, amount: d.amount };
+                });
+                walletToastIndex = 0;
+                if (!walletToastTimer) playNextWalletToast();
+            }, (error) => {
+                console.error("Wallet top-up toast listener error:", error);
+            });
+        }
+        deferInit(() => { listenWalletTopupToasts(); });
 
         // ---------- Flash Sale Banner (Home page) ----------
         // Firestore only tells us WHETHER a sale is on and WHEN it ends -
@@ -13908,8 +14034,95 @@
         }
         window.submitComplaint = submitComplaint;
 
+        // Home banner carousel: auto-swipes every 4s, pauses while the user
+        // is dragging/touching it or the tab is backgrounded, and resumes
+        // a few seconds after the user lets go. Also swipeable by hand
+        // (touch or mouse drag) with a snap-back if the drag doesn't clear
+        // a distance threshold.
+        function initHomeBannerCarousel() {
+            const track = document.getElementById('home-banner-track');
+            const dotsWrap = document.getElementById('home-banner-dots');
+            if (!track || !dotsWrap) return;
+            const slides = track.children;
+            const count = slides.length;
+            if (count <= 1) { dotsWrap.style.display = 'none'; return; }
+            let index = 0;
+            let autoTimer = null;
+            const AUTO_MS = 4000;
+            const RESUME_DELAY_MS = 5000;
+
+            for (let i = 0; i < count; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'home-banner-dot' + (i === 0 ? ' active' : '');
+                dot.addEventListener('click', () => goTo(i));
+                dotsWrap.appendChild(dot);
+            }
+            const dots = dotsWrap.children;
+
+            function render() {
+                track.style.transform = `translateX(${-index * (100 / count)}%)`;
+                for (let i = 0; i < dots.length; i++) {
+                    dots[i].classList.toggle('active', i === index);
+                }
+            }
+            function goTo(i) {
+                index = ((i % count) + count) % count;
+                render();
+            }
+            function next() { goTo(index + 1); }
+            function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+            function startAuto() {
+                stopAuto();
+                autoTimer = setInterval(next, AUTO_MS);
+            }
+            let resumeTimer = null;
+            function pauseThenResume() {
+                stopAuto();
+                clearTimeout(resumeTimer);
+                resumeTimer = setTimeout(startAuto, RESUME_DELAY_MS);
+            }
+
+            let dragging = false, startX = 0, deltaX = 0, trackWidth = 0;
+            function pointerDown(x) {
+                dragging = true;
+                startX = x; deltaX = 0;
+                trackWidth = track.getBoundingClientRect().width;
+                track.classList.add('dragging');
+                pauseThenResume();
+            }
+            function pointerMove(x) {
+                if (!dragging) return;
+                deltaX = x - startX;
+                const basePct = -index * (100 / count);
+                const dragPct = (deltaX / trackWidth) * 100;
+                track.style.transform = `translateX(${basePct + dragPct}%)`;
+            }
+            function pointerUp() {
+                if (!dragging) return;
+                dragging = false;
+                track.classList.remove('dragging');
+                const threshold = trackWidth * 0.15;
+                if (deltaX <= -threshold) goTo(index + 1);
+                else if (deltaX >= threshold) goTo(index - 1);
+                else render();
+            }
+            track.addEventListener('touchstart', (e) => pointerDown(e.touches[0].clientX), { passive: true });
+            track.addEventListener('touchmove', (e) => pointerMove(e.touches[0].clientX), { passive: true });
+            track.addEventListener('touchend', pointerUp);
+            track.addEventListener('mousedown', (e) => { e.preventDefault(); pointerDown(e.clientX); });
+            window.addEventListener('mousemove', (e) => pointerMove(e.clientX));
+            window.addEventListener('mouseup', pointerUp);
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) stopAuto(); else startAuto();
+            });
+
+            render();
+            startAuto();
+        }
+
         initSupportWidget();
         initPackageCardLongPressCopy();
+        initHomeBannerCarousel();
         applyI18n();
     </script>
     <!-- Shown only when Chrome fires 'beforeinstallprompt' (site meets PWA
