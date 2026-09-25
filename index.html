@@ -3179,7 +3179,7 @@
 
     <!-- Header -->
     <header class="header">
-        <div class="logo logo-loading" id="header-logo" onclick="window.open('https://t.me/pca_gamestore','_blank')" role="button" aria-label="Open Linn Game Store Telegram channel">
+        <div class="logo logo-loading" id="header-logo" onclick="window.openAdminTelegram()" role="button" aria-label="Open Linn Game Store Telegram channel">
             <span class="logo-icon-wrap">
                 <svg class="ui-icon" id="header-logo-default-icon" style="color:var(--accent);"><use href="#icon-gamepad"></use></svg>
                 <img id="header-logo-img" src="" alt="Linn Game Store" style="display:none;" onerror="this.style.display='none';">
@@ -3193,10 +3193,10 @@
             <div class="header-lang-toggle" id="header-lang-toggle" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
                 <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb">EN</span>
             </div>
-            <a class="header-social-btn messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
+            <a class="header-social-btn messenger-btn" id="header-messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
                 <svg><use href="#icon-messenger-filled"></use></svg>
             </a>
-            <a class="header-social-btn telegram-btn" href="https://t.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Telegram">
+            <a class="header-social-btn telegram-btn" id="header-telegram-btn" href="https://t.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Telegram">
                 <svg><use href="#icon-telegram-filled"></use></svg>
             </a>
             <div class="header-icon header-menu-btn" id="drawer-toggle-btn" onclick="openDrawer()" role="button" aria-label="Open menu">
@@ -3336,6 +3336,9 @@
             </div>
             <div class="home-banner-carousel" id="home-banner-carousel">
                 <div class="home-banner-track" id="home-banner-track">
+                    <!-- Slides are filled in by loadHomeBanners() from settings/homeBanners
+                         (admin-uploaded); falls back to these defaults if that doc is
+                         empty/missing so the page never ships with zero banners. -->
                     <div class="home-banner-slide skel">
                         <img src="/banners/banner-1.jpg" alt="" loading="eager" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
                     </div>
@@ -10273,21 +10276,57 @@
         }
         window.contactAdmin = contactAdmin;
 
+        // Fallback username used whenever the admin hasn't configured a
+        // Support Contact username yet (Dashboard → Settings → Social Links
+        // → Support Contact), so these buttons always work even when unset.
+        const DEFAULT_SUPPORT_TELEGRAM = 'pca_gamestore';
+
         // Support Chat (product mode) and the Account tab's general Support
         // button both open this directly now — no more live in-app chat
         // panel. Account Marketplace's per-listing "Ask about this account"
         // instead opens the posting admin's own Telegram — see
         // contactAccountAdminOnTelegram(), which falls back to this same
-        // username. Hardcoded rather than SOCIAL_LINKS.telegram (used by
-        // contactAdmin() above) so this specific button always works even
-        // if that setting is unset.
+        // username. Uses the admin-configured Support Contact Telegram
+        // username (renderHeaderSupportButtons below) rather than
+        // SOCIAL_LINKS.telegram (used by contactAdmin() above), falling back
+        // to DEFAULT_SUPPORT_TELEGRAM so this specific button always works
+        // even if that setting is unset.
         function openAdminTelegram() {
-            window.open('https://t.me/pca_gamestore', '_blank', 'noopener');
+            const username = window.SUPPORT_TELEGRAM_USERNAME || DEFAULT_SUPPORT_TELEGRAM;
+            window.open(`https://t.me/${username}`, '_blank', 'noopener');
         }
         window.openAdminTelegram = openAdminTelegram;
 
+        // Header Messenger/Telegram "Support" icons (top-right of every page -
+        // see .header-social-btn). Username + optional custom icon come from
+        // Dashboard → Settings → Social Links → Support Contact; falls back
+        // to the same default Telegram username as openAdminTelegram(), and
+        // to a plain "m.me/<default>" for Messenger, whenever unset.
+        const headerSupportBtnDefaultHTML = {};
+        function renderHeaderSupportButtons(data) {
+            const messengerUsername = (data.supportMessenger || '').trim() || DEFAULT_SUPPORT_TELEGRAM;
+            const telegramUsername = (data.supportTelegram || '').trim() || DEFAULT_SUPPORT_TELEGRAM;
+            window.SUPPORT_TELEGRAM_USERNAME = telegramUsername;
+
+            const buttons = [
+                { id: 'header-messenger-btn', href: `https://m.me/${messengerUsername}`, image: data.supportMessengerImage },
+                { id: 'header-telegram-btn', href: `https://t.me/${telegramUsername}`, image: data.supportTelegramImage }
+            ];
+            buttons.forEach(({ id, href, image }) => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                if (!(id in headerSupportBtnDefaultHTML)) headerSupportBtnDefaultHTML[id] = btn.innerHTML;
+                btn.href = href;
+                btn.innerHTML = image
+                    ? `<img src="${image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                    : headerSupportBtnDefaultHTML[id];
+            });
+        }
+
         deferInit(() => onSnapshot(doc(db, "settings", "social"), (docSnap) => {
-            renderSocialLinks(docSnap.exists() ? docSnap.data() : {});
+            const data = docSnap.exists() ? docSnap.data() : {};
+            renderSocialLinks(data);
+            renderHeaderSupportButtons(data);
         }, (error) => {
             console.error("Social links fetch error:", error);
         }));
@@ -14086,6 +14125,24 @@
         // a few seconds after the user lets go. Also swipeable by hand
         // (touch or mouse drag) with a snap-back if the drag doesn't clear
         // a distance threshold.
+        // Swaps the default static slides for the admin-uploaded ones from
+        // settings/homeBanners (images: [url, ...]), if that doc has any.
+        // One-time read (not onSnapshot) since carousel init below only runs
+        // once at page load and doesn't currently support being re-built live.
+        async function loadHomeBanners() {
+            const track = document.getElementById('home-banner-track');
+            if (!track) return;
+            try {
+                const snap = await getDoc(doc(db, "settings", "homeBanners"));
+                const images = snap.exists() && Array.isArray(snap.data().images) ? snap.data().images.filter(Boolean) : [];
+                if (!images.length) return; // keep the default /banners/*.jpg slides already in the DOM
+                track.innerHTML = images.map((url, i) => `<div class="home-banner-slide skel"><img src="${url}" alt="" loading="${i === 0 ? 'eager' : 'lazy'}" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()"></div>`).join('');
+            } catch (error) {
+                console.error("Load home banners error:", error);
+                // Leave the default slides in place on failure.
+            }
+        }
+
         function initHomeBannerCarousel() {
             const track = document.getElementById('home-banner-track');
             const dotsWrap = document.getElementById('home-banner-dots');
@@ -14169,7 +14226,7 @@
 
         initSupportWidget();
         initPackageCardLongPressCopy();
-        initHomeBannerCarousel();
+        loadHomeBanners().finally(initHomeBannerCarousel);
         applyI18n();
     </script>
     <!-- Shown only when Chrome fires 'beforeinstallprompt' (site meets PWA
