@@ -275,6 +275,35 @@
             transition: transform 0.15s ease;
         }
         .lang-toggle-btn:active { transform: scale(0.92); }
+        /* Header language pill (EN/MY text switch) - lives in .header-icons-group,
+           beside the Messenger/Telegram quick-links. */
+        .header-lang-toggle {
+            position: relative; width: 56px; height: 32px; border-radius: 16px; flex-shrink: 0; cursor: pointer;
+            padding: 3px; display: flex; align-items: center;
+            background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            transition: transform 0.15s ease;
+        }
+        .header-lang-toggle:active { transform: scale(0.94); }
+        .header-lang-toggle-thumb {
+            width: 27px; height: 26px; border-radius: 13px; background: #fff; color: var(--accent);
+            font-size: 11.5px; font-weight: 700; letter-spacing: 0.2px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.14);
+            transition: transform 0.2s ease;
+        }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(24px); }
+        /* Messenger / Telegram quick-contact circles in the header */
+        .header-social-btn {
+            width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            transition: transform 0.15s ease;
+        }
+        .header-social-btn:active { transform: scale(0.92); }
+        .header-social-btn svg { width: 17px; height: 17px; }
+        .header-social-btn.messenger-btn { background: linear-gradient(135deg,#4facfe,#2266dd); }
+        .header-social-btn.telegram-btn { background: linear-gradient(135deg,#5ac8fa,#0088cc); }
         /* "slice" (not the default "meet") crops the wide 60x40 flag to fill
            the whole circle instead of letterboxing it into a smaller
            rounded-square in the middle. */
@@ -309,7 +338,7 @@
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
-        .onboarding-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: block; }
+        .onboarding-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
         .onboarding-title { font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 22px; }
         .onboarding-sub { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 20px; line-height: 1.5; }
         .onboarding-spinner {
@@ -429,19 +458,26 @@
             background-image: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0) 60%);
             color: #fff;
         }
+        /* Default gamepad badge (fallback icon shown before a custom logo
+           loads) is removed everywhere — only the real logo image renders,
+           left blank until it's ready. */
+        #header-logo-default-icon, #onboarding-logo-default-icon, #drawer-logo-default-icon { display: none !important; }
         .logo-icon-wrap .ui-icon { width: 26px; height: 26px; }
-        .logo-icon-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 11px; display: block; }
+        /* object-fit: contain + no border-radius so a transparent-background
+           logo keeps its own silhouette instead of being cropped/masked
+           into a square or rounded-square frame. */
+        .logo-icon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
         /* Header logo specifically: no accent-color frame behind the image,
            and a touch bigger than the shared badge size above. */
         #header-logo .logo-icon-wrap { width: 52px; height: 52px; background: none; }
-        #header-logo .logo-icon-wrap img { border-radius: 13px; }
+        #header-logo .logo-icon-wrap img { border-radius: 0; }
         /* Logo loading state: a shimmer badge + "Connecting… / Updating…" stands in
            until the logo is ready, then the real logo replaces it. Only the
            header logo (#header-logo) carries the .logo-loading class. */
         .logo .logo-status { display: none; align-items: center; gap: 10px; }
         .logo.logo-loading .logo-status { display: flex; }
         .logo.logo-loading .logo-icon-wrap { display: none; }
-        .logo-status-skel { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; }
+        .logo-status-skel { display: none; }
         .logo-status-text { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); animation: logoStatusPulse 1.2s ease-in-out infinite; }
         .onboarding-logo-status { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); margin: -6px 0 14px; animation: logoStatusPulse 1.2s ease-in-out infinite; }
         @keyframes logoStatusPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
@@ -529,9 +565,9 @@
         }
         /* Sidebar header: enlarged logo badge only (text hidden to fit the narrow panel) */
         .drawer-header .logo { font-size: 0; gap: 0; }
-        .drawer-header .logo-icon-wrap { width: 40px !important; height: 40px !important; border-radius: 10px; background: none !important; }
+        .drawer-header .logo-icon-wrap { width: 40px !important; height: 40px !important; border-radius: 0; background: none !important; }
         .drawer-header .logo-icon-wrap .ui-icon { width: 22px !important; height: 22px !important; }
-        .drawer-header .logo-icon-wrap img { border-radius: 10px; }
+        .drawer-header .logo-icon-wrap img { border-radius: 0; }
         .drawer-close {
             width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -580,7 +616,6 @@
         .drawer-overlay.show .drawer-nav-item:nth-child(12) { animation-delay: 0.4s; } /* Notifications */
         .drawer-overlay.show .drawer-nav-item:nth-child(13) { animation-delay: 0.44s; } /* Theme */
         .drawer-overlay.show .drawer-nav-item:nth-child(14) { animation-delay: 0.48s; } /* Terms */
-        .drawer-overlay.show .drawer-nav-item:nth-child(15) { animation-delay: 0.52s; } /* Language */
         .drawer-section-label {
             grid-column: 1 / -1;
             padding: 10px 6px 3px; font-size: 9.5px; font-weight: 600;
@@ -732,12 +767,12 @@
         @keyframes flashSalePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
         
         /* Cards & Lists */
-        .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
         /* Wider screens (tablet/desktop/laptop): the phone-style 2-up grid would
            blow each card up to half the browser width, so switch to a proper
            multi-column tile grid there instead — mobile stays untouched at 2/row. */
         @media (min-width: 700px) {
-            .cards-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; }
+            .cards-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 14px; }
         }
         html { scroll-behavior: smooth; }
         body { -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
@@ -826,8 +861,8 @@
         /* Popular row skeletons: fixed-width flex items matching .popular-card /
            .popular-voucher-card sizing, so the loading state doesn't jump once
            real cards render in. */
-        .skel-popular-card { flex: 0 0 108px; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .skel-popular-card .skel-img { width: 108px; height: 108px; }
+        .skel-popular-card { flex: 0 0 92px; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .skel-popular-card .skel-img { width: 92px; height: 92px; }
         .skel-popular-card .skel-name { height: 26px; margin-top: 0; }
         .skel-popular-voucher-card { flex: 0 0 118px; aspect-ratio: 1 / 1.18; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
         .skel-popular-voucher-card .skel-img { width: 118px; height: 118px; }
@@ -938,8 +973,8 @@
         .popular-scroll-wrap { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 10px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: pan-x pan-y; }
         .popular-scroll-wrap::-webkit-scrollbar { display: none; }
         .popular-card { flex: 0 0 108px; }
-        .popular-card .game-card-img-wrap { width: 108px; height: 108px; }
-        .popular-card .game-card-name { font-size: 12px; padding: 6px 5px; }
+        .popular-card .game-card-img-wrap { width: 92px; height: 92px; }
+        .popular-card .game-card-name { font-size: 11px; padding: 5px 4px; }
         /* Same horizontal-scroll "Popular" row, sized for the gift-card
            style voucher tiles instead of the square game-card tiles. */
         .popular-voucher-card { flex: 0 0 118px; aspect-ratio: 1 / 1.32; }
@@ -2845,7 +2880,7 @@
             <div class="onboarding-logo" id="onboarding-logo">
                 <div class="skel" id="onboarding-logo-skeleton" style="position:absolute;inset:0;border-radius:20px;"></div>
                 <svg class="ui-icon" id="onboarding-logo-default-icon" style="width:32px;height:32px;color:var(--accent);display:none;"><use href="#icon-gamepad"></use></svg>
-                <img id="onboarding-logo-img" src="" alt="" style="display:none;">
+                <img id="onboarding-logo-img" src="" alt="" style="display:none;" onerror="this.style.display='none';">
             </div>
             <div class="onboarding-logo-status" id="onboarding-logo-status">Connecting…</div>
             <div class="onboarding-title">Linn Game Store</div>
@@ -2927,6 +2962,8 @@
         <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
         <symbol id="icon-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></symbol>
         <symbol id="icon-telegram" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></symbol>
+        <symbol id="icon-telegram-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21.9 3.5c.28-1.17-.86-2.1-1.94-1.65L1.6 9.62c-1.23.5-1.2 2.24.04 2.7l4.6 1.68 1.78 5.74c.28.9 1.42 1.16 2.06.47l2.55-2.75 4.65 3.5c.9.68 2.2.19 2.44-.93L21.9 3.5zM8.9 13.9l9.3-6.9-7.5 8.2-.3 3.2-1.5-4.5z"></path></symbol>
+        <symbol id="icon-messenger-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.15 2 11.27c0 2.92 1.45 5.53 3.72 7.24V22l3.4-1.87c.91.25 1.87.39 2.88.39 5.52 0 10-4.15 10-9.27C22 6.15 17.52 2 12 2zm1.01 12.48-2.55-2.72-4.98 2.72 5.48-5.82 2.61 2.72 4.92-2.72-5.48 5.82z"></path></symbol>
         <symbol id="icon-tiktok" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></symbol>
         <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></symbol>
         <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></symbol>
@@ -3063,17 +3100,23 @@
         <div class="logo logo-loading" id="header-logo" onclick="window.open('https://t.me/pca_gamestore','_blank')" role="button" aria-label="Open Linn Game Store Telegram channel">
             <span class="logo-icon-wrap">
                 <svg class="ui-icon" id="header-logo-default-icon" style="color:var(--accent);"><use href="#icon-gamepad"></use></svg>
-                <img id="header-logo-img" src="" alt="Linn Game Store" style="display:none;">
+                <img id="header-logo-img" src="" alt="Linn Game Store" style="display:none;" onerror="this.style.display='none';">
             </span>
             <span class="logo-status" id="header-logo-status">
                 <span class="logo-status-skel skel"></span>
                 <span class="logo-status-text" id="header-logo-status-text">Connecting…</span>
             </span>
         </div>
-        <div class="header-icons-group" style="display:flex;align-items:center;">
-            <div class="header-icon" id="header-guide-btn" onclick="window.openGuidePage(); window.switchSupportTab('guide');" role="button" aria-label="Open User Guide" style="margin-right:8px;">
-                <svg class="ui-icon" style="width:19px;height:19px;"><use href="#icon-book"></use></svg>
+        <div class="header-icons-group" style="display:flex;align-items:center;gap:10px;">
+            <div class="header-lang-toggle" id="header-lang-toggle" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
+                <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb">EN</span>
             </div>
+            <a class="header-social-btn messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
+                <svg><use href="#icon-messenger-filled"></use></svg>
+            </a>
+            <a class="header-social-btn telegram-btn" href="https://t.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Telegram">
+                <svg><use href="#icon-telegram-filled"></use></svg>
+            </a>
             <div class="header-icon header-menu-btn" id="drawer-toggle-btn" onclick="openDrawer()" role="button" aria-label="Open menu">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
                     <line x1="3" y1="6" x2="21" y2="6" stroke="#FBC02D" stroke-width="2.4" stroke-linecap="round"></line>
@@ -3096,7 +3139,7 @@
                 <div class="logo" style="font-size:16px;">
                     <span class="logo-icon-wrap" style="width:24px;height:24px;">
                         <svg class="ui-icon" id="drawer-logo-default-icon" style="color:var(--accent);width:14px;"><use href="#icon-gamepad"></use></svg>
-                        <img id="drawer-logo-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+                        <img id="drawer-logo-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.style.display='none';">
                     </span>
                     Linn Game Store
                 </div>
@@ -3142,13 +3185,6 @@
                 </div>
                 <div class="drawer-nav-item" onclick="closeDrawer(); openTermsPage();">
                     <svg class="ui-icon"><use href="#icon-book"></use></svg><span data-i18n="nav_terms">Terms &amp; Policy</span>
-                </div>
-                <div class="drawer-nav-item drawer-lang-chip" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
-                    <div class="lang-toggle-btn" id="lang-toggle-btn">
-                        <svg class="lang-toggle-flag" id="lang-toggle-flag-en"><use href="#flag-en"></use></svg>
-                        <svg class="lang-toggle-flag" id="lang-toggle-flag-mm" style="display:none;"><use href="#flag-mm"></use></svg>
-                    </div>
-                    <span data-i18n="nav_language">Language</span>
                 </div>
             </nav>
             <div class="drawer-footer" data-i18n="drawer_footer">Linn Game Store</div>
@@ -3210,7 +3246,7 @@
                     <div class="dash-stat-value" id="dash-wallet-amount">0 MMK</div>
                 </div>
                 <div class="dash-stat-card" onclick="drawerNavigate('history')" role="button">
-                    <div class="dash-stat-icon"><svg class="ui-icon"><use href="#icon-history"></use></svg></div>
+                    <div class="dash-stat-icon"><svg class="ui-icon"><use href="#icon-history-nav"></use></svg></div>
                     <span class="dash-stat-label" data-i18n="dash_orders">Orders</span>
                     <div class="dash-stat-value" id="dash-order-count">0</div>
                 </div>
@@ -4656,6 +4692,14 @@
                 if (enFlag) enFlag.style.display = showEn ? 'block' : 'none';
                 if (mmFlag) mmFlag.style.display = showEn ? 'none' : 'block';
             });
+            const headerLangToggle = document.getElementById('header-lang-toggle');
+            const headerLangThumb = document.getElementById('header-lang-toggle-thumb');
+            if (headerLangToggle && headerLangThumb) {
+                // Same convention as the flag toggle: show the language a tap would switch TO.
+                const showEnHeader = currentLang === 'my';
+                headerLangThumb.textContent = showEnHeader ? 'EN' : 'MY';
+                headerLangToggle.classList.toggle('is-right', !showEnHeader);
+            }
             if (window.renderMiniProfileGreeting) window.renderMiniProfileGreeting();
             if (window.onNotifLangChange) window.onNotifLangChange();
         }
