@@ -279,7 +279,7 @@
         /* Header language pill (EN/MY text switch) - lives in .header-icons-group,
            beside the Messenger/Telegram quick-links. */
         .header-lang-toggle {
-            position: relative; width: 66px; height: 32px; border-radius: 16px; flex-shrink: 0; cursor: pointer;
+            position: relative; width: 58px; height: 28px; border-radius: 14px; flex-shrink: 0; cursor: pointer;
             padding: 3px; display: flex; align-items: center;
             /* EN (default) look: Facebook-blue tinted track. */
             background: linear-gradient(135deg, #e8f2ff, #cfe4fd);
@@ -289,24 +289,24 @@
         }
         .header-lang-toggle:active { transform: scale(0.94); }
         .header-lang-toggle-thumb {
-            width: 32px; height: 26px; border-radius: 13px; background: #fff;
+            width: 28px; height: 22px; border-radius: 11px; background: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.14);
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s ease, background-color 0.2s ease;
         }
         .header-lang-toggle-thumb-text {
-            font-size: 10px; font-weight: 700; letter-spacing: 0.3px; color: #1877F2;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.3px; color: #1877F2;
             transition: color 0.2s ease;
         }
         /* Myanmar (switched) look: juicy, saturated red tinted track. */
         .header-lang-toggle.is-right { background: linear-gradient(135deg, #ffeceb, #ffd2ce); border-color: #E63946; }
-        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(28px); background: #fff; }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(24px); background: #fff; }
         .header-lang-toggle.is-right .header-lang-toggle-thumb-text { color: #E63946; }
         /* Messenger / Telegram quick-contact circles in the header — glass
            bubble style (frosted white glass, colored icon) instead of a
            solid brand-color-filled circle. */
         .header-social-btn {
-            width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             background: rgba(255,255,255,0.55);
             -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
@@ -315,7 +315,7 @@
             transition: transform 0.15s ease;
         }
         .header-social-btn:active { transform: scale(0.92); }
-        .header-social-btn svg { width: 17px; height: 17px; }
+        .header-social-btn svg { width: 15px; height: 15px; }
         .header-social-btn.messenger-btn { color: #2266dd; }
         .header-social-btn.telegram-btn { color: #0088cc; }
         html[data-theme="dark"] .header-social-btn {
@@ -494,7 +494,7 @@
         .logo-icon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
         /* Header logo specifically: no accent-color frame behind the image,
            and a touch bigger than the shared badge size above. */
-        #header-logo .logo-icon-wrap { width: 53px; height: 53px; background: none; }
+        #header-logo .logo-icon-wrap { width: 49px; height: 49px; background: none; }
         #header-logo .logo-icon-wrap img { border-radius: 0; }
         /* Logo loading state: a shimmer badge + "Connecting… / Updating…" stands in
            until the logo is ready, then the real logo replaces it. Only the
