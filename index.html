@@ -790,25 +790,6 @@
         }
         .title-header { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 
-        /* Flash Sale banner: shown on Home while settings/flashsale is enabled
-           and hasn't expired (see listenFlashSale() / tickFlashSaleCountdown()). */
-        .flash-sale-banner {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 14px 16px;
-            border-radius: 16px; cursor: pointer; color: #fff;
-            background: linear-gradient(135deg, #FF5F6D 0%, #FF3D00 100%);
-            box-shadow: 0 8px 22px -8px rgba(255,61,0,0.5);
-        }
-        .flash-sale-icon { font-size: 26px; flex-shrink: 0; }
-        .flash-sale-body { flex: 1; min-width: 0; }
-        .flash-sale-title { font-weight: 600; font-size: 14.5px; }
-        .flash-sale-desc { font-size: 12.5px; opacity: 0.92; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .flash-sale-countdown {
-            flex-shrink: 0; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13.5px;
-            background: rgba(255,255,255,0.22); padding: 6px 10px; border-radius: 10px;
-            animation: flashSalePulse 1.4s ease-in-out infinite;
-        }
-        @keyframes flashSalePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-
         /* Home banner carousel replacing the old Wallet/Orders stat grid.
            Auto-advances on a timer; also swipeable by touch/drag. Track
            width is numSlides*100%, each slide 100%/numSlides of the track
@@ -3309,14 +3290,6 @@
              then flash-sale banner, wallet/order summary, popular games and
              the 4-step "how it works" guide, all live here. -->
         <div id="dashboard" class="page-section active">
-            <div class="flash-sale-banner" id="flash-sale-banner" style="display:none;" onclick="openFlashSaleGame()">
-                <div class="flash-sale-icon">⚡</div>
-                <div class="flash-sale-body">
-                    <div class="flash-sale-title" id="flash-sale-title">Flash Sale</div>
-                    <div class="flash-sale-desc" id="flash-sale-desc"></div>
-                </div>
-                <div class="flash-sale-countdown" id="flash-sale-countdown">--:--:--</div>
-            </div>
             <div class="home-banner-carousel" id="home-banner-carousel">
                 <div class="home-banner-track" id="home-banner-track">
                     <!-- Slides are filled in by loadHomeBanners() from settings/homeBanners
@@ -4222,11 +4195,6 @@
             <div class="pkg-type-tabs" id="pkg-type-tabs" style="display:none;"></div>
             <div class="package-grid-scroll"><div id="detail-package-list" class="package-grid"></div></div>
 
-            <!-- Coupon code — validated live against the coupons collection
-                 via the Worker's /validate-coupon (see COUPON_WORKER_URL);
-                 the real, must-not-lie check + usedCount increment happens
-                 at /redeem-coupon inside submitOrder/submitWalletOrder. -->
-            <div id="coupon-card" class="detail-form-card" style="display:none; margin-top:12px;"></div>
 
             <div id="detail-payment-section" style="display:none;">
                 <h3 class="detail-section-title" data-i18n="sec_how_pay">How do you want to pay?</h3>
@@ -4981,16 +4949,9 @@
             const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'game-detail'];
             if (GAMES_PAGES.includes(pageId) && window.listenGames) window.listenGames();
             else if (!GAMES_PAGES.includes(pageId) && window.stopListenGames) window.stopListenGames();
-            // Coupon availability: only needed while a package/checkout is
-            // being shown on game-detail.
-            if (pageId === 'game-detail' && window.listenCouponAvailability) window.listenCouponAvailability();
-            else if (pageId !== 'game-detail' && window.stopListenCouponAvailability) window.stopListenCouponAvailability();
             // Wallet top-up history: only needed on the Wallet page.
             if (pageId === 'wallet' && window.listenWalletTopups) window.listenWalletTopups();
             else if (pageId !== 'wallet' && window.stopListenWalletTopups) window.stopListenWalletTopups();
-            // Flash sale banner: only lives inside the Home page-section.
-            if (pageId === 'dashboard' && window.listenFlashSale) window.listenFlashSale();
-            else if (pageId !== 'dashboard' && window.stopListenFlashSale) window.stopListenFlashSale();
             // Payment methods: needed wherever a payment-method picker or the
             // wallet top-up modal can appear - game-detail's checkout, and the
             // Wallet page itself.
@@ -5245,17 +5206,6 @@
         let selectedPackage = null;
         let pkgZoomStartedAt = 0;
         let pkgZoomDone = false; // soft-zoom the price cards only on the first render per game / tab, not on every stock refresh
-        // Coupon applied to the currently selected package, if any -
-        // { code, discountAmount, discountType, discountValue }. Reset
-        // whenever a new package is picked (see selectPackageOption) since
-        // a discount is only ever validated against one specific subtotal.
-        let appliedCoupon = null;
-        // Whether at least one coupon exists right now that is isActive AND
-        // inside its startsAt/expiresAt event window (see listenCouponAvailability
-        // below). The whole "Coupon Code" card is hidden from checkout unless
-        // this is true — so customers never see a coupon box during a period
-        // when nothing is actually redeemable.
-        let anyCouponAvailable = false;
         // Which bottom-nav page a game's detail modal was opened from (Home
         // or Voucher) - so closing it returns the customer to the right tab
         // instead of always dropping back to Home.
@@ -5287,10 +5237,9 @@
         // { valid, playerName, region } result. See fazercards-functions
         // worker.js.
         const FAZERCARD_VALIDATE_URL = 'https://fazercards-provider.linngamestore.workers.dev/fazercard-validate';
-        // Coupon validate/redeem — served by the same Worker as the Telegram
-        // approval bot (telegram-worker.js's /validate-coupon and
-        // /redeem-coupon routes). Fill in the actual deployed subdomain.
-        const COUPON_WORKER_URL = 'https://linnmanagebot.linngamestore.workers.dev';
+        // Telegram approval bot Worker (telegram-worker.js) — also used below
+        // for the fire-and-forget "wake up now" ping.
+        const TELEGRAM_BOT_WORKER_URL = 'https://linnmanagebot.linngamestore.workers.dev';
         // Fire-and-forget "wake up now" ping to the Worker's /ping route, sent
         // right after an order / wallet top-up is saved so Telegram + wallet
         // auto-fulfil happen instantly instead of on the next cron tick.
@@ -5298,7 +5247,7 @@
         // throws and never blocks checkout - the cron is the safety net.
         function pingWorker(type, id) {
             try {
-                fetch(`${COUPON_WORKER_URL}/ping`, {
+                fetch(`${TELEGRAM_BOT_WORKER_URL}/ping`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({ type, id }),
@@ -6343,8 +6292,6 @@
             selectedGameG2BulkIdCheckCode = game.g2bulkIdCheckCode || null;
             selectedPackage = null;
             pkgZoomDone = false;
-            appliedCoupon = null;
-
             // Voucher/coupon-style games deliver a code rather than crediting a
             // player account, so the admin can turn off the In-Game ID prompt
             // entirely for them (missing field defaults to "required", so
@@ -6658,11 +6605,8 @@
             // stripped out for out-of-stock cards - see renderDetailPackageList).
             if (pkgToSelect && pkgToSelect.voucherId && voucherStockMap[String(pkgToSelect.voucherId)] === 0) return;
             selectedPackage = pkgToSelect;
-            appliedCoupon = null; // discount was validated against the previous package's subtotal - start clean
             document.querySelectorAll('#detail-package-list .package-card').forEach(el => el.classList.remove('selected'));
             document.querySelector(`#detail-package-list .package-card[data-index="${index}"]`).classList.add('selected');
-
-            renderCouponCard();
 
             // Picking a new package invalidates whatever "how do I pay" choice
             // was made for the previous one — price may have changed, so the
@@ -6736,148 +6680,11 @@
             ['pointerup', 'pointercancel', 'pointerleave'].forEach(evt => list.addEventListener(evt, clearHold));
         }
 
-        // ---------- Coupon codes ----------
         function getOrderSubtotal() {
             return selectedPackage ? selectedPackage.price : 0;
         }
         function getOrderTotal() {
-            return Math.max(0, getOrderSubtotal() - (appliedCoupon ? appliedCoupon.discountAmount : 0));
-        }
-
-        function renderCouponCard() {
-            const card = document.getElementById('coupon-card');
-            if (!card) return;
-            // Hide the whole card — not just the input — whenever there's
-            // nothing to redeem right now: no package chosen yet, or no
-            // coupon is currently isActive + inside its event time window.
-            // A coupon the customer already applied still gets to show its
-            // "applied" row even if availability flips off mid-session; that
-            // case is cleaned up separately by listenCouponAvailability.
-            if (!selectedPackage || (!appliedCoupon && !anyCouponAvailable)) { card.style.display = 'none'; return; }
-            card.style.display = 'flex';
-            if (appliedCoupon) {
-                card.innerHTML = `
-                    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                        <div>
-                            <span style="font-weight:600;font-size:14px;">${appliedCoupon.code}</span>
-                            <span style="color:#28a745;font-weight:600;font-size:13px;margin-left:8px;">-${appliedCoupon.discountAmount.toLocaleString()} MMK</span>
-                        </div>
-                        <button type="button" class="btn btn-outline" style="flex:unset;width:auto;min-width:78px;padding:6px 12px;font-size:12px;" onclick="removeCoupon()" data-i18n="btn_remove">Remove</button>
-                    </div>
-                `;
-            } else {
-                card.innerHTML = `
-                    <label style="align-self:flex-start;">Coupon Code</label>
-                    <div style="display:flex;gap:8px;width:100%;">
-                        <input type="text" id="coupon-code-input" placeholder="Enter coupon code" autocomplete="off" style="flex:1;text-transform:uppercase;padding:11px 14px;border-radius:12px;border:1px solid var(--border-glass);background:var(--fill-soft);color:var(--text);font-size:14px;">
-                        <button type="button" class="btn btn-outline" id="coupon-apply-btn" style="flex:unset;width:auto;min-width:76px;padding:0 16px;" onclick="applyCoupon()" data-i18n="btn_apply">Apply</button>
-                    </div>
-                `;
-            }
-        }
-        window.renderCouponCard = renderCouponCard;
-
-        function refreshPricesAfterCouponChange() {
-            renderCouponCard();
-            if (selectedPaymentType === 'wallet') renderWalletPayBox();
-            else if (selectedPaymentType) updateConfirmButtonForPaymentType();
-        }
-
-        // Caps a coupon's discount so the final price never dips below the
-        // package's own cost price (selectedPackage.cost, admin-set buy-in
-        // price × qty) — protects margin so a coupon can never eat into or
-        // go past what the package actually cost the store.
-        // NOTE: this is a client-side/UX guard only. The Worker's
-        // /redeem-coupon route is the authoritative, must-not-lie check at
-        // submit time (see COUPON_WORKER_URL comment above) and should
-        // enforce this same cost floor server-side too — that logic lives
-        // in telegram-worker.js, which wasn't part of this edit.
-        function capCouponDiscountToCost(discountAmount, subtotal) {
-            const costTotal = (Number(selectedPackage?.cost) || 0);
-            if (costTotal <= 0) return { discountAmount, blocked: false }; // no cost data - nothing to protect
-            const maxDiscount = Math.max(0, subtotal - costTotal);
-            if (maxDiscount <= 0) return { discountAmount: 0, blocked: true }; // already at/under cost - coupon can't apply at all
-            return { discountAmount: Math.min(discountAmount, maxDiscount), blocked: false };
-        }
-
-        async function applyCoupon() {
-            const input = document.getElementById('coupon-code-input');
-            const code = input ? input.value.trim().toUpperCase() : '';
-            if (!code) { window.showToast('Please enter a coupon code', 'fail'); return; }
-            const subtotal = getOrderSubtotal();
-            if (!subtotal) return;
-
-            const btn = document.getElementById('coupon-apply-btn');
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = 'Checking...';
-            try {
-                const guestId = window.getGuestId ? window.getGuestId() : '';
-                const costTotal = (Number(selectedPackage?.cost) || 0);
-                const res = await fetch(`${COUPON_WORKER_URL}/validate-coupon`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, guestId, orderAmount: subtotal, costTotal })
-                });
-                const data = await res.json();
-                if (!data.ok) { window.showToast(data.error || 'Invalid coupon', 'fail'); return; }
-                // The Worker already enforces the cost floor authoritatively
-                // (costTotal above); this just mirrors it instantly client-side.
-                const capped = capCouponDiscountToCost(data.discountAmount, subtotal);
-                if (capped.blocked) { window.showToast('This coupon can\'t be applied to this package', 'fail'); return; }
-                appliedCoupon = { code, discountAmount: capped.discountAmount, discountType: data.discountType, discountValue: data.discountValue };
-                window.showToast(`Coupon applied: -${capped.discountAmount.toLocaleString()} MMK`, 'success');
-                refreshPricesAfterCouponChange();
-            } catch (error) {
-                console.error('Coupon validate error:', error);
-                window.showToast('Could not check coupon. Check connection.', 'fail');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = originalText;
-            }
-        }
-        window.applyCoupon = applyCoupon;
-
-        function removeCoupon() {
-            appliedCoupon = null;
-            refreshPricesAfterCouponChange();
-        }
-        window.removeCoupon = removeCoupon;
-
-        // Re-checks the already-applied coupon against a new subtotal (qty
-        // changed) without making the customer retype the code. Silently
-        // drops the coupon if it no longer qualifies (e.g. a max-uses cap
-        // hit in the meantime) rather than leaving a stale discount showing.
-        async function revalidateCouponSilently() {
-            if (!appliedCoupon) return;
-            const subtotal = getOrderSubtotal();
-            try {
-                const guestId = window.getGuestId ? window.getGuestId() : '';
-                const costTotal = (Number(selectedPackage?.cost) || 0);
-                const res = await fetch(`${COUPON_WORKER_URL}/validate-coupon`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: appliedCoupon.code, guestId, orderAmount: subtotal, costTotal })
-                });
-                const data = await res.json();
-                if (!data.ok) {
-                    appliedCoupon = null;
-                    window.showToast(data.error || 'Coupon no longer valid for this quantity', 'fail');
-                } else {
-                    const capped = capCouponDiscountToCost(data.discountAmount, subtotal);
-                    if (capped.blocked) {
-                        appliedCoupon = null;
-                        window.showToast('Coupon removed — no longer applicable at this quantity', 'fail');
-                    } else {
-                        appliedCoupon.discountAmount = capped.discountAmount;
-                    }
-                }
-            } catch (error) {
-                console.error('Coupon revalidate error:', error);
-                // Leave the coupon applied on a network hiccup - /redeem-coupon
-                // at submit time is the authoritative check either way.
-            }
-            refreshPricesAfterCouponChange();
+            return getOrderSubtotal();
         }
 
         // ---------- Pay with Wallet vs Pay with Kpay/Wave/etc. ----------
@@ -6913,7 +6720,7 @@
             if (!selectedPackage) { box.innerHTML = ''; return; }
             const subtotal = getOrderSubtotal();
             const price = getOrderTotal();
-            const discountLine = appliedCoupon ? `<span class="wallet-pay-note ok" style="color:#28a745;">Coupon ${appliedCoupon.code}: -${appliedCoupon.discountAmount.toLocaleString()} MMK (was ${subtotal.toLocaleString()} MMK)</span>` : '';
+            const discountLine = '';
             const bal = currentWalletBalance;
             const enough = bal >= price;
             box.innerHTML = enough ? `
@@ -7276,7 +7083,6 @@
             selectedPackage = null;
             selectedPaymentMethod = null;
             selectedPaymentType = null;
-            appliedCoupon = null;
             editingReceiptFile = null;
             receiptOcrPromise = null;
             stopVoucherStockRefresh();
@@ -7417,7 +7223,6 @@
                 else note = '<div class="or-note"><span>Check your In-Game ID carefully. Top ups cannot be moved to another account after delivery.</span></div>';
             }
             rows.push(['Payment', isWallet ? 'Wallet Balance' : esc(selectedPaymentMethod ? selectedPaymentMethod.name : '-')]);
-            if (appliedCoupon && appliedCoupon.discountAmount) rows.push(['Discount (' + esc(appliedCoupon.code) + ')', '- ' + fmt(appliedCoupon.discountAmount)]);
             if (isWallet) rows.push(['Balance after', fmt(Math.max(0, currentWalletBalance - total))]);
 
             return openReviewSheet({ game: selectedGameName, sub: selectedGameServerName, img, noteHTML: note, rows, total });
@@ -7614,9 +7419,6 @@
                 amount: selectedPackage.amount,
                 price: getOrderTotal(),
                 cost: (Number(selectedPackage.cost) || 0),
-                couponCode: appliedCoupon ? appliedCoupon.code : null,
-                couponDiscount: appliedCoupon ? appliedCoupon.discountAmount : null,
-                couponSubtotal: appliedCoupon ? getOrderSubtotal() : null,
                 quantity: 1,
                 inGameId,
                 serverId,
@@ -7651,9 +7453,6 @@
                 amount: selectedPackage.amount,
                 price: getOrderTotal(),
                 cost: (Number(selectedPackage.cost) || 0),
-                couponCode: appliedCoupon ? appliedCoupon.code : null,
-                couponDiscount: appliedCoupon ? appliedCoupon.discountAmount : null,
-                couponSubtotal: appliedCoupon ? getOrderSubtotal() : null,
                 quantity: 1,
                 inGameId,
                 serverId,
@@ -7908,7 +7707,7 @@
 
         const app = initializeApp(firebaseConfig);
         // Persistent local cache: the storefront stops/restarts several listeners as
-        // the customer changes pages (games, coupons, game accounts, ...). With the
+        // the customer changes pages (games, game accounts, ...). With the
         // default in-memory cache every restart re-downloads (and re-bills) the WHOLE
         // collection; with a persistent cache a restart only bills docs that changed.
         let db;
@@ -10573,26 +10372,8 @@
             });
         }
 
-        // ---------- Coupon redemption memo ----------
-        // /redeem-coupon consumes one use of the coupon the moment it succeeds,
-        // but the order is only written AFTER it (and, for wallet orders, the
-        // wallet debit can still fail). Before this memo, any failure after
-        // redemption - network drop, balance changed meanwhile, DB write
-        // error - burned the coupon while the customer got no order, and the
-        // retry then failed with "coupon no longer valid". Now the last
-        // successful redemption is remembered; if the customer retries the
-        // SAME checkout (same coupon, same subtotal/cost) the same order id is
-        // reused and /redeem-coupon is not called a second time.
-        let couponRedemptionMemo = null; // { code, guestId, subtotal, cost, orderId }
-        function reusableCouponOrderId(couponCode, guestId, couponSubtotal, cost) {
-            const m = couponRedemptionMemo;
-            if (couponCode && m && m.code === couponCode && m.guestId === guestId
-                && m.subtotal === couponSubtotal && m.cost === (Number(cost) || 0)) return m.orderId;
-            return null;
-        }
-
         async function submitOrder(orderData, btnElement) {
-            const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId, couponCode, couponDiscount, couponSubtotal } = orderData;
+            const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
@@ -10626,32 +10407,7 @@
                 // permission prompt or geolocation just isn't available.
                 const location = await getOrderLocation();
 
-                // Pre-generate the order's doc ref/id so it can be passed to
-                // /redeem-coupon BEFORE the order itself is written - if the
-                // coupon turns out to no longer be valid (someone else took
-                // the last slot in the meantime), nothing gets created at all.
-                const reusedOrderId = reusableCouponOrderId(couponCode, guestId, couponSubtotal, cost);
-                const orderRef = doc(db, "orders", reusedOrderId || await generateShortNumericId("orders"));
-                if (couponCode && !reusedOrderId) {
-                    // costTotal lets the Worker re-enforce the cost floor
-                    // server-side (authoritative — see capCouponDiscountToCost
-                    // in telegram-worker.js) since the client-side cap above
-                    // can be bypassed.
-                    const redeemRes = await fetch(`${COUPON_WORKER_URL}/redeem-coupon`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ code: couponCode, guestId, orderAmount: couponSubtotal, orderId: orderRef.id, costTotal: Number(cost) || 0 })
-                    }).then(r => r.json()).catch(() => ({ ok: false, error: 'Could not reach the store. Check connection.' }));
-                    if (!redeemRes.ok) {
-                        window.showToast(redeemRes.error || 'This coupon is no longer valid.', 'fail');
-                        if (window.removeCoupon) window.removeCoupon();
-                        btnElement.innerText = originalText;
-                        btnElement.disabled = false;
-                        if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
-                        return;
-                    }
-                    couponRedemptionMemo = { code: couponCode, guestId, subtotal: couponSubtotal, cost: Number(cost) || 0, orderId: orderRef.id };
-                }
+                const orderRef = doc(db, "orders", await generateShortNumericId("orders"));
 
                 const receiptOrderPayload = {
                     playerId: inGameId,
@@ -10666,7 +10422,6 @@
                     // Provider cost snapshot at order time (for profit/margin
                     // reporting in admin.html).
                     cost: Number(cost) || 0,
-                    ...(couponCode ? { couponCode, couponDiscount, couponSubtotal } : {}),
                     // How many of this voucher/package are bundled into this
                     // single order (always 1 for a normal top-up order). The
                     // admin-side fulfillment flow reads this to know how many
@@ -10710,23 +10465,10 @@
                     // as fazercardCategoryId above.
                     ...(fazercardGiftCategoryId && fazercardGiftCardId ? { fazercardGiftCategoryId, fazercardGiftCardId } : {})
                 };
-                // If an earlier attempt of this same checkout already saved the
-                // order (write succeeded but the response was lost), don't write
-                // it again - that would reset a status the admin may have moved.
-                let alreadyPlaced = false;
-                if (reusedOrderId) {
-                    const prev = await getDoc(orderRef);
-                    if (prev.exists()) {
-                        if (prev.data().userId === guestId) alreadyPlaced = true;
-                        else { couponRedemptionMemo = null; throw new Error('Something went wrong creating your order. Please try again.'); }
-                    }
-                }
-                if (!alreadyPlaced) await setDoc(orderRef, receiptOrderPayload);
+                await setDoc(orderRef, receiptOrderPayload);
                 pingWorker('order', orderRef.id);
 
                 saveContact(inGameId, selectedGameId, serverId);
-                appliedCoupon = null; // consumed by /redeem-coupon above
-                couponRedemptionMemo = null;
                 btnElement.innerText = "Order Sent";
                 btnElement.style.backgroundColor = "#28a745";
                 // Pass the new doc's id so the success screen can live-track this
@@ -10749,7 +10491,7 @@
         // rendered) so two rapid orders can never both slip through on a
         // balance that only actually covers one of them.
         async function submitWalletOrder(orderData, btnElement) {
-            const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId, couponCode, couponDiscount, couponSubtotal } = orderData;
+            const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
@@ -10774,39 +10516,12 @@
                     console.error("Ban check error:", banCheckError);
                 }
 
-                // Cheap balance pre-check BEFORE /redeem-coupon: an obviously
-                // insufficient wallet must not consume a coupon use. (The
-                // authoritative check is still inside the transaction below.)
                 if (walletBalanceSeen !== null && walletBalanceSeen < Number(price)) throw new Error('INSUFFICIENT_BALANCE');
 
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
                 const location = await getOrderLocation();
 
-                // Pre-generate the order's doc ref/id so it can be passed to
-                // /redeem-coupon BEFORE any wallet money moves - if the coupon
-                // is no longer valid, nothing is deducted and nothing is created.
-                const reusedOrderId = reusableCouponOrderId(couponCode, guestId, couponSubtotal, cost);
-                const orderRef = doc(db, "orders", reusedOrderId || await generateShortNumericId("orders"));
-                if (couponCode && !reusedOrderId) {
-                    // costTotal lets the Worker re-enforce the cost floor
-                    // server-side (authoritative — see capCouponDiscountToCost
-                    // in telegram-worker.js) since the client-side cap above
-                    // can be bypassed.
-                    const redeemRes = await fetch(`${COUPON_WORKER_URL}/redeem-coupon`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ code: couponCode, guestId, orderAmount: couponSubtotal, orderId: orderRef.id, costTotal: Number(cost) || 0 })
-                    }).then(r => r.json()).catch(() => ({ ok: false, error: 'Could not reach the store. Check connection.' }));
-                    if (!redeemRes.ok) {
-                        window.showToast(redeemRes.error || 'This coupon is no longer valid.', 'fail');
-                        if (window.removeCoupon) window.removeCoupon();
-                        btnElement.innerText = originalText;
-                        btnElement.disabled = false;
-                        if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
-                        return;
-                    }
-                    couponRedemptionMemo = { code: couponCode, guestId, subtotal: couponSubtotal, cost: Number(cost) || 0, orderId: orderRef.id };
-                }
+                const orderRef = doc(db, "orders", await generateShortNumericId("orders"));
 
                 const userRef = doc(db, "users", guestId);
 
@@ -10821,7 +10536,6 @@
                     itemAmount: amount,
                     price: price,
                     cost: Number(cost) || 0,
-                    ...(couponCode ? { couponCode, couponDiscount, couponSubtotal } : {}),
                     quantity: quantity || 1,
                     paymentMethod: 'Wallet Balance',
                     paidFromWallet: true,
@@ -10856,20 +10570,10 @@
                 if (!walletUser) throw new Error('NEEDS_GOOGLE_SIGNIN');
                 orderPayload.walletFlow = 2;
                 orderPayload.authUid = walletUser.uid;
-                let alreadyPlaced = false;
-                if (reusedOrderId) {
-                    const prev = await getDoc(orderRef);
-                    if (prev.exists()) {
-                        if (prev.data().userId === guestId) alreadyPlaced = true;
-                        else throw new Error('ORDER_ID_TAKEN');
-                    }
-                }
-                if (!alreadyPlaced) await setDoc(orderRef, orderPayload);
+                await setDoc(orderRef, orderPayload);
                 pingWorker('order', orderRef.id);
 
                 saveContact(inGameId, selectedGameId, serverId);
-                appliedCoupon = null; // consumed by /redeem-coupon above
-                couponRedemptionMemo = null;
                 btnElement.innerText = "Order Sent";
                 btnElement.style.backgroundColor = "#28a745";
                 window.openSuccessOverlay(orderRef.id, { status: 'Pending', timestamp: { toDate: () => new Date() } });
@@ -11073,118 +10777,6 @@
             });
         }
         deferInit(() => { listenWalletTopupToasts(); });
-
-        // ---------- Flash Sale Banner (Home page) ----------
-        // Firestore only tells us WHETHER a sale is on and WHEN it ends -
-        // ticking the actual countdown text every second is done locally so
-        // it doesn't need a write (or a read) once a second.
-        let flashSaleEndTime = null;
-        let flashSaleGameId = '';
-        let flashSaleTickInterval = null;
-
-        function tickFlashSaleCountdown() {
-            const banner = document.getElementById('flash-sale-banner');
-            const countdownEl = document.getElementById('flash-sale-countdown');
-            if (!banner || !flashSaleEndTime) return;
-            const remaining = flashSaleEndTime - Date.now();
-            if (remaining <= 0) {
-                banner.style.display = 'none';
-                if (flashSaleTickInterval) { clearInterval(flashSaleTickInterval); flashSaleTickInterval = null; }
-                return;
-            }
-            const h = Math.floor(remaining / 3600000);
-            const m = Math.floor((remaining % 3600000) / 60000);
-            const s = Math.floor((remaining % 60000) / 1000);
-            const pad = n => String(n).padStart(2, '0');
-            countdownEl.innerText = h > 0 ? `${h}h ${pad(m)}m left` : `${pad(m)}:${pad(s)}`;
-        }
-
-        function listenFlashSale() {
-            if (flashSaleUnsub) return;
-            flashSaleUnsub = onSnapshot(doc(db, "settings", "flashsale"), (docSnap) => {
-                const data = docSnap.exists() ? docSnap.data() : {};
-                const banner = document.getElementById('flash-sale-banner');
-                if (!banner) return;
-                const endTime = Number(data.endTime) || 0;
-                const isLive = !!data.enabled && endTime > Date.now();
-                if (!isLive) {
-                    banner.style.display = 'none';
-                    if (flashSaleTickInterval) { clearInterval(flashSaleTickInterval); flashSaleTickInterval = null; }
-                    return;
-                }
-                document.getElementById('flash-sale-title').innerText = data.title || 'Flash Sale';
-                document.getElementById('flash-sale-desc').innerText = data.description || '';
-                flashSaleEndTime = endTime;
-                flashSaleGameId = data.gameId || '';
-                banner.style.display = 'flex';
-                tickFlashSaleCountdown();
-                if (!flashSaleTickInterval) flashSaleTickInterval = setInterval(tickFlashSaleCountdown, 1000);
-            }, (error) => {
-                console.error('Flash sale listener error:', error);
-            });
-        }
-        function stopListenFlashSale() {
-            if (flashSaleUnsub) { flashSaleUnsub(); flashSaleUnsub = null; }
-            if (flashSaleTickInterval) { clearInterval(flashSaleTickInterval); flashSaleTickInterval = null; }
-        }
-        let flashSaleUnsub = null;
-        window.listenFlashSale = listenFlashSale;
-        window.stopListenFlashSale = stopListenFlashSale;
-        // Starts immediately since Home is the app's default landing page
-        // (no showPage('home') call fires on initial boot to trigger the
-        // hook below) - showPage() then starts/stops it on navigation.
-        deferInit(() => listenFlashSale());
-
-        // Live-tracks whether ANY coupon is currently redeemable (isActive,
-        // and — if set — now falls inside [startsAt, expiresAt]) so the
-        // Coupon Code card on the package detail page can hide itself
-        // completely outside of any coupon "event window" instead of always
-        // being visible with a code box that would just fail to validate.
-        // Doesn't reveal codes to the client - only a yes/no availability flag.
-        // Only relevant while a package is selected on the game-detail page
-        // (renderCouponCard, checkout), so this now subscribes on entering
-        // game-detail and unsubscribes on leaving it — see showPage().
-        let couponAvailabilityUnsub = null;
-        function isCouponCurrentlyUsable(c) {
-            if (!c || !c.isActive) return false;
-            const now = Date.now();
-            if (c.startsAt && c.startsAt > now) return false;   // event hasn't opened yet
-            if (c.expiresAt && c.expiresAt <= now) return false; // event window closed
-            if (c.maxUses && (c.usedCount || 0) >= c.maxUses) return false;
-            return true;
-        }
-        function listenCouponAvailability() {
-            if (couponAvailabilityUnsub) return;
-            couponAvailabilityUnsub = onSnapshot(collection(db, "coupons"), (snap) => {
-                let usable = false;
-                let appliedStillUsable = !appliedCoupon;
-                snap.forEach(docSnap => {
-                    const c = docSnap.data();
-                    if (isCouponCurrentlyUsable(c)) usable = true;
-                    if (appliedCoupon && docSnap.id === appliedCoupon.code) appliedStillUsable = isCouponCurrentlyUsable(c);
-                });
-                anyCouponAvailable = usable;
-                if (appliedCoupon && !appliedStillUsable) {
-                    // The coupon the customer already applied just closed
-                    // (admin turned it off, or its event window ended) -
-                    // drop it immediately rather than let a stale discount
-                    // linger on screen.
-                    appliedCoupon = null;
-                    window.showToast('Coupon is no longer available', 'fail');
-                }
-                refreshPricesAfterCouponChange();
-            }, (error) => console.error('Coupon availability listener error:', error));
-        }
-        function stopListenCouponAvailability() {
-            if (couponAvailabilityUnsub) { couponAvailabilityUnsub(); couponAvailabilityUnsub = null; }
-        }
-        window.listenCouponAvailability = listenCouponAvailability;
-        window.stopListenCouponAvailability = stopListenCouponAvailability;
-
-        function openFlashSaleGame() {
-            if (flashSaleGameId && window.openGameDetail) window.openGameDetail(flashSaleGameId);
-        }
-        window.openFlashSaleGame = openFlashSaleGame;
 
         // Watches this device's own orders for status changes and pops the
         // "Your Order Is Successfully" notification (or a Fail notice) the instant
