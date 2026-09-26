@@ -138,6 +138,13 @@
         /* ===================== THEME TOKENS ===================== */
         /* Light theme (default) */
         :root {
+            /* Extra space reserved at the very top when the site is opened
+               inside Telegram's in-app browser / Mini App shell, whose own
+               Close / language / menu bar floats over the page instead of
+               pushing it down. Kept at 0px for every other context (plain
+               browser, PWA) and only set to a real value by the Telegram
+               safe-area JS below, so nothing here changes outside Telegram. */
+            --tg-top-inset: 0px;
             --bg: #F0F2F5;
             --bg-gradient: radial-gradient(circle at 15% 0%, #EAF2FF 0%, #F0F2F5 45%), radial-gradient(circle at 100% 30%, #F3ECFF 0%, transparent 40%);
             --surface: #ffffff;
@@ -569,23 +576,44 @@
             position: fixed; inset: 0; background: rgba(0,0,0,0.5);
             -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
             z-index: 260; opacity: 0; pointer-events: none;
-            transition: opacity 0.28s ease;
+            transition: opacity 0.6s ease;
         }
         .drawer-overlay.show { opacity: 1; pointer-events: auto; }
+        /* translateZ(0) (not just on .show) promotes this to its own GPU
+           layer *before* the transition starts, and will-change hints the
+           browser to keep that layer warm - without both, the very first
+           open/close on mobile has to allocate the layer mid-animation
+           (while also computing backdrop-filter blur under a moving
+           element), which is what caused the visible stutter/"ထစ်" feel.
+           Duration eased up from 0.3s -> 0.42s so the slide reads as a
+           deliberate motion instead of an instant snap, but stays short
+           enough not to feel sluggish. */
         .side-drawer {
             position: fixed; top: 0; right: 0; height: 100%;
             width: 62%; max-width: 440px; min-width: 200px;
             background: var(--glass-bg-strong);
             -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
             display: flex; flex-direction: column;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            transform: translateX(100%) translateZ(0);
+            will-change: transform;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             border-left: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
             border-radius: 24px 0 0 24px;
             overflow-y: auto;
         }
-        .drawer-overlay.show .side-drawer { transform: translateX(0); }
+        .drawer-overlay.show .side-drawer { transform: translateX(0) translateZ(0); }
+        /* The remaining stutter isn't the transition speed - it's
+           backdrop-filter (the glass blur) being recomputed every frame
+           under a *moving* element, which is heavy on most Android
+           WebViews/Chrome. JS below drops the blur for the ~0.6s the panel
+           is actually sliding (falling back to a solid tinted background,
+           barely noticeable for that short a moment) and restores it once
+           the slide settles, so the motion itself stays smooth. */
+        .side-drawer.drawer-sliding {
+            backdrop-filter: none; -webkit-backdrop-filter: none;
+            background: var(--surface-strong, var(--glass-bg-strong));
+        }
         .drawer-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 10px 8px; border-bottom: 1px solid var(--border);
@@ -2571,7 +2599,7 @@
            (mirrors the bottom-nav dock below) instead of a full-width bar
            stuck flush to the screen top. */
         .header {
-            position: fixed; top: 12px; left: 12px; right: 12px; width: auto;
+            position: fixed; top: calc(12px + var(--tg-top-inset, 0px)); left: 12px; right: 12px; width: auto;
             background: var(--glass-bg-strong); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
@@ -2587,7 +2615,7 @@
         /* Header is now fixed (out of flow), so push page content down by
            roughly its floating height + top gap, same idea as the bottom
            nav's body padding-bottom below. */
-        body { padding-top: calc(78px + env(safe-area-inset-top, 0px)); }
+        body { padding-top: calc(78px + env(safe-area-inset-top, 0px) + var(--tg-top-inset, 0px)); }
 
         /* Bottom nav: flat pill layout kept (no raised notch-bubble, no
            active-icon-hiding — that's what caused the overlap before), but
@@ -5119,11 +5147,27 @@
         // Side drawer: opened via the header hamburger. body scroll is
         // locked while it's open so the page behind it can't scroll along
         // with the drawer's own list.
+        // Drops the panel's backdrop-filter blur for the duration of the
+        // slide (see .drawer-sliding above) - blurring a moving layer every
+        // frame is what was causing the visible stutter, independent of how
+        // slow/fast the transition itself is set to. 620ms gives the 600ms
+        // CSS transition a little headroom so the class never gets removed
+        // a frame early.
+        let drawerSlideTimer = null;
+        function withDrawerSlideClass() {
+            const panel = document.querySelector('.side-drawer');
+            if (!panel) return;
+            clearTimeout(drawerSlideTimer);
+            panel.classList.add('drawer-sliding');
+            drawerSlideTimer = setTimeout(() => panel.classList.remove('drawer-sliding'), 620);
+        }
         function openDrawer() {
+            withDrawerSlideClass();
             document.getElementById('drawer-overlay').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
         function closeDrawer() {
+            withDrawerSlideClass();
             document.getElementById('drawer-overlay').classList.remove('show');
             document.body.style.overflow = '';
         }
@@ -9575,6 +9619,38 @@
             }
         })();
 
+        // Telegram's own Close / language / menu bar floats on top of the
+        // page instead of shrinking the webview, so without this the app's
+        // header and top content render underneath it. Ask Telegram to use
+        // the full screen, then reserve exactly as much top space as
+        // Telegram reports its own chrome needs (contentSafeAreaInset is the
+        // Mini App header bar; safeAreaInset is the device notch/status bar
+        // on top of that). Both are 0 in a normal browser, so --tg-top-inset
+        // just stays 0px there. Re-applied on Telegram's resize/safe-area
+        // events since the bar's height can change (e.g. rotating, or the
+        // app being un/collapsed).
+        (function setupTelegramSafeArea() {
+            try {
+                const tg = window.Telegram && window.Telegram.WebApp;
+                if (!tg) return;
+                if (typeof tg.expand === 'function') tg.expand();
+                try { if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes(); } catch (e) {}
+                const applyInset = () => {
+                    const content = (tg.contentSafeAreaInset && tg.contentSafeAreaInset.top) || 0;
+                    const device = (tg.safeAreaInset && tg.safeAreaInset.top) || 0;
+                    document.documentElement.style.setProperty('--tg-top-inset', (content + device) + 'px');
+                };
+                applyInset();
+                if (typeof tg.onEvent === 'function') {
+                    tg.onEvent('contentSafeAreaChanged', applyInset);
+                    tg.onEvent('safeAreaChanged', applyInset);
+                    tg.onEvent('viewportChanged', applyInset);
+                }
+            } catch (e) {
+                console.error('Telegram safe-area setup error:', e);
+            }
+        })();
+
         async function handleGoogleSignIn(btnId) {
             // Home Screen "Add to Home Screen" apps run in a separate storage
             // container from the regular browser (iOS Safari standalone mode,
@@ -13051,6 +13127,17 @@
         // since Home, the default landing page, needs it right away and no
         // showPage('home') call fires on initial boot to trigger that hook.
         let gamesUnsub = null;
+        // On a fresh app open, Firestore's local cache usually answers this
+        // listener first (fast, but possibly stale - e.g. a game the admin
+        // reordered/added/removed since the last visit), then the real
+        // server snapshot lands a beat later with the current data. Painting
+        // both was exactly the "cards flash/duplicate on entry, then one
+        // disappears and the real ones reappear" symptom. This timer gives
+        // the server snapshot a brief window to arrive so only ONE render
+        // happens using whichever data is freshest by then - bounded to
+        // 350ms so a fully offline session still shows the cached cards
+        // instead of sitting on the skeleton forever.
+        let gamesInitialRenderTimer = null;
         function listenGames() {
             if (gamesUnsub) return; // already subscribed
             gamesUnsub = onSnapshot(collection(db, "games"), { includeMetadataChanges: true }, (snap) => {
@@ -13072,7 +13159,24 @@
                     }
                 };
                 if (!gamesLoadedOnce) {
-                    // First data: draw straight away.
+                    if (snap.metadata.fromCache) {
+                        // Cache answered first - hold this paint briefly and
+                        // let a same-tick/near-tick server snapshot (the
+                        // common case when online) overwrite RAW_GAMES and
+                        // win the single render instead of stacking a second
+                        // one on top of it.
+                        clearTimeout(gamesInitialRenderTimer);
+                        gamesInitialRenderTimer = setTimeout(() => {
+                            if (gamesLoadedOnce) return;
+                            gamesLoadedOnce = true;
+                            rerenderAll();
+                        }, 350);
+                        return;
+                    }
+                    // Server-confirmed data arrived (either first, or before
+                    // the cache timer above fired) - draw straight away and
+                    // cancel any still-pending cache-triggered paint.
+                    clearTimeout(gamesInitialRenderTimer);
                     gamesLoadedOnce = true;
                     rerenderAll();
                 } else {
