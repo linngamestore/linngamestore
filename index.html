@@ -3,7 +3,7 @@
 <head>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Telegram Mini App SDK - provides window.Telegram.WebApp / initData when
-         the site is opened from inside pcagamestore_bot's mini app. No-op
+         the site is opened from inside linngamestorebot's mini app. No-op
          (window.Telegram stays undefined) when opened as a normal website. -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
@@ -279,7 +279,7 @@
         /* Header language pill (EN/MY text switch) - lives in .header-icons-group,
            beside the Messenger/Telegram quick-links. */
         .header-lang-toggle {
-            position: relative; width: 58px; height: 28px; border-radius: 14px; flex-shrink: 0; cursor: pointer;
+            position: relative; width: 58px; height: 26px; border-radius: 13px; flex-shrink: 0; cursor: pointer;
             padding: 3px; display: flex; align-items: center;
             /* EN (default) look: Facebook-blue tinted track. */
             background: linear-gradient(135deg, #e8f2ff, #cfe4fd);
@@ -289,7 +289,7 @@
         }
         .header-lang-toggle:active { transform: scale(0.94); }
         .header-lang-toggle-thumb {
-            width: 28px; height: 22px; border-radius: 11px; background: #fff;
+            width: 28px; height: 20px; border-radius: 10px; background: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.14);
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s ease, background-color 0.2s ease;
@@ -481,7 +481,7 @@
             width: 52px; height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
             border-radius: 12px; background-color: var(--accent);
             background-image: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0) 60%);
-            color: #fff;
+            color: #fff; overflow: hidden;
         }
         /* Default gamepad badge (fallback icon shown before a custom logo
            loads) is removed everywhere — only the real logo image renders,
@@ -491,7 +491,7 @@
         /* object-fit: contain + no border-radius so a transparent-background
            logo keeps its own silhouette instead of being cropped/masked
            into a square or rounded-square frame. */
-        .logo-icon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
+        .logo-icon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; transform-origin: center; transition: transform 0.15s ease; }
         /* Header logo specifically: no accent-color frame behind the image,
            and a touch bigger than the shared badge size above. */
         #header-logo .logo-icon-wrap { width: 49px; height: 49px; background: none; }
@@ -3202,7 +3202,7 @@
 
     <!-- Header -->
     <header class="header">
-        <div class="logo logo-loading" id="header-logo" onclick="window.openAdminTelegram()" role="button" aria-label="Open Linn Game Store Telegram channel">
+        <div class="logo logo-loading" id="header-logo" onclick="window.openLogoTelegramChannel()" role="button" aria-label="Open Linn Game Store Telegram channel">
             <span class="logo-icon-wrap">
                 <svg class="ui-icon" id="header-logo-default-icon" style="color:var(--accent);"><use href="#icon-gamepad"></use></svg>
                 <img id="header-logo-img" src="" alt="Linn Game Store" style="display:none;" onerror="this.style.display='none';">
@@ -3216,10 +3216,10 @@
             <div class="header-lang-toggle" id="header-lang-toggle" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
                 <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb"><span class="header-lang-toggle-thumb-text" id="header-lang-toggle-thumb-text">EN</span></span>
             </div>
-            <a class="header-social-btn messenger-btn skel" id="header-messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
+            <a class="header-social-btn messenger-btn skel" id="header-messenger-btn" href="https://m.me/sandarlinn69" target="_blank" rel="noopener" aria-label="Message us on Messenger">
                 <svg><use href="#icon-messenger-filled"></use></svg>
             </a>
-            <a class="header-social-btn telegram-btn skel" id="header-telegram-btn" href="https://t.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Telegram">
+            <a class="header-social-btn telegram-btn skel" id="header-telegram-btn" href="https://t.me/linn270_0" target="_blank" rel="noopener" aria-label="Message us on Telegram">
                 <svg><use href="#icon-telegram-filled"></use></svg>
             </a>
             <div class="header-icon header-menu-btn" id="drawer-toggle-btn" onclick="openDrawer()" role="button" aria-label="Open menu">
@@ -4121,7 +4121,7 @@
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_contact">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_contact">Contact</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="terms_b_contact_pre">Questions about these terms? Reach us via Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="terms_b_contact_post"> or the Support button on your Profile page.</span></div>
+                        <div class="support-guide-a"><span data-i18n="terms_b_contact_pre">Questions about these terms? Reach us via Telegram </span><a href="https://t.me/linn270_0" target="_blank" rel="noopener" style="color:var(--accent);">@linn270_0</a><span data-i18n="terms_b_contact_post"> or the Support button on your Profile page.</span></div>
                     </div>
                 </div>
             </div>
@@ -4147,7 +4147,7 @@
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_access">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_access">Access &amp; Deletion</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="privacy_b_access_pre">You can message Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="privacy_b_access_post"> at any time to ask what data we hold about you or to request deletion of your profile and history, unless we need to keep specific records to resolve an open order/payment dispute.</span></div>
+                        <div class="support-guide-a"><span data-i18n="privacy_b_access_pre">You can message Telegram </span><a href="https://t.me/linn270_0" target="_blank" rel="noopener" style="color:var(--accent);">@linn270_0</a><span data-i18n="privacy_b_access_post"> at any time to ask what data we hold about you or to request deletion of your profile and history, unless we need to keep specific records to resolve an open order/payment dispute.</span></div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_children">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_children">Children</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
@@ -4159,7 +4159,7 @@
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_contact">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_contact">Contact</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="privacy_b_contact_pre">Privacy questions? Reach us via Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="privacy_b_contact_post">.</span></div>
+                        <div class="support-guide-a"><span data-i18n="privacy_b_contact_pre">Privacy questions? Reach us via Telegram </span><a href="https://t.me/linn270_0" target="_blank" rel="noopener" style="color:var(--accent);">@linn270_0</a><span data-i18n="privacy_b_contact_post">.</span></div>
                     </div>
                 </div>
             </div>
@@ -4193,7 +4193,7 @@
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_dispute">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_dispute">How to Raise a Dispute</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="refund_b_dispute_pre">Contact Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="refund_b_dispute_post"> with your Order ID or Top-Up ID as soon as possible — ideally within 7 days, since order/top-up history older than 7 days is automatically deleted from our records.</span></div>
+                        <div class="support-guide-a"><span data-i18n="refund_b_dispute_pre">Contact Telegram </span><a href="https://t.me/linn270_0" target="_blank" rel="noopener" style="color:var(--accent);">@linn270_0</a><span data-i18n="refund_b_dispute_post"> with your Order ID or Top-Up ID as soon as possible — ideally within 7 days, since order/top-up history older than 7 days is automatically deleted from our records.</span></div>
                     </div>
                 </div>
             </div>
@@ -4201,7 +4201,7 @@
             <!-- BUSINESS IDENTITY -->
             <div class="detail-form-card" style="gap:8px;margin-top:14px;">
                 <label style="margin-top:0;" data-i18n="biz_identity_label">Business Identity</label>
-                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-top:2px;"><span data-i18n="biz_identity_pre">Operator: Linn Game Store \u00a0\u00b7\u00a0 Site: linngamestore.com \u00a0\u00b7\u00a0 Support: </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">Telegram @pca_gamestore</a></p>
+                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-top:2px;"><span data-i18n="biz_identity_pre">Operator: Linn Game Store \u00a0\u00b7\u00a0 Site: linngamestore.com \u00a0\u00b7\u00a0 Support: </span><a href="https://t.me/linn270_0" target="_blank" rel="noopener" style="color:var(--accent);">Telegram @linn270_0</a></p>
             </div>
         </div>
 
@@ -9160,10 +9160,10 @@
             syncUserToFirestore();
         }
 
-        // ---------- Telegram login (pcagamestore_bot) ----------
+        // ---------- Telegram login (linngamestorebot) ----------
         // Two entry points into the same account-linking logic:
         //  1) Mini App auto-login - if the site is opened from inside Telegram
-        //     (pcagamestore_bot's mini app), window.Telegram.WebApp.initData
+        //     (linngamestorebot's mini app), window.Telegram.WebApp.initData
         //     is present and we sign in automatically, no button needed.
         //  2) Login Widget - a "Log in with Telegram" button (onboarding +
         //     Profile) for normal browser visits.
@@ -9178,7 +9178,7 @@
         // guestId once they also link Telegram - both providers end up
         // pointing at the one account); signing in again on a different
         // device pulls that device back onto the original guestId.
-        const TELEGRAM_BOT_USERNAME = 'pcagamestore_bot';
+        const TELEGRAM_BOT_USERNAME = 'linngamestorebot';
         const AUTH_WORKER_URL = 'https://lingamestore.linngamestore.workers.dev';
 
         // guestIdBelongsToOtherTelegram and notifyTelegramConnected both take
@@ -10135,7 +10135,17 @@
         // Fallback username used whenever the admin hasn't configured a
         // Support Contact username yet (Dashboard → Settings → Social Links
         // → Support Contact), so these buttons always work even when unset.
-        const DEFAULT_SUPPORT_TELEGRAM = 'pca_gamestore';
+        const DEFAULT_SUPPORT_TELEGRAM = 'linn270_0';
+        const DEFAULT_SUPPORT_MESSENGER = 'sandarlinn69';
+
+        // Header logo opens the store's Telegram channel (not the support
+        // contact above) — kept as its own constant/function so it never
+        // shifts if an admin later configures a different Support Contact.
+        const LOGO_TELEGRAM_CHANNEL = 'linnlinnarea';
+        function openLogoTelegramChannel() {
+            window.open(`https://t.me/${LOGO_TELEGRAM_CHANNEL}`, '_blank', 'noopener');
+        }
+        window.openLogoTelegramChannel = openLogoTelegramChannel;
 
         // Support Chat (product mode) and the Account tab's general Support
         // button both open this directly now — no more live in-app chat
@@ -10160,7 +10170,7 @@
         // to a plain "m.me/<default>" for Messenger, whenever unset.
         const headerSupportBtnDefaultHTML = {};
         function renderHeaderSupportButtons(data) {
-            const messengerUsername = (data.supportMessenger || '').trim() || DEFAULT_SUPPORT_TELEGRAM;
+            const messengerUsername = (data.supportMessenger || '').trim() || DEFAULT_SUPPORT_MESSENGER;
             const telegramUsername = (data.supportTelegram || '').trim() || DEFAULT_SUPPORT_TELEGRAM;
             window.SUPPORT_TELEGRAM_USERNAME = telegramUsername;
 
@@ -10251,7 +10261,20 @@
             setLogoLoading(null);
         }
 
+        // Logo Size (admin-controlled, 1-100%): scales the logo image in
+        // place via CSS transform inside its fixed, overflow-hidden badge
+        // box, so the header/drawer/onboarding logo slots never resize no
+        // matter how the logo is scaled.
+        function applyLogoScale(scale) {
+            const s = (typeof scale === 'number' && scale > 0) ? scale : 1;
+            ['header-logo-img', 'onboarding-logo-img', 'drawer-logo-img'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.transform = `scale(${s})`;
+            });
+        }
+
         function renderHeaderLogo(data) {
+            applyLogoScale(data && data.logoScale);
             const seq = ++logoLoadSeq;
             const url = (data && data.logoUrl) || '';
             if (!url) {
