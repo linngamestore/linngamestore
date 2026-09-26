@@ -224,7 +224,7 @@
            itself) would otherwise re-blur on every frame because the pixels
            behind them are animating — that's the stutter on tap. Drop the blur
            for just that window; it's back before the color fade even finishes. */
-        html.theme-switching .header, html.theme-switching .bottom-nav, html.theme-switching .nav-notch-bubble,
+        html.theme-switching .header, html.theme-switching .bottom-nav,
         html.theme-switching .theme-toggle, html.theme-switching .modal-box,
         html.theme-switching .modal-overlay, html.theme-switching .success-overlay,
         html.theme-switching #toast, html.theme-switching .glass-panel {
@@ -234,9 +234,10 @@
         header, main.content-area, .bottom-nav, .modal-overlay, #toast { position: relative; z-index: 1; }
 
         body { background-color: var(--bg); color: var(--text); padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px)); }
-        /* Room for the floating bottom nav; the nav itself hides on sub-pages (game detail, terms...). */
-        body:not(.no-bottom-nav) { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
-        body.no-bottom-nav .bottom-nav, body.no-bottom-nav .nav-notch-bubble { display: none; }
+        /* Room for the bottom nav; actual value set later where the nav's
+           glass/floating treatment is defined. The nav itself hides on
+           sub-pages (game detail, terms...). */
+        body.no-bottom-nav .bottom-nav { display: none; }
         /* Was background-attachment: fixed on body, which forces a full repaint on every scroll frame on mobile. A fixed pseudo-element is composited instead. */
         body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: var(--bg-gradient); }
 
@@ -278,7 +279,7 @@
         /* Header language pill (EN/MY text switch) - lives in .header-icons-group,
            beside the Messenger/Telegram quick-links. */
         .header-lang-toggle {
-            position: relative; width: 56px; height: 32px; border-radius: 16px; flex-shrink: 0; cursor: pointer;
+            position: relative; width: 66px; height: 32px; border-radius: 16px; flex-shrink: 0; cursor: pointer;
             padding: 3px; display: flex; align-items: center;
             background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
@@ -286,11 +287,17 @@
         }
         .header-lang-toggle:active { transform: scale(0.94); }
         .header-lang-toggle-thumb {
-            width: 26px; height: 26px; border-radius: 50%; background: #fff;
+            width: 32px; height: 26px; border-radius: 13px; background: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.14);
+            display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s ease, background-color 0.2s ease;
         }
-        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(24px); background: var(--accent); }
+        .header-lang-toggle-thumb-text {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-primary);
+            transition: color 0.2s ease;
+        }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(28px); background: var(--accent); }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb-text { color: #fff; }
         /* Messenger / Telegram quick-contact circles in the header */
         .header-social-btn {
             width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
@@ -2047,7 +2054,7 @@
         .wallet-min-hint { margin: 10px 0 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.6); position: relative; z-index: 2; }
         /* Modal open: drop the floating bottom nav underneath the sheet so it never covers the slide-to-submit button
            (the overlay lives inside main.content-area's stacking context, which sits below the nav's z-index:100). */
-        body:has(.modal-overlay.show) .bottom-nav, body:has(.modal-overlay.show) .nav-notch-bubble { z-index: 0; pointer-events: none; }
+        body:has(.modal-overlay.show) .bottom-nav { z-index: 0; pointer-events: none; }
         .modal-box { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
 
         /* Payment method picker */
@@ -2526,72 +2533,98 @@
            nav's body padding-bottom below. */
         body { padding-top: calc(84px + env(safe-area-inset-top, 0px)); }
 
-        /* Bottom nav = a floating 3D glass dock, detached from the screen edge.
-           mask-image bites a circular notch out of the top edge, at whatever
-           x-position --notch-x currently holds (a px offset from the bar's
-           own left edge, kept in sync with #nav-notch-bubble by JS/
-           updateNavNotch) — so whichever tab is active reads as sitting IN
-           a hole in the bar's own shape, with the row wrapping around it. */
+        /* Bottom nav: flat pill layout kept (no raised notch-bubble, no
+           active-icon-hiding — that's what caused the overlap before), but
+           finished in the same glass material as the header: translucent
+           blur, glass border, and a small gap from the screen edge instead
+           of sitting flush against it. */
         .bottom-nav {
             left: 12px; right: 12px; width: auto;
             bottom: calc(12px + env(safe-area-inset-bottom, 0px));
             background: var(--glass-bg-strong);
             -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 12px 6px;
+            border-radius: 20px;
             box-shadow: 0 16px 40px -10px rgba(20,30,60,0.35), inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 8px rgba(0,0,0,0.04);
             position: fixed;
             transform: translateZ(0); will-change: transform;
-            transition: transform 0.32s cubic-bezier(.4,0,.2,1);
         }
-        /* Applied by JS on scroll-down, removed on scroll-up/near-top — same
-           listener that drives .header.header-hidden above. */
-        .bottom-nav.nav-hidden { transform: translateY(calc(100% + 24px)) translateZ(0); pointer-events: none; }
         html[data-theme="dark"] .bottom-nav { box-shadow: 0 16px 40px -10px rgba(0,0,10,0.6), inset 0 1px 1px rgba(255,255,255,0.06), inset 0 -1px 8px rgba(0,0,0,0.3); }
-        .nav-item { border-radius: 8px; padding: 3px 0 2px; transition: color 0.2s ease; position: relative; }
-        .nav-label { transition: transform 0.2s ease, opacity 0.2s ease; }
-        .nav-item.active .nav-label { transform: translateY(-1px); font-weight: 600; }
 
+        /* Each icon sits in its own little 3D glass button — flat by default,
+           and "pops" up out of the dock with a glossy highlight + drop shadow
+           when active, like a physical glass key being pressed up from below. */
         .nav-icon-wrap {
             position: relative;
-            width: 27px; height: 27px;
-            display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.15s ease;
+            background: rgba(var(--accent-rgb), 0.06);
+            border: 1px solid transparent;
+            transform: translateY(0) scale(1);
+            transition: transform 0.32s cubic-bezier(.34,1.56,.64,1), background 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
+            overflow: hidden;
         }
-        .nav-item:active .nav-icon-wrap { opacity: 0.6; }
-        /* The active tab's own icon is hidden in the row — it's shown
-           instead, enlarged, inside the floating #nav-notch-bubble that
-           sits in the bar's notch directly above this slot. Keep the
-           layout space (visibility, not display:none) so the label below
-           doesn't jump. */
-        .nav-item.active .nav-icon-wrap { visibility: hidden; }
-
-        /* The active-tab bubble: one shared element (not per-tab) that
-           JS slides horizontally to sit centered over whichever tab is
-           active, and whose icon JS swaps to match. Same accent color as
-           before — only the layout/behavior changed, not the palette. */
-        .nav-notch-bubble {
-            position: fixed;
-            left: 0;
-            bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-            transform: translateX(-50%);
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(150deg, var(--accent), var(--accent-dark));
+        .nav-item:active .nav-icon-wrap { transform: translateY(0) scale(0.9); }
+        .nav-item.active .nav-icon-wrap {
+            background: linear-gradient(150deg, rgba(var(--accent-rgb),0.5), rgba(var(--accent-rgb),0.22) 60%, rgba(var(--accent-rgb),0.32));
+            border-color: rgba(255,255,255,0.5);
             box-shadow:
-                0 8px 18px -4px rgba(var(--accent-rgb),0.65),
-                0 0 0 4px var(--bg), 0 0 0 7px rgba(var(--accent-rgb),0.30), 0 0 16px 3px rgba(var(--accent-rgb),0.55),
-                inset 0 1px 1px rgba(255,255,255,0.5);
-            z-index: 101;
+                0 10px 18px -6px rgba(var(--accent-rgb),0.55),
+                0 2px 4px rgba(0,0,0,0.08),
+                inset 0 1px 1px rgba(255,255,255,0.75),
+                inset 0 -4px 8px rgba(0,0,0,0.12);
+            transform: translateY(-7px) scale(1.08);
+        }
+        html[data-theme="dark"] .nav-item.active .nav-icon-wrap {
+            box-shadow:
+                0 10px 20px -6px rgba(var(--accent-rgb),0.6),
+                0 2px 6px rgba(0,0,0,0.4),
+                inset 0 1px 1px rgba(255,255,255,0.25),
+                inset 0 -4px 8px rgba(0,0,0,0.3);
+        }
+        /* Specular glass highlight streak across the top of the active bubble */
+        .nav-icon-wrap::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 55%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0));
+            opacity: 0; transition: opacity 0.3s ease;
             pointer-events: none;
-            transition: left 0.32s cubic-bezier(.34,1.56,.64,1), transform 0.32s cubic-bezier(.4,0,.2,1);
         }
-        .nav-notch-bubble.nav-hidden { transform: translateX(-50%) translateY(calc(100% + 24px)); }
-        .nav-notch-bubble .ui-icon { width: 17px; height: 17px; stroke: #fff; }
+        .nav-item.active .nav-icon-wrap::before { opacity: 1; }
+        .nav-item.active .nav-icon-wrap .ui-icon { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.12)); }
+
+        /* Wallet tab: always-on glowing bubble that floats above the dock,
+           like a FAB, so it reads as the shortcut to add/manage money even
+           when it isn't the active tab. Stays lit (not just on .active) so
+           it's never mistaken for a disabled/inactive icon. */
+        .nav-item-wallet { overflow: visible; }
+        .nav-icon-wrap-wallet {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(150deg, var(--accent), var(--accent-dark));
+            transform: translateY(-9px);
+            box-shadow:
+                0 6px 16px -2px rgba(var(--accent-rgb),0.65),
+                0 0 0 3px var(--bg), 0 0 12px 2px rgba(var(--accent-rgb),0.55),
+                inset 0 1px 1px rgba(255,255,255,0.5);
+            animation: walletGlowPulse 2.4s ease-in-out infinite;
+        }
+        .nav-icon-wrap-wallet .ui-icon { width: 18px; height: 18px; stroke: #fff; }
+        .nav-item-wallet:active .nav-icon-wrap-wallet { transform: translateY(-9px) scale(0.92); }
+        .nav-item-wallet.active .nav-icon-wrap-wallet,
+        .nav-item.active .nav-icon-wrap-wallet {
+            background: linear-gradient(150deg, var(--accent), var(--accent-dark));
+            transform: translateY(-9px) scale(1.06);
+        }
+        .nav-item-wallet .nav-label { color: var(--accent); font-weight: 600; }
+        @keyframes walletGlowPulse {
+            0%, 100% { box-shadow: 0 6px 16px -2px rgba(var(--accent-rgb),0.65), 0 0 0 4px var(--bg), 0 0 14px 2px rgba(var(--accent-rgb),0.55), inset 0 1px 1px rgba(255,255,255,0.5); }
+            50% { box-shadow: 0 6px 18px -2px rgba(var(--accent-rgb),0.85), 0 0 0 4px var(--bg), 0 0 22px 6px rgba(var(--accent-rgb),0.8), inset 0 1px 1px rgba(255,255,255,0.5); }
+        }
         @media (prefers-reduced-motion: reduce) {
-            .nav-notch-bubble { transition: transform 0.32s cubic-bezier(.4,0,.2,1); }
+            .nav-icon-wrap-wallet { animation: none; }
         }
+
+        /* Bar now floats with a bottom gap, so the reserved page space grows
+           a bit versus the flush-to-edge flat bar. */
+        body:not(.no-bottom-nav) { padding-bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
 
         /* Cards
            IMPORTANT (perf): these repeat many times per screen (every game
@@ -3155,7 +3188,7 @@
         </div>
         <div class="header-icons-group" style="display:flex;align-items:center;gap:10px;">
             <div class="header-lang-toggle" id="header-lang-toggle" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
-                <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb"></span>
+                <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb"><span class="header-lang-toggle-thumb-text" id="header-lang-toggle-thumb-text">EN</span></span>
             </div>
             <a class="header-social-btn messenger-btn skel" id="header-messenger-btn" href="https://m.me/pca_gamestore" target="_blank" rel="noopener" aria-label="Message us on Messenger">
                 <svg><use href="#icon-messenger-filled"></use></svg>
@@ -4315,11 +4348,7 @@
     </main>
 
     <!-- Bottom navigation: the 5 main tabs. showPage() toggles .active on #btn-<page>
-         and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer.
-         The active tab's icon is hidden in the row (see .nav-item.active .nav-icon-wrap)
-         and instead shown, enlarged, inside #nav-notch-bubble — a glowing circle that
-         JS (updateNavNotch) slides to sit just above whichever tab is active, poking
-         slightly above the floating pill bar. -->
+         and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer. -->
     <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
         <div class="nav-item active" id="btn-dashboard" onclick="showPage('dashboard')" role="button">
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-home"></use></svg></div>
@@ -4329,8 +4358,8 @@
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-gamepad-nav"></use></svg></div>
             <span class="nav-label" data-i18n="nav_game">Game</span>
         </div>
-        <div class="nav-item" id="btn-wallet" onclick="showPage('wallet')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
+        <div class="nav-item nav-item-wallet" id="btn-wallet" onclick="showPage('wallet')" role="button">
+            <div class="nav-icon-wrap nav-icon-wrap-wallet"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
             <span class="nav-label" data-i18n="nav_wallet">Wallet</span>
         </div>
         <div class="nav-item" id="btn-history" onclick="showPage('history')" role="button">
@@ -4342,9 +4371,7 @@
             <span class="nav-label" data-i18n="nav_profile">Profile</span>
         </div>
     </nav>
-    <div class="nav-notch-bubble" id="nav-notch-bubble" aria-hidden="true">
-        <svg class="ui-icon"><use id="nav-notch-icon" href="#icon-home" xlink:href="#icon-home"></use></svg>
-    </div>
+
 
     <!-- Order Success Screen -->
     <div class="success-overlay" id="success-overlay">
@@ -4729,7 +4756,7 @@
                 notif_empty_read_t: 'ဖတ်ပြီးသားမရှိသေးပါ', notif_empty_read_s: 'ဖွင့်ကြည့်ပြီးသော အသိပေးချက်များ ဤနေရာတွင် သိမ်းထားပါမည်။',
             }
         };
-        let currentLang = localStorage.getItem('gz_lang') || 'my';
+        let currentLang = localStorage.getItem('gz_lang') || 'en';
         function t(key) {
             const table = I18N[currentLang] || I18N.my;
             return (table && table[key] !== undefined) ? table[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
@@ -4755,8 +4782,13 @@
             const headerLangToggle = document.getElementById('header-lang-toggle');
             if (headerLangToggle) {
                 // White dot docked left = Myanmar (default); slides right and
-                // turns accent-blue when switched to English. No text label.
+                // turns accent-blue when switched to English. Thumb shows the
+                // currently active language (MY / EN), not the target.
                 headerLangToggle.classList.toggle('is-right', currentLang === 'en');
+            }
+            const headerLangToggleThumbText = document.getElementById('header-lang-toggle-thumb-text');
+            if (headerLangToggleThumbText) {
+                headerLangToggleThumbText.textContent = currentLang === 'en' ? 'EN' : 'MY';
             }
             if (window.renderMiniProfileGreeting) window.renderMiniProfileGreeting();
             if (window.onNotifLangChange) window.onNotifLangChange();
@@ -5064,8 +5096,8 @@
         });
 
         // Swipe left/right on the main content to move between bottom-nav
-        // tabs, same order as the nav bar (Home -> Voucher -> Wallet ->
-        // History -> Profile). Only fires while on one of those pages
+        // tabs, same order as the nav bar (Home -> Voucher -> Software ->
+        // Wallet -> History -> Profile). Only fires while on one of those pages
         // (sub-pages like game-detail/server-select are left alone),
         // and backs off entirely if the gesture actually scrolled a
         // horizontally-scrolling row under the finger (e.g. Popular Games)
@@ -5083,7 +5115,11 @@
             // bottom-nav tab), so they're deliberately excluded - swiping
             // past Wallet/History/Profile used to land on one of them with
             // no nav item lit up, which looked like the swipe "went nowhere".
-            const TAB_ORDER = ['home', 'voucher', 'wallet', 'history', 'profile'];
+            // Home/Voucher/Software share the single "Game" nav slot (see
+            // GAME_TAB_PAGES in showPage), so all three are included here in
+            // their sub-tab order — otherwise swiping past Voucher jumped
+            // straight to Wallet, skipping Software entirely.
+            const TAB_ORDER = ['home', 'voucher', 'software', 'wallet', 'history', 'profile'];
             const content = document.querySelector('main.content-area');
             if (!content) return;
 
