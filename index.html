@@ -1585,8 +1585,22 @@
            the "Popular" header above and the rest of the page below. Now the
            grid is just part of the normal page flow, so one drag scrolls the
            whole screen together. */
+        /* Glass panel behind the Top Up / Voucher / Software grids (all 3
+           tabs share this one .games-grid-scroll wrapper markup). Only one
+           of these is ever visible at a time (each lives in its own
+           .page-section, and only the active section renders), so putting
+           the backdrop-filter blur here — once per screen — doesn't carry
+           the per-card blur cost the "Cards" comment above warns about;
+           the cards themselves stay on their existing translucent tint
+           (var(--glass-bg-strong), no per-card blur) and now sit inside a
+           frosted glass tray instead of directly on the page background. */
         .games-grid-scroll {
-            margin: 0 -2px; padding: 2px;
+            margin: 0 -2px; padding: 16px 14px;
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
         }
         /* "Load More" under the Home All-Games grid (PERF: paginated grid). */
         .load-more-games-btn {
@@ -1762,6 +1776,27 @@
         }
         .pc-price .pc-cur { font-size: 9px; font-weight: 600; opacity: 0.92; letter-spacing: 0.2px; }
         .package-card.type-topup .pc-price-bar, .package-card.type-currency .pc-price-bar { padding-top: 5px; padding-bottom: 5px; }
+
+        /* Software packages — flat single-column "row" list instead of the
+           grid every other game uses (no price-card columns, just one row
+           per package, manually added from the admin panel). See
+           renderDetailPackageList() / window.currentGameIsSoftware. */
+        .package-grid.layout-list { display: flex; flex-direction: column; gap: 10px; }
+        .package-card.type-software {
+            flex-direction: row; align-items: center; position: relative;
+            border: 1.5px solid var(--border); background: var(--surface);
+            padding: 10px 40px 10px 10px; gap: 12px;
+        }
+        .package-card.type-software .pc-img-wrap {
+            width: 48px; height: 48px; flex: 0 0 48px; border-radius: 10px;
+            background: var(--surface-alt); display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .package-card.type-software .pc-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .package-card.type-software .pc-row-info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+        .package-card.type-software .pc-row-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: normal; word-break: break-word; line-height: 1.3; }
+        .package-card.type-software .pc-row-price { font-size: 13px; font-weight: 600; color: var(--accent); }
+        .package-card.type-software.selected { border-color: var(--accent); box-shadow: 0 0 0 2.5px rgba(var(--accent-rgb),0.35); }
+
         .modal-footer { padding-top: 16px; }
         .modal-footer .btn:disabled { background: var(--text-faint); cursor: not-allowed; }
 
@@ -3465,9 +3500,10 @@
             </div>
         </div>
 
-        <!-- SOFTWARE PAGE — placeholder tab inside the merged Game nav item.
-             No live catalogue yet (will be imported from G2Bulk later), so
-             this only ever shows a static skeleton grid; nothing renders it. -->
+        <!-- SOFTWARE PAGE — games/servers whose fulfillProvider is set to
+             'software' in the admin game editor. Same square card grid and
+             purchase flow as Home, just pre-filtered to software-only entries
+             (see renderSoftwareGames). -->
         <div id="software" class="page-section">
             <div class="game-subtab-bar">
                 <div class="game-subtab-btn" onclick="showPage('home')" data-i18n="nav_topup">Top Up</div>
@@ -5010,6 +5046,7 @@
             if (pageId === 'leaderboard' && window.loadLeaderboard) window.loadLeaderboard();
             if (pageId !== 'leaderboard' && window.stopLeaderboardLive) window.stopLeaderboardLive();
             if (pageId === 'voucher' && window.renderVoucherGames) window.renderVoucherGames();
+            if (pageId === 'software' && window.renderSoftwareGames) window.renderSoftwareGames();
             // Game catalogue listener: only needed on the pages that read
             // window.GAMES - Home (grid + favorites row + flash-sale banner),
             // Voucher (grid), and game-detail (package/app-link/success-screen
@@ -5018,7 +5055,7 @@
             // listenGames() is already started unconditionally at load for
             // that reason, so this hook only needs to stop it on every other
             // page and restart it if the user navigates back.
-            const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'game-detail'];
+            const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'software', 'game-detail'];
             if (GAMES_PAGES.includes(pageId) && window.listenGames) window.listenGames();
             else if (!GAMES_PAGES.includes(pageId) && window.stopListenGames) window.stopListenGames();
             // Wallet top-up history: only needed on the Wallet page.
@@ -6236,6 +6273,46 @@
             } catch (e) { /* malformed URL - ignore, act as a normal visit */ }
         })();
 
+        // ---------- Direct tab deep link (?tab=<pageId>) ----------
+        // Lets an external link — e.g. the Telegram bot's "🛠️ Software"
+        // button (STORE_URL + "?tab=software") — open the Mini App straight
+        // onto a specific bottom-nav tab instead of always landing on Home.
+        // Only tabs that actually exist in the bottom nav / swipe order are
+        // honored (see TAB_ORDER in initTabSwipe below); anything else is
+        // ignored and the app just opens normally on Home.
+        const TAB_DEEP_LINK_ALLOWED = ['home', 'voucher', 'software', 'wallet', 'history', 'leaderboard', 'profile'];
+        let pendingTabDeepLink = null;
+        (function captureTabDeepLinkFromURL() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const tab = params.get('tab');
+                if (tab && TAB_DEEP_LINK_ALLOWED.includes(tab)) pendingTabDeepLink = tab;
+            } catch (e) { /* malformed URL - ignore, act as a normal visit */ }
+        })();
+
+        // Unlike the package deep link above, this doesn't need window.GAMES
+        // loaded first — showPage() just switches the visible page-section,
+        // and applyProviderFilterAndRerender() already re-renders whichever
+        // page is current (including Software) once the game catalogue
+        // arrives. So this fires as soon as the DOM (and showPage) is ready.
+        function tryOpenPendingTabDeepLink() {
+            if (!pendingTabDeepLink) return;
+            const tab = pendingTabDeepLink;
+            pendingTabDeepLink = null; // handle exactly once
+            if (window.showPage) showPage(tab);
+            try {
+                const clean = new URL(window.location.href);
+                clean.searchParams.delete('tab');
+                window.history.replaceState({}, '', clean.toString());
+            } catch (e) { /* ignore */ }
+        }
+        window.tryOpenPendingTabDeepLink = tryOpenPendingTabDeepLink;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', tryOpenPendingTabDeepLink);
+        } else {
+            tryOpenPendingTabDeepLink();
+        }
+
         // Defined here (not just in the module script below) because this
         // classic <script> block calls it before the module script has
         // run — module-scope declarations aren't visible to classic
@@ -6404,6 +6481,11 @@
             // voucher/giftcard games keep the gift-card style; every other
             // (direct top-up) game uses the plain product-card layout.
             window.currentGameIsVoucher = game.fulfillProvider === 'g2bulk_voucher' || game.fulfillProvider === 'fazercard_giftcard';
+            // Software items (fulfillProvider === 'software', manually
+            // added from admin.html's new "Software" tab) get the flat
+            // row-list layout instead, and skip the payment-method step
+            // entirely — see selectPackageOption/confirmSoftwarePurchase.
+            window.currentGameIsSoftware = game.fulfillProvider === 'software';
             currentGameTabLabels = game.packageTabLabels || {};
 
             // Voucher/giftcard games (fulfillProvider === 'g2bulk_voucher') show a
@@ -6618,10 +6700,13 @@
             }
             const list = document.getElementById('detail-package-list');
             const packages = (window.currentGamePackages || []).filter(pkg => pkg && typeof pkg === 'object');
+            const isSoftware = !!window.currentGameIsSoftware;
             // Both tabs now share the same compact grid look — no more separate
-            // wide-banner layout for "package" type items.
-            list.classList.remove('layout-package');
-            list.classList.add('layout-currency');
+            // wide-banner layout for "package" type items. Software packages
+            // are the one exception: a flat single-column row list instead of
+            // the grid (see .layout-list / .package-card.type-software CSS).
+            list.classList.remove('layout-package', 'layout-currency', 'layout-list');
+            list.classList.add(isSoftware ? 'layout-list' : 'layout-currency');
 
             const entries = packages
                 .map((pkg, i) => ({ pkg, i }))
@@ -6652,13 +6737,19 @@
                 // top-up) uses the plain product-card layout - image, then the
                 // amount/currency name as a normal label, then price.
                 const isVoucher = !!window.currentGameIsVoucher;
-                const cardTypeClass = isVoucher ? 'type-currency' : 'type-topup';
+                const cardTypeClass = isSoftware ? 'type-software' : (isVoucher ? 'type-currency' : 'type-topup');
                 // Admin-assigned promo star pill — 'top' or 'hot' (see admin
                 // package editor). Same star icon for both, colored differently.
                 const tagHtml = (pkg.badge === 'top' || pkg.badge === 'hot')
                     ? `<span class="pc-tag pc-tag-${pkg.badge}"><svg class="pc-tag-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>${pkg.badge === 'top' ? 'TOP' : 'HOT'}</span>`
                     : '';
-                const bodyHTML = isVoucher
+                const bodyHTML = isSoftware
+                    ? `<div class="pc-img-wrap">${imgTag}</div>
+                    <div class="pc-row-info">
+                        <span class="pc-row-name">${pkg.amount}</span>
+                        <span class="pc-row-price">${Number(pkg.price || 0).toLocaleString()} MMK</span>
+                    </div>${tagHtml}`
+                    : isVoucher
                     ? `<div class="pc-amount-badge">${pkg.amount}</div>
                     <div class="pc-img-wrap">${imgTag}</div>
                     <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span></div>${tagHtml}`
@@ -6698,6 +6789,16 @@
             document.getElementById('detail-payment-info').style.display = 'none';
 
             const confirmBtn = document.getElementById('detail-confirm-btn');
+            // Software packages skip "Choose How to Pay" entirely — there's
+            // no in-app payment wired up for these yet. Selecting a package
+            // enables the slide-to-confirm button directly; sliding it hands
+            // the order off to Telegram instead (see confirmSoftwarePurchase).
+            if (window.currentGameIsSoftware) {
+                document.getElementById('detail-payment-section').style.display = 'none';
+                confirmBtn.disabled = false;
+                confirmBtn.innerText = `Order via Telegram — ${Number(pkgToSelect.price || 0).toLocaleString()} MMK`;
+                return;
+            }
             confirmBtn.disabled = true;
             confirmBtn.innerText = 'Choose How to Pay';
 
@@ -7307,6 +7408,10 @@
         async function confirmPackagePurchase(btnElement) {
             if (!selectedPackage) return;
 
+            // Software items have no in-app payment yet — hand off to
+            // Telegram instead of the normal wallet/receipt flow below.
+            if (window.currentGameIsSoftware) return confirmSoftwarePurchase(btnElement);
+
             // Stock can move between selecting the package and hitting confirm (another
             // customer buying the same voucher, etc.), so re-check right before submitting.
             if (window.currentGameIsVoucher && selectedPackage.voucherId && voucherStockMap[String(selectedPackage.voucherId)] === 0) {
@@ -7359,6 +7464,53 @@
 
             await doSubmitOrder(inGameId, serverId, btnElement, transactionId);
         }
+
+        // ---------------------------------------------------------------------------
+        // Software order hand-off — no in-app payment is wired up for Software
+        // items yet, so sliding "Order via Telegram" opens a chat with the
+        // store's admin (same t.me/linn270_0 as Help Center's Contact Support)
+        // with the price/item/quantity already typed into the message box; the
+        // customer only has to tap Telegram's own Send button. Deliberately
+        // writes nothing to Firestore — this is a plain DM hand-off, not a
+        // tracked "orders" doc, and no receipt/image is attached to it.
+        // ---------------------------------------------------------------------------
+        const SOFTWARE_ORDER_ADMIN_USERNAME = 'linn270_0';
+
+        function buildSoftwareOrderMessage(pkg, gameName, serverName) {
+            const lines = [
+                '🛒 Software Order',
+                '',
+                `📦 Item: ${gameName}${serverName ? ' (' + serverName + ')' : ''}${pkg.amount ? ' — ' + pkg.amount : ''}`,
+                `🔢 Quantity: ${pkg.quantity || 1}`,
+                `💰 Price: ${Number(pkg.price || 0).toLocaleString()} MMK`,
+            ];
+            return lines.join('\n');
+        }
+
+        async function confirmSoftwarePurchase(btnElement) {
+            if (!selectedPackage) return;
+            const esc = (v) => (window.escapeHtml ? window.escapeHtml(String(v)) : String(v));
+            const confirmed = await openReviewSheet({
+                game: selectedGameName,
+                sub: selectedGameServerName,
+                img: window.findGameImage ? window.findGameImage(selectedGameName, selectedGameServerName) : '',
+                rows: [
+                    ['Package', esc(selectedPackage.amount)],
+                    ['Quantity', esc(selectedPackage.quantity || 1)],
+                ],
+                total: getOrderTotal(),
+                confirmLabel: 'Order via Telegram',
+            });
+            if (!confirmed) {
+                if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
+                return;
+            }
+            const text = buildSoftwareOrderMessage(selectedPackage, selectedGameName, selectedGameServerName);
+            window.open(`https://t.me/${SOFTWARE_ORDER_ADMIN_USERNAME}?text=${encodeURIComponent(text)}`, '_blank');
+            window.showToast('Telegram ဖွင့်ပေးလိုက်ပါပြီ — message ကို Send နှိပ်ပေးရုံပါပဲ။', 'success');
+            if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
+        }
+        window.confirmSoftwarePurchase = confirmSoftwarePurchase;
 
         // ---------- Slide-to-confirm gesture for the final purchase button ----------
         // #detail-confirm-btn is now a pill-shaped "track" (pointer-events: none,
@@ -12071,6 +12223,9 @@
             if (window.currentStorePage === 'voucher') {
                 runWhenNotTouching(document.querySelector('#voucher-games-grid')?.closest('.games-grid-scroll'), renderVoucherGames);
             }
+            if (window.currentStorePage === 'software') {
+                runWhenNotTouching(document.querySelector('#software-games-grid')?.closest('.games-grid-scroll'), renderSoftwareGames);
+            }
             if (typeof renderWalletPaymentMethods === 'function' && document.getElementById('wallet-topup-payment-methods')) {
                 renderWalletPaymentMethods();
             }
@@ -12289,14 +12444,11 @@
         window.handleVoucherSearchBlur = handleVoucherSearchBlur;
 
         // ---- Software tab search ----
-        // No live catalogue is wired up yet (see the Software page comment
-        // near its HTML), so there's nothing to actually filter yet - this
-        // only gives the icon<->bar expand/collapse motion for now. Once a
-        // real renderSoftwareGames() exists, call it here the same way
-        // filterVouchersBySearch calls renderVoucherGames() above.
         function filterSoftwareBySearch(value) {
             softwareSearchQuery = (value || '').trim().toLowerCase();
             document.getElementById('software-search-clear').style.display = softwareSearchQuery ? 'block' : 'none';
+            clearTimeout(softwareSearchDebounceTimer);
+            softwareSearchDebounceTimer = setTimeout(() => renderSoftwareGames(), 250);
         }
         window.filterSoftwareBySearch = filterSoftwareBySearch;
 
@@ -12306,6 +12458,7 @@
             softwareSearchQuery = '';
             document.getElementById('software-search-clear').style.display = 'none';
             input.focus();
+            renderSoftwareGames();
         }
         window.clearSoftwareSearch = clearSoftwareSearch;
 
@@ -12574,9 +12727,11 @@
             // screen) wins, ascending; games that don't have one yet fall to
             // the end, alphabetically - so nothing reshuffles on its own.
             // Vouchers/gift cards (fulfillProvider === 'g2bulk_voucher') have their
-            // own dedicated Voucher tab (see renderVoucherGames below) and should
-            // not also appear mixed into the Home / direct top-up list.
-            const ids = Object.keys(GAMES).filter(id => GAMES[id].fulfillProvider !== 'g2bulk_voucher' && GAMES[id].fulfillProvider !== 'fazercard_giftcard').sort((a, b) => {
+            // own dedicated Voucher tab (see renderVoucherGames below), and
+            // software (fulfillProvider === 'software') has its own Software
+            // tab (see renderSoftwareGames below) - neither should also
+            // appear mixed into the Home / direct top-up list.
+            const ids = Object.keys(GAMES).filter(id => GAMES[id].fulfillProvider !== 'g2bulk_voucher' && GAMES[id].fulfillProvider !== 'fazercard_giftcard' && GAMES[id].fulfillProvider !== 'software').sort((a, b) => {
                 const ga = GAMES[a], gb = GAMES[b];
                 const oa = typeof ga.order === 'number' ? ga.order : Infinity;
                 const ob = typeof gb.order === 'number' ? gb.order : Infinity;
@@ -12823,6 +12978,71 @@
             revealCardsIn(grid);
         }
         window.renderVoucherGames = renderVoucherGames;
+
+        // ---------- Software tab: same square card grid as Home, pre-filtered
+        // to games whose fulfillment is marked fulfillProvider === 'software'
+        // in the admin game editor. Kept as its own group/index array
+        // (SOFTWARE_GAME_GROUPS) so opening a card here never collides with
+        // Home's HOME_GAME_GROUPS or Voucher's VOUCHER_GAME_GROUPS indices.
+        let SOFTWARE_GAME_GROUPS = [];
+        function openSoftwareGameEntry(idx) {
+            const group = SOFTWARE_GAME_GROUPS[idx];
+            if (!group) return;
+            gameDetailReturnPage = 'software';
+            if (group.ids.length <= 1) {
+                openGameDetail(group.ids[0]);
+            } else {
+                openServerSelect(idx, SOFTWARE_GAME_GROUPS);
+            }
+        }
+        window.openSoftwareGameEntry = openSoftwareGameEntry;
+
+        function softwareGameCardHTML(gr, i) {
+            const g = GAMES[gr.repId];
+            return `
+                    <div class="game-card game-card-anim card-pop" data-game-id="${gr.repId}" style="--i:${Math.min(i, 12)}" onclick="openSoftwareGameEntry(${gr.idx})">
+                        <div class="game-card-img-wrap">
+                            <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                            ${serverCountBadgeHtml(gr)}
+                        </div>
+                        <div class="game-card-name">${g.name}</div>
+                    </div>
+                `;
+        }
+
+        function renderSoftwareGames() {
+            const grid = document.getElementById('software-games-grid');
+            if (!grid) return;
+            const ids = Object.keys(GAMES)
+                .filter(id => GAMES[id].fulfillProvider === 'software')
+                .sort((a, b) => {
+                    const ga = GAMES[a], gb = GAMES[b];
+                    const oa = typeof ga.order === 'number' ? ga.order : Infinity;
+                    const ob = typeof gb.order === 'number' ? gb.order : Infinity;
+                    if (oa !== ob) return oa - ob;
+                    return (ga.name || '').localeCompare(gb.name || '');
+                });
+            if (ids.length === 0) {
+                grid.innerHTML = gamesLoadedOnce
+                    ? emptyStateHTML('icon-grid', 'No software yet', 'Software & top-up tools will show up here once added.')
+                    : loadingStateHTML('grid');
+                return;
+            }
+            const groups = groupGamesByName(ids);
+            SOFTWARE_GAME_GROUPS = groups;
+            const indexedGroups = groups.map((gr, idx) => ({ ...gr, idx }));
+
+            const visibleGroups = softwareSearchQuery
+                ? indexedGroups.filter(gr => (gr.name || '').toLowerCase().includes(softwareSearchQuery))
+                : indexedGroups;
+            if (softwareSearchQuery && visibleGroups.length === 0) {
+                grid.innerHTML = `<p class="empty-msg">No software found for "${escapeHtml(softwareSearchQuery)}".</p>`;
+                return;
+            }
+            grid.innerHTML = visibleGroups.map((gr, i) => softwareGameCardHTML(gr, i)).join('');
+            revealCardsIn(grid);
+        }
+        window.renderSoftwareGames = renderSoftwareGames;
 
         // Games are managed entirely from the admin panel now — nothing here ever
         // auto-recreates a game, so deleting one in admin removes it for good.
