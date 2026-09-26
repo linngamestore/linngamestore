@@ -765,7 +765,7 @@
         }
         .notif-item { background: var(--surface); padding: 14px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
         .notif-item h5 { font-size: 15px; color: var(--text); margin-bottom: 4px; font-weight: 500; }
-        .notif-item p { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+        .notif-item p { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         .notif-item span { font-size: 11px; color: var(--text-muted); }
         .notif-item { position: relative; }
         /* Unread marker: red dot in the card's top-right corner */
@@ -2238,14 +2238,14 @@
         .pc-balance-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .pc-balance-info { min-width: 0; }
         .pc-label { font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
-        .pc-balance { font-size: 24px; font-weight: 600; color: var(--text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+        .pc-balance { font-size: 19px; font-weight: 600; color: var(--text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
         .pc-topup-btn {
-            display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+            display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
             background: var(--accent); color: var(--on-color); border: none; cursor: pointer;
-            font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 12px; transition: transform 0.15s ease;
+            font-size: 11.5px; font-weight: 600; padding: 7px 11px; border-radius: 10px; transition: transform 0.15s ease;
         }
         .pc-topup-btn:active { transform: scale(0.95); }
-        .pc-topup-btn svg { width: 15px; height: 15px; }
+        .pc-topup-btn svg { width: 12px; height: 12px; }
         .pc-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
         .pc-stat { background: var(--surface-alt); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
         .pc-stat b { font-size: 15px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -2282,6 +2282,16 @@
         /* Google account card (Profile page) */
         .google-account-card { margin-top: 22px; margin-bottom: 14px; }
         .google-login-btn { width: 100%; padding: 11px 12px; border-radius: 10px; font-weight: 500; font-size: 14px; border: 1px solid #DADCE0; background: var(--surface); color: #3C4043; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+
+        /* Email OTP login block (onboarding + Profile > Account) — a plain
+           divider, then an email/code input styled to match the surrounding
+           inputs, sitting between the Google button and the Guest button. */
+        .email-login-divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; color: var(--text-muted); font-size: 11.5px; }
+        .email-login-divider::before, .email-login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .email-login-input { width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); margin-bottom: 8px; }
+        .email-login-input:focus { outline: none; border-color: var(--accent); }
+        .email-login-resend { width: 100%; background: none; border: none; color: var(--accent); font-size: 12.5px; font-weight: 600; padding: 8px 0 0; cursor: pointer; }
+        .email-login-resend:active { opacity: 0.7; }
         .google-login-btn:disabled { opacity: 0.6; }
         .google-login-btn:active { background: var(--surface-alt); }
         .gis-fallback { display: none; }
@@ -3101,6 +3111,23 @@
                     </svg>
                     <span id="onboard-google-btn-label">Continue with Google</span>
                 </button>
+
+                <div class="email-login-divider"><span>or</span></div>
+                <div id="onboard-email-step-input">
+                    <input type="email" id="onboard-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                    <button type="button" class="google-login-btn" id="onboard-email-send-btn" onclick="handleSendEmailCode('onboard')">
+                        <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-bell"></use></svg>
+                        <span>Continue with Email</span>
+                    </button>
+                </div>
+                <div id="onboard-email-step-code" style="display:none;">
+                    <input type="text" id="onboard-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('onboard');">
+                    <button type="button" class="google-login-btn" id="onboard-email-verify-btn" onclick="handleVerifyEmailCode('onboard')">
+                        <span>Verify Code</span>
+                    </button>
+                    <button type="button" class="email-login-resend" id="onboard-email-resend-btn" onclick="handleSendEmailCode('onboard', true)">Resend code</button>
+                </div>
+
                 <button type="button" class="onboarding-guest-btn" id="onboard-guest-btn" onclick="handleOnboardGuestContinue()">
                     Continue as Guest<br><span style="font-size:11.5px;opacity:.75;">ဧည့်သည်အဖြစ် ဆက်လက်ရန်</span>
                 </button>
@@ -4007,6 +4034,20 @@
                             </svg>
                             Continue with Google
                         </button>
+                        <div class="email-login-divider"><span>or</span></div>
+                        <div id="profile-email-step-input">
+                            <input type="email" id="profile-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                            <button type="button" class="google-login-btn" id="profile-email-send-btn" onclick="handleSendEmailCode('profile')">
+                                <span>Continue with Email</span>
+                            </button>
+                        </div>
+                        <div id="profile-email-step-code" style="display:none;">
+                            <input type="text" id="profile-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('profile');">
+                            <button type="button" class="google-login-btn" id="profile-email-verify-btn" onclick="handleVerifyEmailCode('profile')">
+                                <span>Verify Code</span>
+                            </button>
+                            <button type="button" class="email-login-resend" onclick="handleSendEmailCode('profile', true)">Resend code</button>
+                        </div>
                         <p class="google-account-hint">Optional — just auto-fills your name &amp; photo below and remembers you next visit.</p>
                     </div>
                     <div class="google-account-card google-account-signedin" id="google-account-signedin" style="display:none;">
@@ -4768,11 +4809,12 @@
                 success_completed_title: 'Order Completed!', success_completed_sub: 'Your top up has been delivered. Thanks for ordering with us.',
                 success_failed_title: 'Order Failed', success_failed_sub: 'Something went wrong with this order. Check the details in History or contact support.',
                 success_confirmed_title: 'Order Confirmed',
-                order_ok_title: 'Order Success',
+                order_ok_title: 'Successfully',
                 notif_tab_unread: 'Unread', notif_tab_read: 'Read', notif_mark_all: 'Mark all read',
-                notif_order_success: 'Order Success', notif_order_failed: 'Order Failed', notif_view_history: 'View in History',
+                notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'View in History',
                 notif_empty_unread_t: "You're all caught up", notif_empty_unread_s: 'New order updates and announcements will show up here.',
                 notif_empty_read_t: 'Nothing here yet', notif_empty_read_s: 'Notifications you have opened are kept here.',
+                welcome_new: 'Welcome', welcome_back: 'Welcome Back',
             },
             my: {
                 nav_home: 'ပင်မ', nav_voucher: 'ဗောက်ချာ',
@@ -4912,11 +4954,12 @@
                 success_completed_title: 'အော်ဒါ ပြီးမြောက်ပါပြီ!', success_completed_sub: 'သင့်ရဲ့ top up ကို ပေးပို့ပြီးပါပြီ။ ကျွန်ုပ်တို့နှင့် အော်ဒါတင်သည့်အတွက် ကျေးဇူးတင်ပါသည်။',
                 success_failed_title: 'အော်ဒါ မအောင်မြင်ပါ', success_failed_sub: 'ဒီအော်ဒါမှာ တစ်ခုခုမှားယွင်းသွားပါသည်။ History တွင်စစ်ဆေးပါ (သို့) Support ကိုဆက်သွယ်ပါ။',
                 success_confirmed_title: 'အော်ဒါ အတည်ပြုပြီး',
-                order_ok_title: 'Order Success',
+                order_ok_title: 'Successfully',
                 notif_tab_unread: 'မဖတ်ရသေး', notif_tab_read: 'ဖတ်ပြီး', notif_mark_all: 'အားလုံး ဖတ်ပြီးပြုမည်',
-                notif_order_success: 'Order Success', notif_order_failed: 'Order Failed', notif_view_history: 'History တွင်ကြည့်မည်',
+                notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'History တွင်ကြည့်မည်',
                 notif_empty_unread_t: 'အသစ်မရှိတော့ပါ', notif_empty_unread_s: 'အော်ဒါ အခြေအနေနှင့် ကြေညာချက်အသစ်များ ဤနေရာတွင် ပေါ်လာပါမည်။',
                 notif_empty_read_t: 'ဖတ်ပြီးသားမရှိသေးပါ', notif_empty_read_s: 'ဖွင့်ကြည့်ပြီးသော အသိပေးချက်များ ဤနေရာတွင် သိမ်းထားပါမည်။',
+                welcome_new: 'ကြိုဆိုပါတယ်', welcome_back: 'ပြန်လည်ကြိုဆိုပါတယ်',
             }
         };
         let currentLang = localStorage.getItem('gz_lang') || 'en';
@@ -7907,6 +7950,11 @@
         // orders, ban status). A signed-in Google account still restores its
         // own canonical ID via applyGoogleProfile().
         let memoryGuestId = null;
+        // True only the very first time this device ever gets a guest ID
+        // (i.e. localStorage had none yet) — used to tell a brand-new
+        // visitor from someone who already has an account on this device,
+        // so the welcome toast can say "Welcome" vs "Welcome Back".
+        let guestWasJustCreated = false;
         function getGuestId() {
             try {
                 let gid = localStorage.getItem('gz_guest_id');
@@ -7914,10 +7962,11 @@
                     gid = makeGuestId();
                     localStorage.setItem('gz_guest_id', gid);
                     localStorage.setItem('gz_member_since', String(Date.now()));
+                    guestWasJustCreated = true;
                 }
                 return gid;
             } catch (e) {
-                if (!memoryGuestId) memoryGuestId = makeGuestId();
+                if (!memoryGuestId) { memoryGuestId = makeGuestId(); guestWasJustCreated = true; }
                 return memoryGuestId;
             }
         }
@@ -8018,6 +8067,18 @@
         // Populate the Profile tab and mini profile strip immediately on load.
         renderProfileFields();
         renderMiniProfile();
+
+        // One-time greeting on load: brand-new device (no guest ID yet
+        // before the calls above) gets "Welcome, <name or ID>"; a device
+        // that already had one gets "Welcome Back, <name>". Uses the same
+        // name-or-ID fallback as the mini profile strip.
+        (function showWelcomeToast() {
+            const p = getSavedProfile();
+            const gid = getGuestId();
+            const displayName = (p.name && p.name.trim()) ? p.name.trim() : gid;
+            const prefix = guestWasJustCreated ? t('welcome_new') : t('welcome_back');
+            window.showToast(`${prefix}, ${displayName}`);
+        })();
     </script>
 
     <!-- FIREBASE CODE -->
@@ -9664,6 +9725,94 @@
         }
         window.renderTelegramWidgets = renderTelegramWidgets;
         renderTelegramWidgets();
+
+        // ---------------- Email OTP login (linnstore-otp-worker.js) ----------------
+        // Separate, simpler Worker from the Google/Telegram Firebase-auth flow
+        // above: it links straight onto this device's guestId (no Firebase
+        // custom token). ctx is 'onboard' or 'profile' - same two functions
+        // drive both UI copies, just swapping which element IDs they touch.
+        // TODO: replace with your actual deployed Worker URL if different.
+        const EMAIL_AUTH_WORKER_URL = 'https://linnstore-otp-worker.linngamestore.workers.dev';
+        let pendingLoginEmail = '';
+
+        function emailCtxEls(ctx) {
+            const p = ctx === 'profile' ? 'profile' : 'onboard';
+            return {
+                input: document.getElementById(`${p}-email-input`),
+                code: document.getElementById(`${p}-email-code-input`),
+                sendBtn: document.getElementById(`${p}-email-send-btn`),
+                verifyBtn: document.getElementById(`${p}-email-verify-btn`),
+                stepInput: document.getElementById(`${p}-email-step-input`),
+                stepCode: document.getElementById(`${p}-email-step-code`),
+            };
+        }
+
+        async function handleSendEmailCode(ctx, isResend) {
+            const els = emailCtxEls(ctx);
+            const email = (els.input && els.input.value || '').trim();
+            if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                window.showToast('မှန်ကန်တဲ့ email လိပ်စာထည့်ပါ', 'fail');
+                return;
+            }
+            if (els.sendBtn) els.sendBtn.disabled = true;
+            try {
+                const res = await fetch(`${EMAIL_AUTH_WORKER_URL}/auth/send-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.error || 'Code မပို့နိုင်ပါ');
+                pendingLoginEmail = email.toLowerCase();
+                if (els.stepInput) els.stepInput.style.display = 'none';
+                if (els.stepCode) els.stepCode.style.display = '';
+                window.showToast(isResend ? 'Code ကို ပြန်ပို့ပြီးပါပြီ' : `${email} သို့ Code ပို့ပြီးပါပြီ`);
+            } catch (e) {
+                console.error('send-code error:', e);
+                window.showToast(e.message || 'Code ပို့၍မရပါ — ထပ်စမ်းကြည့်ပါ', 'fail');
+            } finally {
+                if (els.sendBtn) els.sendBtn.disabled = false;
+            }
+        }
+        window.handleSendEmailCode = handleSendEmailCode;
+
+        async function handleVerifyEmailCode(ctx) {
+            const els = emailCtxEls(ctx);
+            const code = (els.code && els.code.value || '').trim();
+            const guestId = window.getGuestId ? window.getGuestId() : null;
+            if (!code || !guestId) return;
+            if (els.verifyBtn) els.verifyBtn.disabled = true;
+            try {
+                const res = await fetch(`${EMAIL_AUTH_WORKER_URL}/auth/verify-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingLoginEmail, code, guestId }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.valid) throw new Error(data.error || 'Code မှားနေပါသည်');
+
+                // This email was already linked to a different guestId (e.g.
+                // signed in from another device before) - switch this device
+                // over to that canonical account instead of creating a second one.
+                if (data.conflict && data.canonicalGuestId && data.canonicalGuestId !== guestId) {
+                    try { localStorage.setItem('gz_guest_id', data.canonicalGuestId); } catch (e) { /* private browsing */ }
+                }
+                try {
+                    const p = window.getSavedProfile ? window.getSavedProfile() : {};
+                    localStorage.setItem('gz_profile', JSON.stringify({ ...p, email: pendingLoginEmail }));
+                } catch (e) { /* private browsing */ }
+
+                window.showToast('Email ဖြင့် Login ဝင်ပြီးပါပြီ 🎉');
+                if (window.renderMiniProfile) window.renderMiniProfile();
+                if (ctx === 'onboard' && window.completeOnboarding) window.completeOnboarding();
+            } catch (e) {
+                console.error('verify-code error:', e);
+                window.showToast(e.message || 'Verify မအောင်မြင်ပါ', 'fail');
+            } finally {
+                if (els.verifyBtn) els.verifyBtn.disabled = false;
+            }
+        }
+        window.handleVerifyEmailCode = handleVerifyEmailCode;
 
         // Mini App auto-login - runs once on load. No-op (silently returns)
         // when the site is opened as a normal website, since window.Telegram
