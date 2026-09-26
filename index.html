@@ -494,7 +494,7 @@
         .logo-icon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 0; display: block; }
         /* Header logo specifically: no accent-color frame behind the image,
            and a touch bigger than the shared badge size above. */
-        #header-logo .logo-icon-wrap { width: 60px; height: 60px; background: none; }
+        #header-logo .logo-icon-wrap { width: 53px; height: 53px; background: none; }
         #header-logo .logo-icon-wrap img { border-radius: 0; }
         /* Logo loading state: a shimmer badge + "Connecting… / Updating…" stands in
            until the logo is ready, then the real logo replaces it. Only the
@@ -692,6 +692,11 @@
         .admin-status-bar { width: fit-content; padding: 3px 10px; font-size: 10.5px; font-weight: 600; gap: 5px; }
         .admin-status-bar.online-text { background: rgba(49,162,76,0.12); border-color: rgba(49,162,76,0.35); }
         .admin-status-bar .admin-status-dot { width: 6px; height: 6px; }
+        /* Dark mode: the muted #31A24C green reads too dim against the deep-blue
+           surface, so use a brighter, more saturated green + stronger badge fill. */
+        html[data-theme="dark"] .admin-status-dot.online { background: #3DDC72; box-shadow: 0 0 0 3px rgba(61,220,114,0.25); }
+        html[data-theme="dark"] .admin-status-bar.online-text #admin-status-text { color: #3DDC72; }
+        html[data-theme="dark"] .admin-status-bar.online-text { background: rgba(61,220,114,0.16); border-color: rgba(61,220,114,0.45); }
         /* Row holding the admin status pill and the wallet top-up toast
            side by side; either can be hidden independently (no data yet)
            without leaving a gap. */
@@ -2537,7 +2542,7 @@
             border-radius: 16px;
             box-shadow: 0 16px 40px -10px rgba(20,30,60,0.35), inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 8px rgba(0,0,0,0.04);
             transform: translateZ(0); will-change: transform;
-            padding: 10px 16px;
+            padding: 8px 16px;
             transition: transform 0.45s cubic-bezier(.4,0,.2,1);
         }
         /* Applied by JS on scroll-down, removed on scroll-up (see the
@@ -2547,7 +2552,7 @@
         /* Header is now fixed (out of flow), so push page content down by
            roughly its floating height + top gap, same idea as the bottom
            nav's body padding-bottom below. */
-        body { padding-top: calc(84px + env(safe-area-inset-top, 0px)); }
+        body { padding-top: calc(78px + env(safe-area-inset-top, 0px)); }
 
         /* Bottom nav: flat pill layout kept (no raised notch-bubble, no
            active-icon-hiding — that's what caused the overlap before), but
