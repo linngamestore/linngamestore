@@ -457,6 +457,23 @@
         .dash-stat-wallet .dash-stat-value { color:#fff; }
         .dash-stat-label { display:block; font-size:11.5px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; }
         .dash-stat-value { font-size:18px; font-weight:600; color:var(--text); margin-top:4px; font-variant-numeric:tabular-nums; }
+        /* Live store-stats: Community / Catalog / Orders Done / Top-ups Sent,
+           each real Firestore count animated up from 0 on load (see
+           loadHomeLiveStats()/animateStatCount() in the Firebase script
+           below) so the numbers feel alive instead of a static printed
+           figure. "SaaS dashboard" card style — individual white cards with
+           a blue top-accent stripe, no divider grid, no bold numerals. */
+        .home-live-stats-wrap { margin-top: 18px; }
+        .home-live-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .home-live-stat {
+            background: var(--surface); border: 1px solid var(--border);
+            border-top: 3px solid var(--accent); border-radius: 14px; padding: 14px;
+        }
+        .home-live-stat-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+        .home-live-stat-value { font-size: 23px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+        .home-live-stat-desc { display: block; font-size: 11.5px; font-weight: 400; color: var(--text-muted); margin-top: 6px; line-height: 1.35; }
+        .home-live-stats-updated { display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 11px; color: var(--text-muted); padding: 10px 2px 0; }
+        .hls-live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: liveDotPulse 1.4s ease-in-out infinite; flex-shrink: 0; }
         .dash-guide-steps { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
         .dash-guide-step { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
         .dash-guide-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:center; }
@@ -3429,6 +3446,7 @@
                 </div>
                 <div class="home-banner-dots" id="home-banner-dots"></div>
             </div>
+
             <div id="popular-games-section">
                 <h2 class="title-header" data-i18n="title_popular_games">Popular Games</h2>
                 <div class="popular-scroll-wrap" id="popular-games-scroll">
@@ -3456,6 +3474,37 @@
                     <div class="dash-guide-num">4</div>
                     <div class="dash-guide-text" data-i18n="dash_step4">Get your order delivered instantly</div>
                 </div>
+            </div>
+
+            <!-- Live store stats: real Firestore counts (users, products/
+                 packages, successful orders, completed wallet top-ups),
+                 counted up from 0 on load — see loadHomeLiveStats() in the
+                 Firebase script below. Placed last so it closes out the
+                 Home tab. -->
+            <div class="home-live-stats-wrap">
+                <div class="home-live-stats-grid">
+                    <div class="home-live-stat">
+                        <span class="home-live-stat-label" data-i18n="stat_users">Community</span>
+                        <div class="home-live-stat-value"><span id="hls-users">0</span></div>
+                        <span class="home-live-stat-desc" data-i18n="stat_users_desc">Players onboard</span>
+                    </div>
+                    <div class="home-live-stat">
+                        <span class="home-live-stat-label" data-i18n="stat_products">Catalog</span>
+                        <div class="home-live-stat-value"><span id="hls-products">0</span></div>
+                        <span class="home-live-stat-desc" data-i18n="stat_products_desc">Top-up packages</span>
+                    </div>
+                    <div class="home-live-stat">
+                        <span class="home-live-stat-label" data-i18n="stat_sales">Orders Done</span>
+                        <div class="home-live-stat-value"><span id="hls-sales">0</span></div>
+                        <span class="home-live-stat-desc" data-i18n="stat_sales_desc">Completed all-time</span>
+                    </div>
+                    <div class="home-live-stat">
+                        <span class="home-live-stat-label" data-i18n="stat_delivered">Top-ups Sent</span>
+                        <div class="home-live-stat-value"><span id="hls-delivered">0</span></div>
+                        <span class="home-live-stat-desc" data-i18n="stat_delivered_desc">Straight to wallet</span>
+                    </div>
+                </div>
+                <div class="home-live-stats-updated"><span class="hls-live-dot"></span><span id="hls-updated-label"></span></div>
             </div>
         </div>
 
@@ -4644,6 +4693,11 @@
                 title_guide: 'How It Works', dash_orders: 'Orders',
                 dash_step1: 'Choose your game and package', dash_step2: 'Enter your In-Game ID',
                 dash_step3: 'Pay from Wallet or upload a receipt', dash_step4: 'Get your order delivered instantly',
+                stat_users: 'Community', stat_users_desc: 'Players onboard',
+                stat_products: 'Catalog', stat_products_desc: 'Top-up packages',
+                stat_sales: 'Orders Done', stat_sales_desc: 'Completed all-time',
+                stat_delivered: 'Top-ups Sent', stat_delivered_desc: 'Straight to wallet',
+                stat_updated_now: 'Updated just now', stat_updated_min: 'Updated {n} min ago', stat_updated_hr: 'Updated {n} hr ago',
                 btn_sell_tab: 'Sell',
                 sell_modal_title: 'Sell Your Account',
                 sell_modal_sub: 'Tell us about the account you want to sell. Our team will review it and contact you.',
@@ -4783,6 +4837,11 @@
                 title_guide: 'ဘယ်လိုအလုပ်လုပ်လဲ', dash_orders: 'အော်ဒါများ',
                 dash_step1: 'ဂိမ်းနှင့် Package ရွေးပါ', dash_step2: 'သင့် In-Game ID ရိုက်ထည့်ပါ',
                 dash_step3: 'Wallet ဖြင့်ဖြစ်စေ Receipt တင်ပြီးဖြစ်စေ ပေးချေပါ', dash_step4: 'အော်ဒါကို ချက်ချင်းလက်ခံရယူပါ',
+                stat_users: 'အသင်းဝင်များ', stat_users_desc: 'ပါဝင်လာသော ကစားသမားများ',
+                stat_products: 'ကတလောက်', stat_products_desc: 'ငွေဖြည့်ရွေးစရာများ',
+                stat_sales: 'ပြီးဆုံးအော်ဒါများ', stat_sales_desc: 'စုစုပေါင်း ပြီးမြောက်ခဲ့သည်',
+                stat_delivered: 'လွှဲပြောင်းပြီးငွေ', stat_delivered_desc: 'Wallet ထဲသို့ တိုက်ရိုက်',
+                stat_updated_now: 'ယခုလေးတင် update လုပ်ပြီး', stat_updated_min: 'မိနစ် {n} က update လုပ်ခဲ့သည်', stat_updated_hr: 'နာရီ {n} က update လုပ်ခဲ့သည်',
                 btn_sell_tab: 'ရောင်းမည်',
                 sell_modal_title: 'သင့်အကောင့် ရောင်းလိုက်ပါ',
                 sell_modal_sub: 'ရောင်းလိုသော အကောင့်အကြောင်း ပြောပြပါ။ ကျွန်ုပ်တို့အဖွဲ့မှ စစ်ဆေးပြီး ဆက်သွယ်ပါမည်။',
@@ -4919,6 +4978,7 @@
             currentLang = (lang === 'en') ? 'en' : 'my';
             try { localStorage.setItem('gz_lang', currentLang); } catch (e) { /* private browsing - ignore */ }
             applyI18n();
+            if (window.updateHomeStatsTimestampLabel) window.updateHomeStatsTimestampLabel();
         }
         window.setLanguage = setLanguage;
         function toggleLanguage() {
@@ -13157,6 +13217,7 @@
                     if (historyUnsubscribe) {
                         runWhenNotTouching(document.querySelector('#history-container .order-list-scroll'), () => renderHistoryOrders(HISTORY_ORDERS));
                     }
+                    if (window.updateHomeProductsStat) window.updateHomeProductsStat();
                 };
                 if (!gamesLoadedOnce) {
                     if (snap.metadata.fromCache) {
@@ -13195,6 +13256,73 @@
         window.stopListenGames = stopListenGames;
 
         listenGames();
+
+        // ---------- Home live-stats card: Users / Products / Successful Sales / Delivered ----------
+        // Each number counts up from 0 on load (animateStatCount) instead of
+        // snapping straight to its final value, so the card reads as "live"
+        // rather than a static printed figure.
+        // - Users / Successful Sales / Delivered come from cheap Firestore
+        //   aggregation reads (getCountFromServer ≈ 1 read per 1000 docs —
+        //   not a full collection download).
+        // - Products reuses the games catalogue already kept live in
+        //   RAW_GAMES by listenGames() above (no extra read) - it's every
+        //   package across every game, so it stays in sync via rerenderAll().
+        function animateStatCount(el, endValue, duration = 1400) {
+            if (!el) return;
+            endValue = Math.max(0, Math.round(Number(endValue) || 0));
+            const startValue = Number(el.dataset.hlsCur || 0);
+            if (startValue === endValue) { el.innerText = endValue.toLocaleString(); return; }
+            const startTime = performance.now();
+            function tick(now) {
+                const p = Math.min(1, (now - startTime) / duration);
+                const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic - fast start, gentle settle
+                const current = Math.round(startValue + (endValue - startValue) * eased);
+                el.innerText = current.toLocaleString();
+                if (p < 1) requestAnimationFrame(tick);
+                else el.dataset.hlsCur = endValue;
+            }
+            requestAnimationFrame(tick);
+        }
+        function updateHomeProductsStat() {
+            const el = document.getElementById('hls-products');
+            if (!el) return;
+            let total = 0;
+            Object.values(RAW_GAMES || {}).forEach(g => {
+                total += Array.isArray(g.packages) && g.packages.length ? g.packages.length : 1;
+            });
+            animateStatCount(el, total);
+        }
+        window.updateHomeProductsStat = updateHomeProductsStat;
+        let homeLiveStatsLoadedAt = 0;
+        function updateHomeStatsTimestampLabel() {
+            const el = document.getElementById('hls-updated-label');
+            if (!el || !homeLiveStatsLoadedAt) return;
+            const mins = Math.floor((Date.now() - homeLiveStatsLoadedAt) / 60000);
+            if (mins < 1) el.textContent = t('stat_updated_now');
+            else if (mins < 60) el.textContent = t('stat_updated_min').replace('{n}', mins);
+            else el.textContent = t('stat_updated_hr').replace('{n}', Math.floor(mins / 60));
+        }
+        window.updateHomeStatsTimestampLabel = updateHomeStatsTimestampLabel;
+        setInterval(updateHomeStatsTimestampLabel, 30000);
+        async function loadHomeLiveStats() {
+            updateHomeProductsStat(); // instant - reuses already-loaded local data, no extra read
+            try {
+                const [usersSnap, salesSnap, deliveredSnap] = await Promise.all([
+                    getCountFromServer(collection(db, "users")),
+                    getCountFromServer(query(collection(db, "orders"), where("status", "==", "Success"))),
+                    getCountFromServer(query(collection(db, "walletTopups"), where("status", "==", "Completed")))
+                ]);
+                animateStatCount(document.getElementById('hls-users'), usersSnap.data().count);
+                animateStatCount(document.getElementById('hls-sales'), salesSnap.data().count);
+                animateStatCount(document.getElementById('hls-delivered'), deliveredSnap.data().count);
+                homeLiveStatsLoadedAt = Date.now();
+                updateHomeStatsTimestampLabel();
+            } catch (error) {
+                console.error('Home live stats error:', error);
+            }
+        }
+        window.loadHomeLiveStats = loadHomeLiveStats;
+        loadHomeLiveStats();
 
         // ---------- Notifications: admin broadcasts + this customer's own order updates ----------
         let NOTIFICATIONS = [];
