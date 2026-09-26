@@ -281,9 +281,11 @@
         .header-lang-toggle {
             position: relative; width: 66px; height: 32px; border-radius: 16px; flex-shrink: 0; cursor: pointer;
             padding: 3px; display: flex; align-items: center;
-            background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+            /* EN (default) look: Facebook-blue tinted track. */
+            background: linear-gradient(135deg, #e8f2ff, #cfe4fd);
+            border: 1.5px solid #1877F2;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
-            transition: transform 0.15s ease;
+            transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
         }
         .header-lang-toggle:active { transform: scale(0.94); }
         .header-lang-toggle-thumb {
@@ -293,22 +295,36 @@
             transition: transform 0.2s ease, background-color 0.2s ease;
         }
         .header-lang-toggle-thumb-text {
-            font-size: 10px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-primary);
+            font-size: 10px; font-weight: 700; letter-spacing: 0.3px; color: #1877F2;
             transition: color 0.2s ease;
         }
-        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(28px); background: var(--accent); }
-        .header-lang-toggle.is-right .header-lang-toggle-thumb-text { color: #fff; }
-        /* Messenger / Telegram quick-contact circles in the header */
+        /* Myanmar (switched) look: juicy, saturated red tinted track. */
+        .header-lang-toggle.is-right { background: linear-gradient(135deg, #ffeceb, #ffd2ce); border-color: #E63946; }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb { transform: translateX(28px); background: #fff; }
+        .header-lang-toggle.is-right .header-lang-toggle-thumb-text { color: #E63946; }
+        /* Messenger / Telegram quick-contact circles in the header — glass
+           bubble style (frosted white glass, colored icon) instead of a
+           solid brand-color-filled circle. */
         .header-social-btn {
             width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.55);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.65);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.85);
             transition: transform 0.15s ease;
         }
         .header-social-btn:active { transform: scale(0.92); }
         .header-social-btn svg { width: 17px; height: 17px; }
-        .header-social-btn.messenger-btn { background: linear-gradient(135deg,#4facfe,#2266dd); }
-        .header-social-btn.telegram-btn { background: linear-gradient(135deg,#5ac8fa,#0088cc); }
+        .header-social-btn.messenger-btn { color: #2266dd; }
+        .header-social-btn.telegram-btn { color: #0088cc; }
+        html[data-theme="dark"] .header-social-btn {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.18);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.15);
+        }
+        html[data-theme="dark"] .header-social-btn.messenger-btn { color: #6fb1ff; }
+        html[data-theme="dark"] .header-social-btn.telegram-btn { color: #6fd2ff; }
         /* Skeleton state (before settings/social resolves): plain shimmer
            circle, brand gradient + icon hidden underneath. */
         .header-social-btn.skel { background: linear-gradient(90deg, var(--border) 25%, var(--skel-shine) 37%, var(--border) 63%); background-size: 400% 100%; }
@@ -1433,9 +1449,9 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 500; color: var(--text-secondary); cursor: pointer; flex: 1; min-width: 0; }
         .nav-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon-wrap { width: 27px; height: 27px; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-        .nav-icon-wrap .ui-icon { width: 16px; height: 16px; }
-        .nav-label { font-size: 9px; }
+        .nav-icon-wrap { width: 31px; height: 31px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .nav-icon-wrap .ui-icon { width: 18px; height: 18px; }
+        .nav-label { font-size: 10px; }
         .nav-item.active .ui-icon { stroke: var(--accent); }
         
         /* Toast — pastel status card: icon circle, message, dismiss ×.
@@ -2522,7 +2538,7 @@
             box-shadow: 0 16px 40px -10px rgba(20,30,60,0.35), inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 8px rgba(0,0,0,0.04);
             transform: translateZ(0); will-change: transform;
             padding: 10px 16px;
-            transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+            transition: transform 0.45s cubic-bezier(.4,0,.2,1);
         }
         /* Applied by JS on scroll-down, removed on scroll-up (see the
            header-hide scroll listener near the other scroll listeners). */
@@ -2548,7 +2564,12 @@
             box-shadow: 0 16px 40px -10px rgba(20,30,60,0.35), inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 8px rgba(0,0,0,0.04);
             position: fixed;
             transform: translateZ(0); will-change: transform;
+            transition: transform 0.45s cubic-bezier(.4,0,.2,1);
         }
+        /* Applied by the same scroll listener that hides the header (see
+           applyHeaderVisibility JS) - slides fully off-screen below the
+           safe-area gap so no sliver of a button peeks up while hidden. */
+        .bottom-nav.nav-hidden { transform: translateY(calc(100% + 24px)) translateZ(0); pointer-events: none; }
         html[data-theme="dark"] .bottom-nav { box-shadow: 0 16px 40px -10px rgba(0,0,10,0.6), inset 0 1px 1px rgba(255,255,255,0.06), inset 0 -1px 8px rgba(0,0,0,0.3); }
 
         /* Each icon sits in its own little 3D glass button — flat by default,
@@ -2597,7 +2618,7 @@
            it's never mistaken for a disabled/inactive icon. */
         .nav-item-wallet { overflow: visible; }
         .nav-icon-wrap-wallet {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             background: linear-gradient(150deg, var(--accent), var(--accent-dark));
             transform: translateY(-9px);
             box-shadow:
@@ -2606,7 +2627,7 @@
                 inset 0 1px 1px rgba(255,255,255,0.5);
             animation: walletGlowPulse 2.4s ease-in-out infinite;
         }
-        .nav-icon-wrap-wallet .ui-icon { width: 18px; height: 18px; stroke: #fff; }
+        .nav-icon-wrap-wallet .ui-icon { width: 20px; height: 20px; stroke: #fff; }
         .nav-item-wallet:active .nav-icon-wrap-wallet { transform: translateY(-9px) scale(0.92); }
         .nav-item-wallet.active .nav-icon-wrap-wallet,
         .nav-item.active .nav-icon-wrap-wallet {
@@ -3111,24 +3132,24 @@
             <!-- User Guide tab -->
             <div class="modal-body" id="support-panel-guide" style="overflow-y:visible;">
                 <div class="support-guide-item" id="guide-item-0">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_about">Linn Game Store ဆိုတာ ဘာလဲ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_about">Linn Game Store သည် ၂၀၂၆ ခုနှစ်မှစတင်၍ မြန်မာနိုင်ငံရှိ ဂိမ်းသမားများအတွက် Diamond၊ UC စသည့် In-Game Currency နှင့် Top Up ဝန်ဆောင်မှုများကို လျင်မြန်၊ ဘေးကင်း၊ စိတ်ချရစွာ ရရှိနိုင်သော ပလက်ဖောင်းတစ်ခု ဖြစ်ပါသည်။ Wallet၊ VIP အဆင့်များ နှင့် Admin ထံ တိုက်ရိုက် Telegram ဆက်သွယ်ခွင့် တို့ကို ပါဝင်ပေးထားပါသည်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_about">What is Linn Game Store?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_about">Linn Game Store has been Myanmar's fast, safe and reliable platform for game top-ups and in-game currency (Diamonds, UC, and more) since 2026. It comes with a Wallet, VIP tiers, and a direct Telegram line to the admin.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-1">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_order">အော်ဒါ ဘယ်လိုတင်ရမလဲ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_order">Home စာမျက်နှာမှ ဂိမ်းကို ရွေးပါ။ Package/Currency ကို ရွေးပြီး In-Game ID (နှင့် Server ID လိုအပ်ပါက) ရိုက်ထည့်ပါ။ "Confirm ID" ကို နှိပ်ပြီး ID မှန်ကန်ကြောင်း စစ်ဆေးပါ။ နောက်ဆုံးတွင် ငွေပေးချေမှုအမျိုးအစား ရွေးချယ်ပြီး အတည်ပြုလိုက်ရုံပါပဲ။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_order">How do I place an order?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_order">Pick a game from the Home page. Choose a Package/Currency and enter your In-Game ID (and Server ID if needed). Tap "Confirm ID" to verify it's correct. Finally, choose a payment type and confirm.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-2">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_payment">ငွေပေးချေနည်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_payment">Wallet ထဲက လက်ကျန်ငွေဖြင့် တိုက်ရိုက်ပေးချေနိုင်သလို၊ Payment Method တစ်ခုကို ရွေးပြီး ငွေလွှဲပြေစာ (Receipt) တင်၍လည်း ပေးချေနိုင်ပါသည်။ Wallet ထဲသို့ ငွေဖြည့်ရန် Wallet စာမျက်နှာမှ "Top Up" ကို သုံးပါ။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_payment">How do I pay?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_payment">You can pay directly from your Wallet balance, or choose a Payment Method and upload a transfer receipt. To top up your Wallet, use "Top Up" on the Wallet page.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-3">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_status">အော်ဒါ Status ကို ဘယ်လိုစစ်ရမလဲ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_status">History စာမျက်နှာတွင် အော်ဒါတစ်ခုချင်းစီကို Pending → Processing → Success/Fail အဆင့်ဆင့် အချိန်နှင့်တပြေးညီ ကြည့်ရှုနိုင်ပါသည်။ Processing တွင် ကြာမြင့်နေပါက "တိုင်ကြားရန်" tab ကနေ ပြန်လည်အကြောင်းကြားနိုင်ပါသည်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_status">How do I check my order status?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_status">On the History page, each order shows live Pending → Processing → Success/Fail status. If it stays in Processing too long, reach out via the "Complaint" tab.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-4">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_contact">ပြဿနာရှိရင် ဘယ်လိုဆက်သွယ်ရမလဲ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_contact">အသေးစိတ် ရေးရန်ဆိုရင် "တိုင်ကြားရန်" tab ကို သုံးပါ (Ticket အနေနှင့် မှတ်တမ်းတင်ပေးပါမည်)။ တိုက်ရိုက် ဆက်သွယ်ချင်ရင် "Telegram" tab ကို နှိပ်ပြီး Admin ကို message ပို့နိုင်ပါသည်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_contact">How do I get help if there's a problem?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_contact">For details, use the "Complaint" tab (logged as a ticket). To talk directly, tap the "Telegram" tab to message the admin.</div>
                 </div>
 
                 <!-- Beginner walkthrough: a longer, fully spelled-out version for
@@ -3136,24 +3157,24 @@
                      items above. Kept as separate accordion items rather than
                      lengthening the short ones, so the quick answers stay quick. -->
                 <div class="support-guide-item" id="guide-item-5">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_getstarted">App ကို ပထမဆုံးအကြိမ် ဘယ်လိုစသုံးရမလဲ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_getstarted">App ကို ပထမဆုံး ဖွင့်လိုက်တဲ့အခါ Google account နဲ့ Sign in လုပ်ဖို့ တောင်းဆိုပါလိမ့်မယ် - သင့် Gmail အကောင့်ကို ရွေးလိုက်ရုံပါပဲ၊ Password ထပ်ရိုက်စရာ မလိုပါ။ ပြီးရင် ဘာသာစကား (မြန်မာ / English) ရွေးပါ၊ နောက်ပိုင်း Drawer ထဲက "Language" ကနေ ပြန်ပြောင်းလို့ရပါတယ်။ "Get Started" ကို နှိပ်လိုက်ရင် Home page ရောက်ပါပြီ။ Screen အောက်ခြေမှာ tab ၄ ခု တွေ့ရမယ် - "Top Up" (ဂိမ်း Diamond/UC ဝယ်ရန်)၊ "Voucher" (Gift card များ)၊ "Wallet" (မိမိရဲ့ လက်ကျန်ငွေ)၊ "Profile" (မိမိ အချက်အလက်)။ ဒါ့အပြင် ဖန်သားပြင် ဘယ်ဘက်အပေါ် icon ကို နှိပ်ရင် Drawer menu ထဲမှာ History, Name Check, Leaderboard, Support စတာတွေကိုပါ ရှာတွေ့နိုင်ပါတယ်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_getstarted">How do I get started the very first time?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_getstarted">The first time you open the app, it asks you to sign in with your Google account - just pick your Gmail account, no password to type. Then choose a language (Myanmar / English); you can switch it later from "Language" in the Drawer menu. Tap "Get Started" to reach the Home page. Along the bottom you'll see 4 tabs - "Top Up" (buy game Diamonds/UC), "Voucher" (gift cards), "Wallet" (your balance), and "Profile" (your info). There's also a menu icon at the top-left that opens the Drawer, with History, Name Check, Leaderboard, Support and more.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-6">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_orderfull">Order တင်ခြင်း - အစအဆုံး အသေးစိတ် လမ်းညွှန်</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_orderfull">၁) Home page ("Top Up" tab) မှာ သင်ဝယ်ချင်တဲ့ ဂိမ်းကို ရွှေ့ကြည့်ပြီး နှိပ်ပါ။ ၂) ဂိမ်းစာမျက်နှာပေါ်မှာ Package/Currency (ဥပမာ - Diamond ဘယ်နှစ်ခု) ကို ရွေးပါ။ ၃) "In-Game ID" ကွက်ထဲမှာ သင့်ဂိမ်းရဲ့ Player ID ကို ရိုက်ထည့်ပါ (တချို့ဂိမ်းတွေဆို Server ID ပါ ထပ်ထည့်ရပါမယ်) - ID ကို ဂိမ်းထဲက Profile page မှာ ရှာတွေ့နိုင်ပါတယ်။ ၄) "Confirm ID" ခလုတ်ကို နှိပ်ပါ - system က အလိုအလျောက် သင့် Account နာမည်ကို ပြပေးပါလိမ့်မယ်၊ မှန်မမှန် ပြန်စစ်ပါ (နာမည်မှားရင် ID ပြန်ပြင်ပါ)။ ၅) ငွေပေးချေမှု အမျိုးအစား ရွေးပါ - Wallet ထဲမှာ လက်ကျန်ငွေ ရှိရင် တိုက်ရိုက် နှိပ်ပေးလို့ရသလို၊ Payment Method (ဘဏ်လွှဲ/KBZPay/Wave စသည်) ရွေးပြီး ငွေလွှဲပြေစာ ဓာတ်ပုံတင်ပြီးလည်း ပေးချေနိုင်ပါတယ်။ ၆) အောက်ခြေက Slide ခလုတ်ကို ဆွဲပြီး အတည်ပြုလိုက်ရင် Order တင်ပြီးပါပြီ။ ၇) Order ရဲ့ အခြေအနေကို "History" (Drawer ထဲမှာ ရှိပါတယ်) မှာ အချိန်နှင့်တပြေးညီ ပြန်ကြည့်နိုင်ပါတယ်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_orderfull">Placing an order - a full step-by-step guide</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_orderfull">1) On the Home page ("Top Up" tab), scroll to the game you want and tap it. 2) On the game's page, choose a Package/Currency (e.g. how many Diamonds). 3) In the "In-Game ID" field, enter your Player ID (some games also need a Server ID) - you can find this on your profile inside the game. 4) Tap "Confirm ID" - the system automatically shows your account name; double-check it's correct (re-enter the ID if the name looks wrong). 5) Choose a payment type - pay instantly from your Wallet balance if you have enough, or pick a Payment Method (bank transfer, KBZPay, Wave, etc.) and upload a photo of your transfer receipt. 6) Drag the slide button at the bottom to confirm and your order is placed. 7) Track its status any time under "History" in the Drawer menu.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-7">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_wallettopup">Wallet ထဲ ငွေဖြည့်နည်း - အသေးစိတ်</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_wallettopup">၁) အောက်ခြေ tab က "Wallet" ကို နှိပ်ပါ။ ၂) "Top Up" ခလုတ်ကို နှိပ်ပါ။ ၃) ဖြည့်ချင်တဲ့ ပမာဏ (ငွေပမာဏ) ကို ရိုက်ထည့်ပါ။ ၄) Payment Method (ဘဏ်လွှဲ၊ Crypto, FazerCard စသည်) ထဲက တစ်ခုကို ရွေးပါ - ရွေးလိုက်တဲ့ Method အလိုက် ငွေလွှဲရမယ့် အကောင့်အချက်အလက် ပေါ်လာပါလိမ့်မယ်။ ၅) ပြင်ပက ငွေလွှဲပြီးရင် ပြေစာ (Receipt) ဓာတ်ပုံ သို့ Transaction ID ကို တင်ပြီး Submit နှိပ်ပါ။ ၆) Admin မှ စစ်ဆေးပြီးပါက Wallet ထဲ ငွေအလိုအလျောက် ဝင်ပါလိမ့်မယ် (ပုံမှန်အားဖြင့် မိနစ်အနည်းငယ်မှ နာရီအနည်းငယ်အတွင်း)။ Wallet ထဲရှိငွေကို နောက်ပိုင်း Order တင်တိုင်း တိုက်ရိုက် အသုံးပြုနိုင်ပါတယ်၊ ငွေလွှဲပြေစာ ထပ်တင်စရာ မလိုတော့ပါ။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_wallettopup">How to top up your Wallet - in detail</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_wallettopup">1) Tap "Wallet" in the bottom tabs. 2) Tap "Top Up". 3) Enter the amount you want to add. 4) Choose a Payment Method (bank transfer, Crypto, FazerCard, etc.) - the account details to send money to will appear based on what you pick. 5) After transferring outside the app, upload a photo of the receipt or the transaction ID and tap Submit. 6) Once an admin verifies it, the money is added to your Wallet automatically (usually within a few minutes to a few hours). From then on, you can pay for orders instantly from your Wallet balance without uploading a receipt each time.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-8">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_historyfull">Order History ကြည့်နည်းနှင့် ပြဿနာ ဖြစ်ရင်</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_historyfull">ဖန်သားပြင် ဘယ်ဘက်အပေါ် icon ကို နှိပ်ပြီး Drawer ဖွင့်ပါ၊ "History" ကို ရွေးပါ။ Order တစ်ခုချင်းစီရဲ့ Status ကို ဒီနေရာမှာ ကြည့်နိုင်ပါတယ် - "Pending" (စောင့်ဆိုင်းနေဆဲ)၊ "Processing" (လုပ်ဆောင်နေဆဲ)၊ "Success" (ပြီးမြောက်ပြီ) သို့မဟုတ် "Fail" (မအောင်မြင်)။ Order တစ်ခုကို နှိပ်ရင် အသေးစိတ် အချက်အလက်တွေ ဖြစ်တဲ့ ID, ပမာဏ, အချိန် စတာတွေ ပြပါလိမ့်မယ်။ Processing မှာ အချိန်ကြာနေရင် (သို့) တခြား ပြဿနာ ရှိရင် Support widget ထဲက "Complaint" tab ကနေ တိုင်ကြားနိုင်ပါတယ်၊ Admin က Ticket အနေနဲ့ လက်ခံပြီး ပြန်ကြည့်ပေးပါလိမ့်မယ်။ တိုက်ရိုက် အမြန်ဆက်သွယ်ချင်ရင် "Telegram" tab ကို အသုံးပြုနိုင်ပါတယ်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_historyfull">Checking Order History, and what to do if there's a problem</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_historyfull">Open the Drawer from the top-left menu icon and choose "History". You can see each order's status here - "Pending", "Processing", "Success" or "Fail". Tap an order to see its details such as ID, amount and time. If Processing takes too long, or you run into any other issue, use the "Complaint" tab in the Support widget - the admin logs it as a ticket and gets back to you. For a faster, direct line, use the "Telegram" tab instead.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-9">
-                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_otherfeatures">App ထဲက အခြား features တွေ ဘာတွေရှိလဲ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_otherfeatures">"Voucher" tab - Gift card နှင့် Top-up voucher များကို ချက်ချင်း ဝယ်ယူနိုင်ပါတယ်။ Drawer ထဲက "Name Check" - Order မတင်ခင် ဂိမ်းနဲ့ ID ရိုက်ထည့်ပြီး Account နာမည် မှန်မမှန် ကြိုတင်စစ်ကြည့်နိုင်ပါတယ်။ "Leaderboard" - အများဆုံး ဝယ်ယူသူများကို ကြည့်ရှုနိုင်ပါတယ်။ "Profile" ထဲမှာ VIP Tier, စုစုပေါင်း သုံးငွေ တွေကို တွေ့နိုင်ပါတယ်။ Theme (Dark/Light Mode) နှင့် ဘာသာစကား ကိုလည်း Drawer ထဲကနေ ပြောင်းလို့ရပါတယ်။</div>
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_otherfeatures">What else can I do in the app?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a" data-i18n="guide_a_otherfeatures">"Voucher" tab - buy gift cards and top-up vouchers instantly. "Name Check" in the Drawer - check whether a game ID is valid before placing an order. "Leaderboard" - see the top spenders. Your "Profile" shows your VIP tier and total spend. Theme (Dark/Light Mode) and language can also be changed from the Drawer.</div>
                 </div>
             </div>
 
@@ -3161,11 +3182,11 @@
             <div class="modal-body" id="support-panel-complaint" style="display:none;">
                 <div class="support-complaint-field">
                     <label data-i18n="complaint_label_title">Title</label>
-                    <input type="text" id="complaint-title" placeholder="ဥပမာ - အော်ဒါ Processing မှာ ကပ်နေသည်" data-i18n-ph="complaint_ph_title">
+                    <input type="text" id="complaint-title" placeholder="e.g. Order stuck in Processing" data-i18n-ph="complaint_ph_title">
                 </div>
                 <div class="support-complaint-field">
                     <label data-i18n="complaint_label_content">Details</label>
-                    <textarea id="complaint-text" placeholder="ပြဿနာအား အသေးစိတ် ရေးပေးပါ..." data-i18n-ph="complaint_ph_text"></textarea>
+                    <textarea id="complaint-text" placeholder="Describe the issue in detail..." data-i18n-ph="complaint_ph_text"></textarea>
                 </div>
                 <button type="button" class="btn btn-primary" style="width:100%;" onclick="window.submitComplaint(this)">
                     <svg class="ui-icon" style="width:16px;margin-right:6px;vertical-align:-3px;"><use href="#icon-flag"></use></svg><span data-i18n="btn_send_complaint">Send Complaint</span>
@@ -3421,7 +3442,14 @@
                     <div class="skel-popular-voucher-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
                 </div>
             </div>
-            <h2 class="title-header" data-i18n="title_vouchers">Vouchers & Gift Cards</h2>
+            <div class="all-games-title-row" id="voucher-title-row">
+                <h2 class="title-header" data-i18n="title_vouchers">Vouchers & Gift Cards</h2>
+                <div class="game-search-wrap" id="voucher-search-wrap">
+                    <svg class="ui-icon game-search-icon" id="voucher-search-toggle-icon" onclick="toggleVoucherSearch()"><use href="#icon-search"></use></svg>
+                    <input type="text" id="voucher-search-input" class="game-search-input" placeholder="Search vouchers..." oninput="filterVouchersBySearch(this.value)" onblur="handleVoucherSearchBlur()">
+                    <svg class="ui-icon game-search-clear" id="voucher-search-clear" style="display:none;" onclick="clearVoucherSearch()"><use href="#icon-close"></use></svg>
+                </div>
+            </div>
             <p class="empty-msg" style="text-align:left;padding:0 2px 12px;">Instant-delivery gift cards & top-up vouchers.</p>
             <div class="games-grid-scroll">
                 <div class="cards-grid" id="voucher-games-grid">
@@ -3441,7 +3469,14 @@
                 <div class="game-subtab-btn" onclick="showPage('voucher')" data-i18n="nav_voucher">Voucher</div>
                 <div class="game-subtab-btn active" onclick="showPage('software')" data-i18n="nav_software">Software</div>
             </div>
-            <h2 class="title-header" data-i18n="title_software">Software</h2>
+            <div class="all-games-title-row" id="software-title-row">
+                <h2 class="title-header" data-i18n="title_software">Software</h2>
+                <div class="game-search-wrap" id="software-search-wrap">
+                    <svg class="ui-icon game-search-icon" id="software-search-toggle-icon" onclick="toggleSoftwareSearch()"><use href="#icon-search"></use></svg>
+                    <input type="text" id="software-search-input" class="game-search-input" placeholder="Search software..." oninput="filterSoftwareBySearch(this.value)" onblur="handleSoftwareSearchBlur()">
+                    <svg class="ui-icon game-search-clear" id="software-search-clear" style="display:none;" onclick="clearSoftwareSearch()"><use href="#icon-close"></use></svg>
+                </div>
+            </div>
             <div class="games-grid-scroll">
                 <div class="cards-grid" id="software-games-grid">
                     <div class="skel-software-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
@@ -3960,7 +3995,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
                     <span class="prefs-row-label">
                         <span class="prefs-row-icon"><svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-shield"></use></svg></span>
-                        <span data-i18n="nav_terms">စည္းမည္စည္ကမ္း</span>
+                        <span data-i18n="nav_terms">Terms &amp; Policy</span>
                     </span>
                     <svg class="ui-icon" style="width:16px;height:16px;color:var(--text-muted);"><use href="#icon-chevron-right"></use></svg>
                 </div>
@@ -4043,45 +4078,45 @@
                 <div class="header-icon" style="width:36px;height:36px;" onclick="closeTermsPage()">
                     <svg class="ui-icon" style="width:18px;"><use href="#icon-chevron-left"></use></svg>
                 </div>
-                <h2 style="font-size:18px; font-weight: 600; color:var(--text);" data-i18n="nav_terms">စည္းမည္စည္ကမ္း</h2>
+                <h2 style="font-size:18px; font-weight: 600; color:var(--text);" data-i18n="nav_terms">Terms &amp; Policy</h2>
             </div>
 
             <div class="pkg-type-tabs" id="legal-tabs" style="margin-bottom:14px;">
-                <button type="button" class="pkg-type-tab active" data-legal-tab="terms" onclick="switchLegalTab('terms')" data-i18n="legal_tab_terms">စည္းကမ္းခွက္</button>
-                <button type="button" class="pkg-type-tab" data-legal-tab="privacy" onclick="switchLegalTab('privacy')" data-i18n="legal_tab_privacy">ကိုယ်ရေအချက်အလက်</button>
-                <button type="button" class="pkg-type-tab" data-legal-tab="refund" onclick="switchLegalTab('refund')" data-i18n="legal_tab_refund">ငွေပြန်အမ်း</button>
+                <button type="button" class="pkg-type-tab active" data-legal-tab="terms" onclick="switchLegalTab('terms')" data-i18n="legal_tab_terms">Terms</button>
+                <button type="button" class="pkg-type-tab" data-legal-tab="privacy" onclick="switchLegalTab('privacy')" data-i18n="legal_tab_privacy">Privacy</button>
+                <button type="button" class="pkg-type-tab" data-legal-tab="refund" onclick="switchLegalTab('refund')" data-i18n="legal_tab_refund">Refund</button>
             </div>
 
             <!-- TERMS OF SERVICE -->
             <div id="legal-tab-terms" class="legal-tab-content">
                 <div class="detail-form-card" style="gap:14px;">
                     <div class="support-guide-item" id="term-card-terms_l_about">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_about">ဝန်ဆောင်မှုအကြောင်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_about">Linn Game Store (linngamestore.com တွင် လုပ်ဆောင်သည်) သည် ဂိမ်း top-up နှင့် voucher ရောင်းချသော store တစ်ခု ဖြစ်ပါသည်။ ဤ site ကို အသုံးပြုခြင်း၊ browse လုပ်ခြင်း၊ account ဖွင့်ခြင်း သို့မဟုတ် order တင်ခြင်းဖြင့် ဤစည်းကမ်းချက်များကို သဘောတူလက်ခံရာ ရောက်ပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_about">About This Service</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="terms_b_about">Linn Game Store (operating at linngamestore.com) is a game top-up and voucher store. By using this site, browsing, creating an account, or placing an order, you agree to these Terms.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_orders">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_orders">Order နှင့် ပေးပို့မှု</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_orders">ငွေပေးချေမှု အတည်ပြုပြီးသည်နှင့် Order များကို အလိုအလျောက် လုပ်ဆောင်ပါသည်။ ပေးပို့ချိန်မှာ game/voucher provider ပေါ်မူတည်ပြီး များသောအားဖြင့် ချက်ချင်းမှ မိနစ်အနည်းငယ်အထိ ကြာနိုင်ပါသည်၊ တချို့ order များကို admin မှ manual စစ်ဆေးရန် လိုအပ်နိုင်ပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_orders">Orders &amp; Delivery</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="terms_b_orders">Orders are processed automatically once payment is confirmed. Delivery time depends on the game/voucher provider and is usually instant to a few minutes; some orders may need manual admin review.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_payments">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_payments">ငွေပေးချေမှု</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_payments">Kpay/Wave/etc (ပြေစာတင်ရန်)၊ Wallet လက်ကျန်ငွေ၊ Crypto/USDT top-up အပါအဝင် manual ငွေပေးချေမှု နည်းလမ်းများကို လက်ခံပါသည်။ ငွေပေးချေရာတွင် မှန်ကန်သော အချက်အလက်များကို အသုံးပြုရပါမည်။ In-Game ID၊ Server ID၊ သို့မဟုတ် ငွေပေးချေမှု အထောက်အထားများ မှားယွင်းစွာ တင်ထားသော order များကို နှောင့်နှေးခြင်း သို့မဟုတ် ပယ်ချခြင်း ဖြစ်နိုင်ပါသည် — ထိုသို့ဖြစ်ပါက ဘာဖြစ်မည်ကို Refund tab တွင် ကြည့်ပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_payments">Payments</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="terms_b_payments">We accept manual payment methods (Kpay/Wave/etc. with receipt upload), Wallet balance, and Crypto/USDT top-up. Payments must use accurate details. Orders placed with incorrect In-Game ID, Server ID, or payment proof may be delayed or rejected — see the Refund tab for what happens in that case.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_account">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_account">Account နှင့် Wallet</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_account">သင်၏ account အချက်အလက်များကို မှန်ကန်စွာ ထားရှိရန် သင့်တွင် တာဝန်ရှိပါသည်။ Wallet လက်ကျန်ငွေသည် သင်၏ account/guest ID နှင့် ချိတ်ဆက်ထားပြီး account တစ်ခုမှ တစ်ခုသို့ လွှဲပြောင်း၍ မရပါ၊ ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_account">Account &amp; Wallet</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="terms_b_account">You're responsible for keeping your account details accurate. Wallet balance is tied to your account/guest ID, is non-transferable between accounts, and can only be used for purchases on this store.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_fairuse">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_fairuse">တရားမျှတသော အသုံးပြုမှု</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_fairuse">Promotion များကို အလွဲသုံးစားလုပ်ခြင်း၊ chargeback လုပ်ခြင်း၊ သို့မဟုတ် လိမ်လည်သော ငွေပေးချေမှု အထောက်အထားများ တင်ခြင်းသည် order ပယ်ဖျက်ခြင်း သို့မဟုတ် account ကန့်သတ်ခြင်းသို့ ဦးတည်နိုင်ပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_fairuse">Fair Use</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="terms_b_fairuse">Abuse of promotions, chargebacks, or fraudulent payment proof may lead to an order being cancelled or an account being restricted.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_changes">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_changes">ဤစည်းကမ်းချက်များ ပြောင်းလဲခြင်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_changes">Store တိုးတက်လာသည်နှင့်အမျှ ဤစည်းကမ်းချက်များကို ကျွန်ုပ်တို့ update လုပ်နိုင်ပါသည်။ update လုပ်ပြီးနောက် ဆက်လက် အသုံးပြုခြင်းသည် ပြင်ဆင်ထားသော စည်းကမ်းချက်များကို သဘောတူလက်ခံရာ ရောက်ပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_changes">Changes to These Terms</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="terms_b_changes">We may update these Terms as the store evolves. Continued use after an update means you accept the revised Terms.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_contact">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_contact">ဆက်သွယ်ရန်</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="terms_b_contact_pre">ဤစည်းကမ်းချက်များနှင့် ပတ်သက်၍ မေးခွန်းများ ရှိပါက Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="terms_b_contact_post"> သို့မဟုတ် Profile စာမျက်နှာရှိ Support button မှတစ်ဆင့် ဆက်သွယ်နိုင်ပါသည်။</span></div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_contact">Contact</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a"><span data-i18n="terms_b_contact_pre">Questions about these terms? Reach us via Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="terms_b_contact_post"> or the Support button on your Profile page.</span></div>
                     </div>
                 </div>
             </div>
@@ -4090,36 +4125,36 @@
             <div id="legal-tab-privacy" class="legal-tab-content" style="display:none;">
                 <div class="detail-form-card" style="gap:14px;">
                     <div class="support-guide-item" id="term-card-privacy_l_collect">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_collect">မည်သည့်အချက်အလက်များ စုဆောင်းသနည်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="privacy_b_collect">သင်၏ account ကို ခွဲခြားသိရှိရန် device/guest ID၊ သင်ထည့်သွင်းရွေးချယ်သော profile အချက်အလက်များ (အမည်၊ ဖုန်းနံပါတ်)၊ Google ဖြင့် login ဝင်ပါက သင်၏ Google အမည်/ဓာတ်ပုံ၊ order တစ်ခုစီအတွက် ထည့်သွင်းသော In-Game ID/Server ID၊ manual top-up များအတွက် ငွေပေးချေမှု ပြေစာပုံများ၊ နှင့် သင်၏ order/wallet top-up မှတ်တမ်းများကို စုဆောင်းပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_collect">What We Collect</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="privacy_b_collect">A device/guest ID to identify your account, profile info you choose to add (name, phone number), your Google name/photo if you sign in with Google, the In-Game ID/Server ID you enter per order, payment receipt images for manual top-ups, and your order/wallet top-up history.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_why">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_why">အဘယ်ကြောင့် စုဆောင်းသနည်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="privacy_b_why">သင်၏ order နှင့် top-up များကို လုပ်ဆောင်ရန်၊ ငွေပေးချေမှုများကို စစ်ဆေးရန်၊ In-game item များကို မှန်ကန်သော account သို့ ပေးပို့ရန်၊ wallet စနစ်ကို လည်ပတ်ရန်၊ နှင့် support တောင်းဆိုမှုများကို ဖြေကြားရန်အတွက်သာ အသုံးပြုပါသည်။ သင်၏ အချက်အလက်များကို ကြော်ငြာအတွက် အသုံးမပြုပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_why">Why We Collect It</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="privacy_b_why">Solely to process your orders and top-ups, verify payments, deliver in-game items to the correct account, run the wallet system, and respond to support requests. We don't use your data for advertising.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_keep">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_keep">မည်မျှကြာ သိမ်းဆည်းထားသနည်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="privacy_b_keep">ပြီးစီးသွားသော order နှင့် wallet top-up မှတ်တမ်းများ (Success/Fail သို့မဟုတ် Completed/Rejected) ကို ၇ ရက်အကြာတွင် အလိုအလျောက် ဖျက်ပစ်ပါသည်။ Pending/Processing အခြေအနေရှိ order များကို ပြီးဆုံးသည်အထိ ထားရှိပါသည်။ သင်၏ profile အချက်အလက် (အမည်၊ ဖုန်း၊ wallet လက်ကျန်) ကို သင်၏ account/guest ID အသက်ဝင်နေသရွေ့ ထားရှိပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_keep">How Long We Keep It</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="privacy_b_keep">Completed order and wallet top-up records (Success/Fail or Completed/Rejected) are automatically deleted after 7 days. Pending/Processing orders are kept until resolved. Your profile info (name, phone, wallet balance) is kept for as long as your account/guest ID is active.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_sharing">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_sharing">မျှဝေခြင်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="privacy_b_sharing">သင်၏ ကိုယ်ရေးအချက်အလက်များကို ကျွန်ုပ်တို့ ရောင်းချခြင်း မပြုပါ။ ငွေပေးချေမှု ပြေစာများနှင့် top-up အသေးစိတ်ကို သင်၏ငွေပေးချေမှုကို အတည်ပြုရန်အတွက်သာ အတွင်းပိုင်းတွင် အသုံးပြုပါသည်၊ crypto top-up များကို သင်ပေးပို့သော public blockchain network ပေါ်တွင် စစ်ဆေးပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_sharing">Sharing</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="privacy_b_sharing">We don't sell your personal data. Payment receipts and top-up details are only used internally to confirm your payment; crypto top-ups are verified on the public blockchain network you send to.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_access">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_access">ကြည့်ရှုခွင့်နှင့် ဖျက်ပစ်ခွင့်</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="privacy_b_access_pre">သင့်အကြောင်း ကျွန်ုပ်တို့ ဘာအချက်အလက်များ ထားရှိသည်ကို မေးမြန်းလိုပါက သို့မဟုတ် သင်၏ profile နှင့် history ကို ဖျက်ပစ်ပေးရန် တောင်းဆိုလိုပါက Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="privacy_b_access_post"> သို့ အချိန်မရွေး message ပို့နိုင်ပါသည်၊ ဖြေရှင်းရန်ကျန်နေသေးသော order/ငွေပေးချေမှု အငြင်းပွားမှုအတွက် သီးခြား မှတ်တမ်းများ ထိန်းသိမ်းထားရန် လိုအပ်ခြင်း မရှိပါက ဖြစ်သည်။</span></div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_access">Access &amp; Deletion</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a"><span data-i18n="privacy_b_access_pre">You can message Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="privacy_b_access_post"> at any time to ask what data we hold about you or to request deletion of your profile and history, unless we need to keep specific records to resolve an open order/payment dispute.</span></div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_children">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_children">ကလေးများ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="privacy_b_children">ဤ store သည် အသက်ငယ်ရွယ်သော ကလေးများအတွက် ရည်ရွယ်ထားခြင်း မဟုတ်ပါ။ သင်၏ နိုင်ငံ၏ ဥပဒေအရ အာဏာပိုင်၏ ကြီးကြပ်မှု မရှိဘဲ online ငွေပေးချေမှု ပြုလုပ်ရန် အသက်မပြည့်သေးပါက ကျေးဇူးပြု၍ မိဘ/အုပ်ထိန်းသူနှင့်အတူသာ ဤဝန်ဆောင်မှုကို အသုံးပြုပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_children">Children</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="privacy_b_children">This store is not directed at young children. If you are under the age required by your country's law to make online payments without a guardian, please only use this service with a parent/guardian's involvement.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_changes">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_changes">ဤမူဝါဒ ပြောင်းလဲခြင်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="privacy_b_changes">Store တိုးတက်လာသည်နှင့်အမျှ ဤ Privacy Policy ကို ကျွန်ုပ်တို့ update လုပ်နိုင်ပါသည်။ update လုပ်ပြီးနောက် ဆက်လက်အသုံးပြုခြင်းသည် ပြင်ဆင်ထားသော မူဝါဒကို သဘောတူလက်ခံရာ ရောက်ပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_changes">Changes to This Policy</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="privacy_b_changes">We may update this Privacy Policy as the store evolves. Continued use after an update means you accept the revised Policy.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-privacy_l_contact">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_contact">ဆက်သွယ်ရန်</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="privacy_b_contact_pre">ကိုယ်ရေးအချက်အလက်နှင့် ပတ်သက်သော မေးခွန်းများအတွက် Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="privacy_b_contact_post"> သို့ ဆက်သွယ်နိုင်ပါသည်။</span></div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="privacy_l_contact">Contact</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a"><span data-i18n="privacy_b_contact_pre">Privacy questions? Reach us via Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="privacy_b_contact_post">.</span></div>
                     </div>
                 </div>
             </div>
@@ -4128,40 +4163,40 @@
             <div id="legal-tab-refund" class="legal-tab-content" style="display:none;">
                 <div class="detail-form-card" style="gap:14px;">
                     <div class="support-guide-item" id="term-card-refund_l_success">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_success">အောင်မြင်သော Order များ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_success">Order တစ်ခု Success ဖြစ်ပြီး item ကို ပေးပို့ပြီးသည်နှင့် ၎င်းသည် အပြီးသတ်ဖြစ်ပြီး ငွေပြန်အမ်းပေးမည် မဟုတ်ပါ — In-Game ID သို့မဟုတ် Server ID ကို သင်ကိုယ်တိုင် မှားယွင်းစွာ ထည့်ခဲ့ခြင်းလည်း အပါအဝင်ဖြစ်ပြီး၊ ထို account သို့ digital ပေးပို့မှုကို ပြန်ပြင်၍ မရနိုင်တော့ပါ။ ကျေးဇူးပြု၍ အတည်ပြုမလုပ်မီ သင်၏ ID ကို နှစ်ကြိမ်စစ်ဆေးပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_success">Successful Orders</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="refund_b_success">Once an order is marked Success and the item is delivered, it is final and non-refundable — this includes cases where you entered the wrong In-Game ID or Server ID yourself, since digital delivery to that account can't be reversed. Please double-check your ID before confirming.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_failed">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_failed">မအောင်မြင်သော Order များ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_failed">Order တစ်ခု fail ဖြစ်ပါက (ဥပမာ provider က ပေးပို့နိုင်ခြင်း မရှိပါက) order ပမာဏကို သင်၏ Wallet လက်ကျန်ငွေထဲသို့ ပြန်အမ်းပေးပါမည်၊ များသောအားဖြင့် order ကို Failed အဖြစ် သတ်မှတ်ပြီး ၂၄ နာရီအတွင်း ဖြစ်ပါသည်။ ထို လက်ကျန်ငွေကို နောက် order တစ်ခုအတွက် ပြန်သုံးနိုင်ပါသည်။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_failed">Failed Orders</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="refund_b_failed">If an order fails (e.g. the provider couldn't deliver it), we refund the order amount to your Wallet balance, typically within 24 hours of the order being marked Failed. You can then use that balance for another order.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_cancel">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_cancel">Order တစ်ခု ပယ်ဖျက်ခြင်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_cancel">Pending အခြေအနေရှိနေသေးသော order များကို Support ကို ဆက်သွယ်ခြင်းဖြင့် ပုံမှန်အားဖြင့် ပယ်ဖျက်၍ ရပါသည်။ Order တစ်ခု Processing (game/voucher provider ထံ ပို့ပြီးသား) အခြေအနေသို့ ရောက်သွားပါက နောက်ထပ် ပယ်ဖျက်၍ မရတော့ပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_cancel">Cancelling an Order</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="refund_b_cancel">Orders still in Pending status can usually be cancelled by contacting Support. Once an order has moved to Processing (sent to the game/voucher provider), it can no longer be cancelled.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_manual">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_manual">Manual Top-Up များ (Kpay/Wave/etc.)</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_manual">Manual top-up တောင်းဆိုမှုတစ်ခုကို ပယ်ချခံရပါက (ဥပမာ ပြေစာ မရှင်းလင်းခြင်း သို့မဟုတ် မမှန်ကန်ခြင်းကြောင့်) Wallet လက်ကျန်ငွေ ဘာမှ ထည့်ပေးမည် မဟုတ်ပါ — ငွေသည် ကျွန်ုပ်တို့၏ Wallet စနစ်ကို ဘယ်တော့မှ ဖြတ်မသွားခဲ့ပါ၊ ကျေးဇူးပြု၍ သင်၏ ငွေပေးချေမှု app ၏ transaction မှတ်တမ်းကို ထားရှိပြီး ပယ်ချမှုသည် အမှားဖြစ်သည်ဟု ယုံကြည်ပါက Support ကို ဆက်သွယ်ပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_manual">Manual Top-Ups (Kpay/Wave/etc.)</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="refund_b_manual">If a manual top-up request is rejected (e.g. unclear or invalid receipt), no Wallet balance is credited — since the money never passed through our Wallet system, please keep your own payment app's transaction record and contact Support if you believe the rejection was a mistake.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_crypto">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_crypto">Crypto/USDT Top-Up များ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_crypto">Blockchain transaction များသည် ပြန်ပြင်၍ မရပါ။ App ထဲတွင် ပြသထားသော မှန်ကန်သော ပမာဏနှင့် မှန်ကန်သော network ပေါ်တွင် ပေးပို့ကြောင်း ကျေးဇူးပြု၍ အတည်ပြုပါ။ လိပ်စာမှား၊ network မှား၊ သို့မဟုတ် ပမာဏမှား ပေးပို့မိသော ငွေများကို ကျွန်ုပ်တို့ ပြန်ယူပေး၍ မရနိုင်ပါ။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_crypto">Crypto/USDT Top-Ups</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="refund_b_crypto">Blockchain transactions are irreversible. Please confirm you're sending the correct amount on the correct network shown in the app. We can't recover funds sent to the wrong address, wrong network, or wrong amount.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_wallet">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_wallet">Wallet လက်ကျန်ငွေ</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_wallet">Wallet လက်ကျန်ငွေကို ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပြီး ငွေသားအဖြစ် ထုတ်ယူ၍ မရ၊ အခြား account သို့ လွှဲပြောင်း၍ မရပါ — ကျွန်ုပ်တို့ ဖြေရှင်းလိုသော ပြဿနာအတွက် သီးခြား ရွေးချယ်သည့်အခါမှလွဲ၍။</div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_wallet">Wallet Balance</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a" data-i18n="refund_b_wallet">Wallet balance can only be used for purchases on this store and isn't redeemable for cash or transferable to another account, except where we choose to resolve a specific issue that way.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_dispute">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_dispute">အငြင်းပွားမှုတစ်ခု ဖော်ပြနည်း</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a"><span data-i18n="refund_b_dispute_pre">သင်၏ Order ID သို့မဟုတ် Top-Up ID ဖြင့် Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="refund_b_dispute_post"> ကို အမြန်ဆုံး ဆက်သွယ်ပါ — ၇ ရက်အတွင်း ဆက်သွယ်ရန် အကောင်းဆုံးဖြစ်ပါသည်၊ အကြောင်းမှာ ၇ ရက်ထက်ကြာသော order/top-up မှတ်တမ်းများကို ကျွန်ုပ်တို့၏ မှတ်တမ်းများမှ အလိုအလျောက် ဖျက်ပစ်လိုက်ပါသည်။</span></div>
+                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_dispute">How to Raise a Dispute</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                        <div class="support-guide-a"><span data-i18n="refund_b_dispute_pre">Contact Telegram </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">@pca_gamestore</a><span data-i18n="refund_b_dispute_post"> with your Order ID or Top-Up ID as soon as possible — ideally within 7 days, since order/top-up history older than 7 days is automatically deleted from our records.</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- BUSINESS IDENTITY -->
             <div class="detail-form-card" style="gap:8px;margin-top:14px;">
-                <label style="margin-top:0;" data-i18n="biz_identity_label">စီးပွားရေးအချက်အလက်</label>
-                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-top:2px;"><span data-i18n="biz_identity_pre">လုပ်ငန်းရှင်: Linn Game Store &nbsp;·&nbsp; ဝက်ဘ်ဆိုက်: linngamestore.com &nbsp;·&nbsp; အကူအညီ: </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">Telegram @pca_gamestore</a></p>
+                <label style="margin-top:0;" data-i18n="biz_identity_label">Business Identity</label>
+                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-top:2px;"><span data-i18n="biz_identity_pre">Operator: Linn Game Store \u00a0\u00b7\u00a0 Site: linngamestore.com \u00a0\u00b7\u00a0 Support: </span><a href="https://t.me/pca_gamestore" target="_blank" rel="noopener" style="color:var(--accent);">Telegram @pca_gamestore</a></p>
             </div>
         </div>
 
@@ -4781,10 +4816,10 @@
             });
             const headerLangToggle = document.getElementById('header-lang-toggle');
             if (headerLangToggle) {
-                // White dot docked left = Myanmar (default); slides right and
-                // turns accent-blue when switched to English. Thumb shows the
-                // currently active language (MY / EN), not the target.
-                headerLangToggle.classList.toggle('is-right', currentLang === 'en');
+                // White dot docked left = English (default, pink track); slides
+                // right and the track turns mint-green when switched to Myanmar.
+                // Thumb shows the currently active language (EN / MY), not the target.
+                headerLangToggle.classList.toggle('is-right', currentLang === 'my');
             }
             const headerLangToggleThumbText = document.getElementById('header-lang-toggle-thumb-text');
             if (headerLangToggleThumbText) {
@@ -12073,6 +12108,10 @@
         let selectedGameCategory = 'all';
         let gameSearchQuery = '';
         let gameSearchDebounceTimer = null;
+        let voucherSearchQuery = '';
+        let voucherSearchDebounceTimer = null;
+        let softwareSearchQuery = '';
+        let softwareSearchDebounceTimer = null;
 
         function escapeHtml(str) {
             return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -12163,6 +12202,119 @@
             }, 150);
         }
         window.handleGameSearchBlur = handleGameSearchBlur;
+
+        // ---- Voucher tab search (same collapsible icon->bar behavior as
+        // Top Up's "All Games" search above, just scoped to its own IDs and
+        // query variable so the two tabs filter independently). ----
+        function filterVouchersBySearch(value) {
+            voucherSearchQuery = (value || '').trim().toLowerCase();
+            document.getElementById('voucher-search-clear').style.display = voucherSearchQuery ? 'block' : 'none';
+            clearTimeout(voucherSearchDebounceTimer);
+            voucherSearchDebounceTimer = setTimeout(() => renderVoucherGames(), 250);
+        }
+        window.filterVouchersBySearch = filterVouchersBySearch;
+
+        function clearVoucherSearch() {
+            const input = document.getElementById('voucher-search-input');
+            input.value = '';
+            clearTimeout(voucherSearchDebounceTimer);
+            voucherSearchQuery = '';
+            document.getElementById('voucher-search-clear').style.display = 'none';
+            renderVoucherGames();
+            input.focus();
+        }
+        window.clearVoucherSearch = clearVoucherSearch;
+
+        function toggleVoucherSearch() {
+            const wrap = document.getElementById('voucher-search-wrap');
+            const row = document.getElementById('voucher-title-row');
+            const input = document.getElementById('voucher-search-input');
+            const isExpanded = wrap.classList.contains('expanded');
+            if (isExpanded && !input.value) {
+                wrap.classList.remove('expanded');
+                row.classList.remove('search-expanded');
+            } else {
+                wrap.classList.add('expanded');
+                row.classList.add('search-expanded');
+                const onExpandDone = (e) => {
+                    if (e.target !== wrap || e.propertyName !== 'width') return;
+                    wrap.removeEventListener('transitionend', onExpandDone);
+                    input.focus();
+                };
+                wrap.addEventListener('transitionend', onExpandDone);
+                setTimeout(() => {
+                    wrap.removeEventListener('transitionend', onExpandDone);
+                    input.focus();
+                }, 420);
+            }
+        }
+        window.toggleVoucherSearch = toggleVoucherSearch;
+
+        function handleVoucherSearchBlur() {
+            const input = document.getElementById('voucher-search-input');
+            setTimeout(() => {
+                if (input.value) return;
+                document.getElementById('voucher-search-wrap').classList.remove('expanded');
+                document.getElementById('voucher-title-row').classList.remove('search-expanded');
+            }, 150);
+        }
+        window.handleVoucherSearchBlur = handleVoucherSearchBlur;
+
+        // ---- Software tab search ----
+        // No live catalogue is wired up yet (see the Software page comment
+        // near its HTML), so there's nothing to actually filter yet - this
+        // only gives the icon<->bar expand/collapse motion for now. Once a
+        // real renderSoftwareGames() exists, call it here the same way
+        // filterVouchersBySearch calls renderVoucherGames() above.
+        function filterSoftwareBySearch(value) {
+            softwareSearchQuery = (value || '').trim().toLowerCase();
+            document.getElementById('software-search-clear').style.display = softwareSearchQuery ? 'block' : 'none';
+        }
+        window.filterSoftwareBySearch = filterSoftwareBySearch;
+
+        function clearSoftwareSearch() {
+            const input = document.getElementById('software-search-input');
+            input.value = '';
+            softwareSearchQuery = '';
+            document.getElementById('software-search-clear').style.display = 'none';
+            input.focus();
+        }
+        window.clearSoftwareSearch = clearSoftwareSearch;
+
+        function toggleSoftwareSearch() {
+            const wrap = document.getElementById('software-search-wrap');
+            const row = document.getElementById('software-title-row');
+            const input = document.getElementById('software-search-input');
+            const isExpanded = wrap.classList.contains('expanded');
+            if (isExpanded && !input.value) {
+                wrap.classList.remove('expanded');
+                row.classList.remove('search-expanded');
+            } else {
+                wrap.classList.add('expanded');
+                row.classList.add('search-expanded');
+                const onExpandDone = (e) => {
+                    if (e.target !== wrap || e.propertyName !== 'width') return;
+                    wrap.removeEventListener('transitionend', onExpandDone);
+                    input.focus();
+                };
+                wrap.addEventListener('transitionend', onExpandDone);
+                setTimeout(() => {
+                    wrap.removeEventListener('transitionend', onExpandDone);
+                    input.focus();
+                }, 420);
+            }
+        }
+        window.toggleSoftwareSearch = toggleSoftwareSearch;
+
+        function handleSoftwareSearchBlur() {
+            const input = document.getElementById('software-search-input');
+            setTimeout(() => {
+                if (input.value) return;
+                document.getElementById('software-search-wrap').classList.remove('expanded');
+                document.getElementById('software-title-row').classList.remove('search-expanded');
+            }, 150);
+        }
+        window.handleSoftwareSearchBlur = handleSoftwareSearchBlur;
 
         // Top-right pill: how many servers / regions a game has (the grouped
         // variants behind one card). Hidden for single-server games.
@@ -12593,11 +12745,12 @@
             // least one variant flagged "popular" from the admin panel, shown
             // as its own horizontal scroll row above the grid. Falls back to
             // the top vouchers in catalogue order when nothing's been flagged,
-            // so this row is never just empty.
-            const manuallyPopularVouchers = indexedGroups.filter(gr => gr.ids.some(id => GAMES[id].popular));
+            // so this row is never just empty. Hidden entirely while a search
+            // is active, same as Home's popular row.
+            const manuallyPopularVouchers = voucherSearchQuery ? [] : indexedGroups.filter(gr => gr.ids.some(id => GAMES[id].popular));
             const popularGroups = manuallyPopularVouchers.length > 0
                 ? manuallyPopularVouchers
-                : indexedGroups.slice(0, POPULAR_INITIAL_BATCH);
+                : (voucherSearchQuery ? [] : indexedGroups.slice(0, POPULAR_INITIAL_BATCH));
             if (popularSection && popularScroll) {
                 if (popularGroups.length > 0) {
                     popularSection.style.display = 'block';
@@ -12620,10 +12773,17 @@
                 }
             }
 
-            grid.innerHTML = groups.map((gr, i) => {
+            const visibleGroups = voucherSearchQuery
+                ? groups.filter(gr => (gr.name || '').toLowerCase().includes(voucherSearchQuery))
+                : groups;
+            if (voucherSearchQuery && visibleGroups.length === 0) {
+                grid.innerHTML = `<p class="empty-msg">No vouchers found for "${escapeHtml(voucherSearchQuery)}".</p>`;
+                return;
+            }
+            grid.innerHTML = visibleGroups.map((gr, i) => {
                 const g = GAMES[gr.repId];
                 return `
-                    <div class="voucher-card game-card-anim card-pop" style="--i:${Math.min(i, 12)}" onclick="openVoucherGameEntry(${i})">
+                    <div class="voucher-card game-card-anim card-pop" style="--i:${Math.min(i, 12)}" onclick="openVoucherGameEntry(${groups.indexOf(gr)})">
                         <span class="voucher-card-tag">Gift Card</span>
                         <div class="voucher-card-stack">
                             <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
