@@ -7226,7 +7226,7 @@
                     <div class="payment-option" data-payment-id="${id}" onclick="selectPaymentMethod('${id}')">
                         <div class="payment-option-icon">${p.image ? `<img src="${(window.escapeHtml ? window.escapeHtml(p.image) : p.image)}" alt="${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
                         <div class="payment-option-text">
-                            <span class="payment-option-name">${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}</span>
+                            <span class="payment-option-name">${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}</span>${p.hot ? ' <span style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#FF6B35,#F7931E);padding:2px 6px;border-radius:6px;vertical-align:middle;">🔥 HOT</span>' : ''}
                             ${p.availabilityNote ? `<span class="payment-option-availability">${(window.escapeHtml ? window.escapeHtml(p.availabilityNote) : p.availabilityNote)}</span>` : ''}
                         </div>
                     </div>
@@ -7303,10 +7303,65 @@
             return null;
         }
 
+        // Pulls a paid amount out of raw OCR text for fake-slip risk checks —
+        // tries common "Amount/Total/Paid/MMK/Ks/ကျပ်/ပမာဏ" labels first,
+        // then falls back to the largest plausible currency-looking number
+        // on the receipt (payment-app screenshots almost always show the
+        // paid amount as the biggest number on screen). Returns a plain
+        // number (commas/currency words stripped) or null if nothing looks
+        // like an amount at all.
+        function extractAmount(text) {
+            if (!text) return null;
+            const NUM = '([0-9][0-9,]{1,12}(?:\\.[0-9]{1,2})?)';
+            const labelPatterns = [
+                new RegExp('(?:amount|amt|total|paid)\\s*(?:paid)?[:\\-]?\\s*(?:MMK|Ks\\.?|K)?\\s*' + NUM, 'i'),
+                new RegExp('(?:MMK|Ks\\.?)\\s*' + NUM, 'i'),
+                new RegExp(NUM + '\\s*(?:MMK|Ks\\.?|Kyats?)', 'i'),
+                new RegExp('ပမာဏ[:\\-]?\\s*' + NUM),
+                new RegExp('ကျပ်[:\\-]?\\s*' + NUM)
+            ];
+            for (const re of labelPatterns) {
+                const m = text.match(re);
+                if (m && m[1]) {
+                    const n = Number(m[1].replace(/,/g, ''));
+                    if (n > 0) return n;
+                }
+            }
+            const allNums = (text.match(/[0-9][0-9,]{2,12}/g) || [])
+                .map(s => Number(s.replace(/,/g, '')))
+                .filter(n => n >= 100 && n <= 50000000);
+            if (allNums.length) return Math.max(...allNums);
+            return null;
+        }
+
+        // SHA-256 of the raw file bytes — used as a fingerprint so a slip
+        // image that's reused across multiple orders can be spotted later
+        // (fake/reused slips are almost always the exact same image file).
+        // Purely client-side (SubtleCrypto), no upload needed to compute it.
+        async function sha256Hex(file) {
+            try {
+                const buf = await file.arrayBuffer();
+                const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+                return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                console.error('Receipt hash error:', e);
+                return null;
+            }
+        }
+
+        // Holds the OCR/hash results for whichever receipt is currently
+        // attached to the order form — set at the end of detectTransactionId
+        // (below) and read by submitOrder() once the customer confirms, so
+        // the order doc can be tagged with fake-slip risk signals without
+        // re-running OCR a second time.
+        let receiptAnalysis = null;
+
         // Runs OCR on the uploaded receipt and fills the (read-only) Transaction
         // ID field automatically. Falls back to "None" if nothing is found or
         // the OCR library/recognition fails, so the customer is never blocked
-        // waiting on it and never has to type it in by hand.
+        // waiting on it and never has to type it in by hand. Also extracts a
+        // paid amount and hashes the file, stashing both on receiptAnalysis
+        // for submitOrder's fake-slip risk check.
         async function detectTransactionId(file, inputId, statusId) {
             const input = document.getElementById(inputId);
             const statusEl = statusId ? document.getElementById(statusId) : null;
@@ -7315,10 +7370,17 @@
             if (statusEl) { statusEl.style.display = 'block'; statusEl.innerText = 'Reading receipt for transaction ID...'; }
 
             let result = 'None';
+            let amountDetected = null;
+            let hash = null;
             try {
-                await loadTesseract();
-                const { data: { text } } = await window.Tesseract.recognize(file, 'eng');
+                const [hashResult, ocrResult] = await Promise.all([
+                    sha256Hex(file),
+                    (async () => { await loadTesseract(); return window.Tesseract.recognize(file, 'eng'); })()
+                ]);
+                hash = hashResult;
+                const text = ocrResult.data.text;
                 result = extractTransactionId(text) || 'None';
+                amountDetected = extractAmount(text);
             } catch (err) {
                 console.error('Transaction ID OCR error:', err);
                 result = 'None';
@@ -7330,6 +7392,7 @@
                     ? 'Transaction ID not found on the receipt — set to "None".'
                     : `Transaction ID detected: ${result}`;
             }
+            receiptAnalysis = { hash, transactionId: result, amountDetected };
             return result;
         }
 
@@ -7337,6 +7400,7 @@
             const file = e.target.files[0];
             if (!file) return;
             editingReceiptFile = file;
+            receiptAnalysis = null; // clear any previous file's analysis until this one's OCR finishes
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const img = document.getElementById('receipt-preview');
@@ -8853,7 +8917,7 @@
                     <div class="payment-option" data-wallet-payment-id="${id}" onclick="selectWalletPaymentMethod('${id}')">
                         <div class="payment-option-icon">${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
                         <div class="payment-option-text">
-                            <span class="payment-option-name">${escapeHtml(p.name)}</span>
+                            <span class="payment-option-name">${escapeHtml(p.name)}</span>${p.hot ? ' <span style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#FF6B35,#F7931E);padding:2px 6px;border-radius:6px;vertical-align:middle;">🔥 HOT</span>' : ''}
                             ${p.availabilityNote ? `<span class="payment-option-availability">${escapeHtml(p.availabilityNote)}</span>` : ''}
                         </div>
                     </div>
@@ -11304,6 +11368,33 @@
 
                 const receiptUrl = await uploadReceiptToImgBB(receiptFile);
 
+                // ---------- Fake-slip risk signals ----------
+                // Best-effort, computed from the OCR run at upload time (see
+                // detectTransactionId/receiptAnalysis above). Never blocks the
+                // order — only tags it with riskFlags/riskLevel so the admin
+                // panel can prioritize review, since OCR can misread a real
+                // slip and a false block would be worse than a missed flag.
+                // Duplicate-image detection (same slip reused across orders)
+                // isn't done here: it needs to compare against every other
+                // order, which a guest client isn't (and shouldn't be)
+                // allowed to list — that check belongs admin-side, using the
+                // receiptHash saved below.
+                const riskFlags = [];
+                const ocrAmountDetected = receiptAnalysis ? receiptAnalysis.amountDetected : null;
+                const receiptHash = receiptAnalysis ? receiptAnalysis.hash : null;
+                if (ocrAmountDetected != null) {
+                    const expected = Number(price) || 0;
+                    // Tolerance covers OCR digit misreads/rounding, not a
+                    // strict fraud threshold — anything past this is off
+                    // enough to be worth a human look.
+                    const tolerance = Math.max(50, expected * 0.02);
+                    if (Math.abs(ocrAmountDetected - expected) > tolerance) riskFlags.push('amount_mismatch');
+                } else {
+                    riskFlags.push('amount_not_detected');
+                }
+                if (!transactionId || transactionId === 'None') riskFlags.push('no_transaction_id');
+                const riskLevel = riskFlags.includes('amount_mismatch') ? 'high' : (riskFlags.length ? 'low' : 'none');
+
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
                 // Doesn't block the order if the customer denies/ignores the
                 // permission prompt or geolocation just isn't available.
@@ -11333,6 +11424,13 @@
                     paymentMethod: paymentMethodName,
                     receiptUrl: receiptUrl,
                     transactionId: transactionId || '',
+                    // Fake-slip risk signals — see the block above. Admin
+                    // panel can filter/sort on riskLevel and cross-reference
+                    // receiptHash across orders to catch a reused slip image.
+                    ...(receiptHash ? { receiptHash } : {}),
+                    ...(ocrAmountDetected != null ? { ocrAmountDetected } : {}),
+                    riskFlags,
+                    riskLevel,
                     status: "Pending",
                     timestamp: serverTimestamp(),
                     userId: guestId,
