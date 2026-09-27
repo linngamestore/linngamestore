@@ -495,6 +495,15 @@
             background: var(--accent-soft); color: var(--accent);
         }
         .prefs-row-icon svg { width: 18px; height: 18px; }
+        /* Account Linking rows (Telegram / Email / Google) on the signed-in
+           Profile > Account card - one 1:1 row per provider, each with its
+           own Connect / Connected state. See account-link-section. */
+        .link-account-row { padding: 8px 0; }
+        .link-account-row + .link-account-row { border-top: 1px solid var(--border); }
+        .link-connect-btn { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; transition: 0.15s; }
+        .link-connect-btn:active { transform: scale(0.94); }
+        .link-connect-btn.is-linked { border-color: #22C55E; color: #22C55E; background: rgba(34,197,94,0.1); cursor: default; }
+        .link-connect-btn.is-open { background: var(--accent); color: #fff; }
         .ui-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .svg-icon { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         
@@ -1000,9 +1009,9 @@
         /* Popular row skeletons: fixed-width flex items matching .popular-card /
            .popular-voucher-card sizing, so the loading state doesn't jump once
            real cards render in. */
-        .skel-popular-card { flex: 0 0 92px; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .skel-popular-card .skel-img { width: 92px; height: 92px; }
-        .skel-popular-card .skel-name { height: 26px; margin-top: 0; }
+        .skel-popular-card { flex: 0 0 88px; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .skel-popular-card .skel-img { width: 76px; height: 76px; }
+        .skel-popular-card .skel-name { height: 22px; margin-top: 0; }
         .skel-popular-voucher-card { flex: 0 0 118px; aspect-ratio: 1 / 1.18; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
         .skel-popular-voucher-card .skel-img { width: 118px; height: 118px; }
         .skel-popular-voucher-card .skel-name { height: 26px; margin-top: 0; }
@@ -1111,9 +1120,9 @@
         .games-count-badge { font-size: 12.5px; font-weight: 500; color: var(--text-muted); }
         .popular-scroll-wrap { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 10px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: pan-x pan-y; }
         .popular-scroll-wrap::-webkit-scrollbar { display: none; }
-        .popular-card { flex: 0 0 108px; }
-        .popular-card .game-card-img-wrap { width: 92px; height: 92px; }
-        .popular-card .game-card-name { font-size: 11px; padding: 5px 4px; }
+        .popular-card { flex: 0 0 88px; }
+        .popular-card .game-card-img-wrap { width: 76px; height: 76px; }
+        .popular-card .game-card-name { font-size: 10.5px; padding: 4px 3px; }
         /* Same horizontal-scroll "Popular" row, sized for the gift-card
            style voucher tiles instead of the square game-card tiles. */
         .popular-voucher-card { flex: 0 0 118px; aspect-ratio: 1 / 1.32; }
@@ -3198,6 +3207,7 @@
         <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></symbol>
         <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"></path><circle cx="12" cy="9" r="2.5"></circle></symbol>
         <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polyline points="2 6 12 13 22 6"></polyline></symbol>
 
         <!-- Simplified national flags for the EN/MY language toggle -->
         <symbol id="flag-en" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice">
@@ -3323,10 +3333,10 @@
             <div class="header-lang-toggle" id="header-lang-toggle" onclick="toggleLanguage()" role="button" aria-label="Switch language / ဘာသာစကားပြောင်းရန်">
                 <span class="header-lang-toggle-thumb" id="header-lang-toggle-thumb"><span class="header-lang-toggle-thumb-text" id="header-lang-toggle-thumb-text">EN</span></span>
             </div>
-            <a class="header-social-btn messenger-btn skel" id="header-messenger-btn" href="https://m.me/sandarlinn69" target="_blank" rel="noopener" aria-label="Message us on Messenger">
+            <a class="header-social-btn messenger-btn skel" id="header-messenger-btn" href="https://m.me/sandarlinn69" target="_blank" rel="noopener" aria-label="Message us on Messenger" onclick="event.preventDefault(); window.openExternalUrl(this.href);">
                 <svg><use href="#icon-messenger-filled"></use></svg>
             </a>
-            <a class="header-social-btn telegram-btn skel" id="header-telegram-btn" href="https://t.me/linn270_0" target="_blank" rel="noopener" aria-label="Message us on Telegram">
+            <a class="header-social-btn telegram-btn skel" id="header-telegram-btn" href="https://t.me/linn270_0" target="_blank" rel="noopener" aria-label="Message us on Telegram" onclick="event.preventDefault(); window.openExternalUrl(this.href);">
                 <svg><use href="#icon-telegram-filled"></use></svg>
             </a>
             <div class="header-icon header-menu-btn" id="drawer-toggle-btn" onclick="openDrawer()" role="button" aria-label="Open menu">
@@ -3652,50 +3662,79 @@
         <div id="wallet" class="page-section">
             <h2 class="title-header" data-i18n="title_wallet">My Wallet</h2>
 
-            <div class="wallet-balance-card">
-                <div class="wallet-balance-card-glow"></div>
-                <div class="wallet-balance-pattern"></div>
-                <div class="wallet-balance-top">
-                    <div class="wallet-balance-icon">
-                        <svg class="ui-icon"><use href="#icon-wallet"></use></svg>
-                    </div>
-                    <span class="wallet-balance-tag">Store Wallet</span>
-                </div>
-                <span class="wallet-balance-label">Available Balance</span>
-                <div class="wallet-balance-amount" id="wallet-balance-amount">0 MMK</div>
-                <button class="btn wallet-topup-btn" onclick="openWalletTopupModal()">
-                    <span class="wallet-topup-btn-icon">
-                        <svg class="ui-icon"><use href="#icon-plus"></use></svg>
-                    </span>
-                    Top Up Wallet
-                </button>
-                <p class="wallet-min-hint" id="wallet-min-hint"></p>
+            <!-- Shown instead of everything below when the customer isn't
+                 authenticated via Telegram/Google/Email yet - Wallet needs a
+                 real linked account so balance/history follow them across
+                 devices. Toggled by renderWalletAuthGate(). -->
+            <div id="wallet-login-required" style="display:none;text-align:center;padding:70px 20px 40px;flex-direction:column;align-items:center;gap:14px;">
+                <svg class="ui-icon" style="width:38px;height:38px;opacity:.5;"><use href="#icon-lock"></use></svg>
+                <p style="font-size:13.5px;color:var(--text-secondary);line-height:1.5;margin:0;max-width:260px;">
+                    Wallet ကို အသုံးပြုရန် Login ဝင်ရပါမည်။
+                </p>
+                <button type="button" class="btn" style="width:100%;max-width:260px;" onclick="openWalletAuthGate()">Login</button>
             </div>
 
-            <h3 class="wallet-section-title">
-                <svg class="ui-icon"><use href="#icon-history"></use></svg>
-                Top Up History
-            </h3>
-            <div id="wallet-topup-list"></div>
-            <div id="wallet-topup-empty" style="display:none;"></div>
+            <div id="wallet-authed-content">
+                <div class="wallet-balance-card">
+                    <div class="wallet-balance-card-glow"></div>
+                    <div class="wallet-balance-pattern"></div>
+                    <div class="wallet-balance-top">
+                        <div class="wallet-balance-icon">
+                            <svg class="ui-icon"><use href="#icon-wallet"></use></svg>
+                        </div>
+                        <span class="wallet-balance-tag">Store Wallet</span>
+                    </div>
+                    <span class="wallet-balance-label">Available Balance</span>
+                    <div class="wallet-balance-amount" id="wallet-balance-amount">0 MMK</div>
+                    <button class="btn wallet-topup-btn" onclick="openWalletTopupModal()">
+                        <span class="wallet-topup-btn-icon">
+                            <svg class="ui-icon"><use href="#icon-plus"></use></svg>
+                        </span>
+                        Top Up Wallet
+                    </button>
+                    <p class="wallet-min-hint" id="wallet-min-hint"></p>
+                </div>
+
+                <h3 class="wallet-section-title">
+                    <svg class="ui-icon"><use href="#icon-history"></use></svg>
+                    Top Up History
+                </h3>
+                <div id="wallet-topup-list"></div>
+                <div id="wallet-topup-empty" style="display:none;"></div>
+            </div>
         </div>
 
-        <!-- WALLET GOOGLE SIGN-IN GATE: shown instead of the top-up modal when
-             the customer isn't signed in with Google yet. Wallet top-ups are
-             the one flow that needs a real account (so balance/history can
-             follow the customer across devices), unlike browsing/ordering
-             which work on the guest ID alone. -->
+        <!-- WALLET LOGIN GATE: shown instead of Wallet content / the top-up
+             modal when the customer isn't authenticated yet. Any of the
+             three - Telegram, Google, Email - works and returns the same
+             linked account (balance/history follow the customer across
+             devices), unlike browsing/ordering which work on the guest ID
+             alone. -->
         <div class="modal-overlay" id="wallet-google-gate-overlay" onclick="if(event.target===this) closeWalletGoogleGate()">
             <div class="modal-box" style="max-width:340px;text-align:center;padding:26px 22px;position:relative;">
                 <div class="modal-close" onclick="closeWalletGoogleGate()" style="position:absolute;top:14px;right:14px;">
                     <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
                 </div>
                 <div style="font-size:15px;font-weight:600;margin-bottom:8px;">Sign in to use Wallet</div>
-                <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0 0 18px;">
-                    Wallet ကို အသုံးပြုရန် Google account ဖြင့် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။<br>
-                    A Google sign-in keeps your Wallet balance and top-up history safe across devices.
+                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:0 0 18px;">
+                    Wallet ကို အသုံးပြုရန် Login ဝင်ရန် လိုအပ်ပါသည်။
                 </p>
+                <div id="wallet-gate-email-step-input">
+                    <input type="email" id="wallet-gate-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                    <button type="button" class="google-login-btn" id="wallet-gate-email-send-btn" onclick="handleSendEmailCode('wallet-gate')" style="width:100%;justify-content:center;">
+                        <span>Send code</span>
+                    </button>
+                </div>
+                <div id="wallet-gate-email-step-code" style="display:none;">
+                    <input type="text" id="wallet-gate-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('wallet-gate');">
+                    <button type="button" class="google-login-btn" id="wallet-gate-email-verify-btn" onclick="handleVerifyEmailCode('wallet-gate')" style="width:100%;justify-content:center;">
+                        <span>Verify code</span>
+                    </button>
+                    <button type="button" class="email-login-resend" id="wallet-gate-email-resend-btn" onclick="handleSendEmailCode('wallet-gate', true)">Resend code</button>
+                </div>
+                <div class="email-login-divider"><span>or connect instantly</span></div>
                 <div id="wallet-gate-google-gis" class="gis-btn-slot" style="display:flex;justify-content:center;"></div>
+                <div id="wallet-gate-telegram-widget" style="margin-top:10px;display:flex;justify-content:center;"></div>
                 <button type="button" class="google-login-btn gis-fallback" id="wallet-gate-google-btn" onclick="handleWalletGateGoogleSignIn()" style="width:100%;justify-content:center;">
                     <svg width="18" height="18" viewBox="0 0 48 48">
                         <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
@@ -3706,6 +3745,24 @@
                     <span id="wallet-gate-google-btn-label">Continue with Google</span>
                 </button>
             </div>
+        </div>
+
+        <!-- BANNED ACCOUNT BOARD: full-screen, no close button and no
+             outside-tap dismiss. Shown by showBannedScreen() whenever a
+             login (Telegram/Google/Email) resolves to an account whose
+             users/{guestId} doc has banned:true - the ban is on that one
+             linked ID, so it blocks every provider that leads back to it,
+             not just the one just used. -->
+        <div id="banned-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;">
+            <svg class="ui-icon" style="width:56px;height:56px;color:#EF4444;"><use href="#icon-shield"></use></svg>
+            <div style="font-size:17px;font-weight:600;margin:18px 0 8px;">Account Restricted</div>
+            <p style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;margin:0 0 4px;max-width:300px;">
+                ဤအကောင့်ကို ကန့်သတ်ထားပါသည်။<br>
+                This account has been banned and cannot sign in with Telegram, Google, or Email.
+            </p>
+            <p style="font-size:12.5px;color:var(--text-secondary);margin-top:14px;">
+                Support ကို ဆက်သွယ်ပါ — Contact support if you believe this is a mistake.
+            </p>
         </div>
 
         <!-- WALLET TOP UP MODAL: amount + payment method + receipt upload -->
@@ -4064,22 +4121,77 @@
                         </div>
                         <button type="button" class="google-signout-btn" id="google-signout-btn" onclick="handleGoogleSignOut()">Sign Out</button>
                     </div>
-                    <div id="link-telegram-slot" style="display:none;width:100%;margin-top:10px;text-align:center;">
-                        <p class="google-account-hint" id="link-telegram-hint" style="margin-bottom:6px;">Telegram ဖြင့်ပါ ချိတ်ဆက်ထားနိုင်ပါသည် — account တစ်ခုတည်းအတွက်ပါ၊ data ဘာမှ ပြောင်းမသွားပါ။</p>
-                        <div id="profile-telegram-widget-linked" style="display:flex;justify-content:center;"></div>
-                    </div>
-                    <div id="link-google-slot" style="display:none;width:100%;margin-top:10px;text-align:center;">
-                        <p class="google-account-hint" id="link-google-hint" style="margin-bottom:6px;">Google ဖြင့်ပါ ချိတ်ဆက်ထားနိုင်ပါသည် — account တစ်ခုတည်းအတွက်ပါ၊ data ဘာမှ ပြောင်းမသွားပါ။</p>
-                        <div id="link-google-gis" class="gis-btn-slot" style="display:flex;justify-content:center;"></div>
-                        <button type="button" class="google-login-btn gis-fallback" id="link-google-btn" style="display:none;" onclick="handleGoogleSignIn('link-google-btn')">
-                            <svg width="18" height="18" viewBox="0 0 48 48">
-                                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
-                                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
-                                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
-                                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/>
-                            </svg>
-                            Continue with Google
-                        </button>
+                    <!-- Account Linking: always shows all 3 providers (Telegram /
+                         Email / Google) at once, whichever one the customer is
+                         actually signed in with right now. Each row shows its
+                         own connected/not-connected state and a "Link" button
+                         that expands that provider's own widget inline below
+                         the row - same underlying widgets/functions as before
+                         (profile-telegram-widget-linked, link-google-gis /
+                         link-google-btn, handleSendEmailCode / handleVerifyEmailCode),
+                         just no longer hidden based on which provider you signed
+                         in with. See updateAccountLinkRows() + toggleLinkWidget(). -->
+                    <div id="account-link-section" style="display:none;width:100%;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+                        <p class="google-account-hint" style="text-align:left;margin-bottom:8px;">Telegram, Email, Google — အားလုံးကို account တစ်ခုတည်းအတွက် ချိတ်ဆက်ထားနိုင်ပါသည်။</p>
+
+                        <div class="prefs-row link-account-row" id="link-row-telegram">
+                            <span class="prefs-row-label">
+                                <span class="prefs-row-icon" style="background:rgba(0,136,204,0.14);color:#0088cc;"><svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-telegram-filled"></use></svg></span>
+                                <span>Telegram<small id="link-row-telegram-sub" style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">မချိတ်ဆက်ရသေးပါ</small></span>
+                            </span>
+                            <button type="button" class="link-connect-btn" id="link-row-telegram-btn" onclick="toggleLinkWidget('telegram')">ချိတ်ဆက်မည်</button>
+                        </div>
+                        <div id="link-telegram-widget-area" style="display:none;margin:8px 0 12px;justify-content:center;">
+                            <div id="profile-telegram-widget-linked" style="display:flex;justify-content:center;"></div>
+                        </div>
+
+                        <div class="prefs-row link-account-row" id="link-row-email">
+                            <span class="prefs-row-label">
+                                <span class="prefs-row-icon" style="background:rgba(234,67,53,0.14);color:#EA4335;"><svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-mail"></use></svg></span>
+                                <span>Email<small id="link-row-email-sub" style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">မချိတ်ဆက်ရသေးပါ</small></span>
+                            </span>
+                            <button type="button" class="link-connect-btn" id="link-row-email-btn" onclick="toggleLinkWidget('email')">ချိတ်ဆက်မည်</button>
+                        </div>
+                        <div id="link-email-widget-area" style="display:none;margin:8px 0 12px;">
+                            <div id="account-link-email-step-input">
+                                <input type="email" id="account-link-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                                <button type="button" class="google-login-btn" id="account-link-email-send-btn" onclick="handleSendEmailCode('account-link')">
+                                    <span>Continue with Email</span>
+                                </button>
+                            </div>
+                            <div id="account-link-email-step-code" style="display:none;">
+                                <input type="text" id="account-link-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('account-link');">
+                                <button type="button" class="google-login-btn" id="account-link-email-verify-btn" onclick="handleVerifyEmailCode('account-link')">
+                                    <span>Verify Code</span>
+                                </button>
+                                <button type="button" class="email-login-resend" onclick="handleSendEmailCode('account-link', true)">Resend code</button>
+                            </div>
+                        </div>
+
+                        <div class="prefs-row link-account-row" id="link-row-google">
+                            <span class="prefs-row-label">
+                                <span class="prefs-row-icon" style="background:rgba(66,133,244,0.14);"><svg width="16" height="16" viewBox="0 0 48 48">
+                                    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
+                                    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+                                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+                                    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+                                </svg></span>
+                                <span>Google<small id="link-row-google-sub" style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">မချိတ်ဆက်ရသေးပါ</small></span>
+                            </span>
+                            <button type="button" class="link-connect-btn" id="link-row-google-btn" onclick="toggleLinkWidget('google')">ချိတ်ဆက်မည်</button>
+                        </div>
+                        <div id="link-google-widget-area" style="display:none;margin:8px 0 4px;justify-content:center;">
+                            <div id="link-google-gis" class="gis-btn-slot" style="display:flex;justify-content:center;"></div>
+                            <button type="button" class="google-login-btn gis-fallback" id="link-google-btn" style="display:none;" onclick="handleGoogleSignIn('link-google-btn')">
+                                <svg width="18" height="18" viewBox="0 0 48 48">
+                                    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
+                                    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+                                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+                                    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+                                </svg>
+                                Continue with Google
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5131,6 +5243,7 @@
 
         function showPage(pageId, swipeDir) {
             if (pageId === 'wallet' && window.renderWalletTopupPresets) window.renderWalletTopupPresets();
+            if (pageId === 'wallet' && window.renderWalletAuthGate) window.renderWalletAuthGate();
             document.querySelectorAll('.page-section').forEach(p => {
                 p.classList.remove('active');
                 p.classList.remove('swipe-left', 'swipe-right');
@@ -5189,9 +5302,11 @@
             const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'software', 'game-detail'];
             if (GAMES_PAGES.includes(pageId) && window.listenGames) window.listenGames();
             else if (!GAMES_PAGES.includes(pageId) && window.stopListenGames) window.stopListenGames();
-            // Wallet top-up history: only needed on the Wallet page.
-            if (pageId === 'wallet' && window.listenWalletTopups) window.listenWalletTopups();
-            else if (pageId !== 'wallet' && window.stopListenWalletTopups) window.stopListenWalletTopups();
+            // Wallet top-up history: only needed on the Wallet page, and only
+            // once signed in (signed-out visitors see just the Login gate,
+            // nothing to subscribe to yet).
+            if (pageId === 'wallet' && window.isCustomerAuthenticated && window.isCustomerAuthenticated() && window.listenWalletTopups) window.listenWalletTopups();
+            else if (window.stopListenWalletTopups) window.stopListenWalletTopups();
             // Payment methods: needed wherever a payment-method picker or the
             // wallet top-up modal can appear - game-detail's checkout, and the
             // Wallet page itself.
@@ -8539,16 +8654,57 @@
             document.addEventListener('mouseup', clearPress);
         })();
         // ---------- Top Up Modal ----------
-        // Wallet requires a real Google sign-in (balance/history need to follow
-        // the customer across devices, unlike guest-ID-only browsing/orders).
-        // Signed-out taps show the gate modal instead; walletGatePending tracks
-        // that we should auto-open the real top-up modal once sign-in succeeds.
+        // Wallet requires a real linked account - Telegram, Google, or Email,
+        // any one of the three - so balance/history follow the customer
+        // across devices, unlike guest-ID-only browsing/orders. Signed-out
+        // taps show the gate modal instead; walletGatePending tracks that we
+        // should auto-open the real top-up modal once sign-in succeeds.
         let walletGatePending = false;
 
+        // True once the customer has signed in with any of the three linked
+        // providers. Google/Telegram both leave a real Firebase Auth session
+        // (auth.currentUser); Email OTP doesn't use Firebase Auth at all, so
+        // it's tracked instead by the email it stamped onto the local profile.
+        function isCustomerAuthenticated() {
+            if (auth.currentUser) return true;
+            try {
+                const p = window.getSavedProfile ? window.getSavedProfile() : JSON.parse(localStorage.getItem('gz_profile') || '{}');
+                if (p && p.email) return true;
+            } catch (e) { /* private browsing */ }
+            return false;
+        }
+        window.isCustomerAuthenticated = isCustomerAuthenticated;
+
+        // Shows/hides the Wallet page's own content vs. its "Login" gate.
+        // Called on entering the Wallet tab and after every successful
+        // sign-in (Google/Telegram via onAuthStateChanged, Email via
+        // handleVerifyEmailCode).
+        function renderWalletAuthGate() {
+            const gate = document.getElementById('wallet-login-required');
+            const content = document.getElementById('wallet-authed-content');
+            if (!gate || !content) return;
+            const authed = isCustomerAuthenticated();
+            gate.style.display = authed ? 'none' : 'flex';
+            content.style.display = authed ? '' : 'none';
+        }
+        window.renderWalletAuthGate = renderWalletAuthGate;
+
+        // Opens the login gate directly (the Wallet page's own "Login"
+        // button) - same modal openWalletTopupModal falls back to below.
+        function openWalletAuthGate() {
+            walletGatePending = false;
+            document.getElementById('wallet-google-gate-overlay').classList.add('show');
+            if (window.renderGisButtons) window.renderGisButtons();
+            renderTelegramWidgetInto('wallet-gate-telegram-widget');
+        }
+        window.openWalletAuthGate = openWalletAuthGate;
+
         function openWalletTopupModal() {
-            if (!auth.currentUser) {
+            if (!isCustomerAuthenticated()) {
                 walletGatePending = true;
                 document.getElementById('wallet-google-gate-overlay').classList.add('show');
+                if (window.renderGisButtons) window.renderGisButtons();
+                renderTelegramWidgetInto('wallet-gate-telegram-widget');
                 return;
             }
             openWalletTopupModalActual();
@@ -9216,12 +9372,26 @@
             const signedOutEl = document.getElementById('google-account-signedout');
             const signedInEl = document.getElementById('google-account-signedin');
             const heroBadge = document.getElementById('profile-hero-verified-badge');
-            if (heroBadge) heroBadge.style.display = user ? 'inline-block' : 'none';
+            // Email OTP sign-in never creates a Firebase Auth user (see
+            // isCustomerAuthenticated) - so on its own this function would
+            // keep showing the signed-OUT form even though the customer is
+            // actually logged in through their linked email. Fall back to
+            // the local profile email so that case is treated as signed-in
+            // here too, same as Google/Telegram.
+            let emailOnly = '';
+            if (!user) {
+                try {
+                    const p = window.getSavedProfile ? window.getSavedProfile() : {};
+                    emailOnly = (p && p.email) || '';
+                } catch (e) { /* private browsing */ }
+            }
+            if (heroBadge) heroBadge.style.display = (user || emailOnly) ? 'inline-block' : 'none';
             if (!signedOutEl || !signedInEl) return;
-            if (user) {
+            if (user || emailOnly) {
                 signedOutEl.style.display = 'none';
                 signedInEl.style.display = 'flex';
-                const isTelegram = String(user.uid || '').startsWith('tg_');
+                const isTelegram = !!user && String(user.uid || '').startsWith('tg_');
+                const isEmailOnly = !user && !!emailOnly;
                 const nameEl = document.getElementById('google-account-name');
                 const emailEl = document.getElementById('google-account-email');
                 const avatarImg = document.getElementById('google-account-avatar');
@@ -9235,6 +9405,14 @@
                     emailEl.innerText = tg.username ? `Telegram @${tg.username}` : 'Telegram account';
                     avatarImg.src = tg.photo_url || '';
                     avatarImg.style.display = tg.photo_url ? 'block' : 'none';
+                } else if (isEmailOnly) {
+                    // Same reasoning as Telegram above - no Firebase user, so
+                    // pull name/photo from the local profile instead.
+                    const existing = window.getSavedProfile ? window.getSavedProfile() : {};
+                    nameEl.innerText = existing.name || 'Signed in';
+                    emailEl.innerText = emailOnly;
+                    avatarImg.src = existing.photo || '';
+                    avatarImg.style.display = existing.photo ? 'block' : 'none';
                 } else {
                     nameEl.innerText = user.displayName || user.email || 'Signed in';
                     emailEl.innerText = user.email || '';
@@ -9242,78 +9420,108 @@
                     avatarImg.style.display = user.photoURL ? 'block' : 'none';
                 }
                 if (signoutBtn) signoutBtn.innerText = 'Sign Out';
-                renderLinkedProviderSlots(user, isTelegram);
+                updateAccountLinkRows(isTelegram ? 'telegram' : (isEmailOnly ? 'email' : 'google'));
             } else {
                 signedOutEl.style.display = 'block';
                 signedInEl.style.display = 'none';
-                const tgSlot = document.getElementById('link-telegram-slot');
-                const gSlot = document.getElementById('link-google-slot');
-                if (tgSlot) tgSlot.style.display = 'none';
-                if (gSlot) gSlot.style.display = 'none';
+                const linkSection = document.getElementById('account-link-section');
+                if (linkSection) linkSection.style.display = 'none';
             }
         }
+        window.renderGoogleAccountUI = renderGoogleAccountUI;
 
-        // Order doesn't matter: whichever provider (Google or Telegram) a
-        // customer signs in with FIRST, this offers the OTHER one as a
-        // "connect too" option right there in the signed-in Account card -
-        // same guestId, same data either way, nothing about the order is
-        // fixed. Hidden entirely for the provider currently signed in
-        // (nothing to link to itself), and swapped to an "already linked"
-        // message once that provider is confirmed linked on the account doc.
-        async function renderLinkedProviderSlots(user, isTelegram) {
-            const tgSlot = document.getElementById('link-telegram-slot');
-            const gSlot = document.getElementById('link-google-slot');
+        // Account Linking rows (Telegram / Email / Google) in the signed-in
+        // Account card. Unlike the old renderLinkedProviderSlots() this
+        // shows ALL THREE at once, every time - not just whichever provider
+        // you didn't sign in with - since all three can be linked onto the
+        // same account/guestId simultaneously. Each row's own button toggles
+        // that provider's widget open/closed (toggleLinkWidget below); a
+        // provider already linked shows a green "Connected" pill instead and
+        // its button no longer opens anything.
+        // currentProvider: 'telegram' | 'google' | 'email' | null - whichever
+        // one this device is actually signed in with right now (there may be
+        // no users/{gid} field written for it yet on a brand new sign-in, so
+        // that row is force-shown as connected regardless of the Firestore read).
+        async function updateAccountLinkRows(currentProvider) {
+            const section = document.getElementById('account-link-section');
             const myGid = window.getGuestId ? window.getGuestId() : null;
-            if (!myGid) {
-                if (tgSlot) tgSlot.style.display = 'none';
-                if (gSlot) gSlot.style.display = 'none';
-                return;
-            }
+            if (!section) return;
+            if (!myGid) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
             try {
                 const snap = await getDoc(doc(db, "users", myGid));
                 const data = snap.exists() ? snap.data() : {};
                 const tgUsername = data.telegramUsername || '';
                 const gEmail = data.googleEmail || '';
-
-                if (isTelegram) {
-                    if (tgSlot) tgSlot.style.display = 'none';
-                    if (gSlot) {
-                        const hint = document.getElementById('link-google-hint');
-                        gSlot.style.display = 'block';
-                        if (gEmail) {
-                            if (hint) hint.textContent = `Google (${gEmail}) ဖြင့် ချိတ်ဆက်ပြီးပါပြီ။`;
-                            document.querySelectorAll('#link-google-slot .gis-btn-slot, #link-google-slot .gis-fallback').forEach((el) => { el.style.display = 'none'; });
-                        } else {
-                            if (hint) hint.textContent = 'Google ဖြင့်ပါ ချိတ်ဆက်ထားနိုင်ပါသည် — account တစ်ခုတည်းအတွက်ပါ၊ data ဘာမှ ပြောင်းမသွားပါ။';
-                            if (window.renderGisButtons) window.renderGisButtons();
-                        }
-                    }
-                } else {
-                    if (gSlot) gSlot.style.display = 'none';
-                    if (tgSlot) {
-                        const hint = document.getElementById('link-telegram-hint');
-                        const widgetEl = document.getElementById('profile-telegram-widget-linked');
-                        tgSlot.style.display = 'block';
-                        if (tgUsername) {
-                            if (hint) hint.textContent = `Telegram @${tgUsername} ဖြင့် ချိတ်ဆက်ပြီးပါပြီ။`;
-                            if (widgetEl) widgetEl.style.display = 'none';
-                        } else {
-                            if (hint) hint.textContent = 'Telegram ဖြင့်ပါ ချိတ်ဆက်ထားနိုင်ပါသည် — account တစ်ခုတည်းအတွက်ပါ၊ data ဘာမှ ပြောင်းမသွားပါ။';
-                            if (widgetEl) widgetEl.style.display = 'flex';
-                            // Rendered here, on demand, now that the slot is
-                            // actually visible - NOT at page load, when the
-                            // hidden container would give Telegram's widget
-                            // script a 0-width box to size its iframe against.
-                            renderTelegramWidgetInto('profile-telegram-widget-linked');
-                        }
-                    }
+                // linkedEmail is written by handleVerifyEmailCode (both the
+                // sign-in and the account-link flows) - see there. Falls back
+                // to the locally-saved profile email so it still shows
+                // "Connected" right after linking on this same device even if
+                // the Firestore read above raced ahead of that write.
+                let linkedEmail = data.linkedEmail || '';
+                if (!linkedEmail) {
+                    try {
+                        const p = window.getSavedProfile ? window.getSavedProfile() : {};
+                        linkedEmail = p.email || '';
+                    } catch (e) { /* ignore */ }
                 }
+
+                const tgLinked = !!tgUsername || currentProvider === 'telegram';
+                const gLinked = !!gEmail || currentProvider === 'google';
+                const eLinked = !!linkedEmail || currentProvider === 'email';
+
+                setLinkRowState('telegram', tgLinked, tgUsername ? `@${tgUsername} ဖြင့် ချိတ်ဆက်ပြီး` : (tgLinked ? 'ချိတ်ဆက်ပြီး' : ''));
+                setLinkRowState('google', gLinked, gEmail ? `${gEmail} ဖြင့် ချိတ်ဆက်ပြီး` : (gLinked ? 'ချိတ်ဆက်ပြီး' : ''));
+                setLinkRowState('email', eLinked, linkedEmail ? `${linkedEmail} ဖြင့် ချိတ်ဆက်ပြီး` : (eLinked ? 'ချိတ်ဆက်ပြီး' : ''));
             } catch (e) {
-                console.error('Linked-provider status check error:', e);
-                if (tgSlot) tgSlot.style.display = 'none';
-                if (gSlot) gSlot.style.display = 'none';
+                console.error('Account-link status check error:', e);
             }
         }
+        window.updateAccountLinkRows = updateAccountLinkRows;
+
+        function setLinkRowState(type, linked, subText) {
+            const sub = document.getElementById(`link-row-${type}-sub`);
+            const btn = document.getElementById(`link-row-${type}-btn`);
+            if (sub) sub.textContent = linked ? subText : 'မချိတ်ဆက်ရသေးပါ';
+            if (btn) {
+                btn.classList.toggle('is-linked', linked);
+                btn.classList.remove('is-open');
+                btn.textContent = linked ? 'ချိတ်ဆက်ပြီး ✓' : 'ချိတ်ဆက်မည်';
+            }
+            // A provider that's already linked has nothing left to open -
+            // collapse its widget area if it happens to be showing.
+            if (linked) {
+                const area = document.getElementById(`link-${type}-widget-area`);
+                if (area) area.style.display = 'none';
+            }
+        }
+
+        // Expands the tapped provider's widget area inline below its row
+        // (collapsing whichever other one was open, accordion-style) and
+        // lazily renders that provider's widget the first time it's opened -
+        // Telegram's widget script and Google's GIS button both need a
+        // visible, non-zero-size container to size themselves against, so
+        // neither can be pre-rendered while hidden at page load.
+        function toggleLinkWidget(type) {
+            const btn = document.getElementById(`link-row-${type}-btn`);
+            if (btn && btn.classList.contains('is-linked')) return; // already linked - nothing to open
+            ['telegram', 'email', 'google'].forEach((t) => {
+                const area = document.getElementById(`link-${t}-widget-area`);
+                const b = document.getElementById(`link-row-${t}-btn`);
+                if (!area) return;
+                const opening = (t === type) && area.style.display === 'none';
+                area.style.display = opening ? (t === 'email' ? 'block' : 'flex') : 'none';
+                if (b && !b.classList.contains('is-linked')) b.classList.toggle('is-open', opening);
+            });
+            const nowOpen = document.getElementById(`link-${type}-widget-area`).style.display !== 'none';
+            if (!nowOpen) return;
+            if (type === 'telegram') {
+                renderTelegramWidgetInto('profile-telegram-widget-linked');
+            } else if (type === 'google') {
+                if (window.renderGisButtons) window.renderGisButtons();
+            }
+        }
+        window.toggleLinkWidget = toggleLinkWidget;
 
         // A ban applies to a guest account, but a banned customer could just
         // switch devices (fresh guestId) and sign back in with the same
@@ -9323,6 +9531,19 @@
         // Used both right after a fresh sign-in and on every page load for a
         // persisted session, so a ban applied after someone last signed in
         // still locks them out the next time the app checks.
+        // Full-screen, non-dismissable "Account Restricted" board. Covers the
+        // whole app (no close button, no outside-tap dismiss) so a banned
+        // account can't get past login back into Home/Wallet/etc with any of
+        // the three providers - the ban is on the one linked guestId, so it
+        // sticks regardless of which provider the customer just tried.
+        function showBannedScreen() {
+            const el = document.getElementById('banned-overlay');
+            if (el) el.style.display = 'flex';
+            const gateOverlay = document.getElementById('wallet-google-gate-overlay');
+            if (gateOverlay) gateOverlay.classList.remove('show');
+        }
+        window.showBannedScreen = showBannedScreen;
+
         async function enforceGoogleAccountBan(user, myGid) {
             try {
                 const linkSnap = await getDoc(doc(db, "googleAccounts", user.uid));
@@ -9331,7 +9552,7 @@
                 const userSnap = await getDoc(doc(db, "users", targetGid));
                 if (userSnap.exists() && userSnap.data().banned) {
                     await signOut(auth);
-                    if (window.showToast) window.showToast('This account has been restricted. Contact support.', 'fail');
+                    if (window.showBannedScreen) window.showBannedScreen();
                     return true;
                 }
             } catch (e) {
@@ -9426,6 +9647,7 @@
                         localStorage.setItem('gz_guest_id', linkedGid);
                         localStorage.setItem('gz_gid_owner_uid', user.uid);
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
+                        if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: linkedGid }, { merge: true });
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
                         setTimeout(() => location.reload(), 900);
                     } catch (e) {
@@ -9435,6 +9657,40 @@
                     return;
                 }
                 if (!linkSnap.exists()) {
+                    // This Gmail has never signed in via Google before on
+                    // this app - but the same email address may already be
+                    // linked to an account through Email OTP (see
+                    // handleVerifyEmailCode -> emailAccounts/{email}). If so,
+                    // reconnect to THAT account instead of either creating a
+                    // brand-new one or silently merging into whatever guest ID
+                    // happens to be on this device.
+                    let emailLinkedGid = '';
+                    if (user.email) {
+                        try {
+                            const emailLinkSnap = await getDoc(doc(db, "emailAccounts", user.email.toLowerCase()));
+                            emailLinkedGid = (emailLinkSnap.exists() && emailLinkSnap.data().guestId) || '';
+                        } catch (e) {
+                            console.error('emailAccounts lookup failed:', e);
+                        }
+                    }
+                    if (emailLinkedGid && emailLinkedGid !== myGid) {
+                        try {
+                            const userSnap = await getDoc(doc(db, "users", emailLinkedGid));
+                            const d = userSnap.exists() ? userSnap.data() : {};
+                            localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                            localStorage.setItem('gz_guest_id', emailLinkedGid);
+                            localStorage.setItem('gz_gid_owner_uid', user.uid);
+                            if (localStorage.getItem('gz_guest_id') !== emailLinkedGid) throw new Error('guest id did not persist');
+                            await setDoc(linkRef, { guestId: emailLinkedGid, email: user.email || '' }, { merge: true });
+                            await setDoc(doc(db, "users", emailLinkedGid), { googleEmail: user.email || '' }, { merge: true });
+                            if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
+                            setTimeout(() => location.reload(), 900);
+                        } catch (e) {
+                            console.error('Google-email reconnect failed:', e);
+                            if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
+                        }
+                        return;
+                    }
                     // First time this Gmail signs in anywhere. If this device's guest
                     // ID is already tied to a different Gmail (someone signed out and
                     // signed in with another account), this Gmail must NOT inherit that
@@ -9447,6 +9703,7 @@
                             googleEmail: user.email || '', createdAt: serverTimestamp(), lastSeen: serverTimestamp()
                         }, { merge: true });
                         await setDoc(linkRef, { guestId: newGid, email: user.email || '' }, { merge: true });
+                        if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: newGid }, { merge: true });
                         resetLocalAccountState();
                         try {
                             localStorage.setItem('gz_guest_id', newGid);
@@ -9459,6 +9716,7 @@
                         return;
                     }
                     await setDoc(linkRef, { guestId: myGid, email: user.email || '' }, { merge: true });
+                    if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: myGid }, { merge: true });
                 }
                 try { localStorage.setItem('gz_gid_owner_uid', user.uid); } catch (e) { /* private browsing */ }
             } catch (e) {
@@ -9556,7 +9814,7 @@
 
             if (targetUserSnap && targetUserSnap.exists() && targetUserSnap.data().banned) {
                 await signOut(auth);
-                if (window.showToast) window.showToast('This account has been restricted. Contact support.', 'fail');
+                if (window.showBannedScreen) window.showBannedScreen();
                 return;
             }
 
@@ -9719,7 +9977,7 @@
         // visible (or about to be) when reached, so these two render eagerly
         // as before. The signed-IN linking slot (profile-telegram-widget-linked)
         // is NOT included here - it starts hidden and is rendered on demand,
-        // right after its container is made visible, from renderLinkedProviderSlots().
+        // right after its container is made visible, from toggleLinkWidget().
         function renderTelegramWidgets() {
             ['onboard-telegram-widget', 'profile-telegram-widget'].forEach(renderTelegramWidgetInto);
         }
@@ -9736,7 +9994,7 @@
         let pendingLoginEmail = '';
 
         function emailCtxEls(ctx) {
-            const p = ctx === 'profile' ? 'profile' : 'onboard';
+            const p = ctx || 'onboard';
             return {
                 input: document.getElementById(`${p}-email-input`),
                 code: document.getElementById(`${p}-email-code-input`),
@@ -9791,20 +10049,84 @@
                 const data = await res.json();
                 if (!res.ok || !data.valid) throw new Error(data.error || 'Code မှားနေပါသည်');
 
-                // This email was already linked to a different guestId (e.g.
-                // signed in from another device before) - switch this device
-                // over to that canonical account instead of creating a second one.
-                if (data.conflict && data.canonicalGuestId && data.canonicalGuestId !== guestId) {
-                    try { localStorage.setItem('gz_guest_id', data.canonicalGuestId); } catch (e) { /* private browsing */ }
+                // The email may resolve to a different (canonical) guestId
+                // than this device currently has - e.g. signed in from
+                // another device before. Ban is checked against that target
+                // account, since that's the one this login would grant
+                // access to (mirrors enforceGoogleAccountBan / the Telegram
+                // ban check in applyTelegramProfile - one ID, banned across
+                // all three login providers).
+                let targetGid = (data.conflict && data.canonicalGuestId) ? data.canonicalGuestId : guestId;
+                // The OTP worker only ever learns about a guestId through
+                // this same verify-code call - it has no idea this email
+                // might already be linked to a Gmail account instead (see
+                // applyGoogleProfile's emailAccounts writes). Our own
+                // Firestore mapping covers that direction, so prefer it
+                // when it points somewhere else: "linked via Gmail first,
+                // Email OTP second" then reconnects the same as the other
+                // way around.
+                try {
+                    const emailLinkSnap = await getDoc(doc(db, "emailAccounts", pendingLoginEmail));
+                    const mappedGid = (emailLinkSnap.exists() && emailLinkSnap.data().guestId) || '';
+                    if (mappedGid) targetGid = mappedGid;
+                } catch (e) {
+                    console.error('emailAccounts lookup (verify) failed:', e);
+                }
+                try {
+                    const targetSnap = await getDoc(doc(db, "users", targetGid));
+                    if (targetSnap.exists() && targetSnap.data().banned) {
+                        if (window.showBannedScreen) window.showBannedScreen();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Email login ban check error:', e);
+                }
+
+                // Switch this device over to the canonical account instead of
+                // creating a second one.
+                if (targetGid !== guestId) {
+                    try { localStorage.setItem('gz_guest_id', targetGid); } catch (e) { /* private browsing */ }
                 }
                 try {
                     const p = window.getSavedProfile ? window.getSavedProfile() : {};
                     localStorage.setItem('gz_profile', JSON.stringify({ ...p, email: pendingLoginEmail }));
                 } catch (e) { /* private browsing */ }
 
+                // Mirror the email onto the users doc too (same pattern as
+                // googleEmail / telegramUsername) so its "Connected" status
+                // in the Account Linking rows survives a reload/other device,
+                // not just this device's localStorage. emailAccounts is the
+                // reverse index (email -> guestId), same role as
+                // googleAccounts/{uid} and telegramAccounts/{tgId} - it's
+                // what lets a Gmail sign-in later recognize this same email
+                // and reconnect instead of creating a second account (see
+                // applyGoogleProfile).
+                try {
+                    await setDoc(doc(db, "users", targetGid), { linkedEmail: pendingLoginEmail }, { merge: true });
+                    await setDoc(doc(db, "emailAccounts", pendingLoginEmail), { guestId: targetGid }, { merge: true });
+                } catch (e) {
+                    console.error('linkedEmail save error:', e);
+                }
+
+                if (ctx === 'account-link') {
+                    window.showToast(`Email (${pendingLoginEmail}) ချိတ်ဆက်ပြီးပါပြီ 🎉`);
+                    renderGoogleAccountUI(auth.currentUser);
+                    return;
+                }
+
                 window.showToast('Email ဖြင့် Login ဝင်ပြီးပါပြီ 🎉');
                 if (window.renderMiniProfile) window.renderMiniProfile();
+                if (window.renderWalletAuthGate) window.renderWalletAuthGate();
+                renderGoogleAccountUI(auth.currentUser);
                 if (ctx === 'onboard' && window.completeOnboarding) window.completeOnboarding();
+                if (ctx === 'wallet-gate') {
+                    const gateOverlay = document.getElementById('wallet-google-gate-overlay');
+                    if (gateOverlay) gateOverlay.classList.remove('show');
+                    if (walletGatePending) {
+                        walletGatePending = false;
+                        openWalletTopupModalActual();
+                    }
+                }
             } catch (e) {
                 console.error('verify-code error:', e);
                 window.showToast(e.message || 'Verify မအောင်မြင်ပါ', 'fail');
@@ -10017,6 +10339,7 @@
             renderGoogleAccountUI(user);
             if (window.loadProfileStats) window.loadProfileStats();
             handleOnboardAuthState(user);
+            if (window.renderWalletAuthGate) window.renderWalletAuthGate();
             if (user && walletGatePending) {
                 walletGatePending = false;
                 document.getElementById('wallet-google-gate-overlay').classList.remove('show');
@@ -10584,6 +10907,25 @@
         }
         window.openLogoTelegramChannel = openLogoTelegramChannel;
 
+        // Opens an outside link (Messenger, Telegram, etc.) reliably from
+        // BOTH contexts this page runs in: a normal browser tab (plain
+        // window.open works fine there) and inside the Telegram Mini App
+        // WebView, where a bare <a target="_blank"> or window.open() to a
+        // non-t.me domain (e.g. m.me for Messenger) is silently swallowed
+        // by Telegram's sandbox - only Telegram.WebApp.openLink() reliably
+        // breaks out to the system browser in that case. t.me links happen
+        // to still work as plain anchors because Telegram's own client
+        // recognizes its own domain, which is why only the Messenger icon
+        // was affected, not the Telegram one.
+        function openExternalUrl(url) {
+            if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openLink === 'function') {
+                window.Telegram.WebApp.openLink(url);
+            } else {
+                window.open(url, '_blank', 'noopener');
+            }
+        }
+        window.openExternalUrl = openExternalUrl;
+
         // Support Chat (product mode) and the Account tab's general Support
         // button both open this directly now — no more live in-app chat
         // panel. Account Marketplace's per-listing "Ask about this account"
@@ -10710,10 +11052,22 @@
             });
         }
 
+        // Picks the Dark Mode logo (settings/branding.logoUrlDark, set from
+        // the admin panel) when the store is currently in dark theme and one
+        // was uploaded; otherwise falls back to the regular Light Mode logo.
+        let lastBrandingData = null;
+        function activeLogoUrl(data) {
+            if (!data) return '';
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark && data.logoUrlDark) return data.logoUrlDark;
+            return data.logoUrl || '';
+        }
+
         function renderHeaderLogo(data) {
+            lastBrandingData = data || null;
             applyLogoScale(data && data.logoScale);
             const seq = ++logoLoadSeq;
-            const url = (data && data.logoUrl) || '';
+            const url = activeLogoUrl(data);
             if (!url) {
                 APP_LOGO_URL = '';
                 applyDefaultLogo();
@@ -14168,6 +14522,7 @@
             root.setAttribute('data-theme', theme);
             applyThemeIcon(theme);
             if (window.renderGisButtons) window.renderGisButtons(); // re-skin the Google button (outline/filled_black) to match
+            if (typeof renderHeaderLogo === 'function' && typeof lastBrandingData !== 'undefined' && lastBrandingData !== null) renderHeaderLogo(lastBrandingData); // swap in the Dark/Light Mode logo for the new theme
             clearTimeout(setThemeSmooth._t);
             setThemeSmooth._t = setTimeout(() => root.classList.remove('theme-switching'), 380);
         }
