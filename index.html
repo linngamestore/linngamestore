@@ -412,6 +412,56 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
+        /* ---- Login step "Welcome Back" restyle ----
+           Soft glowing corner blobs behind the card (pure CSS, no extra
+           DOM), a glowing logo tile, a gradient primary action button with
+           a trailing arrow disc, and icon-in-pill inputs — scoped to
+           .onboarding-card so the shared .google-login-btn/.email-login-input
+           classes used elsewhere (wallet gate, profile, account link) are
+           untouched. */
+        .onboarding-overlay::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(circle at -8% -6%, rgba(var(--accent-rgb),0.38), transparent 42%),
+                radial-gradient(circle at 112% 16%, rgba(var(--accent-rgb),0.22), transparent 38%),
+                radial-gradient(circle at 108% 104%, rgba(var(--accent-rgb),0.30), transparent 42%),
+                radial-gradient(circle at -12% 104%, rgba(var(--accent-rgb),0.22), transparent 38%);
+        }
+        .onboarding-card { position: relative; z-index: 1; }
+        .onboarding-card .onboarding-logo {
+            width: 92px; height: 92px; border-radius: 26px;
+            background: linear-gradient(160deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6));
+            box-shadow: 0 16px 30px rgba(var(--accent-rgb),0.32), inset 0 1px 1px rgba(255,255,255,0.9);
+        }
+        .onboarding-welcome-sub { font-size: 13px; color: var(--text-secondary); margin: -14px 0 20px; font-weight: 500; }
+        .onboarding-input-wrap { position: relative; }
+        .onboarding-input-wrap .onboarding-input-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); pointer-events: none;
+        }
+        .onboarding-card .onboarding-input-wrap .email-login-input {
+            padding-left: 40px; border-radius: 14px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+        }
+        .onboarding-card .onboarding-primary-btn {
+            justify-content: space-between; border: none; color: #fff; border-radius: 15px;
+            padding: 13px 14px; font-weight: 600;
+            background: linear-gradient(135deg, var(--accent) 0%, #0B3D91 100%);
+            box-shadow: 0 10px 24px rgba(var(--accent-rgb),0.4);
+        }
+        .onboarding-card .onboarding-primary-btn:active { background: linear-gradient(135deg, var(--accent) 0%, #0B3D91 100%); opacity: 0.9; }
+        .onboarding-btn-arrow {
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; color: #fff;
+        }
+        .onboarding-card .onboarding-divider { text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; font-size: 10.5px; }
+        .onboarding-social-btn {
+            width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; cursor: pointer;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .onboarding-social-btn:active { background: var(--glass-bg-strong); }
+
         /* Sun/moon icon spin+pop whenever the theme actually switches — the
            thumb sliding across the pill was motion, but the icon itself just
            snapped to the new glyph with no transition of its own. Re-added
@@ -3121,9 +3171,9 @@
 
             <!-- Step 1: Google sign-in -->
             <div class="onboarding-step" id="onboard-step-login" style="display:none;">
+                <div class="onboarding-welcome-sub">အသုံးပြုရန် Sign in ဝင်ပါ</div>
                 <div id="onboard-google-gis" class="gis-btn-slot"></div>
-                <div id="onboard-telegram-widget" style="margin-top:10px;display:flex;justify-content:center;"></div>
-                <button type="button" class="google-login-btn gis-fallback" id="onboard-google-btn" onclick="handleOnboardGoogleSignIn()">
+                <button type="button" class="google-login-btn gis-fallback onboarding-primary-btn" id="onboard-google-btn" onclick="handleOnboardGoogleSignIn()">
                     <svg width="18" height="18" viewBox="0 0 48 48">
                         <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
                         <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
@@ -3131,18 +3181,31 @@
                         <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/>
                     </svg>
                     <span id="onboard-google-btn-label">Continue with Google</span>
+                    <span class="onboarding-btn-arrow"><svg class="ui-icon" style="width:15px;height:15px;"><use href="#icon-chevron-right"></use></svg></span>
                 </button>
 
-                <div class="email-login-divider"><span>or</span></div>
+                <div class="email-login-divider onboarding-divider"><span>or continue with</span></div>
+                <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">
+                    <div id="onboard-telegram-widget" style="display:flex;justify-content:center;"></div>
+                    <button type="button" class="onboarding-social-btn" id="onboard-facebook-btn" onclick="window.showToast('Facebook sign-in coming soon', 'info')" aria-label="Facebook sign-in coming soon" style="opacity:0.45;">
+                        <svg class="ui-icon" style="width:20px;height:20px;color:#1877F2;" fill="currentColor" stroke="none"><use href="#icon-facebook"></use></svg>
+                    </button>
+                </div>
                 <div id="onboard-email-step-input">
-                    <input type="email" id="onboard-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                    <div class="onboarding-input-wrap">
+                        <svg class="ui-icon onboarding-input-icon" style="width:15px;height:15px;"><use href="#icon-mail"></use></svg>
+                        <input type="email" id="onboard-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                    </div>
                     <button type="button" class="google-login-btn" id="onboard-email-send-btn" onclick="handleSendEmailCode('onboard')">
                         <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-bell"></use></svg>
                         <span>Continue with Email</span>
                     </button>
                 </div>
                 <div id="onboard-email-step-code" style="display:none;">
-                    <input type="text" id="onboard-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('onboard');">
+                    <div class="onboarding-input-wrap">
+                        <svg class="ui-icon onboarding-input-icon" style="width:15px;height:15px;"><use href="#icon-lock"></use></svg>
+                        <input type="text" id="onboard-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('onboard');">
+                    </div>
                     <button type="button" class="google-login-btn" id="onboard-email-verify-btn" onclick="handleVerifyEmailCode('onboard')">
                         <span>Verify Code</span>
                     </button>
@@ -3770,7 +3833,7 @@
             <div style="font-size:17px;font-weight:600;margin:18px 0 8px;">Account Restricted</div>
             <p style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;margin:0 0 4px;max-width:300px;">
                 ဤအကောင့်ကို ကန့်သတ်ထားပါသည်။<br>
-                This account has been banned and cannot sign in with Telegram, Google, or Email.
+                This account has been banned and cannot sign in with Telegram, Google, Facebook, or Email.
             </p>
             <p style="font-size:12.5px;color:var(--text-secondary);margin-top:14px;">
                 Support ကို ဆက်သွယ်ပါ — Contact support if you believe this is a mistake.
@@ -8276,7 +8339,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
         import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where, orderBy, limit, getDocs, getCountFromServer, onSnapshot, increment, runTransaction, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInWithCredential, signInWithCustomToken, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithRedirect, signInWithCredential, signInWithCustomToken, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
         import { getMessaging, getToken, onMessage, isSupported as isMessagingSupported } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging.js";
 
         const firebaseConfig = {
@@ -8454,9 +8517,16 @@
                     photo: profile.photo || '',
                     lastSeen: serverTimestamp()
                 };
-                // Only ever write googleEmail while signed in - blanking it while signed
-                // out would erase which Gmail this guest ID belongs to.
-                if (auth.currentUser && auth.currentUser.email) payload.googleEmail = auth.currentUser.email;
+                // Only ever write googleEmail/facebookEmail while signed in - blanking
+                // it while signed out would erase which account this guest ID belongs
+                // to. Which field depends on which provider is actually signed in
+                // right now (providerData[0].providerId), so a Facebook session never
+                // gets mislabeled as a Google one or vice versa.
+                if (auth.currentUser && auth.currentUser.email) {
+                    const signedInProviderId = (auth.currentUser.providerData[0] && auth.currentUser.providerData[0].providerId) || '';
+                    if (signedInProviderId === 'facebook.com') payload.facebookEmail = auth.currentUser.email;
+                    else if (signedInProviderId === 'google.com') payload.googleEmail = auth.currentUser.email;
+                }
                 if (!existing.exists() || !existing.data().createdAt) {
                     payload.createdAt = serverTimestamp();
                 }
@@ -9380,6 +9450,17 @@
         const googleProvider = new GoogleAuthProvider();
         googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+        // ---------- Facebook sign-in (optional) ----------
+        // Mirrors the Google provider exactly - same popup/redirect handler
+        // (handleProviderSignIn below), same account-linking shape
+        // (facebookAccounts/{uid}, see applyFacebookProfile). Requires the
+        // Facebook provider to be turned on in Firebase Console > Authentication
+        // > Sign-in method, with an App ID/App Secret from
+        // developers.facebook.com, and that Facebook app's Valid OAuth
+        // Redirect URI set to https://linngametopupstore.firebaseapp.com/__/auth/handler
+        const facebookProvider = new FacebookAuthProvider();
+        facebookProvider.setCustomParameters({ display: 'popup' });
+
         // ---------- Google Identity Services (GIS) sign-in ----------
         // Renders Google's own "Sign in with Google" button, which opens an
         // in-page account chooser overlay instead of a separate popup/tab
@@ -9810,6 +9891,137 @@
             if (window.renderMiniProfile) window.renderMiniProfile();
             syncUserToFirestore();
         }
+
+        // ---------- Facebook sign-in account linking ----------
+        // Exact mirror of the Google block above (facebookAccounts/{uid} instead
+        // of googleAccounts/{uid}, facebookEmail instead of googleEmail, its own
+        // gz_gid_owner_uid_fb ownership key so it never collides with Google's).
+        async function enforceFacebookAccountBan(user, myGid) {
+            try {
+                const linkSnap = await getDoc(doc(db, "facebookAccounts", user.uid));
+                const targetGid = (linkSnap.exists() && linkSnap.data().guestId) || myGid;
+                if (!targetGid) return false;
+                const userSnap = await getDoc(doc(db, "users", targetGid));
+                if (userSnap.exists() && userSnap.data().banned) {
+                    await signOut(auth);
+                    if (window.showBannedScreen) window.showBannedScreen();
+                    return true;
+                }
+            } catch (e) {
+                console.error('Facebook account ban check error:', e);
+            }
+            return false;
+        }
+
+        async function guestIdBelongsToOtherFacebook(myGid, user) {
+            try {
+                const ownerUid = localStorage.getItem('gz_gid_owner_uid_fb');
+                if (ownerUid && ownerUid !== user.uid) return true;
+            } catch (e) { /* private browsing */ }
+            try {
+                if (!myGid) return false;
+                const snap = await getDoc(doc(db, "users", myGid));
+                const linkedEmail = (snap.exists() && snap.data().facebookEmail) || '';
+                if (linkedEmail && user.email && linkedEmail.toLowerCase() !== user.email.toLowerCase()) return true;
+            } catch (e) { /* can't tell - fall through to the normal link */ }
+            return false;
+        }
+
+        async function applyFacebookProfile(user) {
+            const myGid = window.getGuestId ? window.getGuestId() : null;
+            if (await enforceFacebookAccountBan(user, myGid)) return;
+            try {
+                const linkRef = doc(db, "facebookAccounts", user.uid);
+                const linkSnap = await getDoc(linkRef);
+                if (linkSnap.exists() && linkSnap.data().guestId && linkSnap.data().guestId !== myGid) {
+                    const linkedGid = linkSnap.data().guestId;
+                    try {
+                        const userSnap = await getDoc(doc(db, "users", linkedGid));
+                        const d = userSnap.exists() ? userSnap.data() : {};
+                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                        localStorage.setItem('gz_guest_id', linkedGid);
+                        localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
+                        if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
+                        if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: linkedGid }, { merge: true });
+                        if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
+                        setTimeout(() => location.reload(), 900);
+                    } catch (e) {
+                        console.error('Facebook account switch failed:', e);
+                        if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
+                    }
+                    return;
+                }
+                if (!linkSnap.exists()) {
+                    // Facebook may withhold email (user declined the permission) -
+                    // every check below that depends on user.email safely no-ops
+                    // when it's absent, same as the Google flow does.
+                    let emailLinkedGid = '';
+                    if (user.email) {
+                        try {
+                            const emailLinkSnap = await getDoc(doc(db, "emailAccounts", user.email.toLowerCase()));
+                            emailLinkedGid = (emailLinkSnap.exists() && emailLinkSnap.data().guestId) || '';
+                        } catch (e) {
+                            console.error('emailAccounts lookup failed:', e);
+                        }
+                    }
+                    if (emailLinkedGid && emailLinkedGid !== myGid) {
+                        try {
+                            const userSnap = await getDoc(doc(db, "users", emailLinkedGid));
+                            const d = userSnap.exists() ? userSnap.data() : {};
+                            localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                            localStorage.setItem('gz_guest_id', emailLinkedGid);
+                            localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
+                            if (localStorage.getItem('gz_guest_id') !== emailLinkedGid) throw new Error('guest id did not persist');
+                            await setDoc(linkRef, { guestId: emailLinkedGid, email: user.email || '' }, { merge: true });
+                            await setDoc(doc(db, "users", emailLinkedGid), { facebookEmail: user.email || '' }, { merge: true });
+                            if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
+                            setTimeout(() => location.reload(), 900);
+                        } catch (e) {
+                            console.error('Facebook-email reconnect failed:', e);
+                            if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
+                        }
+                        return;
+                    }
+                    if (await guestIdBelongsToOtherFacebook(myGid, user)) {
+                        const newGid = await generateFreshGuestId();
+                        const newProfile = { name: user.displayName || '', phone: '', photo: user.photoURL || '' };
+                        await setDoc(doc(db, "users", newGid), {
+                            guestId: newGid, name: newProfile.name, phone: '', photo: newProfile.photo,
+                            facebookEmail: user.email || '', createdAt: serverTimestamp(), lastSeen: serverTimestamp()
+                        }, { merge: true });
+                        await setDoc(linkRef, { guestId: newGid, email: user.email || '' }, { merge: true });
+                        if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: newGid }, { merge: true });
+                        resetLocalAccountState();
+                        try {
+                            localStorage.setItem('gz_guest_id', newGid);
+                            localStorage.setItem('gz_member_since', String(Date.now()));
+                            localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
+                            localStorage.setItem('gz_profile', JSON.stringify(newProfile));
+                        } catch (e) { /* private browsing */ }
+                        if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
+                        setTimeout(() => location.reload(), 900);
+                        return;
+                    }
+                    await setDoc(linkRef, { guestId: myGid, email: user.email || '' }, { merge: true });
+                    if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: myGid }, { merge: true });
+                }
+                try { localStorage.setItem('gz_gid_owner_uid_fb', user.uid); } catch (e) { /* private browsing */ }
+            } catch (e) {
+                console.error('Facebook account link check failed:', e);
+            }
+
+            const existing = window.getSavedProfile ? window.getSavedProfile() : { name: '', phone: '', photo: '' };
+            const profile = {
+                name: existing.name || user.displayName || '',
+                phone: existing.phone || '',
+                photo: existing.photo || user.photoURL || ''
+            };
+            try { localStorage.setItem('gz_profile', JSON.stringify(profile)); } catch (e) { /* private browsing */ }
+            if (window.renderProfileFields) window.renderProfileFields();
+            if (window.renderMiniProfile) window.renderMiniProfile();
+            syncUserToFirestore();
+        }
+        window.applyFacebookProfile = applyFacebookProfile;
 
         // ---------- Telegram login (linngamestorebot) ----------
         // Two entry points into the same account-linking logic:
@@ -10310,6 +10522,43 @@
         }
         window.handleGoogleSignIn = handleGoogleSignIn;
 
+        // Same popup/in-app-browser-redirect handling as handleGoogleSignIn
+        // above, for the Facebook provider.
+        async function handleFacebookSignIn(btnId) {
+            const isStandalone = window.navigator.standalone === true ||
+                (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+            if (isStandalone) {
+                if (window.showToast) window.showToast('Please open this site in Safari or Chrome (not the Home Screen icon) to sign in with Facebook.', 'fail');
+                return;
+            }
+            const btn = document.getElementById(btnId || 'facebook-signin-btn');
+            const originalHTML = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.innerHTML = 'Signing in...'; }
+            const isInAppBrowser = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|; ?wv\)/i.test(navigator.userAgent);
+            try {
+                if (isInAppBrowser) {
+                    await signInWithRedirect(auth, facebookProvider);
+                    return; // page navigates away; getRedirectResult() below picks it up on return
+                }
+                const result = await signInWithPopup(auth, facebookProvider);
+                applyFacebookProfile(result.user);
+            } catch (error) {
+                console.error('Facebook sign-in error:', error);
+                if (error.code === 'auth/popup-blocked' || error.code === 'auth/operation-not-supported-in-this-environment') {
+                    await signInWithRedirect(auth, facebookProvider);
+                    return;
+                }
+                if (error.code === 'auth/account-exists-with-different-credential') {
+                    if (window.showToast) window.showToast('ဒီ email ကို တခြား login နည်းလမ်းနဲ့ ချိတ်ဆက်ထားပြီးသားပါ။ Google/Email နဲ့ ဝင်ပါ။', 'fail');
+                } else if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                    if (window.showToast) window.showToast('Facebook sign-in failed. Please try again.', 'fail');
+                }
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
+            }
+        }
+        window.handleFacebookSignIn = handleFacebookSignIn;
+
         function handleGoogleSignOut() {
             signOut(auth)
                 .then(() => {
@@ -10370,6 +10619,11 @@
         }
         window.handleOnboardGoogleSignIn = handleOnboardGoogleSignIn;
 
+        async function handleOnboardFacebookSignIn() {
+            await handleFacebookSignIn('onboard-facebook-btn');
+        }
+        window.handleOnboardFacebookSignIn = handleOnboardFacebookSignIn;
+
         // Guest browsing: the store already runs fully on the localStorage
         // guestId (see getGuestId()) for browsing, orders, and wallet - Google
         // sign-in is only needed for cross-device profile sync and the
@@ -10428,9 +10682,12 @@
         // popup-blocked fallback above). Harmless no-op on a normal page load
         // with no pending redirect.
         getRedirectResult(auth).then((result) => {
-            if (result && result.user) applyGoogleProfile(result.user);
+            if (!result || !result.user) return;
+            const providerId = (result.user.providerData[0] && result.user.providerData[0].providerId) || '';
+            if (providerId === 'facebook.com') applyFacebookProfile(result.user);
+            else applyGoogleProfile(result.user);
         }).catch((error) => {
-            console.error('Google redirect sign-in error:', error);
+            console.error('Redirect sign-in error:', error);
         });
 
         // ---------- VIP Tiers (based on lifetime successful top-up spend) ----------
