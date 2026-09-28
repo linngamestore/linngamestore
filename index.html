@@ -9789,6 +9789,27 @@
             try {
                 const receiptUrl = await uploadWalletReceiptToImgBB(editingWalletReceiptFile);
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
+                // Stamp the customer's Telegram id on the request so the admin
+                // bot can DM them "Top Up confirmed / rejected" via
+                // linngamestorebot (telegram-worker.js notifyTopupCustomer()
+                // skips docs with no telegramId). Best-effort: never blocks
+                // the top-up itself.
+                let topupTelegramId = '';
+                try {
+                    const tgUser = window.Telegram && window.Telegram.WebApp &&
+                        window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+                    if (tgUser && tgUser.id) topupTelegramId = String(tgUser.id);
+                } catch (e) { /* not in Telegram */ }
+                if (!topupTelegramId) {
+                    // Opened outside Telegram (or initData unavailable): fall
+                    // back to the telegramId saved on the account when the
+                    // customer linked Telegram.
+                    try {
+                        const uSnap = await getDoc(doc(db, "users", guestId));
+                        const linked = uSnap.exists() && uSnap.data().telegramId;
+                        if (linked) topupTelegramId = String(linked);
+                    } catch (e) { /* can't read - submit without it */ }
+                }
                 const topupRef = await addDoc(collection(db, "walletTopups"), {
                     amount: amount,
                     paymentMethod: selectedWalletPaymentMethod.name,
@@ -9797,7 +9818,8 @@
                     timestamp: serverTimestamp(),
                     userId: guestId,
                     userName: (savedProfile.name && savedProfile.name.trim()) ? savedProfile.name.trim() : guestId,
-                    userPhone: (savedProfile.phone && savedProfile.phone.trim()) ? savedProfile.phone.trim() : ''
+                    userPhone: (savedProfile.phone && savedProfile.phone.trim()) ? savedProfile.phone.trim() : '',
+                    ...(topupTelegramId ? { telegramId: topupTelegramId } : {})
                 });
                 pingWorker('topup', topupRef.id);
                 window.showToast('Top up request sent! We will confirm it shortly.');
