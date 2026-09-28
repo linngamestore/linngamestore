@@ -579,6 +579,11 @@
            and a touch bigger than the shared badge size above. */
         #header-logo .logo-icon-wrap { width: 49px; height: 49px; background: none; }
         #header-logo .logo-icon-wrap img { border-radius: 0; }
+        /* The logo image has transparent padding inside its 49px box, which
+           made "LINN" look far away; pull the text in over that padding and
+           shrink the wordmark a bit (22px -> 17px). Tune -12px / 17px here. */
+        #header-logo .logo-icon-wrap { margin-right: -12px; }
+        #header-logo .logo-brand-text { font-size: 17px; }
         /* Logo loading state: a shimmer badge + "Connecting… / Updating…" stands in
            until the logo is ready, then the real logo replaces it. Only the
            header logo (#header-logo) carries the .logo-loading class. */
@@ -3187,6 +3192,23 @@
            bubble (like a Messenger chat head) that can be dragged anywhere
            on screen. Tapping it pops out the two contact buttons; tapping
            again (or the bubble itself) closes them. Visible on every page. */
+        /* Wallet "Login" button - blue glass: translucent blue tint, frosted
+           blur, bright rim + soft blue glow (light and dark theme). */
+        .wallet-login-glass-btn {
+            color: #fff; font-weight: 600; letter-spacing: 0.3px;
+            background: linear-gradient(160deg, rgba(90,160,255,0.55), rgba(35,102,235,0.42));
+            -webkit-backdrop-filter: blur(12px) saturate(140%); backdrop-filter: blur(12px) saturate(140%);
+            border: 1px solid rgba(160,205,255,0.7);
+            border-radius: 14px;
+            box-shadow: 0 8px 22px rgba(34,102,221,0.35), inset 0 1px 1px rgba(255,255,255,0.65), inset 0 -8px 14px rgba(20,60,160,0.18);
+            text-shadow: 0 1px 2px rgba(10,40,120,0.45);
+        }
+        .wallet-login-glass-btn:active:not(:disabled) { box-shadow: 0 4px 12px rgba(34,102,221,0.3), inset 0 1px 1px rgba(255,255,255,0.5); }
+        html:not([data-theme="dark"]) .wallet-login-glass-btn { background: linear-gradient(160deg, rgba(80,150,255,0.92), rgba(34,102,221,0.85)); border-color: rgba(255,255,255,0.7); }
+        /* Brief highlight on the Account card when Login sends the user there. */
+        @keyframes accountCardPulse { 0% { box-shadow: 0 0 0 0 rgba(59,130,255,0.75); } 100% { box-shadow: 0 0 0 16px rgba(59,130,255,0); } }
+        #account-card { scroll-margin-top: calc(90px + env(safe-area-inset-top, 0px)); }
+        #account-card.account-card-pulse { animation: accountCardPulse 0.9s ease-out 2; border-color: rgba(90,160,255,0.8); }
         .social-fab { position: fixed; width: 44px; height: 44px; z-index: 149; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; right: 16px; bottom: 170px; transition: transform 0.15s ease; }
         .social-fab:active { cursor: grabbing; }
         .social-fab-btn { position: relative; z-index: 2; width: 100%; height: 100%; border-radius: 30%; filter: drop-shadow(0 8px 14px rgba(70,90,220,0.38)); transition: transform 0.28s cubic-bezier(.34,1.56,.64,1); animation: socialFabFloat 3.2s ease-in-out infinite; }
@@ -3962,7 +3984,7 @@
                 <p style="font-size:13.5px;color:var(--text-secondary);line-height:1.5;margin:0;max-width:260px;">
                     Wallet ကို အသုံးပြုရန် Login ဝင်ရပါမည်။
                 </p>
-                <button type="button" class="btn" style="width:100%;max-width:260px;" onclick="openWalletAuthGate()">Login</button>
+                <button type="button" class="btn wallet-login-glass-btn" style="width:100%;max-width:260px;" onclick="openWalletAuthGate()">Login</button>
             </div>
 
             <div id="wallet-authed-content">
@@ -9067,13 +9089,25 @@
         }
         window.renderWalletAuthGate = renderWalletAuthGate;
 
-        // Opens the login gate directly (the Wallet page's own "Login"
-        // button) - same modal openWalletTopupModal falls back to below.
+        // The Wallet page's own "Login" button: instead of popping a modal, take
+        // the customer straight to the real login form (Profile > Account -
+        // Google / Telegram / Email), open that card and scroll it into view.
         function openWalletAuthGate() {
             walletGatePending = false;
-            document.getElementById('wallet-google-gate-overlay').classList.add('show');
+            showPage('profile');
+            const body = document.getElementById('account-body');
+            if (body && !body.classList.contains('open')) toggleCollapsible('account-body', 'account-chevron');
             if (window.renderGisButtons) window.renderGisButtons();
-            renderTelegramWidgetInto('wallet-gate-telegram-widget');
+            if (window.renderTelegramWidgets) window.renderTelegramWidgets();
+            setTimeout(() => {
+                const card = document.getElementById('account-card');
+                if (!card) return;
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                card.classList.remove('account-card-pulse');
+                void card.offsetWidth;
+                card.classList.add('account-card-pulse');
+                setTimeout(() => card.classList.remove('account-card-pulse'), 2000);
+            }, 380);
         }
         window.openWalletAuthGate = openWalletAuthGate;
 
@@ -15351,6 +15385,29 @@
             const fab = document.getElementById('social-fab');
             if (fab) fab.classList.remove('social-fab-open');
         }
+        // m.me is a web redirect page (m.me -> facebook.com -> app), so opening
+        // it in a new tab feels slow, unlike t.me which hands straight to the
+        // Telegram app. On Android, an intent URL targeting the Messenger app
+        // package opens the app immediately; if Messenger isn't installed,
+        // Chrome falls back to the normal m.me page. Everything else (iOS,
+        // desktop, Telegram Mini App) keeps the regular openExternalUrl path.
+        function openMessengerFast(url) {
+            const inTgMiniApp = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            if (isAndroid && !inTgMiniApp) {
+                try {
+                    const u = new URL(url);
+                    const path = u.pathname.replace(/^\/+/, '');
+                    if (u.hostname === 'm.me' && path) {
+                        const fallback = encodeURIComponent(url);
+                        window.location.href = 'intent://m.me/' + path + '#Intent;scheme=https;package=com.facebook.orca;S.browser_fallback_url=' + fallback + ';end';
+                        return;
+                    }
+                } catch (err) { /* fall through to normal open */ }
+            }
+            window.openExternalUrl(url);
+        }
+
         function initSocialFab() {
             const fab = document.getElementById('social-fab');
             if (!fab) return;
@@ -15399,7 +15456,7 @@
             document.getElementById('social-fab-messenger')?.addEventListener('click', (e) => {
                 e.stopPropagation();
                 closeSocialFab();
-                window.openExternalUrl(e.currentTarget.dataset.href || 'https://m.me/sandarlinn69');
+                openMessengerFast(e.currentTarget.dataset.href || 'https://m.me/sandarlinn69');
             });
             document.getElementById('social-fab-telegram')?.addEventListener('click', (e) => {
                 e.stopPropagation();
