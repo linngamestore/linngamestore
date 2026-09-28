@@ -10003,7 +10003,7 @@
         // to the old popup/redirect buttons (class .gis-fallback, hidden by
         // default) if the GIS script is blocked/fails to load - e.g. some
         // ad/tracker blockers block accounts.google.com/gsi/client.
-        const GIS_CLIENT_ID = '666629360027-us8un4uogmeb24mgb9jt6ljsbp3r25k4.apps.googleusercontent.com';
+        const GIS_CLIENT_ID = '1081466939722-r5j1eg03pnge74tlgmtlr59cnpl22jlf.apps.googleusercontent.com';
         const GIS_BUTTON_SLOT_IDS = ['onboard-google-gis', 'account-google-signin-gis', 'wallet-gate-google-gis', 'google-signin-gis', 'link-google-gis'];
 
         async function handleGisCredentialResponse(response) {
@@ -10812,7 +10812,7 @@
         // custom token). ctx is 'onboard' or 'profile' - same two functions
         // drive both UI copies, just swapping which element IDs they touch.
         // TODO: replace with your actual deployed Worker URL if different.
-        const EMAIL_AUTH_WORKER_URL = 'https://linnstore-otp-worker.linngamestore.workers.dev';
+        const EMAIL_AUTH_WORKER_URL = 'https://linnstore-otp.linngamestore.workers.dev';
         let pendingLoginEmail = '';
 
         function emailCtxEls(ctx) {
