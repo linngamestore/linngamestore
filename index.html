@@ -6074,6 +6074,7 @@
         let receiptOcrPromise = null; // resolves once auto-detection of the Transaction ID from the uploaded receipt finishes
         let selectedPaymentType = null; // 'wallet' | 'payment' — how the customer wants to pay for a game order
         let currentWalletBalance = 0; // kept in sync by listenWalletBalance()
+        let currentKycStatus = 'none'; // kept in sync by listenWalletBalance() (users/{gid}.kycStatus)
         let myFavoriteGames = []; // array of gameIds, kept in sync by listenWalletBalance()'s users/{gid} snapshot
         let playerIdVerified = null; // null = not checked, true = valid, false = failed
         let verifiedPlayerName = null; // in-game name resolved by checkPlayerId, saved with the order
@@ -6232,17 +6233,23 @@
             let data = null;
             try { data = await res.json(); } catch (e) { data = null; }
             const msg = String((data && (data.message || data.error || data.detail || data.msg)) || '');
-            const mentionsServer = /server|zone/i.test(msg);
+            const mentionsServer = /server|zone|region/i.test(msg);
             const isValid = !!data && (data.valid === 'valid' || data.valid === true);
             if (res.ok) {
-                if (isValid) return { outcome: 'valid', name: data.name || null, status: res.status, data };
-                return { outcome: 'invalid', reason: mentionsServer ? 'server' : 'id', status: res.status, data };
+                if (isValid) return { outcome: 'valid', name: data.name || null, status: res.status, data, msg };
+                return { outcome: 'invalid', reason: mentionsServer ? 'server' : 'id', status: res.status, data, msg };
             }
             if (res.status === 400 || res.status === 404 || res.status === 422) {
-                return { outcome: 'invalid', reason: mentionsServer ? 'server' : 'id', status: res.status, data };
+                console.warn('G2Bulk checkPlayerId', res.status, { game, playerId, serverId, data });
+                // Docs: 400 = request format/parameter wrong (e.g. bad game code, missing
+                // field). That's our config problem, not a "player not found" answer.
+                if (res.status === 400 && /required|missing|unsupported|not supported|unknown game|invalid game/i.test(msg)) {
+                    return { outcome: 'unknown', reason: 'unavailable', status: res.status, data, msg };
+                }
+                return { outcome: 'invalid', reason: mentionsServer ? 'server' : 'id', status: res.status, data, msg };
             }
-            if (res.status === 403 && mentionsServer) return { outcome: 'invalid', reason: 'server', status: res.status, data };
-            return { outcome: 'unknown', reason: 'unavailable', status: res.status, data }; // 401/403/429/5xx...
+            if (res.status === 403 && mentionsServer) return { outcome: 'invalid', reason: 'server', status: res.status, data, msg };
+            return { outcome: 'unknown', reason: 'unavailable', status: res.status, data, msg }; // 401/403/429/5xx...
         }
         window.g2bulkCheckPlayer = g2bulkCheckPlayer;
 
@@ -6251,7 +6258,7 @@
             return t(key).replace('{id}', playerId || '').replace('{srv}', serverId || '');
         }
         // Two-line result card (title + explanation) for not-found / server-mismatch / can't-check.
-        function buildIdProblemCard(kind, title, body) {
+        function buildIdProblemCard(kind, title, body, apiNote) {
             const card = document.createElement('div');
             card.className = kind === 'warn' ? 'id-warn-card' : 'id-fail-card';
             const ic = document.createElement('div');
@@ -6261,23 +6268,31 @@
             const tt = document.createElement('div'); tt.className = 'idc-t'; tt.textContent = title;
             wrap.appendChild(tt);
             if (body) { const bb = document.createElement('div'); bb.className = 'idc-b'; bb.textContent = body; wrap.appendChild(bb); }
+            if (apiNote) { const nn = document.createElement('div'); nn.className = 'idc-b'; nn.style.cssText = 'font-family:ui-monospace,Menlo,monospace;font-size:10.5px;opacity:0.75;'; nn.textContent = apiNote; wrap.appendChild(nn); }
             card.appendChild(ic); card.appendChild(wrap);
             return card;
         }
+        // Small grey line with the provider's own reply (e.g. "HTTP 400 · Invalid player id"),
+        // so the exact reason is visible without opening DevTools.
+        function apiNoteOf(r) {
+            if (!r || !r.status) return '';
+            const m = (r.msg || '').slice(0, 120);
+            return 'HTTP ' + r.status + (m ? ' · ' + m : '');
+        }
         // Picks the right message for a failed/unknown check.
         function idProblemFor(r, playerId, serverId) {
-            if (r.outcome === 'invalid' && r.reason === 'server') return { kind: 'fail', title: t('id_srv_title'), body: idMsg('id_srv_body', playerId, serverId) };
+            if (r.outcome === 'invalid' && r.reason === 'server') return { kind: 'fail', title: t('id_srv_title'), body: idMsg('id_srv_body', playerId, serverId), note: apiNoteOf(r) };
             if (r.outcome === 'invalid') return serverId
-                ? { kind: 'fail', title: t('id_nf_title'), body: idMsg('id_nf_body_srv', playerId, serverId) }
-                : { kind: 'fail', title: t('id_nf_title'), body: idMsg('id_nf_body', playerId, serverId) };
+                ? { kind: 'fail', title: t('id_nf_title'), body: idMsg('id_nf_body_srv', playerId, serverId), note: apiNoteOf(r) }
+                : { kind: 'fail', title: t('id_nf_title'), body: idMsg('id_nf_body', playerId, serverId), note: apiNoteOf(r) };
             if (r.reason === 'network') return { kind: 'warn', title: t('id_net_title'), body: t('id_net_body') };
-            return { kind: 'warn', title: t('id_unavail_title'), body: t('id_unavail_body') };
+            return { kind: 'warn', title: t('id_unavail_title'), body: t('id_unavail_body'), note: apiNoteOf(r) };
         }
         function renderIdProblem(r, playerId, serverId) {
             const statusEl = document.getElementById('detail-id-status');
             const pr = idProblemFor(r, playerId, serverId);
             statusEl.innerHTML = '';
-            statusEl.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body));
+            statusEl.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body, pr.note));
             statusEl.style.display = 'block';
         }
 
@@ -6723,11 +6738,11 @@
                 const usedServer = (serverLabel && entries.some(g => g.serverIdRequired !== false)) ? serverLabel : '';
                 if (bad) {
                     const pr = idProblemFor(bad.r, playerId, usedServer);
-                    box.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body));
+                    box.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body, pr.note));
                 } else {
                     const net = settled.some(x => x.r.reason === 'network');
                     const pr = idProblemFor({ outcome: 'unknown', reason: net ? 'network' : 'unavailable' }, playerId, usedServer);
-                    box.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body));
+                    box.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body, pr.note));
                 }
                 ncFinishResult(box);
                 return;
@@ -7364,8 +7379,13 @@
                     return sharedData;
                 }
                 return fetch(`https://api.g2bulk.com/v1/category/${encodeURIComponent(categoryId)}`)
-                    .then(res => res.json())
-                    .then(data => {
+                    .then(async res => {
+                        // 429 / 5xx must never be cached (or written to the shared Firestore
+                        // cache every visitor reads) - docs say to back off on those.
+                        const data = await res.json().catch(() => null);
+                        if (!res.ok || !data || data.success === false) {
+                            throw new Error('G2Bulk category ' + categoryId + ' failed: HTTP ' + res.status);
+                        }
                         g2bulkCategoryCache.set(categoryId, { data, ts: Date.now() });
                         writeSharedG2BulkCache(categoryId, data);
                         return data;
@@ -8754,7 +8774,7 @@
         // collection; with a persistent cache a restart only bills docs that changed.
         let db;
         try {
-            db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+            db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }), experimentalAutoDetectLongPolling: true });
         } catch (e) {
             console.warn('Persistent cache unavailable, using default:', e);
             db = getFirestore(app);
