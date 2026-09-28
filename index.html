@@ -1351,7 +1351,7 @@
         .history-date-header { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 16px 2px 8px; }
         .history-date-header:first-of-type { margin-top: 2px; }
 
-        .badge { padding: 5px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; }
+        .badge { padding: 3px 9px; border-radius: 10px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; }
         .badge-success { background: #E6F7EC; color: #1E8E4F; }
         .badge-warning { background: #FFF4CC; color: #9A6B00; }
         .badge-danger { background: #FDE8E8; color: #C0392B; }
@@ -1359,11 +1359,11 @@
         .badge-sold { background: var(--border); color: var(--text-muted); }
 
         /* Small live-status animations shown at the top of each History card */
-        .status-anim-pulse { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #EAB308; margin-right: 5px; animation: statusPulse 1.1s ease-in-out infinite; }
+        .status-anim-pulse { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #EAB308; margin-right: 5px; animation: statusPulse 1.1s ease-in-out infinite; }
         @keyframes statusPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.55); } }
-        .status-anim-spin { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border: 2px solid rgba(24,119,242,0.25); border-top-color: #1877F2; border-radius: 50%; animation: statusSpin 0.7s linear infinite; }
+        .status-anim-spin { display: inline-block; width: 8px; height: 8px; margin-right: 4px; border: 2px solid rgba(24,119,242,0.25); border-top-color: #1877F2; border-radius: 50%; animation: statusSpin 0.7s linear infinite; }
         @keyframes statusSpin { to { transform: rotate(360deg); } }
-        .status-verified-badge { display: inline-flex; width: 14px; height: 14px; margin-left: 5px; flex-shrink: 0; color: #1E8E4F; animation: statusPop 0.35s ease; }
+        .status-verified-badge { display: inline-flex; width: 12px; height: 12px; margin-left: 4px; flex-shrink: 0; color: #1E8E4F; animation: statusPop 0.35s ease; }
         .status-verified-badge svg { width: 100%; height: 100%; display: block; }
         html[data-theme="dark"] .status-verified-badge { color: #22C55E; }
         .status-anim-check { display: inline-block; margin-right: 3px; font-weight: 700; animation: statusPop 0.35s ease; }
@@ -2183,6 +2183,34 @@
         .id-result-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .id-result-label { font-size: 11px; color: #28a745; font-weight: 500; margin-top: 1px; }
         .id-result-check { width: 20px; height: 20px; border-radius: 50%; background: #28a745; color: var(--on-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; animation: idCheckPop 0.4s ease 0.1s both; }
+        /* Compact verified-player card (Name Check page + game detail page) */
+        .vp { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; animation: idResultIn 0.35s ease; }
+        .vp-av { position: relative; width: 38px; height: 38px; flex-shrink: 0; }
+        .vp-av-c { width: 100%; height: 100%; border-radius: 50%; background: rgba(40,167,69,0.14); color: #23913f; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; }
+        .vp-badge { position: absolute; right: -3px; bottom: -3px; width: 18px; height: 18px; border-radius: 50%; background: #28a745; border: 2px solid var(--surface); display: flex; align-items: center; justify-content: center; animation: idCheckPop 0.4s ease 0.1s both; }
+        .vp-badge svg { width: 10px; height: 10px; display: block; }
+        .vp-info { flex: 1; min-width: 0; }
+        .vp-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .vp-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; min-width: 0; }
+        .vp-pill { font-size: 11px; font-weight: 500; background: rgba(40,167,69,0.12); color: #23913f; padding: 1px 8px; border-radius: 999px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .vp-srv { font-size: 11px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+        /* Name Check result: verified banner + detail rows (Name Check page only) */
+        .pd { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; animation: idResultIn 0.35s ease; }
+        .pd-banner { display: flex; align-items: center; gap: 8px; background: rgba(40,167,69,0.12); color: #23913f; padding: 9px 12px; font-size: 13px; font-weight: 600; }
+        .pd-badge { width: 20px; height: 20px; border-radius: 50%; background: #28a745; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: idCheckPop 0.4s ease 0.1s both; }
+        .pd-badge svg { width: 11px; height: 11px; display: block; }
+        .pd-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 12px; font-size: 13px; border-top: 1px solid var(--border); }
+        .pd-k { color: var(--text-secondary); flex-shrink: 0; }
+        .pd-v { color: var(--text); font-weight: 600; text-align: right; min-width: 0; word-break: break-word; }
+        /* Name Check error / warning banner */
+        .pe { display: flex; align-items: flex-start; gap: 8px; background: rgba(217,48,37,0.10); border: 1px solid rgba(217,48,37,0.28); color: #c0392b; border-radius: 12px; padding: 10px 12px; font-size: 13px; animation: idResultIn 0.3s ease; }
+        .pe.warn { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); color: #a15c07; }
+        .pe-ic { width: 20px; height: 20px; border-radius: 50%; background: #D93025; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0; }
+        .pe.warn .pe-ic { background: #f59e0b; }
+        .pe-ic svg { width: 11px; height: 11px; display: block; }
+        .pe-t { font-weight: 600; }
+        .pe-b { margin-top: 2px; font-weight: 500; color: var(--text-secondary); }
+        .pe-n { margin-top: 3px; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--text-muted); }
         @keyframes idResultIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes idCheckPop { 0% { transform: scale(0); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
@@ -2412,11 +2440,11 @@
         .wallet-topup-amount { font-size: 14.5px; font-weight: 600; color: var(--text); letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
         .wallet-topup-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #wallet .badge, #wallet-topup-detail-body .badge {
-            padding: 5px 12px 5px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.2px;
+            padding: 3px 10px 3px 8px; border-radius: 20px; font-size: 10.5px; font-weight: 500; letter-spacing: 0.2px;
             display: inline-flex; align-items: center; gap: 5px;
         }
         #wallet .badge::before, #wallet-topup-detail-body .badge::before {
-            content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0;
+            content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0;
         }
 
         /* ===================== PROFILE PAGE — REDESIGN ===================== */
@@ -3028,7 +3056,7 @@
            without the per-element blur cost. */
         .game-card, .list-card, .notif-item, .detail-form-card, .stat-box, .vip-card,
         .package-card, .payment-option, .google-account-signedin, .history-date-chip,
-        .mini-profile-bar, .upload-shot-box, .id-result-card, .id-fail-card,
+        .mini-profile-bar, .upload-shot-box, .id-result-card, .vp, .pd, .id-fail-card,
         .social-link-btn, .detail-grid-item, .vip-stat, .success-box {
             background: var(--glass-bg-strong);
             border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow-sm);
@@ -5174,7 +5202,7 @@
                 nav_topup: 'Top Up', nav_game: 'Game', nav_software: 'Software',
                 nav_history: 'History', nav_leaderboard: 'Leaderboard', nav_wallet: 'Wallet',
                 nav_profile: 'Profile', nav_notifications: 'Notifications', nav_theme: 'Dark Mode',
-                nav_terms: 'Terms & Policy', nav_support: 'Support', nav_language: 'Language', nc_title: 'Name Check', nc_clear: 'Clear', nc_select_game: 'Select game', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Select server / region', nc_global: 'Global', nc_server: 'Server', nc_unavailable: "Couldn't check right now. Please try again later.", pc_wallet_balance: 'Wallet balance', pc_topup: 'Top up', pc_orders: 'Orders', pc_total_spent: 'Total spent', pc_edit: 'Edit profile',
+                nav_terms: 'Terms & Policy', nav_support: 'Support', nav_language: 'Language', nc_title: 'Name Check', nc_clear: 'Clear', nc_select_game: 'Select game', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Select server / region', nc_global: 'Global', nc_server: 'Server', nc_row_name: 'Name', nc_row_region: 'Region', nc_row_id: 'Player ID', nc_unavailable: "Couldn't check right now. Please try again later.", pc_wallet_balance: 'Wallet balance', pc_topup: 'Top up', pc_orders: 'Orders', pc_total_spent: 'Total spent', pc_edit: 'Edit profile',
                 legal_tab_terms: 'Terms', legal_tab_privacy: 'Privacy', legal_tab_refund: 'Refund',
                 terms_l_about: 'About This Service',
                 terms_b_about: 'Linn Game Store (operating at linngamestore.com) is a game top-up and voucher store. By using this site, browsing, creating an account, or placing an order, you agree to these Terms.',
@@ -5325,7 +5353,7 @@
                 nav_topup: 'ငွေဖြည့်', nav_game: 'ဂိမ်း', nav_software: 'ဆော့ဖ်ဝဲ',
                 nav_history: 'မှတ်တမ်း', nav_leaderboard: 'ထိပ်တန်းစာရင်း', nav_wallet: 'ပိုက်ဆံအိတ်',
                 nav_profile: 'ပရိုဖိုင်', nav_notifications: 'အသိပေးချက်များ', nav_theme: 'အနက်ရောင်မုဒ်',
-                nav_terms: 'စည်းမျဉ်းစည်းကမ်း', nav_support: 'အကူအညီ', nav_language: 'ဘာသာစကား', nc_title: 'အမည်စစ်ဆေးရန်', nc_clear: 'ရှင်းမည်', nc_select_game: 'ဂိမ်းရွေးပါ', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Server / Region ရွေးပါ', nc_global: 'Global', nc_server: 'Server', nc_unavailable: 'ယခု စစ်ဆေး၍မရပါ၊ ခဏနေမှ ပြန်ကြိုးစားပါ', pc_wallet_balance: 'Wallet လက်ကျန်ငွေ', pc_topup: 'ငွေဖြည့်ရန်', pc_orders: 'အော်ဒါများ', pc_total_spent: 'စုစုပေါင်းသုံးငွေ', pc_edit: 'ပရိုဖိုင်ပြင်ရန်',
+                nav_terms: 'စည်းမျဉ်းစည်းကမ်း', nav_support: 'အကူအညီ', nav_language: 'ဘာသာစကား', nc_title: 'အမည်စစ်ဆေးရန်', nc_clear: 'ရှင်းမည်', nc_select_game: 'ဂိမ်းရွေးပါ', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Server / Region ရွေးပါ', nc_global: 'Global', nc_server: 'Server', nc_row_name: 'အမည်', nc_row_region: 'Region', nc_row_id: 'Player ID', nc_unavailable: 'ယခု စစ်ဆေး၍မရပါ၊ ခဏနေမှ ပြန်ကြိုးစားပါ', pc_wallet_balance: 'Wallet လက်ကျန်ငွေ', pc_topup: 'ငွေဖြည့်ရန်', pc_orders: 'အော်ဒါများ', pc_total_spent: 'စုစုပေါင်းသုံးငွေ', pc_edit: 'ပရိုဖိုင်ပြင်ရန်',
                 legal_tab_terms: 'စည်းကမ်းချက်', legal_tab_privacy: 'ကိုယ်ရေးအချက်အလက်', legal_tab_refund: 'ငွေပြန်အမ်း',
                 terms_l_about: 'ဝန်ဆောင်မှုအကြောင်း',
                 terms_b_about: 'Linn Game Store (linngamestore.com တွင် လုပ်ဆောင်သည်) သည် ဂိမ်း top-up နှင့် voucher ရောင်းချသော store တစ်ခု ဖြစ်ပါသည်။ ဤ site ကို အသုံးပြုခြင်း၊ browse လုပ်ခြင်း၊ account ဖွင့်ခြင်း သို့မဟုတ် order တင်ခြင်းဖြင့် ဤစည်းကမ်းချက်များကို သဘောတူလက်ခံရာ ရောက်ပါသည်။',
@@ -5987,6 +6015,16 @@
         // currently-open game saved, falling back to the generic default
         // name if that game never renamed them. Any custom tab (e.g. "Wow")
         // just uses its own name as saved by the admin panel.
+        // A game is a "voucher / gift card" if its provider says so OR it carries voucher
+        // data (import paths don't always set fulfillProvider). These live only in the
+        // Voucher tab - never in the Home / direct top-up grid or Name Check.
+        function isVoucherGame(g) {
+            if (!g) return false;
+            if (g.fulfillProvider === 'g2bulk_voucher' || g.fulfillProvider === 'fazercard_giftcard') return true;
+            if (g.g2bulkVoucherCategory || g.fazercardGiftCategoryId) return true;
+            return Array.isArray(g.packages) && g.packages.some(p => p && (p.voucherId || p.fazercardGiftCardId));
+        }
+        window.isVoucherGame = isVoucherGame;
         let currentGameTabLabels = {};
         function pkgTabLabel(tabId) {
             if (tabId === 'package') return currentGameTabLabels.package || 'Package';
@@ -6181,35 +6219,85 @@
         // info the admin picked for this specific upload.
         // Built with DOM nodes (not innerHTML string interpolation) since the
         // player name comes from an external API and shouldn't be trusted as HTML.
-        function renderIdConfirmedCard(name, gameName) {
+        // "Global (Myanmar)": the store's own server/region name first, the region
+        // G2Bulk reports (if any and different) in brackets after it.
+        function pcRegionLabel(apiRegion, storeName) {
+            const api = (typeof fmtRegion === 'function') ? fmtRegion(apiRegion) : String(apiRegion || '');
+            const base = ((typeof fmtRegion === 'function') ? fmtRegion(storeName) : String(storeName || '')) || t('nc_global');
+            return (api && api.toLowerCase() !== base.toLowerCase()) ? `${base} (${api})` : base;
+        }
+        function buildPlayerCard(name, regionText, serverLabel) {
+            const card = document.createElement('div');
+            card.className = 'vp';
+            const av = document.createElement('div');
+            av.className = 'vp-av';
+            const avc = document.createElement('div');
+            avc.className = 'vp-av-c';
+            avc.textContent = (name || '?').trim().charAt(0).toUpperCase();
+            const badge = document.createElement('div');
+            badge.className = 'vp-badge';
+            badge.setAttribute('aria-label', t('player_verified'));
+            badge.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.3l2.4 2.4 4.6-5"/></svg>';
+            av.appendChild(avc);
+            av.appendChild(badge);
+            const info = document.createElement('div');
+            info.className = 'vp-info';
+            const nameEl = document.createElement('div');
+            nameEl.className = 'vp-name';
+            nameEl.textContent = name;
+            const meta = document.createElement('div');
+            meta.className = 'vp-meta';
+            if (regionText) {
+                const pill = document.createElement('span');
+                pill.className = 'vp-pill';
+                pill.textContent = regionText;
+                meta.appendChild(pill);
+            }
+            if (serverLabel) {
+                const srv = document.createElement('span');
+                srv.className = 'vp-srv';
+                srv.textContent = `${t('nc_server')} ${serverLabel}`;
+                meta.appendChild(srv);
+            }
+            info.appendChild(nameEl);
+            info.appendChild(meta);
+            card.appendChild(av);
+            card.appendChild(info);
+            return card;
+        }
+
+        function buildPlayerDetailCard(name, regionText, serverLabel, playerId) {
+            const card = document.createElement('div');
+            card.className = 'pd';
+            const banner = document.createElement('div');
+            banner.className = 'pd-banner';
+            const badge = document.createElement('div');
+            badge.className = 'pd-badge';
+            badge.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.3l2.4 2.4 4.6-5"/></svg>';
+            const bt = document.createElement('span');
+            bt.textContent = t('player_verified');
+            banner.appendChild(badge);
+            banner.appendChild(bt);
+            card.appendChild(banner);
+            const rows = [[t('nc_row_name'), name], [t('nc_row_region'), regionText], [t('nc_server'), serverLabel], [t('nc_row_id'), playerId]];
+            rows.forEach(([k, v]) => {
+                if (!v) return;
+                const row = document.createElement('div');
+                row.className = 'pd-row';
+                const ke = document.createElement('span'); ke.className = 'pd-k'; ke.textContent = k;
+                const ve = document.createElement('span'); ve.className = 'pd-v'; ve.textContent = v;
+                row.appendChild(ke); row.appendChild(ve);
+                card.appendChild(row);
+            });
+            return card;
+        }
+
+        function renderIdConfirmedCard(name, gameName, geo, serverLabel) {
             const statusEl = document.getElementById('detail-id-status');
             statusEl.innerHTML = '';
-            const card = document.createElement('div');
-            card.className = 'id-result-card';
-
-            const avatar = document.createElement('div');
-            avatar.className = 'id-result-avatar';
-            avatar.textContent = (name || '?').trim().charAt(0).toUpperCase();
-
-            const info = document.createElement('div');
-            info.className = 'id-result-info';
-            const nameEl = document.createElement('div');
-            nameEl.className = 'id-result-name';
-            nameEl.textContent = name;
-            const labelEl = document.createElement('div');
-            labelEl.className = 'id-result-label';
-            labelEl.textContent = gameName ? `${t('verified_prefix')} · ${gameName}` : t('player_verified');
-            info.appendChild(nameEl);
-            info.appendChild(labelEl);
-
-            const check = document.createElement('div');
-            check.className = 'id-result-check';
-            check.textContent = '✓';
-
-            card.appendChild(avatar);
-            card.appendChild(info);
-            card.appendChild(check);
-            statusEl.appendChild(card);
+            let regionText = pcRegionLabel(geo && geo.region, selectedGameServerName);
+            if (geo && geo.country) regionText += ' · ' + geo.country;
+            statusEl.appendChild(buildPlayerCard(name, regionText, serverLabel));
             statusEl.style.display = 'block';
         }
 
@@ -6258,6 +6346,25 @@
             return t(key).replace('{id}', playerId || '').replace('{srv}', serverId || '');
         }
         // Two-line result card (title + explanation) for not-found / server-mismatch / can't-check.
+        // Banner version of the problem card (Name Check page): round icon + title + detail.
+        function buildIdProblemBanner(kind, title, body, apiNote) {
+            const warn = kind === 'warn';
+            const card = document.createElement('div');
+            card.className = 'pe' + (warn ? ' warn' : '');
+            const ic = document.createElement('div');
+            ic.className = 'pe-ic';
+            ic.innerHTML = warn
+                ? '<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 2.5v4M6 9.3v.2"/></svg>'
+                : '<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg>';
+            const wrap = document.createElement('div');
+            wrap.style.minWidth = '0';
+            const tt = document.createElement('div'); tt.className = 'pe-t'; tt.textContent = title;
+            wrap.appendChild(tt);
+            if (body) { const bb = document.createElement('div'); bb.className = 'pe-b'; bb.textContent = body; wrap.appendChild(bb); }
+            if (apiNote) { const nn = document.createElement('div'); nn.className = 'pe-n'; nn.textContent = apiNote; wrap.appendChild(nn); }
+            card.appendChild(ic); card.appendChild(wrap);
+            return card;
+        }
         function buildIdProblemCard(kind, title, body, apiNote) {
             const card = document.createElement('div');
             card.className = kind === 'warn' ? 'id-warn-card' : 'id-fail-card';
@@ -6292,7 +6399,7 @@
             const statusEl = document.getElementById('detail-id-status');
             const pr = idProblemFor(r, playerId, serverId);
             statusEl.innerHTML = '';
-            statusEl.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body, pr.note));
+            statusEl.appendChild(buildIdProblemBanner(pr.kind, pr.title, pr.body, pr.note));
             statusEl.style.display = 'block';
         }
 
@@ -6334,7 +6441,7 @@
             if (serverIsRequired && !serverId) {
                 playerIdVerified = null; verifiedPlayerName = null;
                 statusEl.innerHTML = '';
-                statusEl.appendChild(buildIdProblemCard('warn', t('id_srv_missing'), ''));
+                statusEl.appendChild(buildIdProblemBanner('warn', t('id_srv_missing'), ''));
                 statusEl.style.display = 'block';
                 confirmBtn.classList.remove('checking', 'confirmed');
                 btnText.innerText = t('btn_confirm_id');
@@ -6411,7 +6518,8 @@
                     playerIdVerified = true;
                     verifiedPlayerName = resolvedName;
                     const verifiedLabel = selectedGameServerName ? `${selectedGameName} - ${selectedGameServerName}` : selectedGameName;
-                    renderIdConfirmedCard(resolvedName, verifiedLabel);
+                    const cardGeo = (checkResult && checkResult.data && typeof ncGeo === 'function') ? ncGeo(checkResult.data) : null;
+                    renderIdConfirmedCard(resolvedName, verifiedLabel, cardGeo, serverIsRequired ? serverId : '');
                     confirmBtn.classList.remove('checking');
                     confirmBtn.classList.add('confirmed');
                     btnText.innerText = t('btn_confirmed_id');
@@ -6471,7 +6579,7 @@
 
         function ncCheckable(g) {
             if (!g) return false;
-            if (g.fulfillProvider === 'g2bulk_voucher' || g.fulfillProvider === 'fazercard_giftcard') return false;
+            if (isVoucherGame(g)) return false;
             if (g.playerIdRequired === false) return false;
             return !!(g.g2bulkCode || g.fazercardCategoryId);
         }
@@ -6580,6 +6688,12 @@
             ncTimer = setTimeout(ncRunCheck, 700);
         }
         window.ncOnFieldChange = ncOnFieldChange;
+
+        // "myanmar" -> "Myanmar", "south east asia" -> "South East Asia"
+        function fmtRegion(r) {
+            return String(r || '').trim().replace(/(^|[\s\-_/(])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+        }
+        window.fmtRegion = fmtRegion;
 
         // Region/country are only shown if the provider's reply carries them.
         function ncGeo(d) {
@@ -6738,52 +6852,23 @@
                 const usedServer = (serverLabel && entries.some(g => g.serverIdRequired !== false)) ? serverLabel : '';
                 if (bad) {
                     const pr = idProblemFor(bad.r, playerId, usedServer);
-                    box.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body, pr.note));
+                    box.appendChild(buildIdProblemBanner(pr.kind, pr.title, pr.body, pr.note));
                 } else {
                     const net = settled.some(x => x.r.reason === 'network');
                     const pr = idProblemFor({ outcome: 'unknown', reason: net ? 'network' : 'unavailable' }, playerId, usedServer);
-                    box.appendChild(buildIdProblemCard(pr.kind, pr.title, pr.body, pr.note));
+                    box.appendChild(buildIdProblemBanner(pr.kind, pr.title, pr.body, pr.note));
                 }
                 ncFinishResult(box);
                 return;
             }
             const seen = new Set();
             valid.forEach(({ g, r }) => {
-                const region = r.geo.region || g.serverName || t('nc_global');
+                let region = pcRegionLabel(r.geo.region, g.serverName);
+                if (r.geo.country) region += ' · ' + r.geo.country;
                 const dedupe = r.name + '|' + region;
                 if (seen.has(dedupe)) return;
                 seen.add(dedupe);
-                const card = document.createElement('div');
-                card.className = 'id-result-card';
-                const avatar = document.createElement('div');
-                avatar.className = 'id-result-avatar';
-                avatar.textContent = r.name.trim().charAt(0).toUpperCase();
-                const info = document.createElement('div');
-                info.className = 'id-result-info';
-                const nameEl = document.createElement('div');
-                nameEl.className = 'id-result-name';
-                nameEl.textContent = r.name;
-                // "Player Name" / "(Region) Country"
-                const meta = document.createElement('div');
-                meta.className = 'nc-meta';
-                const regionB = document.createElement('b');
-                regionB.textContent = `(${region})`;
-                meta.appendChild(regionB);
-                if (r.geo.country) meta.appendChild(document.createTextNode(' ' + r.geo.country));
-                info.appendChild(nameEl);
-                info.appendChild(meta);
-                if (serverLabel && g.serverIdRequired !== false) {
-                    const srv = document.createElement('div');
-                    srv.className = 'nc-server';
-                    srv.textContent = `${t('nc_server')}: ${serverLabel}`;
-                    info.appendChild(srv);
-                }
-                const check = document.createElement('div');
-                check.className = 'id-result-check';
-                check.textContent = '✓';
-                card.appendChild(avatar);
-                card.appendChild(info);
-                card.appendChild(check);
+                const card = buildPlayerDetailCard(r.name, region, (serverLabel && g.serverIdRequired !== false) ? serverLabel : '', playerId);
                 box.appendChild(card);
             });
             ncFinishResult(box);
@@ -7227,7 +7312,7 @@
             // Drives which price-card layout renderDetailPackageList uses:
             // voucher/giftcard games keep the gift-card style; every other
             // (direct top-up) game uses the plain product-card layout.
-            window.currentGameIsVoucher = game.fulfillProvider === 'g2bulk_voucher' || game.fulfillProvider === 'fazercard_giftcard';
+            window.currentGameIsVoucher = isVoucherGame(game);
             // Software items (fulfillProvider === 'software', manually
             // added from admin.html's new "Software" tab) get the flat
             // row-list layout instead, and skip the payment-method step
@@ -11954,7 +12039,7 @@
             if (isOnline) {
                 text.innerText = 'Admin Online';
             } else {
-                text.innerText = 'Last seen recently';
+                text.innerText = 'Admin Offline';
             }
         }
         deferInit(() => {
@@ -14228,7 +14313,7 @@
             // software (fulfillProvider === 'software') has its own Software
             // tab (see renderSoftwareGames below) - neither should also
             // appear mixed into the Home / direct top-up list.
-            const ids = Object.keys(GAMES).filter(id => GAMES[id].fulfillProvider !== 'g2bulk_voucher' && GAMES[id].fulfillProvider !== 'fazercard_giftcard' && GAMES[id].fulfillProvider !== 'software').sort((a, b) => {
+            const ids = Object.keys(GAMES).filter(id => !isVoucherGame(GAMES[id]) && GAMES[id].fulfillProvider !== 'software').sort((a, b) => {
                 const ga = GAMES[a], gb = GAMES[b];
                 const oa = typeof ga.order === 'number' ? ga.order : Infinity;
                 const ob = typeof gb.order === 'number' ? gb.order : Infinity;
@@ -14407,7 +14492,7 @@
             const popularScroll = document.getElementById('popular-vouchers-scroll');
             if (!grid) return;
             const ids = Object.keys(GAMES)
-                .filter(id => GAMES[id].fulfillProvider === 'g2bulk_voucher' || GAMES[id].fulfillProvider === 'fazercard_giftcard')
+                .filter(id => isVoucherGame(GAMES[id]))
                 .sort((a, b) => {
                     const ga = GAMES[a], gb = GAMES[b];
                     const oa = typeof ga.order === 'number' ? ga.order : Infinity;
