@@ -3341,8 +3341,8 @@
             100% { transform: translateY(0) rotate(-360deg) scale(1,1); }
         }
         .bot-scale { position: absolute; left: 0; top: 0; width: 64px; height: 64px; transform: scale(0.7); transform-origin: 0 0; }
-        .bot-glow { position: absolute; left: 12%; right: 12%; bottom: -11px; height: 15px; border-radius: 50%; z-index: 0; pointer-events: none;
-            background: radial-gradient(closest-side, rgba(122,92,255,0.7), rgba(122,92,255,0));
+        .bot-glow { position: absolute; left: 20%; right: 20%; bottom: -9px; height: 12px; border-radius: 50%; z-index: 0; pointer-events: none;
+            background: radial-gradient(closest-side, rgba(170,225,255,0.9), rgba(170,225,255,0));
             filter: blur(4px); animation: botGlow 3.6s ease-in-out infinite; }
         @keyframes botGlow { 0%,100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.78); opacity: 0.5; } }
         .bot-float { position: absolute; inset: 0; z-index: 1; animation: botFloat 3.6s ease-in-out infinite; }
@@ -3353,34 +3353,54 @@
             transition: transform 0.5s cubic-bezier(.34,1.56,.64,1); will-change: transform; }
         .social-fab.fab-dragging .bot-rig { transition: transform 0.1s linear; }
 
-        /* body */
-        .bot-body { position: absolute; inset: 0; z-index: 1; border-radius: 47% 53% 49% 51% / 44% 44% 56% 56%;
+        /* head (floating dome) */
+        .bot-body { position: absolute; left: 12px; top: 0; width: 40px; height: 28px; z-index: 1; border-radius: 50% 50% 48% 48% / 60% 60% 40% 40%;
             background:
-                radial-gradient(80% 55% at 30% 12%, rgba(255,255,255,0.75), rgba(255,255,255,0) 70%),
-                linear-gradient(180deg, #e2ddfb 0%, #c4bbf7 34%, #8b70f2 70%, #6a49e8 100%);
-            box-shadow: 0 9px 18px rgba(102,68,230,0.38), inset 0 -8px 12px rgba(84,52,220,0.55),
-                inset 0 3px 5px rgba(255,255,255,0.75), inset 0 0 0 1px rgba(255,255,255,0.25); }
+                radial-gradient(60% 45% at 28% 14%, #ffffff, rgba(255,255,255,0) 72%),
+                linear-gradient(180deg, #ffffff 0%, #eef1f7 50%, #cfd6e4 100%);
+            box-shadow: 0 5px 10px rgba(40,70,130,0.3), inset 0 -6px 9px rgba(110,130,180,0.4),
+                inset 0 2px 3px rgba(255,255,255,0.95), 0 0 0 1px rgba(150,165,195,0.35); }
+        /* torso (floats under the head, bobs out of phase with it) */
+        .bot-torso { position: absolute; z-index: 0; left: 15px; top: 31px; width: 34px; height: 33px; border-radius: 42% 42% 50% 50% / 20% 20% 80% 80%;
+            background:
+                radial-gradient(70% 50% at 30% 15%, #ffffff, rgba(255,255,255,0) 70%),
+                linear-gradient(180deg, #f8fafd 0%, #e3e8f1 55%, #c3cbdb 100%);
+            box-shadow: 0 6px 10px rgba(40,70,130,0.28), inset 0 -5px 7px rgba(110,130,175,0.38),
+                inset 0 1px 2px rgba(255,255,255,0.9), 0 0 0 1px rgba(150,165,195,0.3);
+            animation: botTorso 3.6s ease-in-out infinite; }
+        @keyframes botTorso { 0%,100% { transform: translateY(0); } 50% { transform: translateY(2.5px); } }
+        .social-fab.fab-idle .bot-torso { animation-duration: 6.5s; }
+        /* chest light: changes colour with the mood */
+        .bot-torso::after { content: ''; position: absolute; left: 50%; top: 20%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%;
+            background: #7df6ff; box-shadow: 0 0 6px 1px #5ef0ff; animation: botLed 2.8s ease-in-out infinite; }
+        @keyframes botLed { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .bot-rig[data-mood="love"] .bot-torso::after { background: #ff7ab8; box-shadow: 0 0 6px 1px #ff7ab8; }
+        .bot-rig[data-mood="surprise"] .bot-torso::after { background: #ffd66b; box-shadow: 0 0 6px 1px #ffd66b; }
+        .bot-rig[data-mood="dizzy"] .bot-torso::after { background: #ffe27a; box-shadow: 0 0 6px 1px #ffe27a; }
+        .bot-rig[data-mood="sad"] .bot-torso::after { background: #8b96ff; box-shadow: 0 0 5px 1px #8b96ff; }
+        .bot-rig[data-mood="sleep"] .bot-torso::after { opacity: 0.25; animation: none; }
+        .bot-rig[data-mood="yawn"] .bot-torso::after { opacity: 0.4; animation: none; }
         /* visor (dark glass screen) */
-        .bot-visor { position: absolute; left: 16%; top: 12%; width: 68%; height: 58%; border-radius: 36% / 34%; overflow: hidden;
-            background: radial-gradient(70% 60% at 85% 100%, rgba(120,70,230,0.6), rgba(120,70,230,0) 70%),
-                linear-gradient(155deg, #43434c 0%, #1a1a22 40%, #08080d 100%);
-            box-shadow: inset 0 1.5px 1.5px rgba(94,240,255,0.6), inset 0 0 0 1px rgba(10,10,16,0.85), 0 1px 0 rgba(255,255,255,0.55), 0 -1px 0 rgba(94,240,255,0.35);
+        .bot-visor { position: absolute; left: 11%; top: 16%; width: 78%; height: 60%; border-radius: 44% / 52%; overflow: hidden;
+            background: radial-gradient(60% 55% at 80% 105%, rgba(70,140,255,0.5), rgba(70,140,255,0) 70%),
+                linear-gradient(160deg, #22355a 0%, #0b1226 50%, #03050c 100%);
+            box-shadow: inset 0 1px 1.5px rgba(140,200,255,0.55), inset 0 0 0 1px rgba(8,12,26,0.9), 0 1px 0 rgba(255,255,255,0.9);
             transform: translate(var(--vx,0px), var(--vy,0px)); transition: transform 0.2s ease-out; }
-        .bot-visor::before { content: ''; position: absolute; left: 6%; top: 4%; width: 60%; height: 34%; border-radius: 50%; transform: rotate(-12deg);
+        .bot-visor::before { content: ''; position: absolute; left: 8%; top: 6%; width: 55%; height: 34%; border-radius: 50%; transform: rotate(-8deg);
             background: linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0)); }
-        .bot-visor::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 22%;
+        .bot-visor::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 18%;
             background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.17), rgba(255,255,255,0));
             transform: translateX(-150%) skewX(-20deg); animation: botGlare 7s ease-in-out infinite; }
-        @keyframes botGlare { 0%,72% { transform: translateX(-150%) skewX(-20deg); } 100% { transform: translateX(600%) skewX(-20deg); } }
+        @keyframes botGlare { 0%,72% { transform: translateX(-150%) skewX(-20deg); } 100% { transform: translateX(700%) skewX(-20deg); } }
 
         /* face + eyes */
         .bot-face { position: absolute; left: 50%; top: 50%; width: 0; height: 0;
             transform: translate(calc(var(--gx,0px) + var(--shift,0px)), var(--gy,0px)); transition: transform 0.2s ease-out; }
         .bot-spin { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: rotate(var(--fr,0deg));
             transition: transform 0.65s cubic-bezier(.34,1.56,.64,1); }
-        .bot-eye { position: absolute; top: -7.5px; width: 15px; height: 15px; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
-        .bot-eye.l { left: -17.5px; }
-        .bot-eye.r { left: 2.5px; }
+        .bot-eye { position: absolute; top: -5.5px; width: 11px; height: 11px; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
+        .bot-eye.l { left: -13px; }
+        .bot-eye.r { left: 2px; }
         .bot-eye svg { display: block; width: 100%; height: 100%; overflow: visible;
             filter: drop-shadow(0 0 2.5px rgba(94,240,255,0.95)); transform: scaleY(var(--bl,1)); transition: transform 0.1s ease-out; }
         .bot-eye.r svg { transform: scaleY(var(--br,1)); }
@@ -3399,6 +3419,20 @@
         .bot-rig[data-mood="happy"] .g-happy { opacity: 1; }
         .bot-rig[data-mood="love"] .g-heart { opacity: 1; }
         .bot-rig[data-mood="sleep"] .g-sleep { opacity: 1; }
+        .bot-rig[data-mood="yawn"] .g-yawn { opacity: 1; }
+        .bot-rig[data-mood="yawn"] .bot-eye { transform: translateY(-2.5px); }
+        /* yawning mouth: opens wide, holds, closes */
+        .bot-mouth { position: absolute; left: -2.6px; top: 1.5px; width: 5.2px; height: 5.2px; border-radius: 50%; box-sizing: border-box;
+            border: 1.5px solid #7df6ff; background: #050b1a; box-shadow: 0 0 4px #5ef0ff, inset 0 0 3px rgba(94,240,255,0.5);
+            opacity: 0; transform: scale(0.2); }
+        .bot-rig[data-mood="yawn"] .bot-mouth { animation: botYawnMouth 2s ease-in-out; }
+        @keyframes botYawnMouth {
+            0% { opacity: 0; transform: scale(0.2, 0.2); }
+            18% { opacity: 1; transform: scale(0.8, 0.7); }
+            40%,68% { opacity: 1; transform: scale(1.05, 1.35); }
+            90% { opacity: 1; transform: scale(0.7, 0.5); }
+            100% { opacity: 0; transform: scale(0.2, 0.2); }
+        }
         .bot-rig[data-mood="x"] .g-x { opacity: 1; }
         .bot-rig[data-mood="dizzy"] .g-spiral { opacity: 1; animation: botSpiral 0.7s linear infinite; }
         @keyframes botSpiral { to { transform: rotate(360deg); } }
@@ -3415,52 +3449,51 @@
         /* menu open: face spins, both eyes slide together and become a X */
         .social-fab.social-fab-open .bot-face { transform: translate(0,0); }
         .social-fab.social-fab-open .bot-spin { --fr: 180deg; }
-        .social-fab.social-fab-open .bot-eye.l { transform: translateX(10px) scale(1.4); }
-        .social-fab.social-fab-open .bot-eye.r { transform: translateX(-10px) scale(1.4); }
+        .social-fab.social-fab-open .bot-eye.l { transform: translateX(7.5px) scale(1.4); }
+        .social-fab.social-fab-open .bot-eye.r { transform: translateX(-7.5px) scale(1.4); }
         /* asleep while tucked in the edge: face turned toward the visible half */
-        .social-fab.fab-idle.dock-right .bot-face { --shift: -9px; }
-        .social-fab.fab-idle.dock-left .bot-face { --shift: 9px; }
+        .social-fab.fab-idle.dock-right .bot-face { --shift: -6px; }
+        .social-fab.fab-idle.dock-left .bot-face { --shift: 6px; }
 
-        /* hands */
-        .bot-hand { position: absolute; z-index: 0; will-change: transform; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
-        .bot-hand i { display: block; position: relative; width: 100%; height: 100%; border-radius: 50%;
-            background: linear-gradient(160deg, #e2ddfb 0%, #b5a8f5 45%, #6f4fe8 100%);
-            box-shadow: inset 0 -4px 6px rgba(84,52,220,0.45), inset 0 2px 3px rgba(255,255,255,0.7), 0 3px 6px rgba(102,68,230,0.3);
+        /* arms (float beside the torso, pivot at the shoulder) */
+        .bot-hand { position: absolute; z-index: 0; top: 33px; width: 6px; height: 27px; transform-origin: 50% 8%;
+            will-change: transform; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
+        .bot-hand i { display: block; position: relative; width: 100%; height: 100%; border-radius: 60% 60% 55% 55% / 30% 30% 70% 70%;
+            background: linear-gradient(90deg, #c9d2e2 0%, #ffffff 45%, #dfe5f0 100%);
+            box-shadow: inset 0 -4px 5px rgba(110,130,175,0.35), 0 3px 6px rgba(40,70,130,0.25), 0 0 0 1px rgba(150,165,195,0.3);
             animation: botHandBob 3.2s ease-in-out infinite; }
         .bot-hand.r i { animation-delay: -1.6s; }
         @keyframes botHandBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
-        .bot-hand.l { left: -12px; top: 32%; width: 18px; height: 21px; transform-origin: 100% 50%;
-            transform: translate(var(--hlx,0px), var(--hly,0px)) rotate(var(--hlr,-8deg)); }
-        .bot-hand.r { right: -9px; top: 48%; width: 12px; height: 25px; transform-origin: 0% 40%;
-            transform: translate(var(--hrx,0px), var(--hry,0px)) rotate(var(--hrr,-20deg)); }
-        .bot-hand.l i::after { content: ''; position: absolute; left: 24%; top: 46%; width: 50%; height: 2px; border-radius: 2px;
-            background: #7df6ff; box-shadow: 0 0 4px #5ef0ff; animation: botLed 2.8s ease-in-out infinite; }
-        @keyframes botLed { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+        .bot-hand.l { left: 6px; transform: translate(var(--hlx,0px), var(--hly,0px)) rotate(var(--hlr,7deg)); }
+        .bot-hand.r { left: 52px; transform: translate(var(--hrx,0px), var(--hry,0px)) rotate(var(--hrr,-7deg)); }
         .bot-hand.wave.r { animation: botWaveR 1s ease-in-out; }
         .bot-hand.wave.l { animation: botWaveL 1s ease-in-out; }
         @keyframes botWaveR {
-            0%,100% { transform: translate(0,0) rotate(-20deg); }
-            12%,60% { transform: translate(3px,-10px) rotate(18deg); }
-            26%,74% { transform: translate(3px,-10px) rotate(44deg); }
-            42%,88% { transform: translate(3px,-10px) rotate(18deg); }
+            0%,100% { transform: translate(0,0) rotate(-7deg); }
+            12%,60% { transform: translate(0,-2px) rotate(-115deg); }
+            26%,74% { transform: translate(0,-2px) rotate(-145deg); }
+            42%,88% { transform: translate(0,-2px) rotate(-115deg); }
         }
         @keyframes botWaveL {
-            0%,100% { transform: translate(0,0) rotate(-8deg); }
-            12%,60% { transform: translate(-3px,-10px) rotate(-16deg); }
-            26%,74% { transform: translate(-3px,-10px) rotate(-44deg); }
-            42%,88% { transform: translate(-3px,-10px) rotate(-16deg); }
+            0%,100% { transform: translate(0,0) rotate(7deg); }
+            12%,60% { transform: translate(0,-2px) rotate(115deg); }
+            26%,74% { transform: translate(0,-2px) rotate(145deg); }
+            42%,88% { transform: translate(0,-2px) rotate(115deg); }
         }
-        /* hand poses per mood */
-        .bot-rig[data-mood="happy"] .bot-hand.l, .bot-rig[data-mood="love"] .bot-hand.l { --hly: -5px; --hlr: -32deg; }
-        .bot-rig[data-mood="happy"] .bot-hand.r, .bot-rig[data-mood="love"] .bot-hand.r { --hry: -5px; --hrr: 26deg; }
-        .bot-rig[data-mood="surprise"] .bot-hand.l { --hly: -8px; --hlr: -46deg; }
-        .bot-rig[data-mood="surprise"] .bot-hand.r { --hry: -8px; --hrr: 40deg; }
-        .bot-rig[data-mood="x"] .bot-hand.l { --hlx: -2px; --hly: -9px; --hlr: -42deg; }
-        .bot-rig[data-mood="x"] .bot-hand.r { --hrx: 2px; --hry: -9px; --hrr: 34deg; }
-        .bot-rig[data-mood="sleep"] .bot-hand.l, .bot-rig[data-mood="sad"] .bot-hand.l { --hly: 6px; --hlr: 16deg; }
-        .bot-rig[data-mood="sleep"] .bot-hand.r, .bot-rig[data-mood="sad"] .bot-hand.r { --hry: 6px; --hrr: -4deg; }
-        .bot-rig[data-mood="dizzy"] .bot-hand.l { --hlr: -50deg; --hly: -3px; }
-        .bot-rig[data-mood="dizzy"] .bot-hand.r { --hrr: 48deg; --hry: -3px; }
+        /* arm poses per mood */
+        .bot-rig[data-mood="happy"] .bot-hand.l, .bot-rig[data-mood="love"] .bot-hand.l { --hly: -2px; --hlr: 28deg; }
+        .bot-rig[data-mood="happy"] .bot-hand.r, .bot-rig[data-mood="love"] .bot-hand.r { --hry: -2px; --hrr: -28deg; }
+        .bot-rig[data-mood="surprise"] .bot-hand.l { --hly: -3px; --hlr: 48deg; }
+        .bot-rig[data-mood="surprise"] .bot-hand.r { --hry: -3px; --hrr: -48deg; }
+        .bot-rig[data-mood="x"] .bot-hand.l { --hly: -3px; --hlr: 62deg; }
+        .bot-rig[data-mood="x"] .bot-hand.r { --hry: -3px; --hrr: -62deg; }
+        .bot-rig[data-mood="sleep"] .bot-hand.l, .bot-rig[data-mood="sad"] .bot-hand.l { --hly: 2px; --hlr: -3deg; }
+        .bot-rig[data-mood="sleep"] .bot-hand.r, .bot-rig[data-mood="sad"] .bot-hand.r { --hry: 2px; --hrr: 3deg; }
+        .bot-rig[data-mood="dizzy"] .bot-hand.l { --hlr: 75deg; }
+        .bot-rig[data-mood="dizzy"] .bot-hand.r { --hrr: -75deg; }
+        /* yawn = big stretch, both arms reach up */
+        .bot-rig[data-mood="yawn"] .bot-hand.l { --hly: -4px; --hlr: 145deg; }
+        .bot-rig[data-mood="yawn"] .bot-hand.r { --hry: -4px; --hrr: -145deg; }
 
         /* floating effects: z z z, hearts, !, ?, notes, sparkles, stars */
         .bot-fx { position: absolute; left: 50%; top: 0; width: 0; height: 0; z-index: 5; pointer-events: none; }
@@ -3804,13 +3837,14 @@
         </div>
         <div class="social-fab-btn" role="button" aria-label="Contact menu">
             <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-                <linearGradient id="botEyeGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b5fbff"/><stop offset="1" stop-color="#2fd0ff"/></linearGradient>
+                <radialGradient id="botEyeGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#eaffff"/><stop offset="0.55" stop-color="#5ef0ff"/><stop offset="1" stop-color="#1fb6ff"/></radialGradient>
                 <pattern id="botScan" width="24" height="2.6" patternUnits="userSpaceOnUse"><rect y="1.7" width="24" height="0.9" fill="#0a0a12" fill-opacity="0.6"/></pattern>
             </defs></svg>
             <div class="bot-scale">
             <span class="bot-glow"></span>
             <div class="bot-float">
                 <div class="bot-rig" data-mood="neutral">
+                    <span class="bot-torso"></span>
                     <span class="bot-hand l"><i></i></span>
                     <span class="bot-hand r"><i></i></span>
                     <div class="bot-body">
@@ -3818,23 +3852,26 @@
                             <div class="bot-face">
                                 <div class="bot-spin">
                                     <span class="bot-eye l"><svg viewBox="0 0 24 24" aria-hidden="true">
-                                <g class="g g-round"><circle cx="12" cy="12" r="8.6" fill="url(#botEyeGrad)"/><circle cx="12" cy="12" r="8.6" fill="url(#botScan)"/></g>
+                                <g class="g g-round"><ellipse cx="12" cy="12" rx="9.6" ry="7.2" fill="url(#botEyeGrad)"/></g>
                                 <g class="g g-line"><rect x="1.5" y="10.4" width="21" height="3.2" rx="1.6" fill="#7df6ff"/></g>
                                 <g class="g g-happy"><path d="M4 16.5Q12 3.5 20 16.5" fill="none" stroke="#7df6ff" stroke-width="3.4" stroke-linecap="round"/></g>
                                 <g class="g g-heart"><path d="M12 20.5C3.2 14 2.5 7.8 7 6.2c2.4-.8 4.2.5 5 2.2.8-1.7 2.6-3 5-2.2 4.5 1.6 3.8 7.8-5 14.3z" fill="#ff7ab8"/></g>
                                 <g class="g g-sleep"><path d="M4 9Q12 18 20 9" fill="none" stroke="#7df6ff" stroke-width="3" stroke-linecap="round" opacity="0.7"/></g>
+                                <g class="g g-yawn"><path d="M5 5L18 12L5 19" fill="none" stroke="#7df6ff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></g>
                                 <g class="g g-x"><path d="M4 4L20 20" fill="none" stroke="#7df6ff" stroke-width="3.8" stroke-linecap="round"/></g>
                                 <g class="g g-spiral"><path d="M12 12a1.4 1.4 0 0 1 2.8 0a2.8 2.8 0 0 1 -5.6 0a4.2 4.2 0 0 1 8.4 0a5.6 5.6 0 0 1 -11.2 0a7 7 0 0 1 14 0" fill="none" stroke="#7df6ff" stroke-width="1.9" stroke-linecap="round"/></g>
                             </svg></span>
                                     <span class="bot-eye r"><svg viewBox="0 0 24 24" aria-hidden="true">
-                                <g class="g g-round"><circle cx="12" cy="12" r="8.6" fill="url(#botEyeGrad)"/><circle cx="12" cy="12" r="8.6" fill="url(#botScan)"/></g>
+                                <g class="g g-round"><ellipse cx="12" cy="12" rx="9.6" ry="7.2" fill="url(#botEyeGrad)"/></g>
                                 <g class="g g-line"><rect x="1.5" y="10.4" width="21" height="3.2" rx="1.6" fill="#7df6ff"/></g>
                                 <g class="g g-happy"><path d="M4 16.5Q12 3.5 20 16.5" fill="none" stroke="#7df6ff" stroke-width="3.4" stroke-linecap="round"/></g>
                                 <g class="g g-heart"><path d="M12 20.5C3.2 14 2.5 7.8 7 6.2c2.4-.8 4.2.5 5 2.2.8-1.7 2.6-3 5-2.2 4.5 1.6 3.8 7.8-5 14.3z" fill="#ff7ab8"/></g>
                                 <g class="g g-sleep"><path d="M4 9Q12 18 20 9" fill="none" stroke="#7df6ff" stroke-width="3" stroke-linecap="round" opacity="0.7"/></g>
+                                <g class="g g-yawn"><path d="M19 5L6 12L19 19" fill="none" stroke="#7df6ff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></g>
                                 <g class="g g-x"><path d="M20 4L4 20" fill="none" stroke="#7df6ff" stroke-width="3.8" stroke-linecap="round"/></g>
                                 <g class="g g-spiral"><path d="M12 12a1.4 1.4 0 0 1 2.8 0a2.8 2.8 0 0 1 -5.6 0a4.2 4.2 0 0 1 8.4 0a5.6 5.6 0 0 1 -11.2 0a7 7 0 0 1 14 0" fill="none" stroke="#7df6ff" stroke-width="1.9" stroke-linecap="round"/></g>
                             </svg></span>
+                                    <span class="bot-mouth"></span>
                                 </div>
                             </div>
                         </div>
@@ -16167,8 +16204,8 @@
 
             // ----- gaze: eyes move most, visor + body follow a little (3D feel) -----
             function look(x, y) {
-                face.style.setProperty('--gx', (x * 5).toFixed(2) + 'px');
-                face.style.setProperty('--gy', (y * 4).toFixed(2) + 'px');
+                face.style.setProperty('--gx', (x * 3.5).toFixed(2) + 'px');
+                face.style.setProperty('--gy', (y * 2.5).toFixed(2) + 'px');
                 visor.style.setProperty('--vx', (x * 1.8).toFixed(2) + 'px');
                 visor.style.setProperty('--vy', (y * 1.4).toFixed(2) + 'px');
                 rig.style.setProperty('--bx', (x * 1.6).toFixed(2) + 'px');
@@ -16215,6 +16252,17 @@
                     setTimeout(() => face.classList.remove('blink'), 260);
                 }, 340);
             }
+            // Yawn: arms stretch up, body stretches taller, eyes squeeze >  <,
+            // mouth opens wide, then it shakes itself awake (or drifts to sleep).
+            function yawn() {
+                express('yawn', 2300);
+                emit('~', '#dff6ff');
+                squash(0.94, 1.1);
+                rig.style.setProperty('--rot', '-4deg');
+                setTimeout(() => { if (!isDrag()) { squash(1, 1); rig.style.setProperty('--rot', '0deg'); } }, 1700);
+                setTimeout(() => { if (calm()) anim('bot-wiggle'); }, 1800);
+                setTimeout(() => emit('z', '#cfe0ff'), 2000);
+            }
             function dizzy() {
                 express('dizzy', 2300);
                 anim('bot-wiggle');
@@ -16232,6 +16280,7 @@
                 reset: () => { look(0, 0); squash(1, 1); resetHands(); },
                 startle: () => { express('surprise', 600); emit('!', '#ffd66b'); },
                 love: love,
+                yawn: yawn,
                 drag: (vx, vy) => {
                     const speed = clamp(Math.hypot(vx, vy) / 28, 0, 1);
                     const d = Math.hypot(vx, vy) || 1;
@@ -16241,8 +16290,8 @@
                     rig.style.setProperty('--rot', clamp(vx * 0.9, -16, 16).toFixed(1) + 'deg');
                     // hands trail behind like they are dangling
                     const sw = clamp(-vx * 1.8, -45, 45), lift = clamp(-vy * 0.5, -8, 8);
-                    handL.style.setProperty('--hlr', (-8 + sw).toFixed(1) + 'deg');
-                    handR.style.setProperty('--hrr', (-20 + sw).toFixed(1) + 'deg');
+                    handL.style.setProperty('--hlr', (7 - sw).toFixed(1) + 'deg');
+                    handR.style.setProperty('--hrr', (-7 - sw).toFixed(1) + 'deg');
                     handL.style.setProperty('--hly', lift.toFixed(1) + 'px');
                     handR.style.setProperty('--hry', lift.toFixed(1) + 'px');
                     // shaking it left-right several times makes it dizzy
@@ -16268,7 +16317,8 @@
                 const idle = isIdle(), open = isOpen();
                 if (idle && !st.idle) {
                     clearInterval(zzzTimer);
-                    setTimeout(() => { if (isIdle()) emit('z', '#cfe0ff'); }, 600);
+                    yawn();   // yawns before dozing off
+
                     zzzTimer = setInterval(() => { if (isIdle()) emit('z', '#cfe0ff'); }, 2600);
                 }
                 if (!idle && st.idle) clearInterval(zzzTimer);
@@ -16338,7 +16388,8 @@
                 [10, () => { express('happy', 1300); emit('✦', '#ffffff'); }],
                 [8,  () => express('wink', 850)],
                 [8,  () => { express('curious', 1600); emit('?', '#7df0ff'); look(rand(-1, 1), -0.5); rig.style.setProperty('--rot', (Math.random() < 0.5 ? -9 : 9) + 'deg'); }],
-                [6,  () => { express('tired', 1400); setTimeout(() => blinkNow(true), 1500); }],
+                [7,  yawn],
+                [3,  () => { express('tired', 1400); setTimeout(() => blinkNow(true), 1500); }],
                 [9,  () => { wave(Math.random() < 0.7 ? 'r' : 'l'); express('happy', 1100); }],
                 [6,  () => { emit('♪', '#b7a8ff'); setTimeout(() => emit('♫', '#b7a8ff'), 450); express('happy', 1500); }],
                 [5,  () => anim('bot-wiggle')],
