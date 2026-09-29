@@ -3659,6 +3659,84 @@
             border-color: rgba(232,196,110,0.55);
             box-shadow: 0 0 10px rgba(232,196,110,0.28), inset 0 0 8px rgba(232,196,110,0.08);
         }
+
+        /* ===================== LAPTOP / DESKTOP LAYOUT (>=1024px) =====================
+           Phone layout is untouched. On laptops the page becomes a centered
+           column, game grids use fixed-size tiles instead of stretching, the
+           nav dock is centered, and sheets open as centered dialogs. */
+        @media (min-width: 1024px) {
+            .content-area { max-width: 1240px; margin: 0 auto; padding: 28px 40px 120px; }
+            .header { left: 50%; right: auto; width: min(1240px, calc(100vw - 48px)); margin-left: calc(min(1240px, 100vw - 48px) / -2); padding: 8px 20px 8px 10px; }
+
+            /* Game grids: as many columns as fit the panel; cards stretch to fill each row */
+            #all-games-grid, #voucher-games-grid, #software-games-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 16px; }
+            .games-grid-scroll { margin: 0; padding: 24px 28px; min-height: 260px; }
+            .game-card { transition: transform .18s ease, box-shadow .18s ease; }
+            .game-card:hover { transform: translateY(-4px); box-shadow: 0 12px 26px -8px rgba(20,30,60,.28); }
+            .game-card-name { font-size: 13px; }
+            .popular-scroll-wrap { gap: 16px; padding-bottom: 14px; }
+
+            /* Secondary pages: readable centered column instead of edge-to-edge stretch */
+            #history, #wallet, #leaderboard, #name-check, #notif-page { max-width: 860px; margin-left: auto; margin-right: auto; }
+
+            /* Game detail: banner sidebar + wider package grid */
+            #game-detail { max-width: 1100px; margin-left: auto; margin-right: auto; }
+            .detail-layout { grid-template-columns: 320px 1fr; gap: 36px; }
+            .package-grid.layout-currency, .package-grid:not(.layout-list) { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+            .package-card { transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+            .package-card:hover { transform: translateY(-2px); }
+            .package-grid.layout-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+            /* Nav dock: centered compact pill instead of full-width bar */
+            .bottom-nav { left: 50%; right: auto; width: 560px; margin-left: -280px; }
+
+            /* Bottom sheets become centered dialogs */
+            .modal-overlay { align-items: center; }
+            .modal-box { border-radius: 24px; max-width: 520px; max-height: 86vh; transform: translateY(16px) scale(.98); }
+            .modal-overlay.show .modal-box { transform: none; }
+            #toast { left: 50%; right: auto; width: 480px; margin-left: -240px; }
+        }
+        @media (min-width: 1440px) {
+            .content-area { max-width: 1360px; }
+            #all-games-grid, #voucher-games-grid, #software-games-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+
+        /* Profile cards stay put: no side slide-in on tab open, and the Rank #1
+           card's halo/shields no longer pulse in and out. */
+        .profile-card-anim, .profile-card-anim.in-view, .profile-card-anim.in-view.from-left { opacity: 1 !important; animation: none !important; transform: none !important; }
+        .profile-card.rank1-aura::after { animation: none; opacity: 0.85; transform: none; }
+        .rank1-shield { animation: none; }
+
+        /* ===== Robot daily routine =====
+           Night (19:00-06:00): asleep in the edge (zzz). Daytime: never sleeps -
+           it peeks out from behind the screen edge, glances around, and every
+           so often pops fully out to play with a Rubik's cube, then hides again. */
+        .social-fab.fab-idle.fab-peek { opacity: 1; }
+        .social-fab.fab-idle.fab-peek.dock-right { transform: translateX(40%); }
+        .social-fab.fab-idle.fab-peek.dock-left { transform: translateX(-40%); }
+        .social-fab.fab-idle.fab-peek.fab-lean.dock-right { transform: translateX(14%); }
+        .social-fab.fab-idle.fab-peek.fab-lean.dock-left { transform: translateX(-14%); }
+        .social-fab.fab-idle.fab-play.dock-right, .social-fab.fab-idle.fab-play.dock-left { transform: none; opacity: 1; }
+        .social-fab.fab-idle.fab-peek.fab-hide.dock-right { transform: translateX(115%); opacity: 0; }
+        .social-fab.fab-idle.fab-peek.fab-hide.dock-left { transform: translateX(-115%); opacity: 0; }
+        .bot-cube { position: absolute; top: 20px; width: 16px; height: 16px; perspective: 90px; opacity: 0; transform: scale(0.3); pointer-events: none; z-index: 3;
+            transition: opacity 0.3s ease, transform 0.4s cubic-bezier(.34,1.56,.64,1); }
+        .social-fab.dock-right .bot-cube { left: -20px; }
+        .social-fab.dock-left .bot-cube { right: -20px; }
+        .social-fab.fab-cube .bot-cube { opacity: 1; transform: none; }
+        .bot-cube.solved { animation: botCubePop 0.5s ease; }
+        @keyframes botCubePop { 50% { transform: scale(1.5); } }
+        .bot-cube-in { position: absolute; inset: 0; transform-style: preserve-3d; animation: botCubeTumble 2.6s linear infinite; }
+        @keyframes botCubeTumble { from { transform: rotateX(-24deg) rotateY(0deg); } to { transform: rotateX(-24deg) rotateY(360deg); } }
+        .bot-cube .cf { position: absolute; inset: 0; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: 1px; padding: 1px; background: #15151f; border-radius: 2px; }
+        .bot-cube .cf b { display: block; border-radius: 1px; }
+        .bot-cube .cf.f0 { transform: translateZ(8px); }
+        .bot-cube .cf.f1 { transform: rotateY(90deg) translateZ(8px); }
+        .bot-cube .cf.f2 { transform: rotateY(180deg) translateZ(8px); }
+        .bot-cube .cf.f3 { transform: rotateY(-90deg) translateZ(8px); }
+        .bot-cube .cf.f4 { transform: rotateX(90deg) translateZ(8px); }
+        .bot-cube .cf.f5 { transform: rotateX(-90deg) translateZ(8px); }
+        @media (prefers-reduced-motion: reduce) { .bot-cube-in, .bot-cube.solved { animation: none; } }
     </style>
 </head>
 <body>
@@ -3835,6 +3913,7 @@
                 <span class="fab-item-ico"><span class="fab-item-skel"></span></span><span class="fab-item-label">Telegram</span>
             </div>
         </div>
+        <div class="bot-cube" aria-hidden="true"><div class="bot-cube-in"></div></div>
         <div class="social-fab-btn" role="button" aria-label="Contact menu">
             <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
                 <radialGradient id="botEyeGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#eaffff"/><stop offset="0.55" stop-color="#5ef0ff"/><stop offset="1" stop-color="#1fb6ff"/></radialGradient>
@@ -6263,7 +6342,7 @@
         // Voucher tab - never in the Home / direct top-up grid or Name Check.
         function isVoucherGame(g) {
             if (!g) return false;
-            if (g.fulfillProvider === 'g2bulk_voucher' || g.fulfillProvider === 'fazercard_giftcard') return true;
+            if (g.fulfillProvider === 'g2bulk_voucher' || g.fulfillProvider === 'fazercard_giftcard' || g.fulfillProvider === 'jcplays' || g.fulfillProvider === 'voucher_manual') return true;
             if (g.g2bulkVoucherCategory || g.fazercardGiftCategoryId) return true;
             return Array.isArray(g.packages) && g.packages.some(p => p && (p.voucherId || p.fazercardGiftCardId));
         }
@@ -16181,7 +16260,8 @@
             let lastSign = 0, flips = [], lastScrollT = 0, lastScrollY = 0;
 
             // ----- mood engine: a temporary mood overrides the base mood -----
-            const baseMood = () => isOpen() ? 'x' : isDrag() ? 'wide' : isIdle() ? 'sleep' : 'neutral';
+            const isNight = () => { const h = new Date().getHours(); return h >= 19 || h < 6; }; // asleep 19:00-06:00 (device time)
+            const baseMood = () => isOpen() ? 'x' : isDrag() ? 'wide' : isIdle() ? (isNight() ? 'sleep' : 'neutral') : 'neutral';
             function render() {
                 const m = (temp && !isOpen()) ? temp : baseMood();
                 if (rig.dataset.mood !== m) {
@@ -16312,21 +16392,106 @@
             };
 
             // ----- react to what the button is doing (open / close / sleep / wake) -----
-            let st = { idle: false, open: false };
+            let st = { idle: false, open: false, night: isNight() };
+            let peekTimer = 0, playTimer = 0, playEnd = 0, fidgetTimer = 0, roamTimer = 0, roamSteps = [], roaming = false;
+            const cube = fab.querySelector('.bot-cube'), cubeIn = fab.querySelector('.bot-cube-in');
+            const CUBE_COLORS = ['#ff4d4d', '#ff9f1a', '#ffe14d', '#3ddc84', '#4d8dff', '#f5f5f5'];
+            if (cubeIn) cubeIn.innerHTML = CUBE_COLORS.map((c, f) => '<i class="cf f' + f + '">' + '<b></b>'.repeat(9) + '</i>').join('');
+            const paintCube = (solved) => cubeIn && cubeIn.querySelectorAll('.cf').forEach((face, f) => face.querySelectorAll('b').forEach(b => {
+                b.style.background = solved ? CUBE_COLORS[f] : CUBE_COLORS[Math.floor(Math.random() * 6)];
+            }));
+            // classList changes only when needed, so the class observer below never loops
+            const setCls = (n, on) => { if (fab.classList.contains(n) !== on) fab.classList.toggle(n, on); };
+            const playing = () => fab.classList.contains('fab-play');
+            const toScreen = () => fab.classList.contains('dock-left') ? 1 : -1;
+            function fidget() {
+                if (!handL || !handR) return;
+                handL.style.setProperty('--hlr', rand(-25, 45).toFixed(0) + 'deg');
+                handL.style.setProperty('--hly', rand(-6, 2).toFixed(1) + 'px');
+                handR.style.setProperty('--hrr', rand(-45, 25).toFixed(0) + 'deg');
+                handR.style.setProperty('--hry', rand(-6, 2).toFixed(1) + 'px');
+            }
+            function stopPlay() {
+                clearTimeout(playEnd); clearInterval(fidgetTimer);
+                setCls('fab-cube', false); setCls('fab-play', false);
+                resetHands(); look(0, 0);
+            }
+            function schedulePlay() {
+                clearTimeout(playTimer);
+                playTimer = setTimeout(startPlay, rand(16000, 28000));
+            }
+            function startPlay() {
+                if (!(isIdle() && !isNight() && !isOpen() && !isDrag() && !document.hidden) || roaming) { schedulePlay(); return; }
+                setCls('fab-lean', false); setCls('fab-play', true);
+                express('surprise', 700); emit('!', '#ffd66b');
+                paintCube(false);
+                setTimeout(() => { if (playing()) { setCls('fab-cube', true); express('happy', 800); look(toScreen() * 0.8, 0.5); } }, 900);
+                fidgetTimer = setInterval(() => { if (playing()) fidget(); }, 420);
+                playEnd = setTimeout(() => {          // solved it!
+                    if (!playing()) return;
+                    paintCube(true);
+                    if (cube) { cube.classList.remove('solved'); void cube.offsetWidth; cube.classList.add('solved'); }
+                    express('love', 1800); wave('r'); resetHands();
+                    for (let i = 0; i < 3; i++) setTimeout(() => emit('✦', '#ffe27a'), i * 260);
+                    setTimeout(() => { stopPlay(); schedulePlay(); }, 2000);
+                }, rand(8000, 11000));
+            }
+            // Peeks from one edge, slides ALL the way in, then pops out from the opposite edge.
+            function later(fn, ms) { roamSteps.push(setTimeout(fn, ms)); }
+            function scheduleRoam() { clearTimeout(roamTimer); roamTimer = setTimeout(roam, rand(14000, 22000)); }
+            function roam() {
+                if (!(isIdle() && !isNight() && !isOpen() && !isDrag() && !playing() && !document.hidden)) { scheduleRoam(); return; }
+                roaming = true;
+                const toLeft = !fab.classList.contains('dock-left');   // right edge -> comes back out on the left
+                setCls('fab-lean', false);
+                look(-toScreen(), 0);
+                later(() => setCls('fab-hide', true), 600);            // slides fully into the edge
+                later(() => {                                          // hops to the other edge while out of sight
+                    fab.style.transition = 'none';
+                    dockSocialFab(toLeft ? 'left' : 'right');
+                    void fab.offsetWidth;
+                    fab.style.transition = '';
+                }, 1700);
+                later(() => { setCls('fab-hide', false); express('curious', 1600); look(toScreen(), -0.2); }, 2700);   // comes out the other side
+                later(() => { roaming = false; scheduleRoam(); }, 3500);
+            }
+            function startPeek() {
+                if (reduce) return;
+                setCls('fab-peek', true);
+                peekTimer = setInterval(() => {
+                    if (!isIdle() || isNight() || playing() || roaming || isDrag() || isOpen()) return;
+                    const r = Math.random();
+                    if (r < 0.45) look(toScreen() * rand(0.6, 1), rand(-0.5, 0.3));      // glances into the screen
+                    else if (r < 0.65) { look(0, 0); blinkNow(); }
+                    else if (r < 0.85) {                                                  // leans out a bit further
+                        setCls('fab-lean', true); look(toScreen(), 0); express('curious', 1500);
+                        setTimeout(() => setCls('fab-lean', false), 1600);
+                    } else express('wink', 850);
+                }, 2600);
+                schedulePlay();
+                scheduleRoam();
+            }
+            function stopPeek() {
+                clearInterval(peekTimer); clearTimeout(playTimer); clearTimeout(roamTimer);
+                roamSteps.forEach(clearTimeout); roamSteps = []; roaming = false; fab.style.transition = '';
+                stopPlay();
+                setCls('fab-hide', false); setCls('fab-peek', false); setCls('fab-lean', false);
+            }
             function sync() {
-                const idle = isIdle(), open = isOpen();
-                if (idle && !st.idle) {
-                    clearInterval(zzzTimer);
-                    yawn();   // yawns before dozing off
-
-                    zzzTimer = setInterval(() => { if (isIdle()) emit('z', '#cfe0ff'); }, 2600);
+                const idle = isIdle(), open = isOpen(), night = isNight();
+                if (idle !== st.idle || night !== st.night) {
+                    clearInterval(zzzTimer); stopPeek();
+                    if (idle && night) {
+                        yawn();   // yawns before dozing off
+                        zzzTimer = setInterval(() => { if (isIdle() && isNight()) emit('z', '#cfe0ff'); }, 2600);
+                    } else if (idle) startPeek();
                 }
-                if (!idle && st.idle) clearInterval(zzzTimer);
                 if (open && !st.open) { temp = null; emit('✦', '#ffffff'); }
                 if (!open && st.open) { express('happy', 1100); wave('r'); }
-                st = { idle: idle, open: open };
+                st = { idle: idle, open: open, night: night };
                 render();
             }
+            setInterval(() => { if (isNight() !== st.night) sync(); }, 30000);   // dusk / dawn while the page stays open
             new MutationObserver(sync).observe(fab, { attributes: true, attributeFilter: ['class'] });
             render();
 
