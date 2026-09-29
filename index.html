@@ -6623,12 +6623,17 @@
                 (g.fazercardServerMode === 'select' && g.fazercardServerOptions) ||
                 (g.g2bulkServerMode === 'select' && g.g2bulkServerOptions)
             ).find(o => Array.isArray(o) && o.length);
+            const mkSelect = (list) => {
+                const el = document.createElement('select');
+                el.innerHTML = `<option value="">${ncEsc(t('nc_select_server'))}</option>`
+                    + list.map(o => `<option value="${ncEsc(o.value)}">${ncEsc(o.label || o.value)}</option>`).join('');
+                el.addEventListener('change', () => { el.classList.toggle('has-value', !!el.value); ncOnFieldChange(); });
+                el.id = 'nc-server-id';
+                return el;
+            };
             let el;
             if (opts) {
-                el = document.createElement('select');
-                el.innerHTML = `<option value="">${ncEsc(t('nc_select_server'))}</option>`
-                    + opts.map(o => `<option value="${ncEsc(o.value)}">${ncEsc(o.label || o.value)}</option>`).join('');
-                el.addEventListener('change', () => { el.classList.toggle('has-value', !!el.value); ncOnFieldChange(); });
+                el = mkSelect(opts);
             } else {
                 el = document.createElement('input');
                 el.type = 'text';
@@ -6636,10 +6641,24 @@
                 el.setAttribute('data-i18n-ph', 'nc_server_ph');
                 el.autocomplete = 'off';
                 el.setAttribute('oninput', 'sanitizeIdDigitsInput(this); ncOnFieldChange()');
+                el.id = 'nc-server-id';
             }
-            el.id = 'nc-server-id';
             old.replaceWith(el);
+
+            // No saved options: use G2Bulk's live server list.
+            const src = entries.find(g => g.g2bulkIdCheckCode || g2bulkCodeOf(g));
+            const code = src && (src.g2bulkIdCheckCode || src.g2bulkCode);
+            if (!opts && code && entries.some(g => g.serverIdRequired !== false)) {
+                const gameKey = document.getElementById('nc-game').value;
+                g2bulkFetchServers(code).then(list => {
+                    if (!list.length || document.getElementById('nc-game').value !== gameKey) return;
+                    const cur = document.getElementById('nc-server-id');
+                    if (!cur || cur.tagName === 'SELECT') return;
+                    cur.replaceWith(mkSelect(list));
+                });
+            }
         }
+        function g2bulkCodeOf(g) { return g && g.g2bulkCode; }
 
         function ncOnGameChange() {
             const sel = document.getElementById('nc-game');
@@ -7059,6 +7078,66 @@
         // two separate elements, so every existing
         // getElementById('detail-server-id').value read/write elsewhere in
         // this file keeps working unchanged for both field types.
+        // ---------- Live G2Bulk server / region list ----------
+        // POST /v1/games/servers {game} needs no API key. Games that have no
+        // saved server options (g2bulkServerOptions) get their Server / Region
+        // dropdown filled from here instead. A 403 (or empty list) means the
+        // game has no server concept, so the plain text box is kept.
+        // Results are cached per game code for the page session.
+        const g2bulkServerCache = {};
+        function normalizeG2BulkServers(data) {
+            let raw = data;
+            if (data && !Array.isArray(data)) {
+                raw = data.servers || data.data || data.result || data.regions || null;
+            }
+            const out = [];
+            if (Array.isArray(raw)) {
+                raw.forEach(x => {
+                    if (x == null) return;
+                    if (typeof x === 'object') {
+                        const value = x.value ?? x.server_id ?? x.serverId ?? x.id ?? x.code ?? x.key;
+                        const label = x.label ?? x.name ?? x.server_name ?? x.title ?? value;
+                        if (value != null && String(value) !== '') out.push({ value: String(value), label: String(label) });
+                    } else {
+                        out.push({ value: String(x), label: String(x) });
+                    }
+                });
+            } else if (raw && typeof raw === 'object') {
+                // { "Asia": "os_asia", ... } -> label = key, value = the code
+                Object.keys(raw).forEach(k => {
+                    const v = raw[k];
+                    if (v != null && typeof v !== 'object') out.push({ value: String(v), label: String(k) });
+                });
+            }
+            return out;
+        }
+        function g2bulkFetchServers(code) {
+            if (!code) return Promise.resolve([]);
+            if (g2bulkServerCache[code]) return g2bulkServerCache[code];
+            g2bulkServerCache[code] = fetch('https://api.g2bulk.com/v1/games/servers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game: code })
+            }).then(async res => {
+                if (!res.ok) return []; // 403 = this game has no server list
+                let data = null;
+                try { data = await res.json(); } catch (e) { return []; }
+                const list = normalizeG2BulkServers(data);
+                if (!list.length) console.warn('G2Bulk /games/servers: no options parsed', code, data);
+                return list;
+            }).catch(() => { delete g2bulkServerCache[code]; return []; });
+            return g2bulkServerCache[code];
+        }
+        window.g2bulkFetchServers = g2bulkFetchServers;
+
+        function buildServerSelect(options, placeholder) {
+            const el = document.createElement('select');
+            el.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>`
+                + options.map(o => `<option value="${escapeHtml(String(o.value))}">${escapeHtml(String(o.label || o.value))}</option>`).join('');
+            el.addEventListener('change', () => el.classList.toggle('has-value', !!el.value));
+            return el;
+        }
+
         function renderServerIdField(game) {
             const old = document.getElementById('detail-server-id');
             const providerOptions = game && (
@@ -7068,10 +7147,7 @@
             const useSelect = Array.isArray(providerOptions) && providerOptions.length > 0;
             let el;
             if (useSelect) {
-                el = document.createElement('select');
-                el.innerHTML = '<option value="">Select server / region</option>'
-                    + providerOptions.map(o => `<option value="${escapeHtml(String(o.value))}">${escapeHtml(String(o.label || o.value))}</option>`).join('');
-                el.addEventListener('change', () => el.classList.toggle('has-value', !!el.value));
+                el = buildServerSelect(providerOptions, 'Select server / region');
             } else {
                 el = document.createElement('input');
                 el.type = 'text';
@@ -7081,6 +7157,25 @@
             el.id = 'detail-server-id';
             el.setAttribute('onchange', 'onPlayerIdFieldChange()');
             old.replaceWith(el);
+
+            // No saved options: try G2Bulk's live server list for this game.
+            const code = game && (game.g2bulkIdCheckCode || game.g2bulkCode);
+            const needsServer = game && game.playerIdRequired !== false && game.serverIdRequired !== false;
+            if (!useSelect && code && needsServer) {
+                const gameIdAtRequest = selectedGameId;
+                g2bulkFetchServers(code).then(list => {
+                    if (!list.length || selectedGameId !== gameIdAtRequest) return;
+                    const cur = document.getElementById('detail-server-id');
+                    if (!cur || cur.tagName === 'SELECT') return;
+                    const keep = cur.value.trim();
+                    const sel = buildServerSelect(list, 'Select server / region');
+                    sel.id = 'detail-server-id';
+                    sel.setAttribute('onchange', 'onPlayerIdFieldChange()');
+                    cur.replaceWith(sel);
+                    if (keep && list.some(o => o.value === keep)) { sel.value = keep; sel.classList.add('has-value'); }
+                    if (window.onPlayerIdFieldChange) window.onPlayerIdFieldChange();
+                });
+            }
         }
 
         // ---------- Shareable package link (?game=<gameId>&pkg=<index>) ----------
@@ -15201,7 +15296,14 @@
         // visitor's browser sees this as an installable app from their first
         // visit, and — once actually installed — notifications show up under
         // the app's own name/icon instead of "Chrome • linngamestore.com".
-        if (!isNativeApp() && 'serviceWorker' in navigator) {
+        // Skipped inside the Telegram Mini App WebView: PWA "install as app" /
+        // background push has no meaning there (Telegram already is the app
+        // shell), and that WebView's sandbox rejects registration outright,
+        // throwing a bare, unhelpful "TypeError: {}" into the console on
+        // every visit. Real browsers (Chrome, Safari, etc.) still register
+        // normally so the install prompt / push notifications keep working.
+        const inTgMiniAppForSw = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+        if (!isNativeApp() && !inTgMiniAppForSw && 'serviceWorker' in navigator) {
             navigator.serviceWorker.register('/firebase-messaging-sw.js')
                 .catch(err => console.error('Service worker registration error:', err));
         }
