@@ -7,12 +7,18 @@
          (window.Telegram stays undefined) when opened as a normal website. -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Eruda in-page DevTools (Console / Network / Elements / Storage) for debugging on phones.
-         ERUDA_ALWAYS_ON = true shows it for everyone; set it to false before going live —
-         it can then still be switched on per device by opening the store with ?eruda=1
-         (remembered on that device) and off again with ?eruda=0. -->
+         ERUDA_ALWAYS_ON = false: hidden from every visitor by default. It's
+         reached instead by tapping the "Version ..." line in Profile 7 times
+         (see the Debug Console toggle row + handleVersionTap()/
+         toggleDebugConsole() near the end of this file), which reveals a
+         proper on/off switch. That switch sets/clears the same gz_eruda
+         localStorage flag this block already checks below, so once turned
+         on it keeps loading automatically on future visits/reloads until
+         switched off again - no need to re-tap 7 times every time.
+         ?eruda=1 / ?eruda=0 in the URL still works too, for convenience. -->
     <script>
     (function () {
-        var ERUDA_ALWAYS_ON = true;
+        var ERUDA_ALWAYS_ON = false;
         var on = ERUDA_ALWAYS_ON;
         try {
             var q = new URLSearchParams(location.search).get('eruda');
@@ -3296,47 +3302,205 @@
         @keyframes accountCardPulse { 0% { box-shadow: 0 0 0 0 rgba(59,130,255,0.75); } 100% { box-shadow: 0 0 0 16px rgba(59,130,255,0); } }
         #account-card { scroll-margin-top: calc(90px + env(safe-area-inset-top, 0px)); }
         #account-card.account-card-pulse { animation: accountCardPulse 0.9s ease-out 2; border-color: rgba(90,160,255,0.8); }
-        .social-fab { position: fixed; width: 34px; height: 34px; z-index: 149; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; right: 16px; bottom: 170px; transition: transform 0.15s ease; }
+        /* ===== Floating button - Apple AssistiveTouch style =====
+           Idle: half-tucked into the screen edge + faded.
+           Tap: springs out, glyph spins into a X, list panel pops open.
+           Drag: moves freely, snaps to the nearest left/right edge on release. */
+        .social-fab { position: fixed; width: 45px; height: 45px; z-index: 149; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+            right: 8px; bottom: 170px;
+            transition: left 0.35s cubic-bezier(.22,1,.36,1), transform 0.4s cubic-bezier(.22,1,.36,1), opacity 0.35s ease; }
         .social-fab:active { cursor: grabbing; }
-        /* Bubble = flat concentric blue discs exactly like the reference
-           image (5 hard-edged rings, darkest core), with one ripple wave. */
-        .social-fab-btn { position: relative; z-index: 2; width: 100%; height: 100%; border-radius: 50%;
-            background: radial-gradient(circle, #6BB5FC 0 26%, #74B8FB 26% 44.5%, #9ECEFD 44.5% 63%, #CFE6FE 63% 82%, #EBF5FF 82% 100%);
-            box-shadow: 0 2px 8px rgba(60,120,220,0.28);
+        .social-fab.fab-dragging { transition: none; }
+        .social-fab.fab-idle { opacity: 0.7; }
+        .social-fab.fab-idle.dock-right { transform: translateX(50%); }
+        .social-fab.fab-idle.dock-left { transform: translateX(-50%); }
+        /* ===== Living robot buddy =====
+           Lavender blob body, dark glass visor with glowing cyan eyes and two
+           floating hands. Never static: floats, blinks, winks, looks around,
+           follows your finger, waves, hums, yawns, gets curious, falls
+           asleep in the edge, gets dizzy when shaken, falls in love when
+           held, and its eyes spin into a X when the list is open. */
+        .social-fab-btn { position: relative; z-index: 2; width: 100%; height: 100%;
             transition: transform 0.28s cubic-bezier(.34,1.56,.64,1); }
-        .social-fab-wave { position: absolute; inset: 0; z-index: 0; border-radius: 50%; background: rgba(107,181,252,0.4); pointer-events: none; opacity: 0; animation: socialFabWave 2.4s ease-out infinite; }
-        @keyframes socialFabWave { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(2.3); opacity: 0; } }
-        .social-fab:active .social-fab-btn { transform: scale(0.92); }
-        .social-fab.social-fab-open .social-fab-wave { animation-play-state: paused; opacity: 0; }
-        .social-fab.social-fab-open .social-fab-btn { transform: scale(0.94); }
-        @media (prefers-reduced-motion: reduce) { .social-fab-wave { animation: none; } }
-        /* Pop-out items use the original header Messenger/Telegram look:
-           frosted-glass circle with a coloured icon (same colours as the
-           old .header-social-btn, light + dark theme). */
-        .social-fab-item { position: absolute; z-index: 1; left: 50%; top: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: rgba(255,255,255,0.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.65); box-shadow: 0 4px 14px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.85); opacity: 0; pointer-events: none; transform: translateY(0) scale(0.2) rotate(-90deg); transition: transform 0.22s ease, opacity 0.18s ease; }
-        html[data-theme="dark"] .social-fab-item { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18); box-shadow: 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.15); }
-        .social-fab-item svg { width: 18px; height: 18px; }
-        /* Admin-uploaded icon: shimmer placeholder while it lazy-loads, then fade in. No built-in sample icon. */
-        .fab-item-skel { position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(100deg, rgba(150,170,200,0.25) 30%, rgba(255,255,255,0.7) 50%, rgba(150,170,200,0.25) 70%); background-size: 200% 100%; animation: fabItemShimmer 1.1s linear infinite; }
-        html[data-theme="dark"] .fab-item-skel { background: linear-gradient(100deg, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.08) 70%); background-size: 200% 100%; }
-        @keyframes fabItemShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-        .social-fab-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; opacity: 0; transition: opacity 0.25s ease; }
-        .social-fab-item img.loaded { opacity: 1; }
+        .social-fab:active .social-fab-btn { transform: scale(0.93); }
+        .social-fab-btn.bot-hop { animation: botHop 0.65s cubic-bezier(.3,.7,.4,1); }
+        .social-fab-btn.bot-wiggle { animation: botWiggle 0.75s ease-in-out; }
+        .social-fab-btn.bot-flip { animation: botFlip 0.95s cubic-bezier(.4,0,.3,1); }
+        @keyframes botHop {
+            0% { transform: scale(1,1) translateY(0); }
+            20% { transform: scale(1.14,0.84) translateY(2px); }
+            45% { transform: scale(0.92,1.14) translateY(-9px); }
+            70% { transform: scale(1.05,0.95) translateY(0); }
+            100% { transform: scale(1,1) translateY(0); }
+        }
+        @keyframes botWiggle { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-10deg); } 40% { transform: rotate(9deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(4deg); } }
+        @keyframes botFlip {
+            0% { transform: translateY(0) rotate(0) scale(1,1); }
+            18% { transform: translateY(3px) rotate(0) scale(1.1,0.88); }
+            55% { transform: translateY(-13px) rotate(-200deg) scale(1,1); }
+            100% { transform: translateY(0) rotate(-360deg) scale(1,1); }
+        }
+        .bot-scale { position: absolute; left: 0; top: 0; width: 64px; height: 64px; transform: scale(0.7); transform-origin: 0 0; }
+        .bot-glow { position: absolute; left: 12%; right: 12%; bottom: -11px; height: 15px; border-radius: 50%; z-index: 0; pointer-events: none;
+            background: radial-gradient(closest-side, rgba(122,92,255,0.7), rgba(122,92,255,0));
+            filter: blur(4px); animation: botGlow 3.6s ease-in-out infinite; }
+        @keyframes botGlow { 0%,100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.78); opacity: 0.5; } }
+        .bot-float { position: absolute; inset: 0; z-index: 1; animation: botFloat 3.6s ease-in-out infinite; }
+        @keyframes botFloat { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-3.5px) rotate(1.5deg); } }
+        .social-fab.fab-idle .bot-float, .social-fab.fab-idle .bot-glow { animation-duration: 6.5s; }
+        .bot-rig { position: absolute; inset: 0;
+            transform: translate(var(--bx,0px), var(--by,0px)) rotate(var(--rot,0deg)) scale(var(--sx,1), var(--sy,1));
+            transition: transform 0.5s cubic-bezier(.34,1.56,.64,1); will-change: transform; }
+        .social-fab.fab-dragging .bot-rig { transition: transform 0.1s linear; }
+
+        /* body */
+        .bot-body { position: absolute; inset: 0; z-index: 1; border-radius: 47% 53% 49% 51% / 44% 44% 56% 56%;
+            background:
+                radial-gradient(80% 55% at 30% 12%, rgba(255,255,255,0.75), rgba(255,255,255,0) 70%),
+                linear-gradient(180deg, #e2ddfb 0%, #c4bbf7 34%, #8b70f2 70%, #6a49e8 100%);
+            box-shadow: 0 9px 18px rgba(102,68,230,0.38), inset 0 -8px 12px rgba(84,52,220,0.55),
+                inset 0 3px 5px rgba(255,255,255,0.75), inset 0 0 0 1px rgba(255,255,255,0.25); }
+        /* visor (dark glass screen) */
+        .bot-visor { position: absolute; left: 16%; top: 12%; width: 68%; height: 58%; border-radius: 36% / 34%; overflow: hidden;
+            background: radial-gradient(70% 60% at 85% 100%, rgba(120,70,230,0.6), rgba(120,70,230,0) 70%),
+                linear-gradient(155deg, #43434c 0%, #1a1a22 40%, #08080d 100%);
+            box-shadow: inset 0 1.5px 1.5px rgba(94,240,255,0.6), inset 0 0 0 1px rgba(10,10,16,0.85), 0 1px 0 rgba(255,255,255,0.55), 0 -1px 0 rgba(94,240,255,0.35);
+            transform: translate(var(--vx,0px), var(--vy,0px)); transition: transform 0.2s ease-out; }
+        .bot-visor::before { content: ''; position: absolute; left: 6%; top: 4%; width: 60%; height: 34%; border-radius: 50%; transform: rotate(-12deg);
+            background: linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0)); }
+        .bot-visor::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 22%;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.17), rgba(255,255,255,0));
+            transform: translateX(-150%) skewX(-20deg); animation: botGlare 7s ease-in-out infinite; }
+        @keyframes botGlare { 0%,72% { transform: translateX(-150%) skewX(-20deg); } 100% { transform: translateX(600%) skewX(-20deg); } }
+
+        /* face + eyes */
+        .bot-face { position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+            transform: translate(calc(var(--gx,0px) + var(--shift,0px)), var(--gy,0px)); transition: transform 0.2s ease-out; }
+        .bot-spin { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: rotate(var(--fr,0deg));
+            transition: transform 0.65s cubic-bezier(.34,1.56,.64,1); }
+        .bot-eye { position: absolute; top: -7.5px; width: 15px; height: 15px; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
+        .bot-eye.l { left: -17.5px; }
+        .bot-eye.r { left: 2.5px; }
+        .bot-eye svg { display: block; width: 100%; height: 100%; overflow: visible;
+            filter: drop-shadow(0 0 2.5px rgba(94,240,255,0.95)); transform: scaleY(var(--bl,1)); transition: transform 0.1s ease-out; }
+        .bot-eye.r svg { transform: scaleY(var(--br,1)); }
+        .bot-eye .g { opacity: 0; transform-box: fill-box; transform-origin: center; transition: opacity 0.14s ease, transform 0.3s cubic-bezier(.34,1.56,.64,1); }
+        .bot-face.blink .bot-eye svg { animation: botBlink 0.24s ease-in-out; }
+        .bot-face.eyeopen .bot-eye svg { animation: botOpen 0.38s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes botBlink { 0% { transform: scaleY(1); } 45% { transform: scaleY(0.05); } 100% { transform: scaleY(1); } }
+        @keyframes botOpen { 0% { transform: scaleY(0.05); } 100% { transform: scaleY(1); } }
+        .bot-glow, .bot-float, .bot-rig { pointer-events: none; }
+
+        /* which eye shape shows for each mood */
+        .bot-rig[data-mood="neutral"] .g-round, .bot-rig[data-mood="wide"] .g-round, .bot-rig[data-mood="surprise"] .g-round,
+        .bot-rig[data-mood="curious"] .g-round, .bot-rig[data-mood="sad"] .g-round, .bot-rig[data-mood="tired"] .g-round,
+        .bot-rig[data-mood="wink"] .bot-eye.r .g-round { opacity: 1; }
+        .bot-rig[data-mood="wink"] .bot-eye.l .g-line { opacity: 1; }
+        .bot-rig[data-mood="happy"] .g-happy { opacity: 1; }
+        .bot-rig[data-mood="love"] .g-heart { opacity: 1; }
+        .bot-rig[data-mood="sleep"] .g-sleep { opacity: 1; }
+        .bot-rig[data-mood="x"] .g-x { opacity: 1; }
+        .bot-rig[data-mood="dizzy"] .g-spiral { opacity: 1; animation: botSpiral 0.7s linear infinite; }
+        @keyframes botSpiral { to { transform: rotate(360deg); } }
+        .bot-rig[data-mood="wide"] .g-round { transform: scale(1.2); }
+        .bot-rig[data-mood="surprise"] .g-round { transform: scale(1.42); }
+        .bot-rig[data-mood="tired"] .g-round { transform: scaleY(0.5); }
+        .bot-rig[data-mood="curious"] .bot-eye.l .g-round { transform: scale(0.78); }
+        .bot-rig[data-mood="curious"] .bot-eye.r .g-round { transform: scale(1.28); }
+        .bot-rig[data-mood="sad"] .g-round { transform: scale(0.86); }
+        .bot-rig[data-mood="sad"] .bot-eye.l { transform: rotate(-13deg) translateY(1.5px); }
+        .bot-rig[data-mood="sad"] .bot-eye.r { transform: rotate(13deg) translateY(1.5px); }
+        .bot-rig[data-mood="love"] .g-heart { animation: botBeat 0.55s ease-in-out infinite; }
+        @keyframes botBeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+        /* menu open: face spins, both eyes slide together and become a X */
+        .social-fab.social-fab-open .bot-face { transform: translate(0,0); }
+        .social-fab.social-fab-open .bot-spin { --fr: 180deg; }
+        .social-fab.social-fab-open .bot-eye.l { transform: translateX(10px) scale(1.4); }
+        .social-fab.social-fab-open .bot-eye.r { transform: translateX(-10px) scale(1.4); }
+        /* asleep while tucked in the edge: face turned toward the visible half */
+        .social-fab.fab-idle.dock-right .bot-face { --shift: -9px; }
+        .social-fab.fab-idle.dock-left .bot-face { --shift: 9px; }
+
+        /* hands */
+        .bot-hand { position: absolute; z-index: 0; will-change: transform; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
+        .bot-hand i { display: block; position: relative; width: 100%; height: 100%; border-radius: 50%;
+            background: linear-gradient(160deg, #e2ddfb 0%, #b5a8f5 45%, #6f4fe8 100%);
+            box-shadow: inset 0 -4px 6px rgba(84,52,220,0.45), inset 0 2px 3px rgba(255,255,255,0.7), 0 3px 6px rgba(102,68,230,0.3);
+            animation: botHandBob 3.2s ease-in-out infinite; }
+        .bot-hand.r i { animation-delay: -1.6s; }
+        @keyframes botHandBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
+        .bot-hand.l { left: -12px; top: 32%; width: 18px; height: 21px; transform-origin: 100% 50%;
+            transform: translate(var(--hlx,0px), var(--hly,0px)) rotate(var(--hlr,-8deg)); }
+        .bot-hand.r { right: -9px; top: 48%; width: 12px; height: 25px; transform-origin: 0% 40%;
+            transform: translate(var(--hrx,0px), var(--hry,0px)) rotate(var(--hrr,-20deg)); }
+        .bot-hand.l i::after { content: ''; position: absolute; left: 24%; top: 46%; width: 50%; height: 2px; border-radius: 2px;
+            background: #7df6ff; box-shadow: 0 0 4px #5ef0ff; animation: botLed 2.8s ease-in-out infinite; }
+        @keyframes botLed { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+        .bot-hand.wave.r { animation: botWaveR 1s ease-in-out; }
+        .bot-hand.wave.l { animation: botWaveL 1s ease-in-out; }
+        @keyframes botWaveR {
+            0%,100% { transform: translate(0,0) rotate(-20deg); }
+            12%,60% { transform: translate(3px,-10px) rotate(18deg); }
+            26%,74% { transform: translate(3px,-10px) rotate(44deg); }
+            42%,88% { transform: translate(3px,-10px) rotate(18deg); }
+        }
+        @keyframes botWaveL {
+            0%,100% { transform: translate(0,0) rotate(-8deg); }
+            12%,60% { transform: translate(-3px,-10px) rotate(-16deg); }
+            26%,74% { transform: translate(-3px,-10px) rotate(-44deg); }
+            42%,88% { transform: translate(-3px,-10px) rotate(-16deg); }
+        }
+        /* hand poses per mood */
+        .bot-rig[data-mood="happy"] .bot-hand.l, .bot-rig[data-mood="love"] .bot-hand.l { --hly: -5px; --hlr: -32deg; }
+        .bot-rig[data-mood="happy"] .bot-hand.r, .bot-rig[data-mood="love"] .bot-hand.r { --hry: -5px; --hrr: 26deg; }
+        .bot-rig[data-mood="surprise"] .bot-hand.l { --hly: -8px; --hlr: -46deg; }
+        .bot-rig[data-mood="surprise"] .bot-hand.r { --hry: -8px; --hrr: 40deg; }
+        .bot-rig[data-mood="x"] .bot-hand.l { --hlx: -2px; --hly: -9px; --hlr: -42deg; }
+        .bot-rig[data-mood="x"] .bot-hand.r { --hrx: 2px; --hry: -9px; --hrr: 34deg; }
+        .bot-rig[data-mood="sleep"] .bot-hand.l, .bot-rig[data-mood="sad"] .bot-hand.l { --hly: 6px; --hlr: 16deg; }
+        .bot-rig[data-mood="sleep"] .bot-hand.r, .bot-rig[data-mood="sad"] .bot-hand.r { --hry: 6px; --hrr: -4deg; }
+        .bot-rig[data-mood="dizzy"] .bot-hand.l { --hlr: -50deg; --hly: -3px; }
+        .bot-rig[data-mood="dizzy"] .bot-hand.r { --hrr: 48deg; --hry: -3px; }
+
+        /* floating effects: z z z, hearts, !, ?, notes, sparkles, stars */
+        .bot-fx { position: absolute; left: 50%; top: 0; width: 0; height: 0; z-index: 5; pointer-events: none; }
+        .fx-p { position: absolute; left: 0; top: 0; font: 800 14px/1 -apple-system, system-ui, sans-serif; white-space: nowrap;
+            text-shadow: 0 0 6px currentColor, 0 1px 2px rgba(0,0,0,0.3); opacity: 0; animation: botFx 1.6s ease-out forwards; }
+        @keyframes botFx {
+            0% { opacity: 0; transform: translate(calc(-50% + var(--dx0,0px)), 8px) scale(0.4) rotate(0deg); }
+            18% { opacity: 1; transform: translate(calc(-50% + var(--dx0,0px)), -2px) scale(1.15) rotate(0deg); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx,0px)), -30px) scale(0.9) rotate(var(--rt,0deg)); }
+        }
+
+        /* List panel */
+        .fab-menu { position: absolute; z-index: 1; bottom: calc(100% + 10px); min-width: 176px; padding: 6px; border-radius: 22px;
+            background: rgba(30,28,56,0.8);
+            -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.12);
+            opacity: 0; visibility: hidden; pointer-events: none; transform: scale(0.3);
+            transition: transform 0.4s cubic-bezier(.34,1.4,.64,1), opacity 0.2s ease, visibility 0s linear 0.4s; }
+        .social-fab.dock-right .fab-menu { right: 0; transform-origin: bottom right; }
+        .social-fab.dock-left .fab-menu { left: 0; transform-origin: bottom left; }
+        .social-fab.social-fab-down .fab-menu { bottom: auto; top: calc(100% + 10px); }
+        .social-fab.social-fab-down.dock-right .fab-menu { transform-origin: top right; }
+        .social-fab.social-fab-down.dock-left .fab-menu { transform-origin: top left; }
+        .social-fab.social-fab-open .fab-menu { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); transition-delay: 0s; }
+
+        .social-fab-item { position: relative; display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; border-radius: 16px; cursor: pointer; color: #fff; font-size: 15px; font-weight: 600; letter-spacing: 0.1px; opacity: 0; transform: translateY(6px); transition: opacity 0.2s ease, transform 0.3s ease, background 0.15s ease; }
+        .social-fab.social-fab-open .social-fab-item { opacity: 1; transform: translateY(0); }
+        .social-fab.social-fab-open .social-fab-item.item-messenger { transition-delay: 0.06s; }
+        .social-fab.social-fab-open .social-fab-item.item-telegram { transition-delay: 0.12s; }
+        .social-fab-item:active { background: rgba(255,255,255,0.14); }
+        .social-fab-item + .social-fab-item { margin-top: 2px; }
         .social-fab-item.no-img { display: none; }
-        @media (prefers-reduced-motion: reduce) { .fab-item-skel { animation: none; } }
-        .social-fab-item.item-messenger svg { color: #2266dd; }
-        .social-fab-item.item-telegram svg { color: #0088cc; }
-        html[data-theme="dark"] .social-fab-item.item-messenger svg { color: #6fb1ff; }
-        html[data-theme="dark"] .social-fab-item.item-telegram svg { color: #6fd2ff; }
-        .social-fab-item:active { transform-origin: center; filter: brightness(0.95); }
-        /* Pop-out: items spring up one after the other, with a little
-           overshoot + spin; closing folds them back down in reverse. */
-        .social-fab.social-fab-open .social-fab-item { opacity: 1; pointer-events: auto; transition: transform 0.45s cubic-bezier(.34,1.56,.64,1), opacity 0.2s ease; }
-        .social-fab.social-fab-open .social-fab-item.item-messenger { transform: translateY(-48px) scale(1) rotate(0deg); transition-delay: 0.02s; }
-        .social-fab.social-fab-open .social-fab-item.item-telegram { transform: translateY(-92px) scale(1) rotate(0deg); transition-delay: 0.10s; }
-        .social-fab.social-fab-open.social-fab-down .social-fab-item.item-messenger { transform: translateY(48px) scale(1) rotate(0deg); }
-        .social-fab.social-fab-open.social-fab-down .social-fab-item.item-telegram { transform: translateY(92px) scale(1) rotate(0deg); }
-        .social-fab:not(.social-fab-open) .social-fab-item.item-messenger { transition-delay: 0.06s; }
+        .fab-item-ico { position: relative; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.10); }
+        .fab-item-ico img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; opacity: 0; transition: opacity 0.25s ease; }
+        .fab-item-ico img.loaded { opacity: 1; }
+        /* Admin-uploaded icon: shimmer placeholder while it lazy-loads, then fade in. No built-in sample icon. */
+        .fab-item-skel { position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(100deg, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.24) 50%, rgba(255,255,255,0.08) 70%); background-size: 200% 100%; animation: fabItemShimmer 1.1s linear infinite; }
+        @keyframes fabItemShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+        @media (prefers-reduced-motion: reduce) { .fab-item-skel { animation: none; } .bot-eye, .bot-spin, .bot-rig, .bot-hand, .bot-face, .bot-visor, .fab-menu, .social-fab-item, .social-fab { transition-duration: 0.01s !important; } .bot-float, .bot-glow, .bot-hand i, .bot-visor::after { animation: none !important; } }
         /* Store Guide cards — "response card" look (traffic-light dots +
            label header, close button where a Copy button would sit, and a
            two-tone header/body card body) instead of the plain accordion. */
@@ -3629,15 +3793,56 @@
     <div id="toast"><span class="toast-icon-circle" id="toast-icon-circle"><svg class="ui-icon" id="toast-icon" style="color:#fff;"><use id="toast-icon-use" href="#icon-check"></use></svg></span> <span id="toast-msg">Success!</span> <svg class="ui-icon toast-close" onclick="window.hideToast && window.hideToast()"><use href="#icon-close"></use></svg></div>
 
     <!-- Social contact bubble: draggable floating chat head with Messenger + Telegram, replaces the old fixed header icons -->
-    <div class="social-fab" id="social-fab" aria-label="Contact us">
-        <div class="social-fab-item item-telegram" id="social-fab-telegram" role="button" aria-label="Message us on Telegram" data-href="https://t.me/linn270_0">
-            <span class="fab-item-skel"></span>
+    <div class="social-fab dock-right" id="social-fab" aria-label="Contact us" aria-expanded="false">
+        <div class="fab-menu">
+            <div class="social-fab-item item-messenger" id="social-fab-messenger" role="button" aria-label="Message us on Messenger" data-href="https://m.me/sandarlinn69">
+                <span class="fab-item-ico"><span class="fab-item-skel"></span></span><span class="fab-item-label">Messenger</span>
+            </div>
+            <div class="social-fab-item item-telegram" id="social-fab-telegram" role="button" aria-label="Message us on Telegram" data-href="https://t.me/linn270_0">
+                <span class="fab-item-ico"><span class="fab-item-skel"></span></span><span class="fab-item-label">Telegram</span>
+            </div>
         </div>
-        <div class="social-fab-item item-messenger" id="social-fab-messenger" role="button" aria-label="Message us on Messenger" data-href="https://m.me/sandarlinn69">
-            <span class="fab-item-skel"></span>
-        </div>
-        <span class="social-fab-wave"></span>
-        <div class="social-fab-btn">
+        <div class="social-fab-btn" role="button" aria-label="Contact menu">
+            <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+                <linearGradient id="botEyeGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b5fbff"/><stop offset="1" stop-color="#2fd0ff"/></linearGradient>
+                <pattern id="botScan" width="24" height="2.6" patternUnits="userSpaceOnUse"><rect y="1.7" width="24" height="0.9" fill="#0a0a12" fill-opacity="0.6"/></pattern>
+            </defs></svg>
+            <div class="bot-scale">
+            <span class="bot-glow"></span>
+            <div class="bot-float">
+                <div class="bot-rig" data-mood="neutral">
+                    <span class="bot-hand l"><i></i></span>
+                    <span class="bot-hand r"><i></i></span>
+                    <div class="bot-body">
+                        <div class="bot-visor">
+                            <div class="bot-face">
+                                <div class="bot-spin">
+                                    <span class="bot-eye l"><svg viewBox="0 0 24 24" aria-hidden="true">
+                                <g class="g g-round"><circle cx="12" cy="12" r="8.6" fill="url(#botEyeGrad)"/><circle cx="12" cy="12" r="8.6" fill="url(#botScan)"/></g>
+                                <g class="g g-line"><rect x="1.5" y="10.4" width="21" height="3.2" rx="1.6" fill="#7df6ff"/></g>
+                                <g class="g g-happy"><path d="M4 16.5Q12 3.5 20 16.5" fill="none" stroke="#7df6ff" stroke-width="3.4" stroke-linecap="round"/></g>
+                                <g class="g g-heart"><path d="M12 20.5C3.2 14 2.5 7.8 7 6.2c2.4-.8 4.2.5 5 2.2.8-1.7 2.6-3 5-2.2 4.5 1.6 3.8 7.8-5 14.3z" fill="#ff7ab8"/></g>
+                                <g class="g g-sleep"><path d="M4 9Q12 18 20 9" fill="none" stroke="#7df6ff" stroke-width="3" stroke-linecap="round" opacity="0.7"/></g>
+                                <g class="g g-x"><path d="M4 4L20 20" fill="none" stroke="#7df6ff" stroke-width="3.8" stroke-linecap="round"/></g>
+                                <g class="g g-spiral"><path d="M12 12a1.4 1.4 0 0 1 2.8 0a2.8 2.8 0 0 1 -5.6 0a4.2 4.2 0 0 1 8.4 0a5.6 5.6 0 0 1 -11.2 0a7 7 0 0 1 14 0" fill="none" stroke="#7df6ff" stroke-width="1.9" stroke-linecap="round"/></g>
+                            </svg></span>
+                                    <span class="bot-eye r"><svg viewBox="0 0 24 24" aria-hidden="true">
+                                <g class="g g-round"><circle cx="12" cy="12" r="8.6" fill="url(#botEyeGrad)"/><circle cx="12" cy="12" r="8.6" fill="url(#botScan)"/></g>
+                                <g class="g g-line"><rect x="1.5" y="10.4" width="21" height="3.2" rx="1.6" fill="#7df6ff"/></g>
+                                <g class="g g-happy"><path d="M4 16.5Q12 3.5 20 16.5" fill="none" stroke="#7df6ff" stroke-width="3.4" stroke-linecap="round"/></g>
+                                <g class="g g-heart"><path d="M12 20.5C3.2 14 2.5 7.8 7 6.2c2.4-.8 4.2.5 5 2.2.8-1.7 2.6-3 5-2.2 4.5 1.6 3.8 7.8-5 14.3z" fill="#ff7ab8"/></g>
+                                <g class="g g-sleep"><path d="M4 9Q12 18 20 9" fill="none" stroke="#7df6ff" stroke-width="3" stroke-linecap="round" opacity="0.7"/></g>
+                                <g class="g g-x"><path d="M20 4L4 20" fill="none" stroke="#7df6ff" stroke-width="3.8" stroke-linecap="round"/></g>
+                                <g class="g g-spiral"><path d="M12 12a1.4 1.4 0 0 1 2.8 0a2.8 2.8 0 0 1 -5.6 0a4.2 4.2 0 0 1 8.4 0a5.6 5.6 0 0 1 -11.2 0a7 7 0 0 1 14 0" fill="none" stroke="#7df6ff" stroke-width="1.9" stroke-linecap="round"/></g>
+                            </svg></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bot-fx"></div>
+            </div>
         </div>
     </div>
 
@@ -11984,11 +12189,12 @@
             probe.decoding = 'async';
             probe.onload = () => {
                 if (btn.dataset.img !== url) return;
-                btn.innerHTML = '';
+                const holder = btn.querySelector('.fab-item-ico') || btn;
+                holder.innerHTML = '';
                 const img = document.createElement('img');
                 img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.draggable = false;
                 img.src = url;
-                btn.appendChild(img);
+                holder.appendChild(img);
                 requestAnimationFrame(() => img.classList.add('loaded'));
                 btn.dataset.imgState = 'done';
             };
@@ -15289,24 +15495,21 @@
         }
 
         // ---------- PWA installability + custom "Download App" button ----------
-        // Chrome only offers to install a site as an app (WebAPK) if a service
-        // worker is registered — previously that only happened inside
-        // registerFcmToken(), i.e. only after a visitor turned push
-        // notifications on. Registering it here unconditionally means every
-        // visitor's browser sees this as an installable app from their first
-        // visit, and — once actually installed — notifications show up under
-        // the app's own name/icon instead of "Chrome • linngamestore.com".
-        // Skipped inside the Telegram Mini App WebView: PWA "install as app" /
-        // background push has no meaning there (Telegram already is the app
-        // shell), and that WebView's sandbox rejects registration outright,
-        // throwing a bare, unhelpful "TypeError: {}" into the console on
-        // every visit. Real browsers (Chrome, Safari, etc.) still register
-        // normally so the install prompt / push notifications keep working.
+        // TEMPORARILY DISABLED: /firebase-messaging-sw.js is not hosted on
+        // the live site yet (404), so registering it just threw a bare
+        // "TypeError: {}" into every visitor's console on every page load,
+        // in every browser (not just inside Telegram — confirmed 404 in
+        // plain Firefox too). Re-enable by un-commenting the block below
+        // once firebase-messaging-sw.js is actually uploaded to the site
+        // root — until then this only costs the PWA "install as app"
+        // prompt and background push notifications, nothing else.
+        /*
         const inTgMiniAppForSw = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
         if (!isNativeApp() && !inTgMiniAppForSw && 'serviceWorker' in navigator) {
             navigator.serviceWorker.register('/firebase-messaging-sw.js')
                 .catch(err => console.error('Service worker registration error:', err));
         }
+        */
 
         let deferredInstallPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -15736,18 +15939,62 @@
         // and admin-side code that isn't part of this pass - see chat notes.
         // ---------- Social contact bubble: draggable Messenger/Telegram chat head ----------
         let socialFabDragged = false;
+        let socialFabIdleTimer = null;
+        let socialFabBot = null;
+        let socialFabLongPressed = false;
+        const SOCIAL_FAB_MARGIN = 12;
+        function socialFabEl() { return document.getElementById('social-fab'); }
+        // AssistiveTouch behaviour: after a short moment with no interaction the
+        // button slides half-way into the screen edge and fades out.
+        function scheduleSocialFabIdle() {
+            const fab = socialFabEl();
+            if (!fab) return;
+            clearTimeout(socialFabIdleTimer);
+            if (fab.classList.contains('social-fab-open') || fab.classList.contains('fab-dragging')) return;
+            socialFabIdleTimer = setTimeout(() => {
+                if (!fab.classList.contains('social-fab-open') && !fab.classList.contains('fab-dragging')) fab.classList.add('fab-idle');
+            }, 2500);
+        }
+        function wakeSocialFab() {
+            const fab = socialFabEl();
+            if (!fab) return;
+            const wasIdle = fab.classList.contains('fab-idle');
+            fab.classList.remove('fab-idle');
+            if (wasIdle && socialFabBot) socialFabBot.startle();
+            scheduleSocialFabIdle();
+        }
+        function dockSocialFab(side) {
+            const fab = socialFabEl();
+            if (!fab) return;
+            const left = side === 'left';
+            fab.classList.toggle('dock-left', left);
+            fab.classList.toggle('dock-right', !left);
+            fab.style.right = 'auto';
+            fab.style.left = (left ? SOCIAL_FAB_MARGIN : Math.max(SOCIAL_FAB_MARGIN, window.innerWidth - fab.offsetWidth - SOCIAL_FAB_MARGIN)) + 'px';
+        }
         function loadSocialFabPos() {
+            const fab = socialFabEl();
+            if (!fab) return;
+            let side = 'right';
             try {
                 const saved = JSON.parse(localStorage.getItem('gz_social_fab_pos') || 'null');
-                const fab = document.getElementById('social-fab');
-                if (!fab || !saved || typeof saved.right !== 'number' || typeof saved.bottom !== 'number') return;
-                fab.style.right = saved.right + 'px';
-                fab.style.bottom = saved.bottom + 'px';
+                if (saved && typeof saved.bottom === 'number') {
+                    const maxB = Math.max(4, window.innerHeight - fab.offsetHeight - 4);
+                    fab.style.bottom = Math.min(Math.max(saved.bottom, 4), maxB) + 'px';
+                    if (saved.side === 'left') side = 'left';
+                    else if (!saved.side && typeof saved.right === 'number' && saved.right > window.innerWidth / 2) side = 'left'; // old saved format
+                }
             } catch (e) { /* private browsing - ignore */ }
+            dockSocialFab(side);
         }
         function closeSocialFab() {
-            const fab = document.getElementById('social-fab');
-            if (fab) fab.classList.remove('social-fab-open');
+            const fab = socialFabEl();
+            if (!fab) return;
+            const wasOpen = fab.classList.contains('social-fab-open');
+            fab.classList.remove('social-fab-open');
+            fab.setAttribute('aria-expanded', 'false');
+            if (wasOpen && socialFabBot) socialFabBot.hop();
+            scheduleSocialFabIdle();
         }
         // m.me is a web redirect page (m.me -> facebook.com -> app), so opening
         // it in a new tab feels slow, unlike t.me which hands straight to the
@@ -15773,50 +16020,88 @@
         }
 
         function initSocialFab() {
-            const fab = document.getElementById('social-fab');
+            const fab = socialFabEl();
             if (!fab) return;
             loadSocialFabPos();
+            scheduleSocialFabIdle();
 
-            let startX, startY, startRight, startBottom, moved;
+            let startX, startY, startLeft, startBottom, moved = false, lastX = 0, lastY = 0, pressTimer = 0;
             const onMove = (e) => {
-                const dx = startX - e.clientX;
+                const dx = e.clientX - startX;
                 const dy = startY - e.clientY;
-                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-                const maxRight = window.innerWidth - fab.offsetWidth - 4;
+                const vx = e.clientX - lastX, vy = e.clientY - lastY;
+                lastX = e.clientX; lastY = e.clientY;
+                if (!moved) {
+                    if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+                    moved = true;
+                    clearTimeout(pressTimer);
+                    fab.classList.add('fab-dragging');
+                    closeSocialFab();
+                }
+                const maxLeft = window.innerWidth - fab.offsetWidth - 10;
                 const maxBottom = window.innerHeight - fab.offsetHeight - 4;
-                fab.style.right = Math.min(Math.max(startRight + dx, 4), maxRight) + 'px';
+                fab.style.left = Math.min(Math.max(startLeft + dx, 10), maxLeft) + 'px';
                 fab.style.bottom = Math.min(Math.max(startBottom + dy, 4), maxBottom) + 'px';
+                if (socialFabBot) socialFabBot.drag(vx, vy);
             };
             const onUp = () => {
                 document.removeEventListener('pointermove', onMove);
                 document.removeEventListener('pointerup', onUp);
-                socialFabDragged = moved;
+                document.removeEventListener('pointercancel', onUp);
+                clearTimeout(pressTimer);
+                fab.classList.remove('fab-dragging');
+                if (moved && socialFabBot) socialFabBot.release();
                 if (moved) {
+                    socialFabDragged = true;
+                    setTimeout(() => { socialFabDragged = false; }, 60);
+                    // Snap to the nearest side edge, like AssistiveTouch.
+                    const centerX = (parseFloat(fab.style.left) || 0) + fab.offsetWidth / 2;
+                    const side = centerX < window.innerWidth / 2 ? 'left' : 'right';
+                    dockSocialFab(side);
                     try {
                         localStorage.setItem('gz_social_fab_pos', JSON.stringify({
-                            right: parseFloat(fab.style.right) || 16,
+                            side: side,
                             bottom: parseFloat(fab.style.bottom) || 170
                         }));
                     } catch (e) { /* private browsing - ignore */ }
                 }
+                scheduleSocialFabIdle();
             };
             fab.addEventListener('pointerdown', (e) => {
-                if (e.target.closest('.social-fab-item')) return;
-                startX = e.clientX; startY = e.clientY; moved = false;
-                const rect = fab.getBoundingClientRect();
-                startRight = window.innerWidth - rect.right;
-                startBottom = window.innerHeight - rect.bottom;
+                wakeSocialFab();
+                if (e.target.closest('.fab-menu')) return;
+                startX = e.clientX; startY = e.clientY; lastX = startX; lastY = startY; moved = false;
+                socialFabLongPressed = false;
+                clearTimeout(pressTimer);
+                // Hold (without moving) = pet the robot -> it falls in love
+                pressTimer = setTimeout(() => {
+                    if (!moved && !fab.classList.contains('social-fab-open')) {
+                        socialFabLongPressed = true;
+                        if (socialFabBot) socialFabBot.love();
+                    }
+                }, 600);
+                startLeft = parseFloat(fab.style.left);
+                if (isNaN(startLeft)) startLeft = fab.getBoundingClientRect().left;
+                startBottom = parseFloat(fab.style.bottom);
+                if (isNaN(startBottom)) startBottom = window.innerHeight - fab.getBoundingClientRect().bottom;
                 document.addEventListener('pointermove', onMove);
                 document.addEventListener('pointerup', onUp);
+                document.addEventListener('pointercancel', onUp);
             });
-            // A drag never also toggles the menu open/closed - only a
-            // genuine tap on the bubble (not its popped-out items) does.
+            // A drag never also toggles the menu - only a genuine tap on
+            // the button (not the list inside the panel) does.
             fab.addEventListener('click', (e) => {
-                if (e.target.closest('.social-fab-item')) return;
+                if (e.target.closest('.fab-menu')) return;
                 if (socialFabDragged) { socialFabDragged = false; return; }
-                fab.classList.toggle('social-fab-down', fab.getBoundingClientRect().top < 130);
-                fab.classList.toggle('social-fab-open');
-                if (fab.classList.contains('social-fab-open')) loadSocialFabImages();
+                if (socialFabLongPressed) { socialFabLongPressed = false; return; }
+                if (fab.classList.contains('social-fab-open')) { closeSocialFab(); return; }
+                clearTimeout(socialFabIdleTimer);
+                fab.classList.remove('fab-idle');
+                fab.classList.toggle('social-fab-down', fab.getBoundingClientRect().top < 180);
+                fab.classList.add('social-fab-open');
+                fab.setAttribute('aria-expanded', 'true');
+                if (socialFabBot) { socialFabBot.reset(); socialFabBot.hop(); }
+                loadSocialFabImages();
             });
             document.getElementById('social-fab-messenger')?.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -15828,11 +16113,250 @@
                 closeSocialFab();
                 window.openExternalUrl(e.currentTarget.dataset.href || 'https://t.me/linn270_0');
             });
-            // Tapping anywhere else on the page closes the popped-out menu.
+            // Tapping anywhere else on the page closes the open list.
             document.addEventListener('pointerdown', (e) => {
                 if (!fab.classList.contains('social-fab-open')) return;
                 if (!e.target.closest('#social-fab')) closeSocialFab();
             });
+            window.addEventListener('resize', () => dockSocialFab(fab.classList.contains('dock-left') ? 'left' : 'right'));
+            initSocialFabBot();
+        }
+
+        // ---------- Living robot buddy: moods, gaze, hands, effects, random life ----------
+        function initSocialFabBot() {
+            const fab = socialFabEl();
+            if (!fab) return;
+            const rig = fab.querySelector('.bot-rig');
+            const face = fab.querySelector('.bot-face');
+            const visor = fab.querySelector('.bot-visor');
+            const btn = fab.querySelector('.social-fab-btn');
+            const fx = fab.querySelector('.bot-fx');
+            const handL = fab.querySelector('.bot-hand.l');
+            const handR = fab.querySelector('.bot-hand.r');
+            if (!rig || !face || !visor || !btn) return;
+            const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            const isOpen = () => fab.classList.contains('social-fab-open');
+            const isIdle = () => fab.classList.contains('fab-idle');
+            const isDrag = () => fab.classList.contains('fab-dragging');
+            const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+            const rand = (a, b) => a + Math.random() * (b - a);
+            let lastPtr = 0, raf = 0, temp = null, tempTimer = 0, zzzTimer = 0;
+            let lastSign = 0, flips = [], lastScrollT = 0, lastScrollY = 0;
+
+            // ----- mood engine: a temporary mood overrides the base mood -----
+            const baseMood = () => isOpen() ? 'x' : isDrag() ? 'wide' : isIdle() ? 'sleep' : 'neutral';
+            function render() {
+                const m = (temp && !isOpen()) ? temp : baseMood();
+                if (rig.dataset.mood !== m) {
+                    const from = rig.dataset.mood;
+                    rig.dataset.mood = m;
+                    // eyes "open" every time the expression changes (waking up, calming down...)
+                    if (m !== 'x' && from !== 'x' && m !== 'dizzy') {
+                        face.classList.remove('eyeopen'); void face.offsetWidth; face.classList.add('eyeopen');
+                        setTimeout(() => face.classList.remove('eyeopen'), 400);
+                    }
+                }
+            }
+            function express(mood, ms) {
+                temp = mood;
+                clearTimeout(tempTimer);
+                render();
+                tempTimer = setTimeout(() => { temp = null; render(); }, ms);
+            }
+            const calm = () => !document.hidden && !isOpen() && !isDrag() && !isIdle() && !temp;
+
+            // ----- gaze: eyes move most, visor + body follow a little (3D feel) -----
+            function look(x, y) {
+                face.style.setProperty('--gx', (x * 5).toFixed(2) + 'px');
+                face.style.setProperty('--gy', (y * 4).toFixed(2) + 'px');
+                visor.style.setProperty('--vx', (x * 1.8).toFixed(2) + 'px');
+                visor.style.setProperty('--vy', (y * 1.4).toFixed(2) + 'px');
+                rig.style.setProperty('--bx', (x * 1.6).toFixed(2) + 'px');
+                rig.style.setProperty('--by', (y * 1.2).toFixed(2) + 'px');
+                rig.style.setProperty('--rot', (x * 3).toFixed(2) + 'deg');
+            }
+            function squash(sx, sy) { rig.style.setProperty('--sx', sx); rig.style.setProperty('--sy', sy); }
+            function anim(name) {
+                btn.classList.remove('bot-hop', 'bot-wiggle', 'bot-flip');
+                void btn.offsetWidth;
+                btn.classList.add(name);
+                setTimeout(() => btn.classList.remove(name), 1000);
+            }
+            function wave(which) {
+                const h = which === 'l' ? handL : handR;
+                if (!h) return;
+                h.classList.remove('wave');
+                void h.offsetWidth;
+                h.classList.add('wave');
+                setTimeout(() => h.classList.remove('wave'), 1050);
+            }
+            function emit(ch, color) {
+                if (!fx || reduce) return;
+                while (fx.childElementCount > 6) fx.firstChild.remove();
+                const el = document.createElement('span');
+                el.className = 'fx-p';
+                el.textContent = /^[\x00-\x7f]+$/.test(ch) ? ch : ch + '\uFE0E';
+                el.style.color = color;
+                el.style.setProperty('--dx0', rand(-7, 7).toFixed(1) + 'px');
+                el.style.setProperty('--dx', rand(-18, 18).toFixed(1) + 'px');
+                el.style.setProperty('--rt', rand(-24, 24).toFixed(0) + 'deg');
+                fx.appendChild(el);
+                setTimeout(() => el.remove(), 1700);
+            }
+            function resetHands() {
+                ['--hlr', '--hly', '--hrr', '--hry'].forEach(k => { handL && handL.style.removeProperty(k); handR && handR.style.removeProperty(k); });
+            }
+            function blinkNow(double) {
+                if (!['neutral', 'wide', 'curious', 'tired', 'surprise'].includes(rig.dataset.mood)) return;
+                face.classList.remove('blink'); void face.offsetWidth; face.classList.add('blink');
+                setTimeout(() => face.classList.remove('blink'), 260);
+                if (double) setTimeout(() => {
+                    face.classList.remove('blink'); void face.offsetWidth; face.classList.add('blink');
+                    setTimeout(() => face.classList.remove('blink'), 260);
+                }, 340);
+            }
+            function dizzy() {
+                express('dizzy', 2300);
+                anim('bot-wiggle');
+                for (let i = 0; i < 3; i++) setTimeout(() => emit('★', '#ffe27a'), i * 300);
+            }
+            function love() {
+                express('love', 2300);
+                anim('bot-hop');
+                for (let i = 0; i < 4; i++) setTimeout(() => emit('♥', '#ff7ab8'), i * 260);
+            }
+
+            // ----- public API used by the drag / tap code -----
+            socialFabBot = {
+                hop: () => anim('bot-hop'),
+                reset: () => { look(0, 0); squash(1, 1); resetHands(); },
+                startle: () => { express('surprise', 600); emit('!', '#ffd66b'); },
+                love: love,
+                drag: (vx, vy) => {
+                    const speed = clamp(Math.hypot(vx, vy) / 28, 0, 1);
+                    const d = Math.hypot(vx, vy) || 1;
+                    look(vx / d * speed, vy / d * speed);
+                    const horiz = Math.abs(vx) >= Math.abs(vy);
+                    squash((1 + (horiz ? 0.12 : -0.09) * speed).toFixed(3), (1 + (horiz ? -0.09 : 0.12) * speed).toFixed(3));
+                    rig.style.setProperty('--rot', clamp(vx * 0.9, -16, 16).toFixed(1) + 'deg');
+                    // hands trail behind like they are dangling
+                    const sw = clamp(-vx * 1.8, -45, 45), lift = clamp(-vy * 0.5, -8, 8);
+                    handL.style.setProperty('--hlr', (-8 + sw).toFixed(1) + 'deg');
+                    handR.style.setProperty('--hrr', (-20 + sw).toFixed(1) + 'deg');
+                    handL.style.setProperty('--hly', lift.toFixed(1) + 'px');
+                    handR.style.setProperty('--hry', lift.toFixed(1) + 'px');
+                    // shaking it left-right several times makes it dizzy
+                    const now = performance.now();
+                    const sgn = Math.abs(vx) > 3 ? Math.sign(vx) : 0;
+                    if (sgn && lastSign && sgn !== lastSign) {
+                        flips.push(now);
+                        flips = flips.filter(t => now - t < 900);
+                        if (flips.length >= 4) { flips = []; dizzy(); }
+                    }
+                    if (sgn) lastSign = sgn;
+                },
+                release: () => {
+                    look(0, 0); squash(1, 1); resetHands();
+                    anim('bot-hop');
+                    if (rig.dataset.mood !== 'dizzy') express('happy', 900);
+                }
+            };
+
+            // ----- react to what the button is doing (open / close / sleep / wake) -----
+            let st = { idle: false, open: false };
+            function sync() {
+                const idle = isIdle(), open = isOpen();
+                if (idle && !st.idle) {
+                    clearInterval(zzzTimer);
+                    setTimeout(() => { if (isIdle()) emit('z', '#cfe0ff'); }, 600);
+                    zzzTimer = setInterval(() => { if (isIdle()) emit('z', '#cfe0ff'); }, 2600);
+                }
+                if (!idle && st.idle) clearInterval(zzzTimer);
+                if (open && !st.open) { temp = null; emit('✦', '#ffffff'); }
+                if (!open && st.open) { express('happy', 1100); wave('r'); }
+                st = { idle: idle, open: open };
+                render();
+            }
+            new MutationObserver(sync).observe(fab, { attributes: true, attributeFilter: ['class'] });
+            render();
+
+            // menu rows: robot gets excited when you press one
+            fab.querySelectorAll('.social-fab-item').forEach(it => {
+                it.addEventListener('pointerdown', () => { emit('♪', '#b7a8ff'); });
+            });
+
+            // ----- eyes follow the finger / cursor -----
+            const follow = (e) => {
+                if (isDrag() || isOpen() || isIdle() || raf) return;
+                raf = requestAnimationFrame(() => {
+                    raf = 0;
+                    const r = fab.getBoundingClientRect();
+                    const dx = e.clientX - (r.left + r.width / 2);
+                    const dy = e.clientY - (r.top + r.height / 2);
+                    const d = Math.hypot(dx, dy) || 1;
+                    const k = Math.min(1, d / 160);
+                    look(dx / d * k, dy / d * k);
+                    lastPtr = performance.now();
+                });
+            };
+            document.addEventListener('pointermove', follow, { passive: true });
+            document.addEventListener('pointerdown', follow, { passive: true });
+
+            // ----- world reactions: scrolling, tab focus, connection -----
+            document.addEventListener('scroll', (e) => {
+                const now = performance.now();
+                if (now - lastScrollT < 300 || !calm()) return;
+                const t = e.target;
+                const y = (t && t !== document && t !== document.documentElement && t !== document.body && typeof t.scrollTop === 'number') ? t.scrollTop : window.scrollY;
+                const dir = y - lastScrollY;
+                lastScrollY = y;
+                lastScrollT = now;
+                if (Math.abs(dir) < 6) return;
+                look(rand(-0.3, 0.3), dir > 0 ? 0.95 : -0.95);
+                lastPtr = now;
+            }, { capture: true, passive: true });
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden || reduce) return;
+                express('happy', 1300); wave('r'); emit('♪', '#b7a8ff');
+            });
+            window.addEventListener('offline', () => { express('sad', 4500); emit('?', '#7df0ff'); });
+            window.addEventListener('online', () => { express('happy', 1500); emit('✦', '#ffffff'); wave('l'); });
+
+            if (reduce) return;
+
+            // ----- random life: it is never static -----
+            (function blinkLoop() {
+                setTimeout(() => {
+                    if (!document.hidden && !isOpen()) blinkNow(Math.random() < 0.25);
+                    blinkLoop();
+                }, rand(1300, 3400));
+            })();
+
+            const wander = () => { if (Math.random() < 0.3) look(0, 0); else look(rand(-1, 1), rand(-0.7, 0.7)); };
+            const acts = [
+                [24, wander],
+                [10, () => { express('happy', 1300); emit('✦', '#ffffff'); }],
+                [8,  () => express('wink', 850)],
+                [8,  () => { express('curious', 1600); emit('?', '#7df0ff'); look(rand(-1, 1), -0.5); rig.style.setProperty('--rot', (Math.random() < 0.5 ? -9 : 9) + 'deg'); }],
+                [6,  () => { express('tired', 1400); setTimeout(() => blinkNow(true), 1500); }],
+                [9,  () => { wave(Math.random() < 0.7 ? 'r' : 'l'); express('happy', 1100); }],
+                [6,  () => { emit('♪', '#b7a8ff'); setTimeout(() => emit('♫', '#b7a8ff'), 450); express('happy', 1500); }],
+                [5,  () => anim('bot-wiggle')],
+                [3,  () => { anim('bot-flip'); express('surprise', 700); }]
+            ];
+            const total = acts.reduce((n, a) => n + a[0], 0);
+            (function life() {
+                setTimeout(() => {
+                    if (calm() && performance.now() - lastPtr > 1200) {
+                        let r = Math.random() * total;
+                        for (const a of acts) { if ((r -= a[0]) <= 0) { a[1](); break; } }
+                    }
+                    life();
+                }, rand(2200, 5200));
+            })();
+
+            // hello!
+            setTimeout(() => { if (calm()) { wave('r'); express('happy', 1400); emit('♪', '#b7a8ff'); } }, 500);
         }
 
         let guideReturnPage = 'home';
