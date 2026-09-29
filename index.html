@@ -2152,6 +2152,15 @@
         #order-detail-overlay { align-items: center; padding: 20px; }
         #order-detail-overlay .modal-box { border-radius: 20px; max-height: 88vh; transform: translateY(12px) scale(0.96); opacity: 0; transition: transform 0.22s ease, opacity 0.22s ease; }
         #order-detail-overlay.show .modal-box { transform: translateY(0) scale(1); opacity: 1; }
+        /* Verified Receipt preview + QR verify result */
+        #vr-overlay, #vr-verify-overlay { align-items: center; padding: 20px; }
+        #vr-overlay .modal-box, #vr-verify-overlay .modal-box { border-radius: 20px; max-height: 92vh; transform: translateY(12px) scale(0.96); opacity: 0; transition: transform 0.22s ease, opacity 0.22s ease; }
+        #vr-overlay.show .modal-box, #vr-verify-overlay.show .modal-box { transform: translateY(0) scale(1); opacity: 1; }
+        .vr-seg { display: flex; gap: 6px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 14px; padding: 4px; margin-bottom: 14px; }
+        .vr-seg button { flex: 1; padding: 9px 0; border: none; border-radius: 11px; background: transparent; color: var(--text-secondary); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background .18s, color .18s; }
+        .vr-seg button.active { background: var(--accent); color: #fff; }
+        .vr-stage { display: flex; justify-content: center; }
+        .vr-stage img { width: 100%; max-width: 300px; height: auto; aspect-ratio: 360 / 580; border-radius: 14px; background: var(--surface-alt); transition: opacity .18s; }
         .profile-edit-field label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
         .profile-edit-field input[type="text"] { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; transition: 0.15s; }
         .profile-edit-field input[type="text"]:focus { outline: none; border-color: var(--accent); background: #F8FBFF; }
@@ -3801,6 +3810,140 @@
 .social-fab.dock-left .bot-say{left:0}.social-fab.dock-left .bot-say::after{left:24px}
 .social-fab.social-fab-down .bot-say{bottom:auto;top:calc(100% + 8px)}
 </style>
+<style id="card-redesign-css">
+/* ===== Card redesign: padded card, inset rounded image, name underneath (no divider) ===== */
+/* Game cards */
+.game-card { padding: 6px 6px 8px; border-radius: 20px; }
+.game-card-img-wrap { border-radius: 15px; }
+.game-card-name {
+    display: block; border-top: none; margin: 0; padding: 7px 2px 0;
+    font-size: 10.5px; font-weight: 400; line-height: 1.3; text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: clip; /* one line only; JS shrinks the font to fit */
+}
+.popular-card .game-card-name { padding: 7px 2px 0; font-size: 10px; }
+@media (min-width: 1024px) { .game-card-name { font-size: 12px; } }
+.skel-game-card { padding: 6px 6px 8px; border-radius: 20px; }
+.skel-game-card .skel-img { border-radius: 15px; }
+.skel-game-card .skel-name { height: 11px; width: 68%; margin: 9px auto 0; border-radius: 6px; }
+
+/* Price cards (direct top-up) */
+.package-card.type-topup { padding: 6px 6px 8px; border-radius: 20px; }
+.package-card.type-topup .pc-img-wrap { border-radius: 15px; }
+.package-card.type-topup .pc-label-wrap {
+    border-top: none; background: transparent; min-height: 0; padding: 8px 2px 4px;
+}
+.package-card.type-topup .pc-label-wrap.has-tag { padding-left: 4px; padding-right: 2px; }
+.package-card.type-topup .pc-price-bar,
+.package-card.selected.type-topup .pc-price-bar { border-top: none; background: transparent; padding: 3px 0 0; }
+.package-card.type-topup .pc-price {
+    display: flex; width: 100%; min-width: 0; justify-content: center;
+    padding: 5px 8px; border-radius: 12px;
+}
+.package-card.type-topup .pc-selected-check { top: 10px; right: 10px; }
+.package-card.type-topup .pc-stock-badge { top: 10px; left: 10px; }
+
+/* Voucher / gift-card price cards - same design as top-up cards: image on top, amount below, blue price pill */
+.package-card.type-currency {
+    background: var(--surface); border: 1.5px solid var(--border);
+    padding: 6px 6px 8px; border-radius: 20px;
+}
+.package-card.type-currency .pc-img-wrap {
+    width: 100%; margin: 0; border-radius: 15px; box-shadow: none;
+    background: var(--surface-alt); order: 1;
+}
+.package-card.type-currency .pc-img { padding: 0; }
+.package-card.type-currency .pc-amount-badge {
+    order: 2; width: auto; max-width: 100%; margin: 0; padding: 8px 2px 4px;
+    background: transparent; border: none; border-radius: 0; text-shadow: none;
+    color: var(--text); font-size: 11.5px; font-weight: 400; letter-spacing: 0; line-height: 1.25;
+}
+.package-card.type-currency .pc-price-bar,
+.package-card.selected.type-currency .pc-price-bar {
+    order: 3; margin-top: 0; padding: 3px 0 0; background: transparent; border-top: none;
+}
+.package-card.type-currency .pc-price {
+    display: flex; width: 100%; min-width: 0; justify-content: center;
+    padding: 5px 8px; border-radius: 12px; background: #1877F2; color: #fff;
+}
+.package-card.type-currency.selected { border-color: var(--accent); box-shadow: 0 0 0 2.5px rgba(var(--accent-rgb),0.35); }
+.package-card.type-currency .pc-selected-check { top: 10px; right: 10px; background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.package-card.type-currency .pc-tag { top: 10px; right: 10px; }
+.package-card.type-currency .pc-stock-badge { top: 10px; left: 10px; }
+
+/* Software row cards - same padded look: inset rounded image, name, blue price pill */
+.package-card.type-software { padding: 8px 46px 8px 8px; gap: 12px; border-radius: 20px; }
+.package-card.type-software .pc-img-wrap { width: 56px; height: 56px; flex: 0 0 56px; border-radius: 15px; }
+.package-card.type-software .pc-row-info { gap: 5px; }
+.package-card.type-software .pc-row-name { font-size: 13px; font-weight: 500; }
+.package-card.type-software .pc-row-price {
+    display: inline-flex; width: fit-content; padding: 3px 12px; border-radius: 12px;
+    background: #1877F2; color: #fff; font-size: 12px; font-weight: 600; line-height: 1.3;
+}
+.package-card.type-software .pc-selected-check { top: calc(50% - 10px); right: 12px; background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.package-card.type-software .pc-stock-badge { top: 8px; left: 8px; }
+
+/* Price pill: same soft green as the "Admin Online" badge */
+.package-card.type-topup .pc-price,
+.package-card.type-currency .pc-price,
+.package-card.type-software .pc-row-price {
+    background: rgba(49,162,76,0.12);
+    border: 1px solid rgba(49,162,76,0.35);
+    color: #31A24C; text-shadow: none; box-shadow: none;
+}
+html[data-theme="dark"] .package-card.type-topup .pc-price,
+html[data-theme="dark"] .package-card.type-currency .pc-price,
+html[data-theme="dark"] .package-card.type-software .pc-row-price {
+    background: rgba(61,220,114,0.16);
+    border-color: rgba(61,220,114,0.45);
+    color: #3DDC72; box-shadow: none;
+}
+</style>
+<script id="card-redesign-js">
+/* Game-name auto-fit: always one line. Starts slightly smaller than before;
+   if the name is too long for the card, the font shrinks step by step until it fits. */
+(function () {
+    var MIN = 6.5, STEP = 0.25, pending = new Set(), raf = 0;
+    function fit(el) {
+        if (!el.clientWidth) return;               // hidden page: ResizeObserver refits when shown
+        el.style.fontSize = '';
+        var size = parseFloat(getComputedStyle(el).fontSize) || 10.5, guard = 0;
+        while (el.scrollWidth > el.clientWidth + 0.5 && size > MIN && guard++ < 60) {
+            size -= STEP;
+            el.style.fontSize = size + 'px';
+        }
+    }
+    function flush() { raf = 0; pending.forEach(fit); pending.clear(); }
+    function queue(el) { pending.add(el); if (!raf) raf = requestAnimationFrame(flush); }
+    var ro = window.ResizeObserver ? new ResizeObserver(function (en) { en.forEach(function (e) { queue(e.target); }); }) : null;
+    function watch(el) {
+        if (el.__fitWatched) return;
+        el.__fitWatched = true;
+        if (ro) ro.observe(el);
+        queue(el);
+    }
+    function scan(root) {
+        if (!root || root.nodeType !== 1) return;
+        if (root.matches('.game-card-name')) watch(root);
+        root.querySelectorAll('.game-card-name').forEach(watch);
+    }
+    function start() {
+        scan(document.body);
+        new MutationObserver(function (muts) {
+            muts.forEach(function (m) {
+                m.addedNodes.forEach(scan);
+                var t = m.target && (m.target.nodeType === 1 ? m.target : m.target.parentElement);
+                var n = t && t.closest && t.closest('.game-card-name');
+                if (n) queue(n);                    // name text changed (e.g. language switch)
+            });
+        }).observe(document.body, { childList: true, subtree: true, characterData: true });
+        window.addEventListener('resize', function () { document.querySelectorAll('.game-card-name').forEach(queue); });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
+            document.querySelectorAll('.game-card-name').forEach(queue);
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
 </head>
 <body>
 
@@ -5520,6 +5663,42 @@
         </div>
     </div>
 
+    <!-- Verified Receipt preview (Dark / Light card with QR) -->
+    <div class="modal-overlay" id="vr-overlay" onclick="if(event.target===this) closeVerifiedReceipt()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 data-i18n="vr_title">Verified Receipt</h3>
+                <div class="modal-close" onclick="closeVerifiedReceipt()">
+                    <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="vr-seg">
+                    <button type="button" data-vr-theme="dark" onclick="setVerifiedReceiptTheme('dark')" data-i18n="vr_dark">Dark</button>
+                    <button type="button" data-vr-theme="light" onclick="setVerifiedReceiptTheme('light')" data-i18n="vr_light">Light</button>
+                </div>
+                <div class="vr-stage"><img id="vr-img" alt="Verified receipt"></div>
+                <button type="button" class="btn btn-primary" style="width:100%;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="saveVerifiedReceipt()">
+                    <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-download"></use></svg>
+                    <span data-i18n="vr_save">Save Image</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result page opened by scanning a receipt QR (?verify=<orderId>) -->
+    <div class="modal-overlay" id="vr-verify-overlay" onclick="if(event.target===this) closeVerifyOverlay()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 data-i18n="vr_verify_title">Receipt Verification</h3>
+                <div class="modal-close" onclick="closeVerifyOverlay()">
+                    <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
+                </div>
+            </div>
+            <div class="modal-body" id="vr-verify-body"></div>
+        </div>
+    </div>
+
     <!-- Order review: last look at Game / Package / ID / price before anything is submitted -->
     <div class="modal-overlay" id="order-review-overlay" onclick="if(event.target===this) closeOrderReview(false)">
         <div class="modal-box">
@@ -5669,7 +5848,7 @@
                 od_package: 'Package', od_payment_method: 'Payment Method', od_transaction_id: 'Transaction ID', od_ingame_id: 'In-Game ID',
                 od_ingame_name: 'In-Game Name', od_server_id: 'Server ID', od_server: 'Server', od_ordered_at: 'Ordered At',
                 od_success_at: 'Success At', od_order_id: 'Order ID', od_confirmed_in: 'Confirmed In', od_amount_paid: 'Amount Paid',
-                od_payment_receipt: 'Payment Receipt', od_reason: 'Reason', od_note: 'Note', od_download_receipt: 'Download Receipt',
+                od_payment_receipt: 'Payment Receipt', od_reason: 'Reason', od_note: 'Note', od_download_receipt: 'Download Receipt', vr_button: 'Verified Receipt (QR)', vr_title: 'Verified Receipt', vr_dark: 'Dark', vr_light: 'Light', vr_save: 'Save Image', vr_verify_title: 'Receipt Verification', vr_ok_title: 'Genuine order', vr_ok_sub: 'This receipt matches a completed order in our system.', vr_bad_title: 'Could not verify', vr_bad_sub: 'We could not find a completed order for this receipt.',
                 title_wallet: 'My Wallet', title_profile: 'My Profile',
                 sec_account_info: 'Account Info', lbl_rank: 'Rank', lbl_server: 'Server', sec_description: 'Description',
                 sec_skins_included: 'Skins Included', sec_how_pay: 'How do you want to pay?',
@@ -5820,7 +5999,7 @@
                 od_package: 'ပက်ကေ့ခ်ျ', od_payment_method: 'ငွေပေးချေမှုနည်း', od_transaction_id: 'ငွေလွှဲ ID', od_ingame_id: 'ဂိမ်း ID',
                 od_ingame_name: 'ဂိမ်းထဲက အမည်', od_server_id: 'ဆာဗာ ID', od_server: 'ဆာဗာ', od_ordered_at: 'အော်ဒါတင်ချိန်',
                 od_success_at: 'ပြီးမြောက်ချိန်', od_order_id: 'အော်ဒါ ID', od_confirmed_in: 'ပြီးမြောက်ရန်ကြာချိန်', od_amount_paid: 'ပေးချေငွေပမာဏ',
-                od_payment_receipt: 'ငွေလွှဲပြေစာ', od_reason: 'အကြောင်းရင်း', od_note: 'မှတ်ချက်', od_download_receipt: 'ပြေစာ ဒေါင်းလုဒ်ဆွဲမည်',
+                od_payment_receipt: 'ငွေလွှဲပြေစာ', od_reason: 'အကြောင်းရင်း', od_note: 'မှတ်ချက်', od_download_receipt: 'ပြေစာ ဒေါင်းလုဒ်ဆွဲမည်', vr_button: 'အတည်ပြုပြေစာ (QR)', vr_title: 'အတည်ပြုပြေစာ', vr_dark: 'Dark', vr_light: 'Light', vr_save: 'ပုံသိမ်းမည်', vr_verify_title: 'ပြေစာ စစ်ဆေးခြင်း', vr_ok_title: 'Order အစစ်ဖြစ်ပါသည်', vr_ok_sub: 'ဒီပြေစာဟာ ကျွန်ုပ်တို့စနစ်ထဲက ပြီးစီးထားတဲ့ order နဲ့ ကိုက်ညီပါတယ်။', vr_bad_title: 'စစ်ဆေး၍ မရပါ', vr_bad_sub: 'ဒီပြေစာနဲ့ ကိုက်ညီတဲ့ ပြီးစီးထားသော order ကို ရှာမတွေ့ပါ။',
                 title_wallet: 'ကျွန်ုပ်၏ပိုက်ဆံအိတ်', title_profile: 'ကျွန်ုပ်၏ပရိုဖိုင်',
                 sec_account_info: 'အကောင့်အချက်အလက်', lbl_rank: 'အဆင့်', lbl_server: 'ဆာဗာ', sec_description: 'ဖော်ပြချက်',
                 sec_skins_included: 'ပါဝင်သောစကင်များ', sec_how_pay: 'ဘယ်လိုငွေပေးချေမလဲ?',
@@ -13623,6 +13802,10 @@
                         <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-download"></use></svg>
                         ${t('od_download_receipt')}
                     </button>
+                    <button type="button" class="btn" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);" onclick="openVerifiedReceipt(${index})">
+                        <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-check"></use></svg>
+                        ${t('vr_button')}
+                    </button>
                 ` : ''}
             `;
             document.getElementById('order-detail-overlay').classList.add('show');
@@ -14159,6 +14342,443 @@
             }, 'image/png');
         }
         window.downloadOrderReceipt = downloadOrderReceipt;
+
+        // ---------- Minimal QR encoder (byte mode, ECC level M, versions 1-10) ----------
+        // Self-contained so the Verified Receipt needs no CDN. Returns a boolean[][]
+        // matrix (true = dark module) or null when the text is too long.
+        const LinnQR = (function () {
+            const ECC_PER_BLOCK = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26];
+            const NUM_BLOCKS    = [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5];
+            function rawModules(v) {
+                let r = (16 * v + 128) * v + 64;
+                if (v >= 2) { const n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; }
+                return r;
+            }
+            function alignPos(v) {
+                if (v === 1) return [];
+                const n = Math.floor(v / 7) + 2, size = v * 4 + 17;
+                const step = Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2;
+                const res = [6];
+                for (let p = size - 7; res.length < n; p -= step) res.splice(1, 0, p);
+                return res;
+            }
+            function gfMul(x, y) {
+                let z = 0;
+                for (let i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; }
+                return z;
+            }
+            function rsDivisor(deg) {
+                const res = new Array(deg).fill(0); res[deg - 1] = 1;
+                let root = 1;
+                for (let i = 0; i < deg; i++) {
+                    for (let j = 0; j < deg; j++) { res[j] = gfMul(res[j], root); if (j + 1 < deg) res[j] ^= res[j + 1]; }
+                    root = gfMul(root, 2);
+                }
+                return res;
+            }
+            function rsRemainder(data, div) {
+                const res = new Array(div.length).fill(0);
+                for (const b of data) {
+                    const f = b ^ res.shift(); res.push(0);
+                    div.forEach((c, i) => { res[i] ^= gfMul(c, f); });
+                }
+                return res;
+            }
+            function encode(text) {
+                const bytes = Array.from(new TextEncoder().encode(String(text)));
+                let ver = 0;
+                for (let v = 1; v <= 10; v++) {
+                    const cap = Math.floor(rawModules(v) / 8) - ECC_PER_BLOCK[v] * NUM_BLOCKS[v];
+                    const need = 4 + (v < 10 ? 8 : 16) + bytes.length * 8;
+                    if (need <= cap * 8) { ver = v; break; }
+                }
+                if (!ver) return null;
+                const size = ver * 4 + 17;
+                const dataCap = Math.floor(rawModules(ver) / 8) - ECC_PER_BLOCK[ver] * NUM_BLOCKS[ver];
+
+                // --- bit stream ---
+                const bits = [];
+                const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+                put(4, 4); put(bytes.length, ver < 10 ? 8 : 16);
+                bytes.forEach(b => put(b, 8));
+                put(0, Math.min(4, dataCap * 8 - bits.length));
+                while (bits.length % 8) bits.push(0);
+                for (let pad = 0xEC; bits.length < dataCap * 8; pad ^= 0xEC ^ 0x11) put(pad, 8);
+                const data = [];
+                for (let i = 0; i < bits.length; i += 8) { let b = 0; for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j]; data.push(b); }
+
+                // --- Reed-Solomon + interleave ---
+                const nb = NUM_BLOCKS[ver], eccLen = ECC_PER_BLOCK[ver];
+                const raw = Math.floor(rawModules(ver) / 8);
+                const shortN = nb - raw % nb, shortLen = Math.floor(raw / nb);
+                const div = rsDivisor(eccLen);
+                const blocks = [];
+                for (let i = 0, k = 0; i < nb; i++) {
+                    const len = shortLen - eccLen + (i < shortN ? 0 : 1);
+                    const d = data.slice(k, k + len); k += len;
+                    const e = rsRemainder(d, div);
+                    if (i < shortN) d.push(0);
+                    blocks.push(d.concat(e));
+                }
+                const all = [];
+                for (let i = 0; i < blocks[0].length; i++) blocks.forEach((b, j) => { if (i !== shortLen - eccLen || j >= shortN) all.push(b[i]); });
+
+                // --- matrix ---
+                const mod = Array.from({ length: size }, () => new Array(size).fill(false));
+                const fn  = Array.from({ length: size }, () => new Array(size).fill(false));
+                const setF = (x, y, d) => { mod[y][x] = d; fn[y][x] = true; };
+                for (let i = 0; i < size; i++) { setF(6, i, i % 2 === 0); setF(i, 6, i % 2 === 0); }
+                const finder = (cx, cy) => {
+                    for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+                        const x = cx + dx, y = cy + dy;
+                        if (x < 0 || x >= size || y < 0 || y >= size) continue;
+                        const dist = Math.max(Math.abs(dx), Math.abs(dy));
+                        setF(x, y, dist !== 2 && dist !== 4);
+                    }
+                };
+                finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+                const ap = alignPos(ver);
+                ap.forEach((ax, i) => ap.forEach((ay, j) => {
+                    if ((i === 0 && j === 0) || (i === 0 && j === ap.length - 1) || (i === ap.length - 1 && j === 0)) return;
+                    for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) setF(ax + dx, ay + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+                }));
+                const drawFormat = (mask) => {
+                    const d = (0 << 3) | mask; let rem = d;
+                    for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+                    const f = ((d << 10) | rem) ^ 0x5412;
+                    const bit = i => ((f >>> i) & 1) !== 0;
+                    for (let i = 0; i <= 5; i++) setF(8, i, bit(i));
+                    setF(8, 7, bit(6)); setF(8, 8, bit(7)); setF(7, 8, bit(8));
+                    for (let i = 9; i < 15; i++) setF(14 - i, 8, bit(i));
+                    for (let i = 0; i < 8; i++) setF(size - 1 - i, 8, bit(i));
+                    for (let i = 8; i < 15; i++) setF(8, size - 15 + i, bit(i));
+                    setF(8, size - 8, true);
+                };
+                drawFormat(0);
+                if (ver >= 7) {
+                    let rem = ver;
+                    for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
+                    const v = (ver << 12) | rem;
+                    for (let i = 0; i < 18; i++) {
+                        const b = ((v >>> i) & 1) !== 0, a = size - 11 + i % 3, c = Math.floor(i / 3);
+                        setF(a, c, b); setF(c, a, b);
+                    }
+                }
+                // zig-zag data placement
+                let bi = 0;
+                for (let right = size - 1; right >= 1; right -= 2) {
+                    if (right === 6) right = 5;
+                    for (let vert = 0; vert < size; vert++) for (let j = 0; j < 2; j++) {
+                        const x = right - j, up = ((right + 1) & 2) === 0, y = up ? size - 1 - vert : vert;
+                        if (!fn[y][x] && bi < all.length * 8) { mod[y][x] = ((all[bi >>> 3] >>> (7 - (bi & 7))) & 1) !== 0; bi++; }
+                    }
+                }
+                // masks + penalty
+                const maskFn = [
+                    (x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x, y) => x % 3 === 0, (x, y) => (x + y) % 3 === 0,
+                    (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0,
+                    (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0
+                ];
+                const applyMask = (m) => { for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (!fn[y][x] && maskFn[m](x, y)) mod[y][x] = !mod[y][x]; };
+                const penalty = () => {
+                    let p = 0;
+                    for (let pass = 0; pass < 2; pass++) for (let a = 0; a < size; a++) {
+                        let run = 1;
+                        for (let b = 1; b < size; b++) {
+                            const cur = pass ? mod[b][a] : mod[a][b], prev = pass ? mod[b - 1][a] : mod[a][b - 1];
+                            if (cur === prev) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1;
+                        }
+                    }
+                    for (let y = 0; y < size - 1; y++) for (let x = 0; x < size - 1; x++) { const c = mod[y][x]; if (c === mod[y][x + 1] && c === mod[y + 1][x] && c === mod[y + 1][x + 1]) p += 3; }
+                    let dark = 0; mod.forEach(r => r.forEach(c => { if (c) dark++; }));
+                    p += Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10;
+                    return p;
+                };
+                let best = 0, bestP = Infinity;
+                for (let m = 0; m < 8; m++) {
+                    applyMask(m); drawFormat(m);
+                    const p = penalty();
+                    if (p < bestP) { bestP = p; best = m; }
+                    applyMask(m);
+                }
+                applyMask(best); drawFormat(best);
+                return mod;
+            }
+            return { encode };
+        })();
+
+        // ---------- Verified Receipt Card (Canvas, Dark "Night Neon" + Light "Clean") ----------
+        // Robot-stamped receipt with Order ID, time and a QR code. Scanning the QR
+        // opens the store with ?verify=<orderId>, which looks the order up and
+        // shows whether it is a genuine, completed order (see runPendingVerify).
+        const VR_W = 360, VR_H = 580, VR_SCALE = 3;
+        const VR_SITE = 'https://linngamestore.com/';
+        const VR_MY_OK = 'အော်ဒါ အောင်မြင်ပါသည်';
+        const VR_MY_SCAN = ['Order အစစ်ဖြစ်မဖြစ်', 'စစ်ဆေးနိုင်ပါသည်'];
+        const VR_FONT = "'Poppins','Noto Sans Myanmar','Myanmar Text',sans-serif";
+        let vrState = { data: null, theme: 'dark', blob: null, url: null, seq: 0 };
+
+        async function vrEnsureFonts() {
+            try {
+                if (!document.fonts || !document.fonts.load) return;
+                await Promise.all([
+                    document.fonts.load('400 12px Poppins'), document.fonts.load('600 12px Poppins'), document.fonts.load('700 12px Poppins'),
+                    document.fonts.load('500 14px "Noto Sans Myanmar"', VR_MY_OK), document.fonts.load('700 14px "Noto Sans Myanmar"', VR_MY_OK)
+                ]);
+            } catch (e) { /* fall back to system fonts */ }
+        }
+        function vrRoundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+        function vrFit(ctx, text, maxW) {
+            let s = String(text);
+            if (ctx.measureText(s).width <= maxW) return s;
+            while (s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+            return s + '…';
+        }
+        function vrSpacedText(ctx, text, x, y, spacing, align) {
+            const chars = Array.from(text);
+            const widths = chars.map(c => ctx.measureText(c).width);
+            const total = widths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
+            let cx = align === 'right' ? x - total : x;
+            ctx.textAlign = 'left';
+            chars.forEach((c, i) => { ctx.fillText(c, cx, y); cx += widths[i] + spacing; });
+            return total;
+        }
+        function vrDrawRobot(ctx, x, y, s, c) {
+            ctx.save();
+            ctx.fillStyle = c.head; ctx.strokeStyle = c.head; ctx.lineCap = 'round'; ctx.lineWidth = s * 0.06;
+            ctx.beginPath(); ctx.moveTo(x + s * 0.5, y + s * 0.24); ctx.lineTo(x + s * 0.5, y + s * 0.11); ctx.stroke();
+            ctx.fillStyle = c.antenna;
+            ctx.beginPath(); ctx.arc(x + s * 0.5, y + s * 0.08, s * 0.075, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = c.head;
+            vrRoundRect(ctx, x, y + s * 0.46, s * 0.13, s * 0.24, s * 0.05); ctx.fill();
+            vrRoundRect(ctx, x + s * 0.87, y + s * 0.46, s * 0.13, s * 0.24, s * 0.05); ctx.fill();
+            vrRoundRect(ctx, x + s * 0.07, y + s * 0.2, s * 0.86, s * 0.74, s * 0.3); ctx.fill();
+            ctx.fillStyle = c.plate;
+            vrRoundRect(ctx, x + s * 0.19, y + s * 0.36, s * 0.62, s * 0.42, s * 0.19); ctx.fill();
+            ctx.fillStyle = c.eye;
+            ctx.beginPath(); ctx.arc(x + s * 0.37, y + s * 0.57, s * 0.075, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x + s * 0.63, y + s * 0.57, s * 0.075, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+        }
+        // Draws the QR on integer device pixels so modules stay razor sharp.
+        function vrDrawQR(ctx, matrix, x, y, size, dark, quiet) {
+            const n = matrix.length, total = n + quiet * 2;
+            const cellPx = Math.max(1, Math.floor(size * VR_SCALE / total));
+            const cell = cellPx / VR_SCALE;
+            const off = Math.floor((size * VR_SCALE - cellPx * n) / 2) / VR_SCALE;
+            ctx.fillStyle = dark;
+            for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+                if (matrix[r][c]) ctx.fillRect(x + off + c * cell, y + off + r * cell, cell, cell);
+            }
+        }
+        function vrDrawRows(ctx, rows, y0, step, o) {
+            rows.forEach(([label, value], i) => {
+                const cy = y0 + i * step;
+                ctx.textAlign = 'left'; ctx.fillStyle = o.label; ctx.font = `400 ${o.size}px ${VR_FONT}`;
+                ctx.fillText(label, 46, cy + 4);
+                ctx.textAlign = 'right'; ctx.fillStyle = o.value; ctx.font = `700 ${o.size}px ${VR_FONT}`;
+                ctx.fillText(vrFit(ctx, value, 190), 314, cy + 4);
+                if (o.line && i < rows.length - 1) {
+                    ctx.strokeStyle = o.line; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(46, cy + step / 2 + 0.5); ctx.lineTo(314, cy + step / 2 + 0.5); ctx.stroke();
+                }
+            });
+            ctx.textAlign = 'left';
+        }
+
+        function vrDrawDark(ctx, m) {
+            ctx.fillStyle = '#050A17'; ctx.fillRect(0, 0, VR_W, VR_H);
+            const g = ctx.createRadialGradient(VR_W / 2, VR_H / 2, 20, VR_W / 2, VR_H / 2, 340);
+            g.addColorStop(0, 'rgba(34,211,238,0.10)'); g.addColorStop(1, 'rgba(34,211,238,0)');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, VR_W, VR_H);
+            ctx.save(); ctx.shadowColor = 'rgba(34,211,238,0.55)'; ctx.shadowBlur = 22;
+            ctx.fillStyle = '#0E1730'; vrRoundRect(ctx, 20, 20, 320, 540, 22); ctx.fill(); ctx.restore();
+            ctx.fillStyle = '#0E1730'; vrRoundRect(ctx, 20, 20, 320, 540, 22); ctx.fill();
+            ctx.strokeStyle = '#22D3EE'; ctx.lineWidth = 1.5; vrRoundRect(ctx, 20.75, 20.75, 318.5, 538.5, 21.5); ctx.stroke();
+
+            vrDrawRobot(ctx, 48, 46, 46, { head: '#C4B5FD', antenna: '#C4B5FD', plate: '#1C2350', eye: '#DDD6FE' });
+            ctx.fillStyle = '#5EE7FF'; ctx.font = `700 11px ${VR_FONT}`;
+            vrSpacedText(ctx, 'ORDER VERIFIED', 314, 66, 2.2, 'right');
+            ctx.fillStyle = '#FFFFFF'; ctx.font = `700 13.5px ${VR_FONT}`; ctx.textAlign = 'right';
+            ctx.fillText('Linn Game Store', 314, 83); ctx.textAlign = 'left';
+
+            ctx.fillStyle = '#B8C2F0'; ctx.font = `500 14px ${VR_FONT}`;
+            ctx.fillText(VR_MY_OK, 46, 130);
+
+            ctx.save(); ctx.shadowColor = 'rgba(94,231,255,0.45)'; ctx.shadowBlur = 14;
+            ctx.fillStyle = '#5EE7FF'; ctx.font = `700 40px ${VR_FONT}`;
+            ctx.fillText(m.amount, 46, 191);
+            const aw = ctx.measureText(m.amount).width; ctx.restore();
+            ctx.fillStyle = '#A5B4FC'; ctx.font = `600 15px ${VR_FONT}`;
+            ctx.fillText('MMK', 46 + aw + 6, 191);
+
+            vrDrawRows(ctx, m.rows, 231, 29.2, { label: '#9BA8D0', value: '#FFFFFF', size: 12, line: 'rgba(148,163,255,0.16)' });
+
+            ctx.fillStyle = '#9BA8D0'; ctx.font = `400 11.5px ${VR_FONT}`;
+            ctx.fillText('Scan to verify', 46, 478); ctx.fillText('this receipt is authentic', 46, 494);
+            ctx.fillStyle = '#5EE7FF'; vrRoundRect(ctx, 206, 427, 108, 108, 14); ctx.fill();
+            vrDrawQR(ctx, m.qr, 206, 427, 108, '#0A1226', 2);
+        }
+
+        function vrDrawLight(ctx, m) {
+            ctx.fillStyle = '#F5F3FF'; ctx.fillRect(0, 0, VR_W, VR_H);
+            ctx.save(); ctx.shadowColor = 'rgba(91,75,180,0.14)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = 6;
+            ctx.fillStyle = '#FFFFFF'; vrRoundRect(ctx, 20, 20, 320, 540, 22); ctx.fill(); ctx.restore();
+            ctx.strokeStyle = '#E9E5FB'; ctx.lineWidth = 1; vrRoundRect(ctx, 20.5, 20.5, 319, 539, 21.5); ctx.stroke();
+
+            vrDrawRobot(ctx, 48, 46, 42, { head: '#B8A5F5', antenna: '#7C5CE6', plate: '#1E1B4B', eye: '#38BDF8' });
+            ctx.fillStyle = '#1B1B2F'; ctx.font = `700 14px ${VR_FONT}`; ctx.fillText('Linn Game Store', 100, 66);
+            ctx.fillStyle = '#6D4AE0'; ctx.font = `600 9.5px ${VR_FONT}`;
+            vrSpacedText(ctx, 'VERIFIED RECEIPT', 100, 80, 1.8, 'left');
+
+            ctx.font = `700 14px ${VR_FONT}`;
+            const pw = ctx.measureText(VR_MY_OK).width + 36;
+            ctx.fillStyle = '#DFF5E6'; vrRoundRect(ctx, 45, 103, pw, 36, 18); ctx.fill();
+            ctx.fillStyle = '#166534'; ctx.textAlign = 'center'; ctx.fillText(VR_MY_OK, 45 + pw / 2, 126); ctx.textAlign = 'left';
+
+            ctx.fillStyle = '#1B1B2F'; ctx.font = `700 32px ${VR_FONT}`;
+            ctx.fillText(m.amount, 45, 182);
+            const aw = ctx.measureText(m.amount).width;
+            ctx.fillStyle = '#6B6B85'; ctx.font = `600 14px ${VR_FONT}`;
+            ctx.fillText('MMK', 45 + aw + 6, 182);
+
+            ctx.save(); ctx.strokeStyle = '#DAD8EA'; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+            ctx.beginPath(); ctx.moveTo(45, 204.5); ctx.lineTo(315, 204.5); ctx.stroke(); ctx.restore();
+
+            vrDrawRows(ctx, m.rows, 222, 24.8, { label: '#6B6B85', value: '#1B1B2F', size: 11 });
+
+            ctx.fillStyle = '#F1EFFD'; vrRoundRect(ctx, 45, 419, 270, 116, 18); ctx.fill();
+            ctx.fillStyle = '#FFFFFF'; vrRoundRect(ctx, 58, 433, 88, 88, 8); ctx.fill();
+            vrDrawQR(ctx, m.qr, 58, 433, 88, '#1B1B2F', 2);
+            ctx.fillStyle = '#1B1B2F'; ctx.font = `700 11px ${VR_FONT}`; ctx.fillText('Scan to verify', 158, 471);
+            ctx.fillStyle = '#6B6B85'; ctx.font = `400 10.5px ${VR_FONT}`;
+            ctx.fillText(VR_MY_SCAN[0], 158, 487); ctx.fillText(VR_MY_SCAN[1], 158, 502);
+        }
+
+        async function renderVerifiedReceiptCanvas(data, theme) {
+            await vrEnsureFonts();
+            const providerId = data.g2bulkOrderId || data.jcplaysOrderId || data.fazercardOrderId || '';
+            const docId = data.id || providerId;
+            const qr = LinnQR.encode(`${VR_SITE}?verify=${encodeURIComponent(docId)}`);
+            if (!qr) throw new Error('QR too long');
+            const when = data.confirmedAt || data.timestamp;
+            const model = {
+                amount: Number(data.price || 0).toLocaleString(),
+                qr,
+                rows: [
+                    ['Order ID', providerId || docId || '-'],
+                    ['Game', data.game || '-'],
+                    ['Package', data.itemAmount || '-'],
+                    ['Payment', data.paymentMethod || '-'],
+                    ['Date', when && when.toDate ? historyDateTimeFmt.format(when.toDate()) : '-']
+                ]
+            };
+            const canvas = document.createElement('canvas');
+            canvas.width = VR_W * VR_SCALE; canvas.height = VR_H * VR_SCALE;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(VR_SCALE, VR_SCALE);
+            ctx.textBaseline = 'alphabetic';
+            if (theme === 'light') vrDrawLight(ctx, model); else vrDrawDark(ctx, model);
+            return canvas;
+        }
+
+        async function vrRefresh() {
+            const seq = ++vrState.seq;
+            const data = vrState.data;
+            if (!data) return;
+            document.querySelectorAll('#vr-overlay .vr-seg button').forEach(b => b.classList.toggle('active', b.dataset.vrTheme === vrState.theme));
+            const img = document.getElementById('vr-img');
+            img.style.opacity = '0.35';
+            try {
+                const canvas = await renderVerifiedReceiptCanvas(data, vrState.theme);
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+                if (seq !== vrState.seq) return;
+                if (vrState.url) URL.revokeObjectURL(vrState.url);
+                vrState.blob = blob; vrState.url = URL.createObjectURL(blob);
+                img.src = vrState.url; img.style.opacity = '1';
+            } catch (e) {
+                console.error('Verified receipt error:', e);
+                window.showToast('Could not create the receipt image.', 'fail');
+            }
+        }
+        function openVerifiedReceipt(index) {
+            const data = HISTORY_ORDERS[index];
+            if (!data) return;
+            vrState.data = data;
+            vrState.theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            document.getElementById('vr-overlay').classList.add('show');
+            vrRefresh();
+        }
+        function setVerifiedReceiptTheme(theme) {
+            vrState.theme = theme === 'light' ? 'light' : 'dark';
+            vrRefresh();
+        }
+        function closeVerifiedReceipt() {
+            document.getElementById('vr-overlay').classList.remove('show');
+        }
+        function saveVerifiedReceipt() {
+            if (!vrState.blob || !vrState.data) return;
+            const d = vrState.data;
+            const id = d.g2bulkOrderId || d.jcplaysOrderId || d.fazercardOrderId || d.id || 'order';
+            const a = document.createElement('a');
+            a.href = vrState.url; a.download = `verified-receipt-${id}-${vrState.theme}.png`;
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+        window.openVerifiedReceipt = openVerifiedReceipt;
+        window.setVerifiedReceiptTheme = setVerifiedReceiptTheme;
+        window.closeVerifiedReceipt = closeVerifiedReceipt;
+        window.saveVerifiedReceipt = saveVerifiedReceipt;
+
+        // ---------- QR scan landing: ?verify=<orderId> ----------
+        (function captureVerifyFromURL() {
+            try { const id = new URLSearchParams(window.location.search).get('verify'); if (id) window.__pendingVerifyId = id; } catch (e) { /* ignore */ }
+        })();
+        function closeVerifyOverlay() { document.getElementById('vr-verify-overlay').classList.remove('show'); }
+        window.closeVerifyOverlay = closeVerifyOverlay;
+        async function runPendingVerify(tries) {
+            tries = tries || 0;
+            const id = window.__pendingVerifyId;
+            if (!id) return;
+            if (!window.getDoc || !window.doc || !window.db) { if (tries < 50) setTimeout(() => runPendingVerify(tries + 1), 200); return; }
+            window.__pendingVerifyId = null;
+            const body = document.getElementById('vr-verify-body');
+            const card = (ok, title, sub, rowsHTML) => `
+                <div style="text-align:center;padding:6px 0 14px;">
+                    <div style="width:58px;height:58px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;background:${ok ? '#22C55E' : '#EF4444'};">${ok ? '✓' : '!'}</div>
+                    <div style="font-size:17px;font-weight:600;color:var(--text);">${title}</div>
+                    <div style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.5;">${sub}</div>
+                </div>${rowsHTML || ''}`;
+            body.innerHTML = card(true, '…', '');
+            document.getElementById('vr-verify-overlay').classList.add('show');
+            try {
+                const snap = await window.getDoc(window.doc(window.db, 'orders', id));
+                const o = snap.exists() ? snap.data() : null;
+                if (o && o.status === 'Success') {
+                    const when = (o.confirmedAt || o.timestamp);
+                    const row = (k, v) => `<div class="od-row"><span>${k}</span><b>${escapeHtml(String(v))}</b></div>`;
+                    body.innerHTML = card(true, t('vr_ok_title'), t('vr_ok_sub'), `<div class="od-rows">
+                        ${row('Game', o.game || '-')}${row('Package', o.itemAmount || '-')}
+                        ${row('Amount', Number(o.price || 0).toLocaleString() + ' MMK')}
+                        ${when && when.toDate ? row('Date', historyDateTimeFmt.format(when.toDate())) : ''}</div>`);
+                } else {
+                    body.innerHTML = card(false, t('vr_bad_title'), t('vr_bad_sub'));
+                }
+            } catch (e) {
+                console.error('Receipt verify error:', e);
+                body.innerHTML = card(false, t('vr_bad_title'), t('vr_bad_sub'));
+            } finally {
+                try { const u = new URL(window.location.href); u.searchParams.delete('verify'); window.history.replaceState({}, '', u.toString()); } catch (e) { /* ignore */ }
+            }
+        }
+        (window.deferInit || setTimeout)(() => runPendingVerify(0), 300);
 
         function closeOrderDetail() {
             document.getElementById('order-detail-overlay').classList.remove('show');
@@ -16274,18 +16894,31 @@
             });
             // A drag never also toggles the menu - only a genuine tap on
             // the button (not the list inside the panel) does.
+            // Multi-tap guard: a single tap toggles the list only after a short
+            // wait (TAP_GAP). If another tap lands inside that window it is a
+            // double/5-tap gesture (robot ticklish / angry), so the pending
+            // toggle is cancelled and the Messenger/Telegram list never flickers.
+            const TAP_GAP = 340;
+            let tapToggleTimer = 0, lastFabTapAt = 0;
             fab.addEventListener('click', (e) => {
                 if (e.target.closest('.fab-menu')) return;
                 if (socialFabDragged) { socialFabDragged = false; return; }
                 if (socialFabLongPressed) { socialFabLongPressed = false; return; }
-                if (fab.classList.contains('social-fab-open')) { closeSocialFab(); return; }
-                clearTimeout(socialFabIdleTimer);
-                fab.classList.remove('fab-idle');
-                fab.classList.toggle('social-fab-down', fab.getBoundingClientRect().top < 180);
-                fab.classList.add('social-fab-open');
-                fab.setAttribute('aria-expanded', 'true');
-                if (socialFabBot) { socialFabBot.reset(); socialFabBot.hop(); }
-                loadSocialFabImages();
+                const now = performance.now();
+                const rapid = now - lastFabTapAt < TAP_GAP;
+                lastFabTapAt = now;
+                clearTimeout(tapToggleTimer);
+                if (rapid) return;
+                tapToggleTimer = setTimeout(() => {
+                    if (fab.classList.contains('social-fab-open')) { closeSocialFab(); return; }
+                    clearTimeout(socialFabIdleTimer);
+                    fab.classList.remove('fab-idle');
+                    fab.classList.toggle('social-fab-down', fab.getBoundingClientRect().top < 180);
+                    fab.classList.add('social-fab-open');
+                    fab.setAttribute('aria-expanded', 'true');
+                    if (socialFabBot) { socialFabBot.reset(); socialFabBot.hop(); }
+                    loadSocialFabImages();
+                }, TAP_GAP);
             });
             document.getElementById('social-fab-messenger')?.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -17001,6 +17634,8 @@
         }
         function handleBackButton() {
             const isShown = (id) => document.getElementById(id)?.classList.contains('show');
+            if (isShown('vr-verify-overlay')) return closeVerifyOverlay();
+            if (isShown('vr-overlay')) return closeVerifiedReceipt();
             if (isShown('order-detail-overlay')) return closeOrderDetail();
             if (isShown('wallet-topup-detail-overlay')) return closeWalletTopupDetail();
             if (isShown('wallet-crypto-overlay')) return closeCryptoTopupModal();
