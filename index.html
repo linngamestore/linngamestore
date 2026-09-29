@@ -3355,11 +3355,30 @@
 
         /* head (floating dome) */
         .bot-body { position: absolute; left: 12px; top: 0; width: 40px; height: 28px; z-index: 1; border-radius: 50% 50% 48% 48% / 60% 60% 40% 40%;
+            transform-origin: 50% 100%;
+            transform: translate(calc(var(--hdx,0px) + var(--nkx,0px) + var(--mdx,0px)), calc(var(--hdy,0px) + var(--nky,0px) + var(--mdy,0px)))
+                rotate(calc(var(--hdr,0deg) + var(--nkr,0deg) + var(--mdr,0deg))) scale(var(--hdsx,1), var(--hdsy,1));
+            transition: transform 0.34s cubic-bezier(.34,1.56,.64,1); will-change: transform;
             background:
                 radial-gradient(60% 45% at 28% 14%, #ffffff, rgba(255,255,255,0) 72%),
                 linear-gradient(180deg, #ffffff 0%, #eef1f7 50%, #cfd6e4 100%);
             box-shadow: 0 5px 10px rgba(40,70,130,0.3), inset 0 -6px 9px rgba(110,130,180,0.4),
                 inset 0 2px 3px rgba(255,255,255,0.95), 0 0 0 1px rgba(150,165,195,0.35); }
+        /* head pose per mood (neck pivot) + fast/dragging transitions */
+        .bot-rig.head-fast .bot-body { transition-duration: 0.16s; }
+        .social-fab.fab-dragging .bot-body { transition: transform 0.12s linear; }
+        .bot-rig[data-mood="curious"] .bot-body { --mdr: -15deg; --mdx: -1.5px; }
+        .bot-rig[data-mood="wink"] .bot-body { --mdr: 6deg; }
+        .bot-rig[data-mood="happy"] .bot-body { --mdy: -1.5px; }
+        .bot-rig[data-mood="love"] .bot-body { --mdr: 7deg; --mdy: -1px; }
+        .bot-rig[data-mood="surprise"] .bot-body { --mdy: -2.5px; --hdsy: 1.07; }
+        .bot-rig[data-mood="sad"] .bot-body { --mdy: 2.5px; --mdr: -11deg; }
+        .bot-rig[data-mood="tired"] .bot-body { --mdy: 2px; --mdr: 4deg; }
+        .bot-rig[data-mood="sleep"] .bot-body { --mdy: 3px; --mdr: 9deg; --hdsy: 0.96; }
+        .bot-rig[data-mood="yawn"] .bot-body { --mdy: -2px; --mdr: -8deg; --hdsy: 1.05; }
+        .bot-rig[data-mood="dizzy"] .bot-body { animation: botHeadWobble 0.55s ease-in-out infinite; }
+        @keyframes botHeadWobble { 0%,100% { transform: rotate(-11deg) translateX(-1px); } 50% { transform: rotate(11deg) translateX(1px); } }
+        @media (prefers-reduced-motion: reduce) { .bot-body { transition-duration: 0.01s !important; animation: none !important; } }
         /* torso (floats under the head, bobs out of phase with it) */
         .bot-torso { position: absolute; z-index: 0; left: 15px; top: 31px; width: 34px; height: 33px; border-radius: 42% 42% 50% 50% / 20% 20% 80% 80%;
             background:
@@ -3385,7 +3404,7 @@
             background: radial-gradient(60% 55% at 80% 105%, rgba(70,140,255,0.5), rgba(70,140,255,0) 70%),
                 linear-gradient(160deg, #22355a 0%, #0b1226 50%, #03050c 100%);
             box-shadow: inset 0 1px 1.5px rgba(140,200,255,0.55), inset 0 0 0 1px rgba(8,12,26,0.9), 0 1px 0 rgba(255,255,255,0.9);
-            transform: translate(var(--vx,0px), var(--vy,0px)); transition: transform 0.2s ease-out; }
+            transform: translate(var(--vx,0px), var(--vy,0px)); transition: transform 0.28s ease-out 0.07s; }
         .bot-visor::before { content: ''; position: absolute; left: 8%; top: 6%; width: 55%; height: 34%; border-radius: 50%; transform: rotate(-8deg);
             background: linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0)); }
         .bot-visor::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 18%;
@@ -3395,7 +3414,8 @@
 
         /* face + eyes */
         .bot-face { position: absolute; left: 50%; top: 50%; width: 0; height: 0;
-            transform: translate(calc(var(--gx,0px) + var(--shift,0px)), var(--gy,0px)); transition: transform 0.2s ease-out; }
+            transform: translate(calc(var(--gx,0px) + var(--shift,0px) + var(--ex,0px)), calc(var(--gy,0px) + var(--ey,0px)));
+            transition: transform 0.3s ease-out 0.14s; }   /* eyes trail the head by ~0.14s */
         .bot-spin { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: rotate(var(--fr,0deg));
             transition: transform 0.65s cubic-bezier(.34,1.56,.64,1); }
         .bot-eye { position: absolute; top: -5.5px; width: 11px; height: 11px; transition: transform 0.55s cubic-bezier(.34,1.56,.64,1); }
@@ -3411,6 +3431,13 @@
         @keyframes botOpen { 0% { transform: scaleY(0.05); } 100% { transform: scaleY(1); } }
         .bot-glow, .bot-float, .bot-rig { pointer-events: none; }
 
+        /* eyes follow the head's lean per reaction (they arrive just after the head) */
+        .bot-rig[data-mood="curious"] .bot-face { --ex: -1.6px; --ey: -0.6px; }
+        .bot-rig[data-mood="wink"] .bot-face, .bot-rig[data-mood="love"] .bot-face { --ex: 1.2px; }
+        .bot-rig[data-mood="sad"] .bot-face { --ex: -1.2px; --ey: 1.4px; }
+        .bot-rig[data-mood="tired"] .bot-face, .bot-rig[data-mood="sleep"] .bot-face { --ex: 0.8px; --ey: 1.2px; }
+        .bot-rig[data-mood="yawn"] .bot-face { --ex: -1px; --ey: -1px; }
+        .bot-rig[data-mood="surprise"] .bot-face { --ey: -1px; }
         /* which eye shape shows for each mood */
         .bot-rig[data-mood="neutral"] .g-round, .bot-rig[data-mood="wide"] .g-round, .bot-rig[data-mood="surprise"] .g-round,
         .bot-rig[data-mood="curious"] .g-round, .bot-rig[data-mood="sad"] .g-round, .bot-rig[data-mood="tired"] .g-round,
@@ -3442,8 +3469,8 @@
         .bot-rig[data-mood="curious"] .bot-eye.l .g-round { transform: scale(0.78); }
         .bot-rig[data-mood="curious"] .bot-eye.r .g-round { transform: scale(1.28); }
         .bot-rig[data-mood="sad"] .g-round { transform: scale(0.86); }
-        .bot-rig[data-mood="sad"] .bot-eye.l { transform: rotate(-13deg) translateY(1.5px); }
-        .bot-rig[data-mood="sad"] .bot-eye.r { transform: rotate(13deg) translateY(1.5px); }
+        .bot-rig[data-mood="sad"] .bot-eye.l { transform: rotate(-6deg) translateY(1.5px); }
+        .bot-rig[data-mood="sad"] .bot-eye.r { transform: rotate(6deg) translateY(1.5px); }
         .bot-rig[data-mood="love"] .g-heart { animation: botBeat 0.55s ease-in-out infinite; }
         @keyframes botBeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
         /* menu open: face spins, both eyes slide together and become a X */
@@ -3452,8 +3479,10 @@
         .social-fab.social-fab-open .bot-eye.l { transform: translateX(7.5px) scale(1.4); }
         .social-fab.social-fab-open .bot-eye.r { transform: translateX(-7.5px) scale(1.4); }
         /* asleep while tucked in the edge: face turned toward the visible half */
-        .social-fab.fab-idle.dock-right .bot-face { --shift: -6px; }
-        .social-fab.fab-idle.dock-left .bot-face { --shift: 6px; }
+        .social-fab.fab-idle.dock-right .bot-face { --shift: -1.5px; }
+        .social-fab.fab-idle.dock-right .bot-rig[data-mood="neutral"] .bot-body, .social-fab.fab-idle.dock-right .bot-rig[data-mood="sleep"] .bot-body { --mdr: -13deg; --mdx: -2px; }
+        .social-fab.fab-idle.dock-left .bot-face { --shift: 1.5px; }
+        .social-fab.fab-idle.dock-left .bot-rig[data-mood="neutral"] .bot-body, .social-fab.fab-idle.dock-left .bot-rig[data-mood="sleep"] .bot-body { --mdr: 13deg; --mdx: 2px; }
 
         /* arms (float beside the torso, pivot at the shoulder) */
         .bot-hand { position: absolute; z-index: 0; top: 33px; width: 6px; height: 27px; transform-origin: 50% 8%;
@@ -3719,25 +3748,59 @@
         .social-fab.fab-idle.fab-play.dock-right, .social-fab.fab-idle.fab-play.dock-left { transform: none; opacity: 1; }
         .social-fab.fab-idle.fab-peek.fab-hide.dock-right { transform: translateX(115%); opacity: 0; }
         .social-fab.fab-idle.fab-peek.fab-hide.dock-left { transform: translateX(-115%); opacity: 0; }
-        .bot-cube { position: absolute; top: 20px; width: 16px; height: 16px; perspective: 90px; opacity: 0; transform: scale(0.3); pointer-events: none; z-index: 3;
+        .bot-cube { position: absolute; left: 23px; top: 44px; width: 18px; height: 18px; perspective: 90px; opacity: 0; transform: scale(0.3); pointer-events: none; z-index: 0;
             transition: opacity 0.3s ease, transform 0.4s cubic-bezier(.34,1.56,.64,1); }
-        .social-fab.dock-right .bot-cube { left: -20px; }
-        .social-fab.dock-left .bot-cube { right: -20px; }
         .social-fab.fab-cube .bot-cube { opacity: 1; transform: none; }
+        /* both hands swing inward and grip the cube from each side */
+        .social-fab.fab-cube .bot-rig .bot-hand.l { --hlr: -34deg; --hly: 1px; }
+        .social-fab.fab-cube .bot-rig .bot-hand.r { --hrr: 34deg; --hry: 1px; }
         .bot-cube.solved { animation: botCubePop 0.5s ease; }
         @keyframes botCubePop { 50% { transform: scale(1.5); } }
         .bot-cube-in { position: absolute; inset: 0; transform-style: preserve-3d; animation: botCubeTumble 2.6s linear infinite; }
         @keyframes botCubeTumble { from { transform: rotateX(-24deg) rotateY(0deg); } to { transform: rotateX(-24deg) rotateY(360deg); } }
         .bot-cube .cf { position: absolute; inset: 0; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: 1px; padding: 1px; background: #15151f; border-radius: 2px; }
         .bot-cube .cf b { display: block; border-radius: 1px; }
-        .bot-cube .cf.f0 { transform: translateZ(8px); }
-        .bot-cube .cf.f1 { transform: rotateY(90deg) translateZ(8px); }
-        .bot-cube .cf.f2 { transform: rotateY(180deg) translateZ(8px); }
-        .bot-cube .cf.f3 { transform: rotateY(-90deg) translateZ(8px); }
-        .bot-cube .cf.f4 { transform: rotateX(90deg) translateZ(8px); }
-        .bot-cube .cf.f5 { transform: rotateX(-90deg) translateZ(8px); }
+        .bot-cube .cf.f0 { transform: translateZ(9px); }
+        .bot-cube .cf.f1 { transform: rotateY(90deg) translateZ(9px); }
+        .bot-cube .cf.f2 { transform: rotateY(180deg) translateZ(9px); }
+        .bot-cube .cf.f3 { transform: rotateY(-90deg) translateZ(9px); }
+        .bot-cube .cf.f4 { transform: rotateX(90deg) translateZ(9px); }
+        .bot-cube .cf.f5 { transform: rotateX(-90deg) translateZ(9px); }
         @media (prefers-reduced-motion: reduce) { .bot-cube-in, .bot-cube.solved { animation: none; } }
     </style>
+<style id="bot-react-css">
+.bot-burst{position:absolute;left:50%;top:38%;width:0;height:0;pointer-events:none;z-index:6}
+.bot-bp{position:absolute;left:0;top:0;font-size:13px;line-height:1;font-weight:700;will-change:transform,opacity}
+.bot-ov{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none}
+.bot-ov b{position:absolute;top:-5.5px;width:11px;height:11px;font:700 11px/11px system-ui,sans-serif;text-align:center}
+.bot-ov b:first-child{left:-13px}.bot-ov b:last-child{left:2px}
+.bot-ov .sh{position:absolute;left:-15px;top:-4.5px;width:30px;height:9px;border-radius:4px 4px 6px 6px;background:linear-gradient(160deg,#3a3f52,#0b0d14);box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.bot-ov .hd{position:absolute;top:-6px;width:13px;height:13px;border-radius:50%;background:#dfe6f5;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);animation:botCover .25s ease-out}
+.bot-ov .hd.l{left:-15px}.bot-ov .hd.r{left:2px}
+@keyframes botCover{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.bot-rig.ov-eyes .bot-eye{opacity:0!important}
+.bot-rig.angry{animation:botShakeX .09s linear infinite;filter:sepia(.5) saturate(2.4) hue-rotate(-38deg)}
+@keyframes botShakeX{0%,100%{translate:-1.5px 0}50%{translate:1.5px 0}}
+.bot-acc{position:absolute;pointer-events:none;z-index:5;line-height:1}
+.bot-acc.crown{left:50%;top:-12px;font-size:20px;transform:translateX(-50%);animation:botDrop .5s cubic-bezier(.3,1.5,.5,1)}
+.bot-acc.env{right:-8px;top:34px;font-size:19px;animation:botEnv .7s ease-in-out infinite alternate}
+.bot-acc.cup{left:-6px;top:40px;font-size:16px;animation:botEnv 1s ease-in-out infinite alternate}
+.bot-acc.bed{right:-4px;top:-8px;font-size:16px;animation:botEnv 1.4s ease-in-out infinite alternate}
+.bot-acc.hair{left:50%;top:-4px;transform:translateX(-50%);color:var(--accent,#1877F2);display:flex}
+.bot-acc.hair i{display:block;width:2.5px;height:10px;margin:0 2px;border-radius:2px;background:currentColor;transform-origin:bottom;animation:botHair .3s ease-in-out 4 alternate}
+.bot-acc.hair i:nth-child(1){rotate:-24deg}.bot-acc.hair i:nth-child(3){rotate:24deg}
+.bot-acc.adm{left:8px;top:2px;width:8px;height:8px;border-radius:50%;background:#3DDC72;box-shadow:0 0 0 2px rgba(61,220,114,.3),0 0 8px #3DDC72;animation:botAdm 1.6s ease-in-out infinite}
+@keyframes botDrop{from{transform:translate(-50%,-16px) scale(.5);opacity:0}to{transform:translateX(-50%);opacity:1}}
+@keyframes botEnv{from{transform:rotate(-10deg) translateY(0)}to{transform:rotate(10deg) translateY(-3px)}}
+@keyframes botHair{from{transform:scaleY(.6)}to{transform:scaleY(1.2)}}
+@keyframes botAdm{50%{opacity:.45;transform:scale(.8)}}
+.bot-say{position:absolute;bottom:calc(100% + 8px);width:max-content;max-width:176px;padding:7px 11px;border-radius:13px;font-size:12px;line-height:1.35;font-weight:600;color:var(--text,#111);background:var(--surface,#fff);border:1px solid var(--border,rgba(0,0,0,.1));box-shadow:0 6px 18px rgba(0,0,0,.16);pointer-events:none;opacity:0;transform:translateY(6px) scale(.92);transition:opacity .22s,transform .28s cubic-bezier(.34,1.56,.64,1);z-index:7}
+.bot-say.on{opacity:1;transform:none}.bot-say.act.on{pointer-events:auto;cursor:pointer}
+.bot-say::after{content:'';position:absolute;bottom:-5px;width:9px;height:9px;background:inherit;border:inherit;border-top:0;border-left:0;transform:rotate(45deg)}
+.social-fab.dock-right .bot-say{right:0}.social-fab.dock-right .bot-say::after{right:24px}
+.social-fab.dock-left .bot-say{left:0}.social-fab.dock-left .bot-say::after{left:24px}
+.social-fab.social-fab-down .bot-say{bottom:auto;top:calc(100% + 8px)}
+</style>
 </head>
 <body>
 
@@ -3913,7 +3976,6 @@
                 <span class="fab-item-ico"><span class="fab-item-skel"></span></span><span class="fab-item-label">Telegram</span>
             </div>
         </div>
-        <div class="bot-cube" aria-hidden="true"><div class="bot-cube-in"></div></div>
         <div class="social-fab-btn" role="button" aria-label="Contact menu">
             <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
                 <radialGradient id="botEyeGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#eaffff"/><stop offset="0.55" stop-color="#5ef0ff"/><stop offset="1" stop-color="#1fb6ff"/></radialGradient>
@@ -3924,6 +3986,7 @@
             <div class="bot-float">
                 <div class="bot-rig" data-mood="neutral">
                     <span class="bot-torso"></span>
+                    <div class="bot-cube" aria-hidden="true"><div class="bot-cube-in"></div></div>
                     <span class="bot-hand l"><i></i></span>
                     <span class="bot-hand r"><i></i></span>
                     <div class="bot-body">
@@ -5878,6 +5941,7 @@
         setInterval(renderMiniProfileGreeting, 5 * 60 * 1000);
         window.applyI18n = applyI18n;
         function setLanguage(lang) {
+            botEvt('lang');
             currentLang = (lang === 'en') ? 'en' : 'my';
             try { localStorage.setItem('gz_lang', currentLang); } catch (e) { /* private browsing - ignore */ }
             applyI18n();
@@ -6068,7 +6132,9 @@
         }
 
         let toastHideTimer = null;
+        function botEvt(t) { try { window.dispatchEvent(new CustomEvent('bot', { detail: { type: t } })); } catch (e) {} }
         function showToast(message, type = 'success') {
+            if (type === 'fail' || type === 'error') botEvt('fail');
             const toast = document.getElementById('toast');
             const dark = document.documentElement.getAttribute('data-theme') === 'dark';
             // Four pastel-card variants: success / fail / warning / info.
@@ -7637,6 +7703,7 @@
         // webviews (some in-app browsers) that don't support or allow the
         // async Clipboard API.
         async function copyTextToClipboard(text) {
+            botEvt('copy');
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(text);
@@ -13149,6 +13216,7 @@
         // closes itself after 1 second. Never blocks taps (pointer-events: none).
         let orderOkTimer = null;
         function showOrderSuccessModal(label) {
+            botEvt('order-ok');
             const ov = document.getElementById('order-ok-overlay');
             if (!ov) return;
             document.getElementById('order-ok-title').textContent = t('order_ok_title');
@@ -16284,14 +16352,45 @@
 
             // ----- gaze: eyes move most, visor + body follow a little (3D feel) -----
             function look(x, y) {
-                face.style.setProperty('--gx', (x * 3.5).toFixed(2) + 'px');
-                face.style.setProperty('--gy', (y * 2.5).toFixed(2) + 'px');
-                visor.style.setProperty('--vx', (x * 1.8).toFixed(2) + 'px');
+                face.style.setProperty('--gx', (x * 1.3).toFixed(2) + 'px');
+                face.style.setProperty('--gy', (y * 1.3).toFixed(2) + 'px');
+                visor.style.setProperty('--vx', (x * 1.2).toFixed(2) + 'px');
                 visor.style.setProperty('--vy', (y * 1.4).toFixed(2) + 'px');
                 rig.style.setProperty('--bx', (x * 1.6).toFixed(2) + 'px');
                 rig.style.setProperty('--by', (y * 1.2).toFixed(2) + 'px');
                 rig.style.setProperty('--rot', (x * 3).toFixed(2) + 'deg');
+                // head turns/tilts/nods toward what it looks at (springs behind the eyes)
+                rig.style.setProperty('--hdx', (x * 3.2).toFixed(2) + 'px');
+                rig.style.setProperty('--hdy', (y * 2.2).toFixed(2) + 'px');
+                rig.style.setProperty('--hdr', (x * 16).toFixed(2) + 'deg');
+                rig.style.setProperty('--hdsx', (1 - Math.abs(x) * 0.07).toFixed(3));
+                rig.style.setProperty('--hdsy', (1 - y * 0.035).toFixed(3));
             }
+            // ----- head gestures: nod / shake / tilt / jerk (neck pivot) -----
+            function headRest() { ['--nkx', '--nky', '--nkr'].forEach((k, i) => rig.style.setProperty(k, i === 2 ? '0deg' : '0px')); }
+            let headTimers = [];
+            function headSeq(steps) {          // [[rotDeg, xPx, yPx, holdMs], ...]
+                headTimers.forEach(clearTimeout); headTimers = [];
+                rig.classList.add('head-fast');
+                let t = 0;
+                steps.forEach(s => {
+                    headTimers.push(setTimeout(() => {
+                        rig.style.setProperty('--nkr', s[0] + 'deg');
+                        rig.style.setProperty('--nkx', s[1] + 'px');
+                        rig.style.setProperty('--nky', s[2] + 'px');
+                        // eyes follow a beat later: glance the way the head turns / down on a nod
+                        face.style.setProperty('--ex', (s[0] * 0.14 + s[1] * 0.5).toFixed(2) + 'px');
+                        face.style.setProperty('--ey', (s[2] * 0.6).toFixed(2) + 'px');
+                    }, t));
+                    t += s[3];
+                });
+                headTimers.push(setTimeout(() => { headRest(); face.style.removeProperty('--ex'); face.style.removeProperty('--ey'); rig.classList.remove('head-fast'); headTimers = []; }, t + 40));
+            }
+            const headNod = () => headSeq([[0, 0, 2.4, 150], [0, 0, -0.6, 150], [0, 0, 2.4, 150], [0, 0, 0, 150]]);
+            const headShake = () => headSeq([[-8, -1, 0, 130], [8, 1, 0, 130], [-7, -1, 0, 130], [7, 1, 0, 130], [0, 0, 0, 130]]);
+            const headTilt = () => { const d = Math.random() < 0.5 ? -1 : 1; headSeq([[d * 12, d * 1.2, 0.5, 900]]); };
+            const headJerk = () => headSeq([[-4, 0, -2.6, 130], [0, 0, 0, 200]]);
+            const headSway = () => headSeq([[8, 1, 0, 260], [-8, -1, 0, 260], [8, 1, 0, 260], [0, 0, 0, 200]]);
             function squash(sx, sy) { rig.style.setProperty('--sx', sx); rig.style.setProperty('--sy', sy); }
             function anim(name) {
                 btn.classList.remove('bot-hop', 'bot-wiggle', 'bot-flip');
@@ -16345,20 +16444,22 @@
             }
             function dizzy() {
                 express('dizzy', 2300);
+                headShake();
                 anim('bot-wiggle');
                 for (let i = 0; i < 3; i++) setTimeout(() => emit('★', '#ffe27a'), i * 300);
             }
             function love() {
                 express('love', 2300);
+                headSway();
                 anim('bot-hop');
                 for (let i = 0; i < 4; i++) setTimeout(() => emit('♥', '#ff7ab8'), i * 260);
             }
 
             // ----- public API used by the drag / tap code -----
             socialFabBot = {
-                hop: () => anim('bot-hop'),
-                reset: () => { look(0, 0); squash(1, 1); resetHands(); },
-                startle: () => { express('surprise', 600); emit('!', '#ffd66b'); },
+                hop: () => { anim('bot-hop'); setTimeout(headNod, 350); },
+                reset: () => { look(0, 0); squash(1, 1); resetHands(); headRest(); },
+                startle: () => { express('surprise', 600); emit('!', '#ffd66b'); headJerk(); },
                 love: love,
                 yawn: yawn,
                 drag: (vx, vy) => {
@@ -16368,6 +16469,9 @@
                     const horiz = Math.abs(vx) >= Math.abs(vy);
                     squash((1 + (horiz ? 0.12 : -0.09) * speed).toFixed(3), (1 + (horiz ? -0.09 : 0.12) * speed).toFixed(3));
                     rig.style.setProperty('--rot', clamp(vx * 0.9, -16, 16).toFixed(1) + 'deg');
+                    // head lags behind the body like it has weight
+                    rig.style.setProperty('--nkr', clamp(-vx * 0.6, -10, 10).toFixed(1) + 'deg');
+                    rig.style.setProperty('--nky', clamp(-vy * 0.25, -3, 3).toFixed(1) + 'px');
                     // hands trail behind like they are dangling
                     const sw = clamp(-vx * 1.8, -45, 45), lift = clamp(-vy * 0.5, -8, 8);
                     handL.style.setProperty('--hlr', (7 - sw).toFixed(1) + 'deg');
@@ -16385,11 +16489,268 @@
                     if (sgn) lastSign = sgn;
                 },
                 release: () => {
-                    look(0, 0); squash(1, 1); resetHands();
+                    look(0, 0); squash(1, 1); resetHands(); headRest();
                     anim('bot-hop');
                     if (rig.dataset.mood !== 'dizzy') express('happy', 900);
                 }
             };
+
+            // ===== Store-event reactions (order / wallet / VIP / notif / inputs / taps / tips) =====
+            const isMy = () => (typeof currentLang === 'undefined' ? 'my' : currentLang) === 'my';
+            const L = (my, en) => isMy() ? my : en;
+            const T0 = Date.now(), loaded = () => Date.now() - T0 > 5000;
+            const mk = (tag, cls, parent) => { const e = document.createElement(tag); e.className = cls; (parent || fab).appendChild(e); return e; };
+            const burstBox = mk('div', 'bot-burst');
+            const ov = mk('div', 'bot-ov', face);
+            let ovTimer = 0, bubTimer = 0, bub = null, notifArmed = false, notifTimer = 0;
+            const accs = {};
+
+            function burst(chars, colors, n, ring) {
+                if (reduce) return;
+                for (let i = 0; i < n; i++) {
+                    const p = mk('span', 'bot-bp', burstBox);
+                    p.textContent = chars[i % chars.length];
+                    p.style.color = colors[i % colors.length];
+                    const a = ring ? (i / n) * Math.PI * 2 : 0;
+                    const dx = ring ? Math.cos(a) * rand(34, 52) : rand(-62, 62);
+                    const dy = ring ? Math.sin(a) * rand(30, 46) - 8 : rand(-96, -36);
+                    const fall = ring ? 0 : rand(30, 60);
+                    const r = rand(-200, 200);
+                    const tf = (x, y, s) => `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${r * s}deg) scale(${s})`;
+                    p.animate([
+                        { transform: tf(0, 0, 0.3), opacity: 1 },
+                        { transform: tf(dx, dy, 1), opacity: 1, offset: 0.55 },
+                        { transform: tf(dx * 1.1, dy + fall, 0.8), opacity: 0 }
+                    ], { duration: rand(900, 1500), easing: 'cubic-bezier(.2,.7,.3,1)', delay: i * 22, fill: 'both' });
+                    setTimeout(() => p.remove(), 1900 + i * 22);
+                }
+            }
+            function eyes(kind, ms, color) {   // replace the eyes with an overlay: text glyphs, shades, or covering hands
+                clearTimeout(ovTimer);
+                const g = (c) => `<b style="color:${color || '#fff'}">${c}</b>`;
+                ov.className = 'bot-ov ' + kind;
+                if (kind === 'shades') ov.innerHTML = '<i class="sh"></i>';
+                else if (kind === 'hands') ov.innerHTML = '<i class="hd l"></i><i class="hd r"></i>';
+                else ov.innerHTML = g(kind === 'money' ? '💰' : kind === 'q' ? '?' : kind === 'angry' ? '&gt;' : '') + g(kind === 'money' ? '💰' : kind === 'q' ? '?' : kind === 'angry' ? '&lt;' : '');
+                rig.classList.add('ov-eyes');
+                if (ms) ovTimer = setTimeout(eyesOff, ms);
+            }
+            function eyesOff() { clearTimeout(ovTimer); rig.classList.remove('ov-eyes'); ov.innerHTML = ''; }
+            function acc(key, html, ms) {
+                if (accs[key]) accs[key].remove();
+                const e = accs[key] = mk('span', 'bot-acc ' + key);
+                e.innerHTML = html;
+                if (ms) setTimeout(() => { if (accs[key] === e) { e.remove(); delete accs[key]; } }, ms);
+                return e;
+            }
+            function accOff(key) { if (accs[key]) { accs[key].remove(); delete accs[key]; } }
+            function say(text, ms, action) {
+                if (isOpen() || isIdle() || document.hidden) return;
+                if (!bub) bub = mk('div', 'bot-say');
+                bub.textContent = text;
+                bub.classList.toggle('act', !!action);
+                bub.onclick = action ? () => { hideSay(); action(); } : null;
+                void bub.offsetWidth; bub.classList.add('on');
+                clearTimeout(bubTimer);
+                bubTimer = setTimeout(hideSay, ms || 3600);
+            }
+            function hideSay() { if (bub) bub.classList.remove('on'); }
+            function hands(l, r, ms) {
+                handL.style.setProperty('--hlr', l + 'deg'); handR.style.setProperty('--hrr', r + 'deg');
+                handL.style.setProperty('--hly', '-4px'); handR.style.setProperty('--hry', '-4px');
+                setTimeout(resetHands, ms);
+            }
+            const clearNotif = () => { notifArmed = false; clearTimeout(notifTimer); accOff('env'); };
+            const go = (fn) => { try { fn(); } catch (e) { /* page not ready */ } };
+
+            const R = {
+                'order-ok'() {   // jump + confetti + both arms up
+                    express('happy', 2600); anim('bot-hop'); setTimeout(() => anim('bot-hop'), 520);
+                    hands(150, -150, 1800); headNod();
+                    burst(['★', '✦', '●', '✿', '◆'], ['#ffd54a', '#ff7ab8', '#5ec8ff', '#3ddc84', '#b7a8ff'], 18);
+                    say(L('အော်ဒါ အောင်မြင်ပါပြီ! 🎉', 'Order placed! 🎉'), 3200);
+                },
+                'fail'() {       // sad eyes + ? + head droops
+                    express('sad', 2800); emit('?', '#7df0ff'); setTimeout(() => emit('?', '#7df0ff'), 500);
+                    headSeq([[7, 0, 3, 2000], [0, 0, 0, 200]]);
+                    say(L('ဟင်… တစ်ခုခု မှားသွားပြီ', 'Hmm… something went wrong'), 3000);
+                },
+                'wallet-up'() {  // 💰 eyes + "+"
+                    eyes('money', 2400); express('happy', 2400); anim('bot-hop'); headNod();
+                    for (let i = 0; i < 4; i++) setTimeout(() => emit('+', '#3ddc84'), i * 320);
+                    say(L('ပိုက်ဆံဝင်ပြီ! 💰', 'Wallet topped up! 💰'), 3000);
+                },
+                'vip'() {        // golden crown + sparkle ring
+                    acc('crown', '👑', 4200); express('happy', 3200); headSway(); anim('bot-hop');
+                    burst(['✦', '✧', '★'], ['#ffd54a', '#ffe9a0', '#ffb400'], 16, true);
+                    setTimeout(() => burst(['✦', '✧'], ['#ffd54a', '#fff2b8'], 10, true), 600);
+                    say(L('VIP အဆင့်တက်ပြီ! 👑', 'VIP tier up! 👑'), 3600);
+                },
+                'notif'() {      // holds an envelope, waves; tap opens Notifications
+                    clearNotif(); notifArmed = true; acc('env', '✉️'); wave('l'); express('happy', 1500);
+                    say(L('စာအသစ်ရှိတယ်! နှိပ်ကြည့်ပါ', 'New message! Tap me'), 6000, () => go(openNotificationsPage));
+                    notifTimer = setTimeout(clearNotif, 16000);
+                },
+                'copy'() { headNod(); express('happy', 900); emit('✓', '#3ddc84'); },
+                'lang'() {       // fluffs hair + waves
+                    acc('hair', '<i></i><i></i><i></i>', 1300); wave('r'); anim('bot-wiggle'); express('happy', 1200);
+                },
+                'dark'() { eyes('shades', 2800); emit('✦', '#ffe27a'); headTilt(); say('😎', 1800); },
+                'light'() { express('happy', 1500); emit('☀', '#ffcf4a'); wave('r'); },
+                'idok'() { emit('👍', '#ffcf4a'); express('happy', 2000); wave('r'); headNod(); say(L('ID မှန်ပါတယ်!', 'ID looks good!'), 2400); },
+                'idbad'() { express('sad', 1800); emit('?', '#7df0ff'); headShake(); },
+                'angry'() {
+                    eyes('angry', 1600, '#ff4d4d'); anim('bot-wiggle'); rig.classList.add('angry');
+                    for (let i = 0; i < 3; i++) setTimeout(() => emit('💢', '#ff4d4d'), i * 260);
+                    setTimeout(() => rig.classList.remove('angry'), 1600);
+                    say(L('ဟိတ်! တော်ပါတော့ 😤', 'Hey! Stop poking 😤'), 2400);
+                },
+                'tickle'() {     // ^ ^ eyes + hehe
+                    express('happy', 1900); anim('bot-wiggle'); squash(1.06, 0.94); setTimeout(() => squash(1, 1), 260);
+                    ['ဟီး', 'ဟီး'].forEach((s, i) => setTimeout(() => emit(s, '#ffb3d1'), i * 380));
+                },
+                'hey'() { wave('l'); wave('r'); express('happy', 1800); hands(140, -140, 1200); emit('!', '#ffd66b'); anim('bot-hop'); say(L('ဟေး!', 'Yay!'), 1800); },
+                'lowbal'() { say(L('Top Up လုပ်မလား?', 'Top up your wallet?'), 5000, () => go(() => showPage('wallet'))); headTilt(); },
+                'coffee'() { acc('cup', '☕', 5500); express('happy', 2500); emit('~', '#dff6ff'); say(L('မနက်စောစော ကော်ဖီလေး ☕', 'Morning coffee ☕'), 3400); },
+                'bed'() { acc('bed', '🌙', 6000); yawn(); say(L('နွေးနွေးထွေးထွေး အိပ်ရာဝင်တော့မယ် 🛏️', 'Time to tuck in 🛏️'), 3600); }
+            };
+            function react(name) { if (isOpen() || isDrag()) return; const f = R[name]; if (f) go(f); }
+            socialFabBot.react = react;
+            window.addEventListener('bot', (e) => react(e.detail && e.detail.type));
+
+            // ----- notification envelope: tapping the robot opens Notifications -----
+            fab.addEventListener('click', (e) => {
+                if (!notifArmed || e.target.closest('.fab-menu')) return;
+                e.stopImmediatePropagation(); e.preventDefault();
+                clearNotif(); hideSay(); express('happy', 1000); go(openNotificationsPage);
+            }, true);
+
+            // ----- tap counting: 5 fast taps = angry, double-tap = ticklish -----
+            let taps = [], dn = null;
+            fab.addEventListener('pointerdown', (e) => { dn = { x: e.clientX, y: e.clientY, t: performance.now() }; }, true);
+            fab.addEventListener('pointerup', (e) => {
+                if (!dn || e.target.closest('.fab-menu')) return;
+                const now = performance.now();
+                if (Math.hypot(e.clientX - dn.x, e.clientY - dn.y) > 9 || now - dn.t > 350) { dn = null; return; }
+                dn = null;
+                taps = taps.filter(t => now - t < 1700); taps.push(now);
+                if (taps.length >= 5) { taps = []; setTimeout(() => { fab.classList.remove('social-fab-open'); react('angry'); }, 30); }
+                else if (taps.length >= 2 && now - taps[taps.length - 2] < 330) setTimeout(() => react('tickle'), 30);
+            }, true);
+
+            // ----- inputs: peek at ID field, cover eyes for OTP / codes -----
+            const isCode = (el) => /code|otp/i.test((el.id || '') + (el.name || '')) || el.autocomplete === 'one-time-code' || /6-digit|otp|code/i.test(el.placeholder || '');
+            const isId = (el) => el.closest && el.closest('.detail-form-card') && el.tagName === 'INPUT' && el.type !== 'email';
+            document.addEventListener('focusin', (e) => {
+                const el = e.target;
+                if (!el || el.tagName !== 'INPUT' || isOpen()) return;
+                if (isCode(el)) { eyes('hands', 0); return; }
+                if (isId(el)) {
+                    const r = el.getBoundingClientRect(), b = fab.getBoundingClientRect();
+                    const dx = r.left + r.width / 2 - (b.left + b.width / 2), dy = r.top + r.height / 2 - (b.top + b.height / 2);
+                    const d = Math.hypot(dx, dy) || 1;
+                    look(clamp(dx / d, -1, 1) * 0.9, clamp(dy / d, -1, 1) * 0.6); headTilt();
+                }
+            });
+            document.addEventListener('focusout', (e) => {
+                if (e.target && e.target.tagName === 'INPUT') { if (ov.classList.contains('hands')) eyesOff(); look(0, 0); }
+            });
+
+            // ----- slide-to-confirm: eyes track the thumb, then "Hey!" -----
+            let sl = null;
+            document.addEventListener('pointerdown', (e) => {
+                const th = e.target.closest && e.target.closest('.slide-confirm-thumb');
+                if (th) sl = { th: th, x: e.clientX };
+            }, true);
+            document.addEventListener('pointermove', (e) => {
+                if (!sl || isOpen() || isDrag()) return;
+                const r = sl.th.getBoundingClientRect(), b = fab.getBoundingClientRect();
+                const dx = r.left + r.width / 2 - (b.left + b.width / 2), dy = r.top + r.height / 2 - (b.top + b.height / 2);
+                const d = Math.hypot(dx, dy) || 1;
+                look(clamp(dx / d, -1, 1), clamp(dy / d, -1, 1));
+            }, true);
+            document.addEventListener('pointerup', (e) => {
+                if (!sl) return;
+                const far = Math.abs(e.clientX - sl.x) > 80; sl = null; look(0, 0);
+                if (far) setTimeout(() => react('hey'), 250);
+            }, true);
+
+            // ----- DOM watchers (no changes needed in the store code) -----
+            const whenEl = (id, cb, n) => { const el = document.getElementById(id); if (el) cb(el); else if ((n || 0) < 40) setTimeout(() => whenEl(id, cb, (n || 0) + 1), 750); };
+            const watch = (el, cb, opts) => new MutationObserver(cb).observe(el, opts || { childList: true, characterData: true, subtree: true });
+            let theme = document.documentElement.getAttribute('data-theme');
+            watch(document.documentElement, () => {
+                const n = document.documentElement.getAttribute('data-theme');
+                if (n === theme) return; theme = n;
+                if (loaded()) react(n === 'dark' ? 'dark' : 'light');
+            }, { attributes: true, attributeFilter: ['data-theme'] });
+
+            let bal = null, lowAt = 0;
+            whenEl('wallet-balance-amount', (el) => {
+                const num = () => parseInt(String(el.textContent).replace(/[^\d]/g, ''), 10) || 0;
+                bal = num();
+                watch(el, () => {
+                    const n = num();
+                    if (bal !== null && loaded() && n > bal) react('wallet-up');
+                    else if (loaded() && n > 0 && n < 2000 && Date.now() - lowAt > 600000) { lowAt = Date.now(); react('lowbal'); }
+                    bal = n;
+                });
+                if (bal > 0 && bal < 2000) setTimeout(() => { lowAt = Date.now(); react('lowbal'); }, 9000);
+            });
+
+            let tier = null;
+            whenEl('vip-tier-badge', (el) => {
+                tier = el.textContent.trim();
+                watch(el, () => {
+                    const n = el.textContent.trim();
+                    if (tier && n && n !== tier && loaded()) react('vip');
+                    if (n) tier = n;
+                });
+            });
+
+            let nc = -1;
+            whenEl('notif-dot', (el) => {
+                watch(el, () => {
+                    const n = parseInt(el.textContent, 10) || 0;
+                    if (n > nc && n > 0 && Date.now() - T0 > 3000) react('notif');
+                    else if (n === 0) clearNotif();
+                    nc = n;
+                });
+            });
+
+            whenEl('admin-status-dot', (el) => {
+                const sync2 = () => { if (el.classList.contains('online')) { if (!accs.adm) acc('adm', ''); } else accOff('adm'); };
+                watch(el, sync2, { attributes: true, attributeFilter: ['class'] }); sync2();
+            });
+
+            whenEl('detail-id-status', (el) => {
+                watch(el, () => {
+                    if (el.querySelector('.id-fail-card')) react('idbad');
+                    else if (el.querySelector('.id-result-card')) react('idok');
+                });
+            });
+
+            // ----- time of day + speech-bubble tips -----
+            setInterval(() => {
+                if (!calm() || Math.random() > 0.35) return;
+                const h = new Date().getHours();
+                if (h >= 5 && h < 9) react('coffee'); else if (h >= 22 || h < 4) react('bed');
+            }, 240000);
+            setTimeout(() => { const h = new Date().getHours(); if (calm() && h >= 5 && h < 9) react('coffee'); }, 12000);
+            const TIPS = [
+                ['Top-Up လုပ်ဖို့ ဂိမ်းရွေးပါ 🎮', 'Pick a game to top up 🎮'],
+                ['Wallet နဲ့ ပိုမြန်မြန် ဝယ်လို့ရတယ်', 'Pay faster with your Wallet'],
+                ['ID မှန်မမှန် Confirm လုပ်ပါနော်', 'Double-check your ID before paying'],
+                ['ပြဿနာရှိရင် ကျွန်တော့်ကို နှိပ်ပါ 💬', 'Need help? Tap me 💬'],
+                ['VIP တက်ရင် ဆုလာဘ်တွေ ရမယ် 👑', 'Level up to VIP for perks 👑']
+            ];
+            let tipI = 0;
+            (function tips() {
+                setTimeout(() => {
+                    if (calm() && !(bub && bub.classList.contains('on'))) { const p = TIPS[tipI++ % TIPS.length]; say(L(p[0], p[1]), 4200); }
+                    tips();
+                }, rand(50000, 80000));
+            })();
 
             // ----- react to what the button is doing (open / close / sleep / wake) -----
             let st = { idle: false, open: false, night: isNight() };
@@ -16406,10 +16767,11 @@
             const toScreen = () => fab.classList.contains('dock-left') ? 1 : -1;
             function fidget() {
                 if (!handL || !handR) return;
-                handL.style.setProperty('--hlr', rand(-25, 45).toFixed(0) + 'deg');
-                handL.style.setProperty('--hly', rand(-6, 2).toFixed(1) + 'px');
-                handR.style.setProperty('--hrr', rand(-45, 25).toFixed(0) + 'deg');
-                handR.style.setProperty('--hry', rand(-6, 2).toFixed(1) + 'px');
+                // small twisting motion around the grip pose so hands stay on the cube
+                handL.style.setProperty('--hlr', (-34 + rand(-4, 4)).toFixed(0) + 'deg');
+                handL.style.setProperty('--hly', rand(-1.5, 2.5).toFixed(1) + 'px');
+                handR.style.setProperty('--hrr', (34 + rand(-4, 4)).toFixed(0) + 'deg');
+                handR.style.setProperty('--hry', rand(-1.5, 2.5).toFixed(1) + 'px');
             }
             function stopPlay() {
                 clearTimeout(playEnd); clearInterval(fidgetTimer);
@@ -16426,12 +16788,12 @@
                 express('surprise', 700); emit('!', '#ffd66b');
                 paintCube(false);
                 setTimeout(() => { if (playing()) { setCls('fab-cube', true); express('happy', 800); look(toScreen() * 0.8, 0.5); } }, 900);
-                fidgetTimer = setInterval(() => { if (playing()) fidget(); }, 420);
+                fidgetTimer = setInterval(() => { if (playing() && fab.classList.contains('fab-cube')) fidget(); }, 420);
                 playEnd = setTimeout(() => {          // solved it!
                     if (!playing()) return;
                     paintCube(true);
                     if (cube) { cube.classList.remove('solved'); void cube.offsetWidth; cube.classList.add('solved'); }
-                    express('love', 1800); wave('r'); resetHands();
+                    express('love', 1800);   // keeps holding the cube while celebrating
                     for (let i = 0; i < 3; i++) setTimeout(() => emit('✦', '#ffe27a'), i * 260);
                     setTimeout(() => { stopPlay(); schedulePlay(); }, 2000);
                 }, rand(8000, 11000));
@@ -16486,8 +16848,8 @@
                         zzzTimer = setInterval(() => { if (isIdle() && isNight()) emit('z', '#cfe0ff'); }, 2600);
                     } else if (idle) startPeek();
                 }
-                if (open && !st.open) { temp = null; emit('✦', '#ffffff'); }
-                if (!open && st.open) { express('happy', 1100); wave('r'); }
+                if (open && !st.open) { temp = null; emit('✦', '#ffffff'); headNod(); }
+                if (!open && st.open) { express('happy', 1100); wave('r'); headNod(); }
                 st = { idle: idle, open: open, night: night };
                 render();
             }
@@ -16552,7 +16914,10 @@
                 [24, wander],
                 [10, () => { express('happy', 1300); emit('✦', '#ffffff'); }],
                 [8,  () => express('wink', 850)],
-                [8,  () => { express('curious', 1600); emit('?', '#7df0ff'); look(rand(-1, 1), -0.5); rig.style.setProperty('--rot', (Math.random() < 0.5 ? -9 : 9) + 'deg'); }],
+                [4,  headNod],
+                [3,  headShake],
+                [5,  headTilt],
+                [8,  () => { express('curious', 1600); emit('?', '#7df0ff'); headTilt(); look(rand(-1, 1), -0.5); rig.style.setProperty('--rot', (Math.random() < 0.5 ? -9 : 9) + 'deg'); }],
                 [7,  yawn],
                 [3,  () => { express('tired', 1400); setTimeout(() => blinkNow(true), 1500); }],
                 [9,  () => { wave(Math.random() < 0.7 ? 'r' : 'l'); express('happy', 1100); }],
@@ -16571,8 +16936,36 @@
                 }, rand(2200, 5200));
             })();
 
+            // idle head life: always a tiny independent drift (breathing / dozing) so the head is never rigid
+            (function headLife() {
+                setTimeout(() => {
+                    if (!document.hidden && !isOpen() && !isDrag() && !headTimers.length) {
+                        const sleepy = rig.dataset.mood === 'sleep';
+                        rig.style.setProperty('--nkr', (sleepy ? rand(-2, 4) : rand(-2.4, 2.4)).toFixed(2) + 'deg');
+                        rig.style.setProperty('--nkx', rand(-0.8, 0.8).toFixed(2) + 'px');
+                        rig.style.setProperty('--nky', (sleepy ? rand(0.5, 1.8) : rand(-0.7, 0.7)).toFixed(2) + 'px');
+                    }
+                    headLife();
+                }, rand(1700, 3200));
+            })();
+
             // hello!
-            setTimeout(() => { if (calm()) { wave('r'); express('happy', 1400); emit('♪', '#b7a8ff'); } }, 500);
+            // Greeting when the visitor opens the site: right hand raised up, waves 3x, says Hello
+            setTimeout(() => {
+                if (document.hidden || isOpen() || isDrag()) return;
+                fab.classList.remove('fab-idle');            // make sure it is awake and fully visible
+                const stayAwake = () => { if (typeof scheduleSocialFabIdle === 'function') scheduleSocialFabIdle(); };
+                stayAwake();
+                express('happy', 3200);
+                handR.style.setProperty('--hrr', '-125deg');   // hand held up high
+                handR.style.setProperty('--hry', '-4px');
+                headSeq([[-8, -1, 0, 500], [0, 0, 0, 200]]);
+                say(L('မင်္ဂလာပါ! 👋', 'Hello! 👋'), 3200);
+                wave('r'); emit('♪', '#b7a8ff');
+                setTimeout(() => { wave('r'); stayAwake(); }, 1050);
+                setTimeout(() => { wave('r'); stayAwake(); emit('✦', '#ffe27a'); }, 2100);
+                setTimeout(() => { handR.style.removeProperty('--hrr'); handR.style.removeProperty('--hry'); stayAwake(); }, 3300);
+            }, 600);
         }
 
         let guideReturnPage = 'home';
