@@ -1948,6 +1948,13 @@
            a brief scale-down so holding gives visible feedback before the
            2s mark actually copies the share link. */
         .package-card.pc-holding { transform: scale(0.96); transition: transform 1.8s ease; }
+        /* Price-card images (and everything else inside the card) must never be
+           the touch target: when a finger lands on an <img>, Android Chrome's
+           long-press opens the image menu (Open image / Download image / Search
+           image). With pointer-events:none the touch hits the card itself, so
+           holding only triggers our copy-link gesture. */
+        .package-card img, .package-card svg { pointer-events: none; -webkit-touch-callout: none; -webkit-user-drag: none; user-drag: none; }
+        .package-card * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 
         /* Currency/voucher price card — gift-card style: currency amount
            badge pinned at the top, product image centered in the middle
@@ -4103,6 +4110,115 @@ html.perf-low .game-card, html.perf-low .game-card.card-pop, html.perf-low .game
 /* shared price-card link: brief pulse on the card the link points to */
 @keyframes pcSharedFlash { 0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),0); } 40% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb),0.35); } }
 .package-card.pc-shared-flash { animation: pcSharedFlash 1s ease-in-out 2; }
+
+/* ============================================================
+   PROFILE CARD - "Night sky / shooting stars" redesign
+   Replaces the old pink/teal glass card (and the Rank #1 pink shield
+   look) with a deep navy-indigo card, fine diagonal line texture and
+   shooting-star streaks falling across it. Pure CSS, no images.
+   ============================================================ */
+#profile-card-main, #profile-card-main.rank1-aura {
+    border: 1px solid rgba(148,163,255,0.28);
+    border-radius: 22px;
+    background:
+        radial-gradient(120% 90% at 100% 0%, rgba(56,189,248,0.26) 0%, rgba(56,189,248,0) 55%),
+        radial-gradient(90% 80% at 0% 100%, rgba(139,92,246,0.32) 0%, rgba(139,92,246,0) 60%),
+        linear-gradient(150deg, #090d24 0%, #10175a 52%, #1a1069 100%);
+    background-size: auto;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    box-shadow: 0 16px 36px -16px rgba(16,23,90,0.85), inset 0 1px 0 rgba(255,255,255,0.10);
+    animation: none;
+    isolation: isolate;
+    color: #fff;
+}
+/* Rank #1 keeps a distinct look, but as a gold rim instead of pink shields. */
+#profile-card-main.rank1-aura {
+    border: 1.5px solid rgba(255,214,102,0.65);
+    box-shadow: 0 0 0 1px rgba(255,214,102,0.15), 0 14px 40px -12px rgba(255,190,60,0.45), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+#profile-card-main.rank1-aura::before, #profile-card-main.rank1-aura::after { display: none; }
+#profile-card-main .rank1-fx, #profile-card-main.rank1-aura .rank1-fx { display: none !important; }
+
+/* Everything real sits above the sky layer. */
+#profile-card-main > *:not(.pc-sky) { position: relative; z-index: 1; }
+
+.pc-sky {
+    position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; z-index: 0;
+    /* fine diagonal "rain" lines as a static texture */
+    background-image: repeating-linear-gradient(125deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 15px);
+}
+.pc-meteor {
+    position: absolute; height: 2px; border-radius: 2px; opacity: 0;
+    background: linear-gradient(90deg, #fff 0%, rgba(186,230,253,0.75) 25%, rgba(186,230,253,0) 100%);
+    filter: drop-shadow(0 0 4px rgba(147,197,253,0.9));
+    transform: rotate(-35deg);
+    animation: pcMeteor 6.5s linear infinite;
+    will-change: transform, opacity;
+}
+.pc-meteor::before { /* glowing head */
+    content: ''; position: absolute; left: -1px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 8px 2px rgba(191,219,254,0.95);
+}
+.pc-meteor.m1 { top: -6%;  left: 92%; width: 120px; animation-duration: 6.2s; animation-delay: -0.6s; }
+.pc-meteor.m2 { top: 4%;   left: 70%; width: 80px;  animation-duration: 7.4s; animation-delay: -3.1s; height: 1.5px; }
+.pc-meteor.m3 { top: -4%;  left: 48%; width: 140px; animation-duration: 8.6s; animation-delay: -5.2s; }
+.pc-meteor.m4 { top: 22%;  left: 104%; width: 100px; animation-duration: 5.8s; animation-delay: -2.2s; }
+.pc-meteor.m5 { top: 40%;  left: 100%; width: 70px;  animation-duration: 9.2s; animation-delay: -6.8s; height: 1.5px; }
+.pc-meteor.m6 { top: -8%;  left: 26%; width: 90px;  animation-duration: 7.9s; animation-delay: -4.4s; height: 1.5px; }
+.pc-meteor.m7 { top: 10%;  left: 84%; width: 60px;  animation-duration: 10s;  animation-delay: -8.1s; height: 1.5px; }
+/* Head is the LEFT end; it travels toward the lower-left along its own axis, streak trails behind it. */
+@keyframes pcMeteor {
+    0%   { opacity: 0; transform: rotate(-35deg) translateX(0); }
+    3%   { opacity: 1; }
+    26%  { opacity: 0; transform: rotate(-35deg) translateX(-340px); }
+    100% { opacity: 0; transform: rotate(-35deg) translateX(-340px); }
+}
+.pc-star {
+    position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; opacity: 0.25;
+    box-shadow: 0 0 4px 1px rgba(255,255,255,0.55);
+    animation: pcTwinkle 3.2s ease-in-out infinite;
+}
+.pc-star.t1  { top: 8%;  left: 12%; animation-delay: -0.2s; }
+.pc-star.t2  { top: 18%; left: 38%; animation-delay: -1.4s; width: 3px; height: 3px; }
+.pc-star.t3  { top: 6%;  left: 62%; animation-delay: -2.1s; }
+.pc-star.t4  { top: 30%; left: 90%; animation-delay: -0.9s; }
+.pc-star.t5  { top: 46%; left: 6%;  animation-delay: -2.7s; }
+.pc-star.t6  { top: 58%; left: 52%; animation-delay: -1.1s; width: 3px; height: 3px; }
+.pc-star.t7  { top: 72%; left: 82%; animation-delay: -0.5s; }
+.pc-star.t8  { top: 84%; left: 22%; animation-delay: -1.9s; }
+.pc-star.t9  { top: 90%; left: 66%; animation-delay: -2.4s; }
+.pc-star.t10 { top: 38%; left: 70%; animation-delay: -1.7s; }
+@keyframes pcTwinkle { 0%, 100% { opacity: 0.15; transform: scale(0.8); } 50% { opacity: 0.95; transform: scale(1.3); } }
+@media (prefers-reduced-motion: reduce) { .pc-meteor, .pc-star { animation: none; } .pc-meteor { opacity: 0.35; transform: rotate(-35deg) translateX(-120px); } }
+html.perf-low .pc-meteor, html.perf-low .pc-star { animation: none !important; }
+html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-120px); }
+
+/* Card text: light on the dark sky. */
+#profile-card-main .profile-hero-name { color: #fff; text-shadow: 0 0 14px rgba(147,197,253,0.45); }
+#profile-card-main .profile-hero-id { color: rgba(226,232,255,0.62); }
+#profile-card-main .pc-label { color: rgba(226,232,255,0.68); }
+#profile-card-main .pc-balance { color: #fff; font-weight: 700; text-shadow: 0 0 18px rgba(125,211,252,0.5); }
+#profile-card-main .pc-divider { background: linear-gradient(90deg, rgba(255,255,255,0), rgba(165,180,252,0.45), rgba(255,255,255,0)); height: 1px; }
+#profile-card-main .profile-id-copy-btn {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); color: #fff;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+#profile-card-main .profile-id-copy-btn:active { background: rgba(255,255,255,0.28); }
+#profile-card-main .pc-topup-btn {
+    background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%); color: #fff;
+    box-shadow: 0 6px 16px -4px rgba(56,189,248,0.6);
+}
+#profile-card-main .pc-stat {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+#profile-card-main .pc-stat b { color: #fff; }
+#profile-card-main .profile-hero-edit-btn {
+    background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.22); color: #fff;
+}
+#profile-card-main .profile-hero-edit-btn:active { background: rgba(255,255,255,0.2); }
+#profile-card-main #profile-completion-badge { color: #fbbf24 !important; background: rgba(251,191,36,0.12) !important; border-color: rgba(251,191,36,0.4) !important; }
+#profile-card-main .avatar-upload-circle { border-color: rgba(255,255,255,0.9); }
 </style>
 </head>
 <body>
@@ -5024,6 +5140,8 @@ html.perf-low .game-card, html.perf-low .game-card.card-pop, html.perf-low .game
                  Element ids (avatar-*, profile-hero-*, vip-tier-badge-hero, profile-card-*)
                  are what the profile/tier/wallet JS writes into. -->
             <div class="profile-card profile-card-anim" id="profile-card-main" style="animation-delay:0ms;">
+                <!-- Night-sky layer: shooting-star streaks + twinkling stars (pure CSS, decorative) -->
+                <div class="pc-sky" aria-hidden="true"><span class="pc-meteor m1"></span><span class="pc-meteor m2"></span><span class="pc-meteor m3"></span><span class="pc-meteor m4"></span><span class="pc-meteor m5"></span><span class="pc-meteor m6"></span><span class="pc-meteor m7"></span><span class="pc-star t1"></span><span class="pc-star t2"></span><span class="pc-star t3"></span><span class="pc-star t4"></span><span class="pc-star t5"></span><span class="pc-star t6"></span><span class="pc-star t7"></span><span class="pc-star t8"></span><span class="pc-star t9"></span><span class="pc-star t10"></span></div>
                 <!-- Rank #1 aura decorations - toggled on via .rank1-aura on
                      the parent card (see updateProfileCrown()). Empty/inert
                      otherwise. -->
@@ -8531,6 +8649,12 @@ html.perf-low .game-card, html.perf-low .game-card.card-pop, html.perf-low .game
                 if (Math.abs(e.clientX - startX) > MOVE_TOLERANCE || Math.abs(e.clientY - startY) > MOVE_TOLERANCE) clearHold();
             });
             ['pointerup', 'pointercancel', 'pointerleave'].forEach(evt => list.addEventListener(evt, clearHold));
+            // Long-press fires the native 'contextmenu' event on Android/desktop
+            // (image menu, Copy/Share menu). Kill it for everything inside the
+            // price-card list, in the capture phase so nothing else can re-enable
+            // it. Also stops the image drag-ghost.
+            list.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); }, true);
+            list.addEventListener('dragstart', (e) => e.preventDefault());
         }
 
         function getOrderSubtotal() {
