@@ -3847,17 +3847,12 @@
     --name-tint: var(--accent-rgb);
     margin: 7px 0 0; padding: 5px 2px; border-radius: 10px;
     background-color: rgba(var(--name-tint), 0.08);
-    background-image:
-        linear-gradient(rgba(var(--name-tint), 0.11) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--name-tint), 0.11) 1px, transparent 1px);
-    background-size: 8px 8px;
+    background-image: none;
     border: none; box-shadow: inset 0 0 0 1px rgba(var(--name-tint), 0.16); /* inset ring: no extra width taken from the name */
 }
 html[data-theme="dark"] .game-card .game-card-name {
     background-color: rgba(var(--name-tint), 0.12);
-    background-image:
-        linear-gradient(rgba(var(--name-tint), 0.16) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--name-tint), 0.16) 1px, transparent 1px);
+    background-image: none;
     box-shadow: inset 0 0 0 1px rgba(var(--name-tint), 0.22);
 }
 
@@ -3940,7 +3935,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
 /* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
 function gameNameStyle(name) {
     var n = Array.from(String(name == null ? '' : name)).length;
-    var px = Math.max(6.5, Math.min(10.5, 160 / Math.max(n, 1)));
+    var px = Math.max(6, Math.min(9.25, 140 / Math.max(n, 1)));
     return 'font-size:' + (Math.round(px * 4) / 4) + 'px';
 }
 </script>
@@ -4353,10 +4348,6 @@ function gameNameStyle(name) {
         <div class="admin-status-bar" id="admin-status-bar" style="display:none;">
             <span class="admin-status-dot" id="admin-status-dot"></span>
             <span id="admin-status-text">Checking admin status...</span>
-        </div>
-        <div class="wallet-topup-toast" id="wallet-topup-toast">
-            <svg class="ui-icon" style="width:12px;height:12px;flex-shrink:0;"><use href="#icon-wallet"></use></svg>
-            <span id="wallet-topup-toast-msg"></span>
         </div>
     </div>
 
@@ -12716,16 +12707,17 @@ function gameNameStyle(name) {
         // needing a new snapshot to trigger it.
         const ADMIN_ONLINE_THRESHOLD_MS = 12 * 60 * 1000; // 12 minutes (admin heartbeat is every 10 min)
         let lastAdminActiveMs = null;
+        let adminPresenceLoaded = false; // true once the first snapshot (or error) arrives
         function renderAdminStatus() {
             const bar = document.getElementById('admin-status-bar');
             const dot = document.getElementById('admin-status-dot');
             const text = document.getElementById('admin-status-text');
-            if (lastAdminActiveMs === null) {
+            if (!adminPresenceLoaded) {
                 bar.style.display = 'none';
                 return;
             }
             bar.style.display = 'inline-flex';
-            const isOnline = (Date.now() - lastAdminActiveMs) < ADMIN_ONLINE_THRESHOLD_MS;
+            const isOnline = lastAdminActiveMs !== null && (Date.now() - lastAdminActiveMs) < ADMIN_ONLINE_THRESHOLD_MS;
             dot.className = 'admin-status-dot ' + (isOnline ? 'online' : 'offline');
             bar.classList.toggle('online-text', isOnline);
             bar.title = 'Orders still process automatically either way.';
@@ -12738,10 +12730,21 @@ function gameNameStyle(name) {
         deferInit(() => {
             onSnapshot(doc(db, "settings", "presence"), (docSnap) => {
                 const data = docSnap.exists() ? docSnap.data() : null;
-                lastAdminActiveMs = (data && data.lastActive) ? data.lastActive.toMillis() : null;
+                let ms = null;
+                const la = data && data.lastActive;
+                if (la) {
+                    if (typeof la.toMillis === 'function') ms = la.toMillis();
+                    else if (typeof la === 'number') ms = la;
+                    else if (la.seconds != null) ms = la.seconds * 1000;
+                    else { const t = new Date(la).getTime(); if (!isNaN(t)) ms = t; }
+                }
+                lastAdminActiveMs = ms;
+                adminPresenceLoaded = true;
                 renderAdminStatus();
             }, (error) => {
                 console.error("Admin presence fetch error:", error);
+                adminPresenceLoaded = true; // read failed: show Offline instead of hiding the badge
+                renderAdminStatus();
             });
             setInterval(renderAdminStatus, 20000); // re-check the threshold even with no new snapshot
         });
@@ -13310,7 +13313,7 @@ function gameNameStyle(name) {
                 console.error("Wallet top-up toast listener error:", error);
             });
         }
-        deferInit(() => { listenWalletTopupToasts(); });
+        // Wallet top-up toast removed from Home (listener no longer started).
 
         // Watches this device's own orders for status changes and pops the
         // "Your Order Is Successfully" notification (or a Fail notice) the instant
