@@ -600,6 +600,8 @@
         .game-subtab-bar { display:flex; gap:6px; background:var(--surface-alt); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:14px; }
         .game-subtab-btn { flex:1; text-align:center; padding:9px 0; border-radius:11px; font-size:13.5px; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:background .18s,color .18s; user-select:none; }
         .game-subtab-btn.active { background:var(--accent); color:#fff; }
+        #voucher .game-subtab-btn.active { background:#8B5CF6; color:#fff; }
+        #software .game-subtab-btn.active { background:#8FCBFF; color:#0B3D6E; }
 
         /* Home dashboard: Wallet + Order-count summary grid, and the
            4-step "how it works" guide. */
@@ -2354,6 +2356,8 @@
         .pm-info-box { min-width: 0; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 9px; padding: 6px 8px; }
         .pm-info-box-label { display: block; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 2px; }
         .pm-info-box-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+        .pm-name-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
+        .pm-name-verified { width: 16px; height: 16px; flex-shrink: 0; color: #22C55E; }
         .pm-info-box-row p { font-size: 12.5px; font-weight: 600; color: var(--text); margin: 0; overflow-wrap: anywhere; line-height: 1.2; }
         .pm-info-box .pm-copy-btn { width: 22px; height: 22px; }
         .pm-info-box .pm-copy-btn svg { width: 11px; height: 11px; }
@@ -4171,6 +4175,8 @@ html.perf-low .game-card.card-wave { animation: cardWave 1s var(--ease-out) back
 @keyframes pcMeteor {
     0%   { opacity: 0; transform: rotate(-35deg) translateX(0); }
     3%   { opacity: 1; }
+    8%   { opacity: 0.85; transform: rotate(-35deg) translateX(-105px); }
+    17%  { opacity: 0.4; transform: rotate(-35deg) translateX(-225px); }
     26%  { opacity: 0; transform: rotate(-35deg) translateX(-340px); }
     100% { opacity: 0; transform: rotate(-35deg) translateX(-340px); }
 }
@@ -4190,9 +4196,10 @@ html.perf-low .game-card.card-wave { animation: cardWave 1s var(--ease-out) back
 .pc-star.t9  { top: 90%; left: 66%; animation-delay: -2.4s; }
 .pc-star.t10 { top: 38%; left: 70%; animation-delay: -1.7s; }
 @keyframes pcTwinkle { 0%, 100% { opacity: 0.15; transform: scale(0.8); } 50% { opacity: 0.95; transform: scale(1.3); } }
-@media (prefers-reduced-motion: reduce) { .pc-meteor, .pc-star { animation: none; } .pc-meteor { opacity: 0.35; transform: rotate(-35deg) translateX(-120px); } }
-html.perf-low .pc-meteor, html.perf-low .pc-star { animation: none !important; }
-html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-120px); }
+/* Always animated (even on low-end phones / "remove animations" mode) - only transform+opacity, so it stays cheap.
+   On weak devices just drop the glow filter. */
+html.perf-low .pc-meteor { filter: none; }
+html.perf-low .pc-star { box-shadow: none; }
 
 /* Card text: light on the dark sky. */
 #profile-card-main .profile-hero-name { color: #fff; text-shadow: 0 0 14px rgba(147,197,253,0.45); }
@@ -4998,19 +5005,19 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                                 <img id="wallet-pm-qr" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid rgba(255,255,255,0.4);">
                                 <div class="pm-info-grid">
                                     <div class="pm-info-box">
-                                        <span class="pm-info-box-label">No.</span>
+                                        <span class="pm-info-box-label">Name</span>
                                         <div class="pm-info-box-row">
-                                            <p id="wallet-pm-number"></p>
-                                            <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-number', this)" title="Copy phone number">
+                                            <span class="pm-name-wrap"><p id="wallet-pm-name"></p><svg class="pm-name-verified" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                            <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-name', this)" title="Copy name">
                                                 <svg class="ui-icon"><use href="#icon-copy"></use></svg>
                                             </button>
                                         </div>
                                     </div>
                                     <div class="pm-info-box">
-                                        <span class="pm-info-box-label">Name</span>
+                                        <span class="pm-info-box-label">No.</span>
                                         <div class="pm-info-box-row">
-                                            <p id="wallet-pm-name"></p>
-                                            <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-name', this)" title="Copy name">
+                                            <p id="wallet-pm-number"></p>
+                                            <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-number', this)" title="Copy phone number">
                                                 <svg class="ui-icon"><use href="#icon-copy"></use></svg>
                                             </button>
                                         </div>
@@ -5142,7 +5149,7 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                  are what the profile/tier/wallet JS writes into. -->
             <div class="profile-card profile-card-anim" id="profile-card-main" style="animation-delay:0ms;">
                 <!-- Night-sky layer: shooting-star streaks + twinkling stars (pure CSS, decorative) -->
-                <div class="pc-sky" aria-hidden="true"><span class="pc-meteor m1"></span><span class="pc-meteor m3"></span><span class="pc-meteor m4"></span><span class="pc-star t1"></span><span class="pc-star t2"></span><span class="pc-star t3"></span><span class="pc-star t4"></span><span class="pc-star t5"></span><span class="pc-star t6"></span><span class="pc-star t7"></span><span class="pc-star t8"></span><span class="pc-star t9"></span><span class="pc-star t10"></span></div>
+                <div class="pc-sky" aria-hidden="true"><span class="pc-meteor m1"></span><span class="pc-meteor m2"></span><span class="pc-meteor m3"></span><span class="pc-meteor m4"></span><span class="pc-meteor m5"></span><span class="pc-star t1"></span><span class="pc-star t2"></span><span class="pc-star t3"></span><span class="pc-star t4"></span><span class="pc-star t5"></span><span class="pc-star t6"></span><span class="pc-star t7"></span><span class="pc-star t8"></span><span class="pc-star t9"></span><span class="pc-star t10"></span></div>
                 <!-- Rank #1 aura decorations - toggled on via .rank1-aura on
                      the parent card (see updateProfileCrown()). Empty/inert
                      otherwise. -->
@@ -5494,7 +5501,7 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                  near the top of the script so it only needs updating in
                  one place for future releases. -->
             <p id="app-version-footer" style="text-align:center;font-size:11px;color:var(--text-faint);margin-top:16px;letter-spacing:0.02em;user-select:none;" onclick="handleVersionTap()">
-                &copy;2026 Version <span id="app-version-number">1.45.28</span> Powered By Kusanagi
+                &copy;2026 Version <span id="app-version-number">1.45.28</span> Powered By Linn Game Store
             </p>
         </div>
 
@@ -5775,19 +5782,19 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                             <img id="pm-qr" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass);">
                             <div class="pm-info-grid">
                                 <div class="pm-info-box">
-                                    <span class="pm-info-box-label">No.</span>
+                                    <span class="pm-info-box-label">Name</span>
                                     <div class="pm-info-box-row">
-                                        <p id="pm-number"></p>
-                                        <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-number', this)" title="Copy phone number">
+                                        <span class="pm-name-wrap"><p id="pm-name"></p><svg class="pm-name-verified" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                        <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-name', this)" title="Copy name">
                                             <svg class="ui-icon"><use href="#icon-copy"></use></svg>
                                         </button>
                                     </div>
                                 </div>
                                 <div class="pm-info-box">
-                                    <span class="pm-info-box-label">Name</span>
+                                    <span class="pm-info-box-label">No.</span>
                                     <div class="pm-info-box-row">
-                                        <p id="pm-name"></p>
-                                        <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-name', this)" title="Copy name">
+                                        <p id="pm-number"></p>
+                                        <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-number', this)" title="Copy phone number">
                                             <svg class="ui-icon"><use href="#icon-copy"></use></svg>
                                         </button>
                                     </div>
