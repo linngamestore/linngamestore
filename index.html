@@ -152,7 +152,13 @@
         /* Stops the long-press "save image / open image / search image" context
            menu and drag-ghost on every <img> site-wide (product art, avatars,
            gallery photos, etc.) without touching click/tap handlers. */
-        img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
+        img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
+        /* Hidden overlays (opacity:0, pointer-events:none) must never catch touches: an <img> inside them used to
+           force pointer-events:auto and, sitting in a .modal-body (overscroll-behavior:contain), silently blocked
+           page scrolling in the middle of the screen. */
+        .modal-overlay:not(.show), .modal-overlay:not(.show) *,
+        .success-overlay:not(.show), .success-overlay:not(.show) *,
+        .drawer-overlay:not(.show), .drawer-overlay:not(.show) * { pointer-events: none !important; }
         /* Mograph-style: a single clean, rounded geometric sans (Poppins)
            used everywhere - body text, headings, display numbers - for a
            minimal, consistent brand look instead of a two-font pairing. */
@@ -520,8 +526,6 @@
         .game-subtab-bar { display:flex; gap:6px; background:var(--surface-alt); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:14px; }
         .game-subtab-btn { flex:1; text-align:center; padding:9px 0; border-radius:11px; font-size:13.5px; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:background .18s,color .18s; user-select:none; }
         .game-subtab-btn.active { background:var(--accent); color:#fff; }
-        .skel-software-card { border-radius:14px; overflow:hidden; background:var(--surface); border:1px solid var(--border); }
-        .skel-software-card .skel-img { aspect-ratio:1/1; }
 
         /* Home dashboard: Wallet + Order-count summary grid, and the
            4-step "how it works" guide. */
@@ -1135,22 +1139,12 @@
            real content arrives. */
         @keyframes skeletonShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .skel { background: linear-gradient(90deg, var(--border) 25%, var(--skel-shine) 37%, var(--border) 63%); background-size: 400% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite; }
-        .skel-game-card { display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .skel-game-card .skel-img { aspect-ratio: 1 / 1; }
-        .skel-game-card .skel-name { height: 30px; margin-top: 0; }
-        /* Popular row skeletons: fixed-width flex items matching .popular-card /
-           .popular-voucher-card sizing, so the loading state doesn't jump once
-           real cards render in. */
-        .skel-popular-card { flex: 0 0 88px; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .skel-popular-card .skel-img { width: 100%; height: auto; aspect-ratio: 1 / 1; }
-        .skel-popular-card .skel-name { height: 22px; margin-top: 0; }
-        .skel-popular-voucher-card { flex: 0 0 92px; aspect-ratio: 1 / 1.18; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .skel-popular-voucher-card .skel-img { width: 100%; height: auto; aspect-ratio: 1 / 1; }
-        .skel-popular-voucher-card .skel-name { height: 26px; margin-top: 0; }
+        /* Card skeletons (game / popular / voucher / software) are all styled together in the
+           #card-redesign-css block below so they match the redesigned cards. */
         /* History list skeleton — mirrors .list-card/.history-card layout */
-        .skel-history-card { background: var(--surface); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); }
+        .skel-history-card { background: transparent; padding: 0 14px; height: 76px; box-sizing: border-box; border-radius: 20px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); }
         .skel-history-card .skel-hc-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-        .skel-history-card .skel-thumb { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; }
+        .skel-history-card .skel-thumb { width: 44px; height: 44px; border-radius: 15px; flex-shrink: 0; }
         .skel-history-card .skel-hc-lines { flex: 1; min-width: 0; }
         .skel-history-card .skel-line1 { height: 14px; width: 55%; border-radius: 6px; }
         .skel-history-card .skel-line2 { height: 12px; width: 40%; border-radius: 6px; margin-top: 8px; }
@@ -3122,9 +3116,9 @@
         /* Game card entrance: first cards POP in; cards that arrive while scrolling down ride a diagonal WAVE.
            fill-mode is 'backwards' (not 'both') so the finished card is free to take :active / long-press transforms. */
         .game-card.card-pop, .voucher-card.card-pop { animation: cardPop 0.5s var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * 55ms); }
-        .game-card.card-wave { animation: cardWave 0.5s var(--ease-out) backwards; animation-delay: calc((var(--r, 0) + var(--c, 0)) * 90ms); }
+        .game-card.card-wave { animation: cardWave 1s var(--ease-out) backwards; animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 170ms), 1400ms); }
         @keyframes cardPop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
-        @keyframes cardWave { from { opacity: 0; transform: translateY(12px) scale(0.85); } to { opacity: 1; transform: none; } }
+        @keyframes cardWave { from { opacity: 0; transform: translateY(30px) scale(0.92); } to { opacity: 1; transform: none; } }
         @media (prefers-reduced-motion: reduce) { .card-pop, .card-wave { animation: none !important; } }
 
         /* Game / Voucher detail page: sections fade up one after another when the page opens
@@ -3822,9 +3816,53 @@
 }
 .popular-card .game-card-name { padding: 7px 2px 0; font-size: 10px; }
 @media (min-width: 1024px) { .game-card-name { font-size: 12px; } }
-.skel-game-card { padding: 6px 6px 8px; border-radius: 20px; }
-.skel-game-card .skel-img { border-radius: 15px; }
-.skel-game-card .skel-name { height: 11px; width: 68%; margin: 9px auto 0; border-radius: 6px; }
+/* Skeleton cards - one look for every card skeleton: padded rounded card, inset rounded image block,
+   short pill for the name. (Logo skeletons keep their own logo-shaped placeholder.) */
+.skel-game-card, .skel-popular-card, .skel-software-card, .skel-popular-voucher-card {
+    display: block; box-sizing: border-box; padding: 6px 6px 8px; border-radius: 20px; overflow: hidden;
+    background: transparent; border: 1px solid var(--border);
+}
+.skel-game-card .skel-img, .skel-popular-card .skel-img, .skel-software-card .skel-img, .skel-popular-voucher-card .skel-img {
+    width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 15px;
+}
+.skel-game-card .skel-name, .skel-popular-card .skel-name, .skel-software-card .skel-name, .skel-popular-voucher-card .skel-name {
+    height: 24px; width: 100%; margin: 7px 0 0; border-radius: 10px; /* same size/shape as the real name pill */
+}
+/* Popular rows: same fixed widths as the real .popular-card / .popular-voucher-card so nothing jumps when real cards load */
+.skel-popular-card { flex: 0 0 88px; }
+.skel-popular-voucher-card { flex: 0 0 92px; }
+
+/* ---- Scroll fix: dragging must scroll the page even when the finger starts on the card image ---- */
+.game-card { touch-action: pan-x pan-y; }
+/* the <img> and blurred backdrop never need to be touch targets - the card itself takes the tap */
+.game-card img,
+.game-card-img-wrap::before { pointer-events: none; }
+/* charging ring now starts ~220ms after touch, so finish it in time for the 2s pin */
+.card-pin-charging .game-card-img-wrap::after { transition-duration: 1780ms; }
+
+/* Game name: light tinted pill with a fine grid pattern.
+   Colour = the store accent at low opacity, so it turns light-blue in light mode and a soft blue in dark mode.
+   To try another colour, change ONLY --name-tint (R,G,B) - e.g. lavender 139,92,246 / mint 34,197,94 / rose 244,63,94. */
+.game-card .game-card-name {
+    --name-tint: var(--accent-rgb);
+    margin: 7px 0 0; padding: 5px 2px; border-radius: 10px;
+    background-color: rgba(var(--name-tint), 0.08);
+    background-image:
+        linear-gradient(rgba(var(--name-tint), 0.11) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--name-tint), 0.11) 1px, transparent 1px);
+    background-size: 8px 8px;
+    border: none; box-shadow: inset 0 0 0 1px rgba(var(--name-tint), 0.16); /* inset ring: no extra width taken from the name */
+}
+html[data-theme="dark"] .game-card .game-card-name {
+    background-color: rgba(var(--name-tint), 0.12);
+    background-image:
+        linear-gradient(rgba(var(--name-tint), 0.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--name-tint), 0.16) 1px, transparent 1px);
+    box-shadow: inset 0 0 0 1px rgba(var(--name-tint), 0.22);
+}
+
+/* Home banner (and its loading skeleton): rounder corners to match the 20px cards */
+.home-banner-carousel, .home-banner-track, .home-banner-slide { border-radius: 20px; }
 
 /* Price cards (direct top-up) */
 .package-card.type-topup { padding: 6px 6px 8px; border-radius: 20px; }
@@ -3898,51 +3936,13 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
     color: #3DDC72; box-shadow: none;
 }
 </style>
-<script id="card-redesign-js">
-/* Game-name auto-fit: always one line. Starts slightly smaller than before;
-   if the name is too long for the card, the font shrinks step by step until it fits. */
-(function () {
-    var MIN = 6.5, STEP = 0.25, pending = new Set(), raf = 0;
-    function fit(el) {
-        if (!el.clientWidth) return;               // hidden page: ResizeObserver refits when shown
-        el.style.fontSize = '';
-        var size = parseFloat(getComputedStyle(el).fontSize) || 10.5, guard = 0;
-        while (el.scrollWidth > el.clientWidth + 0.5 && size > MIN && guard++ < 60) {
-            size -= STEP;
-            el.style.fontSize = size + 'px';
-        }
-    }
-    function flush() { raf = 0; pending.forEach(fit); pending.clear(); }
-    function queue(el) { pending.add(el); if (!raf) raf = requestAnimationFrame(flush); }
-    var ro = window.ResizeObserver ? new ResizeObserver(function (en) { en.forEach(function (e) { queue(e.target); }); }) : null;
-    function watch(el) {
-        if (el.__fitWatched) return;
-        el.__fitWatched = true;
-        if (ro) ro.observe(el);
-        queue(el);
-    }
-    function scan(root) {
-        if (!root || root.nodeType !== 1) return;
-        if (root.matches('.game-card-name')) watch(root);
-        root.querySelectorAll('.game-card-name').forEach(watch);
-    }
-    function start() {
-        scan(document.body);
-        new MutationObserver(function (muts) {
-            muts.forEach(function (m) {
-                m.addedNodes.forEach(scan);
-                var t = m.target && (m.target.nodeType === 1 ? m.target : m.target.parentElement);
-                var n = t && t.closest && t.closest('.game-card-name');
-                if (n) queue(n);                    // name text changed (e.g. language switch)
-            });
-        }).observe(document.body, { childList: true, subtree: true, characterData: true });
-        window.addEventListener('resize', function () { document.querySelectorAll('.game-card-name').forEach(queue); });
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
-            document.querySelectorAll('.game-card-name').forEach(queue);
-        });
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-})();
+<script id="card-name-size">
+/* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
+function gameNameStyle(name) {
+    var n = Array.from(String(name == null ? '' : name)).length;
+    var px = Math.max(6.5, Math.min(10.5, 160 / Math.max(n, 1)));
+    return 'font-size:' + (Math.round(px * 4) / 4) + 'px';
+}
 </script>
 </head>
 <body>
@@ -9811,7 +9811,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
                             <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
                             ${pinBadgeHtml()}
                         </div>
-                        <div class="game-card-name">${g.serverName || g.name}</div>
+                        <div class="game-card-name" style="${gameNameStyle(g.serverName || g.name)}">${g.serverName || g.name}</div>
                     </div>
                 `;
             }).join('');
@@ -9912,10 +9912,12 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
             const PIN_HOLD_MS = 2000;
             const MOVE_CANCEL_PX = 10;
             let pressTimer = null;
+            let chargeTimer = null;
             let pressCard = null;
             let startX = 0, startY = 0;
 
             function clearPress() {
+                if (chargeTimer) { clearTimeout(chargeTimer); chargeTimer = null; }
                 if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
                 if (pressCard) pressCard.classList.remove('card-pin-charging');
                 pressCard = null;
@@ -9928,7 +9930,12 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
                 const t = e.touches ? e.touches[0] : e;
                 startX = t.clientX; startY = t.clientY;
                 pressCard = card;
-                card.classList.add('card-pin-charging');
+                // Only start the "charging" scale/ring after a short hold, so a normal
+                // scroll-swipe that begins on a card never restyles the card under the finger.
+                chargeTimer = setTimeout(() => {
+                    chargeTimer = null;
+                    if (pressCard === card) card.classList.add('card-pin-charging');
+                }, 220);
                 pressTimer = setTimeout(() => {
                     pressTimer = null;
                     card.classList.remove('card-pin-charging');
@@ -15305,7 +15312,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
                         <div class="game-card-img-wrap" style="--card-bg-img:url('${optimizedGameImg(g.image, 200)}')">
                             <img src="${optimizedGameImg(g.image, 200)}" alt="${label}" loading="lazy" decoding="async">
                         </div>
-                        <div class="game-card-name">${label}</div>
+                        <div class="game-card-name" style="${gameNameStyle(label)}">${label}</div>
                     </div>
                 `;
             }).join('');
@@ -15393,7 +15400,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
                         ${serverCountBadgeHtml(gr)}
                         ${pinBadgeHtml()}
                     </div>
-                    <div class="game-card-name">${g.name}</div>
+                    <div class="game-card-name" style="${gameNameStyle(g.name)}">${g.name}</div>
                 </div>
             `;
         }
@@ -15549,7 +15556,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
                             ${serverCountBadgeHtml(gr)}
                             ${pinBadgeHtml()}
                         </div>
-                        <div class="game-card-name">${g.name}</div>
+                        <div class="game-card-name" style="${gameNameStyle(g.name)}">${g.name}</div>
                     </div>
                 `;
         }
@@ -15726,7 +15733,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
                             <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
                             ${serverCountBadgeHtml(gr)}
                         </div>
-                        <div class="game-card-name">${g.name}</div>
+                        <div class="game-card-name" style="${gameNameStyle(g.name)}">${g.name}</div>
                     </div>
                 `;
         }
