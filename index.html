@@ -4056,6 +4056,54 @@ function gameNameStyle(name) {
     return 'font-size:' + (Math.round(px * 4) / 4) + 'px';
 }
 </script>
+<style id="linn-fix-css">
+/* ===== Game card: shorter name pill + running rainbow border on card and pill ===== */
+@property --linn-a { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+@keyframes linnSpin { to { --linn-a: 360deg; } }
+
+/* shorter name pill (was ~22px tall, now ~16px) */
+html .game-card .game-card-name {
+    margin: 5px 0 0; padding: 2px 2px; line-height: 1.35; border-radius: 9px;
+}
+.skel-game-card .skel-name, .skel-popular-card .skel-name, .skel-software-card .skel-name, .skel-popular-voucher-card .skel-name {
+    height: 17px; margin-top: 5px; border-radius: 9px;
+}
+.popular-card .game-card-name { padding: 2px 2px; }
+
+/* card border: colours run around the edge */
+html .game-card {
+    border: 1.5px solid transparent;
+    background:
+        linear-gradient(var(--surface), var(--surface)) padding-box,
+        conic-gradient(from var(--linn-a), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
+    animation: linnSpin 4s linear infinite;
+}
+/* keep the entrance animations working alongside the spin */
+html .game-card.card-pop  { animation: cardPop 0.5s var(--ease-spring) backwards, linnSpin 4s linear infinite; animation-delay: calc(var(--i, 0) * 55ms), 0s; }
+html .game-card.card-wave { animation: cardWave 1s var(--ease-out) backwards, linnSpin 4s linear infinite; animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 170ms), 1400ms), 0s; }
+
+/* name pill border: same running colours, opposite direction feel (offset start) */
+html .game-card .game-card-name,
+html[data-theme="dark"] .game-card .game-card-name {
+    border: 1.5px solid transparent; box-shadow: none;
+    background:
+        linear-gradient(rgba(24,119,242,0.14), rgba(24,119,242,0.14)) padding-box,
+        linear-gradient(var(--surface), var(--surface)) padding-box,
+        conic-gradient(from calc(var(--linn-a) + 180deg), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
+}
+html[data-theme="dark"] .game-card .game-card-name {
+    background:
+        linear-gradient(rgba(168,85,247,0.22), rgba(168,85,247,0.22)) padding-box,
+        linear-gradient(var(--surface), var(--surface)) padding-box,
+        conic-gradient(from calc(var(--linn-a) + 180deg), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
+}
+/* weak devices / reduced-motion: keep the colours, stop the movement */
+html.perf-low .game-card, html.perf-low .game-card.card-pop, html.perf-low .game-card.card-wave { animation: none; }
+@media (prefers-reduced-motion: reduce) { html .game-card, html .game-card.card-pop, html .game-card.card-wave { animation: none; } }
+/* shared price-card link: brief pulse on the card the link points to */
+@keyframes pcSharedFlash { 0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),0); } 40% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb),0.35); } }
+.package-card.pc-shared-flash { animation: pcSharedFlash 1s ease-in-out 2; }
+</style>
 </head>
 <body>
 
@@ -7969,10 +8017,30 @@ function gameNameStyle(name) {
                 const targetTab = pkgTabOf(targetPkg);
                 if (targetTab !== activePackageTab) switchPackageTab(targetTab);
                 selectPackageOption(pkgIndex);
-                setTimeout(() => {
+                // Bring the shared price card into view. The page-in and card-zoom animations are
+                // still running for the first ~0.7s, so positions measured earlier are wrong -
+                // re-run the jump a few times (instant, no smooth-scroll fighting) until it settles.
+                const focusSharedPackage = (flash) => {
                     const card = document.querySelector(`#detail-package-list .package-card[data-index="${pkgIndex}"]`);
-                    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 50);
+                    if (!card) return;
+                    const box = card.closest('.package-grid-scroll');
+                    if (box) {
+                        const cr = card.getBoundingClientRect(), br = box.getBoundingClientRect();
+                        box.scrollTop += (cr.top - br.top) - (box.clientHeight - cr.height) / 2;
+                    }
+                    const target = box || card;
+                    const r = target.getBoundingClientRect();
+                    const vh = window.innerHeight || document.documentElement.clientHeight;
+                    const y = window.scrollY + r.top - Math.max(12, (vh - Math.min(r.height, vh * 0.7)) / 2);
+                    window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+                    if (flash) {
+                        card.classList.remove('pc-shared-flash');
+                        void card.offsetWidth;
+                        card.classList.add('pc-shared-flash');
+                        setTimeout(() => card.classList.remove('pc-shared-flash'), 2200);
+                    }
+                };
+                [60, 350, 800, 1300].forEach((ms, k) => setTimeout(() => focusSharedPackage(k === 1), ms));
             }
             // Clean the address bar so refreshing this tab later doesn't
             // re-trigger the jump, and so this visitor sharing their own
@@ -12415,7 +12483,7 @@ function gameNameStyle(name) {
                 <div class="lb-list-heading">Rankings</div>
                 ${top.map((r, i) => {
                     const rank = i + 1;
-                    const tier = tierForSpend(r.total);
+                    const tier = tierForSpend(r.total) || VIP_TIERS[VIP_TIERS.length - 1];
                     const isYou = r.uid === guestId;
                     return `
                         <div class="lb-row${isYou ? ' lb-row-you' : ''}" id="lb-row-${rank}">
@@ -12477,33 +12545,53 @@ function gameNameStyle(name) {
             // Keep whatever was shown last time (no loader flash); only show a loader on the very first open.
             if (!listEl.querySelector('.lb-row')) listEl.innerHTML = loadingStateHTML('ripple');
             let first = true;
-            try {
-                const q = query(collection(db, "userStats"), orderBy("totalSpent", "desc"), limit(20));
-                lbUnsub = onSnapshot(q, (snap) => {
-                    const top = snap.docs.map(docSnap => {
-                        const d = docSnap.data();
-                        return { uid: docSnap.id, name: d.name || docSnap.id, total: Number(d.totalSpent) || 0, count: Number(d.orderCount) || 0 };
-                    });
-                    if (snap.empty && snap.metadata.fromCache) return; // cache had nothing yet: wait for the server
-                    const guestId = window.getGuestId ? window.getGuestId() : '';
-                    setLbLive('live');
-                    const draw = () => {
-                        renderLeaderboardList(top, guestId);
-                        updateLeaderboardYou(top, guestId).catch(e => console.error("Leaderboard you-row error:", e));
-                    };
-                    // First data draws immediately; later live updates wait until the finger/scroll is idle.
-                    if (first) { first = false; draw(); }
-                    else if (window.whenUiIdle) window.whenUiIdle('lb-render', draw);
-                    else draw();
-                }, (error) => {
-                    console.error("Leaderboard load error:", error);
-                    setLbLive('error');
-                    if (!listEl.querySelector('.lb-row')) listEl.innerHTML = '<p class="empty-msg" style="color:red;">Could not load leaderboard.</p>';
-                });
-            } catch (error) {
+            let fallbackTimer = null;
+            const mapDocs = (snap) => snap.docs.map(docSnap => {
+                const d = docSnap.data();
+                return { uid: docSnap.id, name: String(d.name || docSnap.id), total: Number(d.totalSpent) || 0, count: Number(d.orderCount) || 0 };
+            });
+            const showError = (error) => {
                 console.error("Leaderboard load error:", error);
                 setLbLive('error');
-                listEl.innerHTML = '<p class="empty-msg" style="color:red;">Could not load leaderboard.</p>';
+                if (!listEl.querySelector('.lb-row')) {
+                    const code = error && (error.code || error.message) ? ' (' + (error.code || error.message) + ')' : '';
+                    listEl.innerHTML = '<p class="empty-msg" style="color:red;">Could not load leaderboard.' + escapeHtml(code) + '</p>';
+                }
+            };
+            const draw = (top) => {
+                try {
+                    const guestId = window.getGuestId ? window.getGuestId() : '';
+                    renderLeaderboardList(top, guestId);
+                    updateLeaderboardYou(top, guestId).catch(e => console.error("Leaderboard you-row error:", e));
+                } catch (e) { showError(e); }
+            };
+            // One-time fetch used when the live listener is slow / blocked, so the list still appears.
+            const fetchOnce = async () => {
+                try {
+                    const snap = await getDocs(query(collection(db, "userStats"), orderBy("totalSpent", "desc"), limit(20)));
+                    if (!first) return;
+                    first = false;
+                    clearTimeout(fallbackTimer);
+                    draw(mapDocs(snap));
+                } catch (e) { if (first) showError(e); }
+            };
+            try {
+                const q = query(collection(db, "userStats"), orderBy("totalSpent", "desc"), limit(20));
+                fallbackTimer = setTimeout(() => { if (first) fetchOnce(); }, 6000);
+                lbUnsub = onSnapshot(q, (snap) => {
+                    if (snap.empty && snap.metadata.fromCache) return; // cache had nothing yet: wait for the server
+                    const top = mapDocs(snap);
+                    setLbLive('live');
+                    // First data draws immediately; later live updates wait until the finger/scroll is idle.
+                    if (first) { first = false; clearTimeout(fallbackTimer); draw(top); }
+                    else if (window.whenUiIdle) window.whenUiIdle('lb-render', () => draw(top));
+                    else draw(top);
+                }, (error) => {
+                    setLbLive('error');
+                    if (first) fetchOnce(); else showError(error);
+                });
+            } catch (error) {
+                showError(error);
             }
         }
         window.loadLeaderboard = loadLeaderboard;
