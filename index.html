@@ -4105,7 +4105,10 @@ html[data-theme="dark"] .game-card .game-card-name {
         conic-gradient(from calc(var(--linn-a) + 180deg), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
 }
 /* weak devices / reduced-motion: keep the colours, stop the movement */
-html.perf-low .game-card, html.perf-low .game-card.card-pop, html.perf-low .game-card.card-wave { animation: none; }
+html.perf-low .game-card { animation: none; }
+/* weak devices: stop only the rainbow spin, keep the entrance pop / wave */
+html.perf-low .game-card.card-pop  { animation: cardPop 0.5s var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * 55ms); }
+html.perf-low .game-card.card-wave { animation: cardWave 1s var(--ease-out) backwards; animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 170ms), 1400ms); }
 @media (prefers-reduced-motion: reduce) { html .game-card, html .game-card.card-pop, html .game-card.card-wave { animation: none; } }
 /* shared price-card link: brief pulse on the card the link points to */
 @keyframes pcSharedFlash { 0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),0); } 40% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb),0.35); } }
@@ -4144,8 +4147,6 @@ html.perf-low .game-card, html.perf-low .game-card.card-pop, html.perf-low .game
 
 .pc-sky {
     position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; z-index: 0;
-    /* fine diagonal "rain" lines as a static texture */
-    background-image: repeating-linear-gradient(125deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 15px);
 }
 .pc-meteor {
     position: absolute; height: 2px; border-radius: 2px; opacity: 0;
@@ -5141,7 +5142,7 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                  are what the profile/tier/wallet JS writes into. -->
             <div class="profile-card profile-card-anim" id="profile-card-main" style="animation-delay:0ms;">
                 <!-- Night-sky layer: shooting-star streaks + twinkling stars (pure CSS, decorative) -->
-                <div class="pc-sky" aria-hidden="true"><span class="pc-meteor m1"></span><span class="pc-meteor m2"></span><span class="pc-meteor m3"></span><span class="pc-meteor m4"></span><span class="pc-meteor m5"></span><span class="pc-meteor m6"></span><span class="pc-meteor m7"></span><span class="pc-star t1"></span><span class="pc-star t2"></span><span class="pc-star t3"></span><span class="pc-star t4"></span><span class="pc-star t5"></span><span class="pc-star t6"></span><span class="pc-star t7"></span><span class="pc-star t8"></span><span class="pc-star t9"></span><span class="pc-star t10"></span></div>
+                <div class="pc-sky" aria-hidden="true"><span class="pc-meteor m1"></span><span class="pc-meteor m3"></span><span class="pc-meteor m4"></span><span class="pc-star t1"></span><span class="pc-star t2"></span><span class="pc-star t3"></span><span class="pc-star t4"></span><span class="pc-star t5"></span><span class="pc-star t6"></span><span class="pc-star t7"></span><span class="pc-star t8"></span><span class="pc-star t9"></span><span class="pc-star t10"></span></div>
                 <!-- Rank #1 aura decorations - toggled on via .rank1-aura on
                      the parent card (see updateProfileCrown()). Empty/inert
                      otherwise. -->
@@ -5348,7 +5349,7 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                          just no longer hidden based on which provider you signed
                          in with. See updateAccountLinkRows() + toggleLinkWidget(). -->
                     <div id="account-link-section" style="display:none;width:100%;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
-                        <p class="google-account-hint" style="text-align:left;margin-bottom:8px;">Telegram, Email, Google — အားလုံးကို account တစ်ခုတည်းအတွက် ချိတ်ဆက်ထားနိုင်ပါသည်။</p>
+                        <p class="google-account-hint" data-i18n="link_hint" style="text-align:left;margin-bottom:8px;">Telegram, Email and Google can all be linked to one account.</p>
 
                         <div class="prefs-row link-account-row" id="link-row-telegram">
                             <span class="prefs-row-label">
@@ -6036,6 +6037,9 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
         ===================================================================== */
         const I18N = {
             en: {
+                link_hint: 'Telegram, Email and Google can all be linked to one account.',
+                link_connected: 'Connected', link_connected_check: 'Connected ✓', link_connect: 'Connect',
+                link_not_yet: 'Not connected yet', link_via: 'Connected via {x}',
                 nav_home: 'Home', nav_voucher: 'Voucher',
                 nav_topup: 'Top Up', nav_game: 'Game', nav_software: 'Software',
                 nav_history: 'History', nav_leaderboard: 'Leaderboard', nav_wallet: 'Wallet',
@@ -6187,6 +6191,9 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                 welcome_new: 'Welcome', welcome_back: 'Welcome Back',
             },
             my: {
+                link_hint: 'Telegram, Email, Google — အားလုံးကို account တစ်ခုတည်းအတွက် ချိတ်ဆက်ထားနိုင်ပါသည်။',
+                link_connected: 'ချိတ်ဆက်ပြီး', link_connected_check: 'ချိတ်ဆက်ပြီး ✓', link_connect: 'ချိတ်ဆက်မည်',
+                link_not_yet: 'မချိတ်ဆက်ရသေးပါ', link_via: '{x} ဖြင့် ချိတ်ဆက်ပြီး',
                 nav_home: 'ပင်မ', nav_voucher: 'ဗောက်ချာ',
                 nav_topup: 'ငွေဖြည့်', nav_game: 'ဂိမ်း', nav_software: 'ဆော့ဖ်ဝဲ',
                 nav_history: 'မှတ်တမ်း', nav_leaderboard: 'ထိပ်တန်းစာရင်း', nav_wallet: 'ပိုက်ဆံအိတ်',
@@ -6374,6 +6381,7 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
             }
             if (window.renderMiniProfileGreeting) window.renderMiniProfileGreeting();
             if (window.onNotifLangChange) window.onNotifLangChange();
+            if (window.refreshLinkRowsLang) window.refreshLinkRowsLang();
         }
         // Small time-of-day greeting shown next to the name in the mini
         // profile strip (Home page). Based on the device's local hour, so
@@ -10302,28 +10310,19 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
             const authed = isCustomerAuthenticated();
             gate.style.display = authed ? 'none' : 'flex';
             content.style.display = authed ? '' : 'none';
+            if (authed) { const ov = document.getElementById('wallet-google-gate-overlay'); if (ov) ov.classList.remove('show'); }
         }
         window.renderWalletAuthGate = renderWalletAuthGate;
 
-        // The Wallet page's own "Login" button: instead of popping a modal, take
-        // the customer straight to the real login form (Profile > Account -
-        // Google / Telegram / Email), open that card and scroll it into view.
+        // The Wallet page's own "Login" button: opens the Login form
+        // (Google / Telegram / Email) directly as a popup on the Wallet page.
         function openWalletAuthGate() {
             walletGatePending = false;
-            showPage('profile');
-            const body = document.getElementById('account-body');
-            if (body && !body.classList.contains('open')) toggleCollapsible('account-body', 'account-chevron');
+            const ov = document.getElementById('wallet-google-gate-overlay');
+            if (!ov) return;
+            ov.classList.add('show');
             if (window.renderGisButtons) window.renderGisButtons();
-            if (window.renderTelegramWidgets) window.renderTelegramWidgets();
-            setTimeout(() => {
-                const card = document.getElementById('account-card');
-                if (!card) return;
-                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                card.classList.remove('account-card-pulse');
-                void card.offsetWidth;
-                card.classList.add('account-card-pulse');
-                setTimeout(() => card.classList.remove('account-card-pulse'), 2000);
-            }, 380);
+            renderTelegramWidgetInto('wallet-gate-telegram-widget');
         }
         window.openWalletAuthGate = openWalletAuthGate;
 
@@ -11131,23 +11130,41 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                 const gLinked = !!gEmail || currentProvider === 'google';
                 const eLinked = !!linkedEmail || currentProvider === 'email';
 
-                setLinkRowState('telegram', tgLinked, tgUsername ? `@${tgUsername} ဖြင့် ချိတ်ဆက်ပြီး` : (tgLinked ? 'ချိတ်ဆက်ပြီး' : ''));
-                setLinkRowState('google', gLinked, gEmail ? `${gEmail} ဖြင့် ချိတ်ဆက်ပြီး` : (gLinked ? 'ချိတ်ဆက်ပြီး' : ''));
-                setLinkRowState('email', eLinked, linkedEmail ? `${linkedEmail} ဖြင့် ချိတ်ဆက်ပြီး` : (eLinked ? 'ချိတ်ဆက်ပြီး' : ''));
+                setLinkRowState('telegram', tgLinked, tgUsername ? '@' + tgUsername : '');
+                setLinkRowState('google', gLinked, gEmail);
+                setLinkRowState('email', eLinked, linkedEmail);
             } catch (e) {
                 console.error('Account-link status check error:', e);
             }
         }
         window.updateAccountLinkRows = updateAccountLinkRows;
+        window.refreshLinkRowsLang = function () {
+            ['telegram', 'email', 'google'].forEach(function (k) {
+                const c = linkRowCache[k];
+                const btn = document.getElementById(`link-row-${k}-btn`);
+                const wasOpen = btn && btn.classList.contains('is-open');
+                if (c) setLinkRowState(k, c.linked, c.detail);
+                else {
+                    const sub = document.getElementById(`link-row-${k}-sub`);
+                    if (sub) sub.textContent = t('link_not_yet');
+                    if (btn && !wasOpen) btn.textContent = t('link_connect');
+                }
+                if (wasOpen && btn) btn.classList.add('is-open');
+            });
+        };
 
-        function setLinkRowState(type, linked, subText) {
+        // detail = '@username' / email of the linked account ('' when unknown). Cached so a
+        // language switch can re-render the rows without another Firestore read.
+        const linkRowCache = {};
+        function setLinkRowState(type, linked, detail) {
+            linkRowCache[type] = { linked: linked, detail: detail || '' };
             const sub = document.getElementById(`link-row-${type}-sub`);
             const btn = document.getElementById(`link-row-${type}-btn`);
-            if (sub) sub.textContent = linked ? subText : 'မချိတ်ဆက်ရသေးပါ';
+            if (sub) sub.textContent = linked ? (detail ? t('link_via').replace('{x}', detail) : t('link_connected')) : t('link_not_yet');
             if (btn) {
                 btn.classList.toggle('is-linked', linked);
                 btn.classList.remove('is-open');
-                btn.textContent = linked ? 'ချိတ်ဆက်ပြီး ✓' : 'ချိတ်ဆက်မည်';
+                btn.textContent = linked ? t('link_connected_check') : t('link_connect');
             }
             // A provider that's already linked has nothing left to open -
             // collapse its widget area if it happens to be showing.
@@ -18314,6 +18331,73 @@ html.perf-low .pc-meteor { opacity: 0.3; transform: rotate(-35deg) translateX(-1
                 document.body.appendChild(s);
             }
         }
+    </script>
+    <style id="scroll-rise-css">
+        /* Home tab: "Top-Up in 4 Steps" cards + live stats rise up from below as they scroll into view.
+           The hidden state is added by JS, so if the script ever fails the cards just stay visible. */
+        .rise-pending { opacity: 0; transform: translateY(48px) scale(0.96); }
+        .rise-pending.rise-go {
+            opacity: 1; transform: none;
+            transition: opacity 0.5s ease, transform 0.7s var(--ease-spring);
+            transition-delay: var(--rd, 0ms);
+        }
+    </style>
+    <script id="scroll-rise-js">
+    (function () {
+        try {
+            if (!('IntersectionObserver' in window)) return;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            var groups = [
+                { sel: '.dash-guide-steps .dash-guide-step', step: 90 },
+                { sel: '.home-live-stats-grid .home-live-stat', step: 110 },
+                { sel: '.home-live-stats-updated', step: 0 }
+            ];
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    var el = en.target;
+                    // in view -> rise up; out of view (or Home tab hidden) -> reset so it plays again next time
+                    if (en.isIntersecting) el.classList.add('rise-go');
+                    else el.classList.remove('rise-go');
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+            groups.forEach(function (g) {
+                document.querySelectorAll(g.sel).forEach(function (el, i) {
+                    el.style.setProperty('--rd', (i % 4) * g.step + 'ms');
+                    el.classList.add('rise-pending');
+                    io.observe(el);
+                });
+            });
+        } catch (e) {}
+    })();
+    </script>
+    <script id="popular-autoswipe-js">
+    /* Popular Games row: moves one card at a time on its own (loops back to the first card at the end).
+       Stops while the user touches/scrolls it (resumes ~4s later) and while the row is off-screen or the tab is hidden. */
+    (function () {
+        try {
+            var row = document.getElementById('popular-games-scroll');
+            if (!row) return;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            var visible = false, pausedUntil = 0, INTERVAL = 2600, RESUME = 4000;
+            if ('IntersectionObserver' in window) {
+                new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }, { threshold: 0.3 }).observe(row);
+            } else { visible = true; }
+            function pause() { pausedUntil = Date.now() + RESUME; }
+            ['touchstart', 'pointerdown', 'wheel', 'mousedown'].forEach(function (ev) {
+                row.addEventListener(ev, pause, { passive: true });
+            });
+            setInterval(function () {
+                if (!visible || document.hidden || Date.now() < pausedUntil) return;
+                var cards = row.querySelectorAll('.game-card');
+                if (cards.length < 2 || row.scrollWidth <= row.clientWidth + 2) return;
+                var step = cards[1].offsetLeft - cards[0].offsetLeft;
+                if (step <= 0) return;
+                var atEnd = row.scrollLeft + row.clientWidth >= row.scrollWidth - 2;
+                var next = atEnd ? 0 : (Math.round(row.scrollLeft / step) + 1) * step;
+                row.scrollTo({ left: next, behavior: 'smooth' });
+            }, INTERVAL);
+        } catch (e) {}
+    })();
     </script>
 </body>
 </html>
