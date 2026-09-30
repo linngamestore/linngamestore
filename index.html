@@ -40,7 +40,7 @@
          Noto Sans Myanmar is unicode-range subset by Google, so it only downloads when Burmese text is on screen. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap">
     <title>Linn Game Store — Game Top-Up & Voucher Store</title>
     <meta name="description" content="Linn Game Store: fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay, Wave, or Crypto (USDT).">
     <link rel="canonical" href="https://linngamestore.com/">
@@ -84,6 +84,54 @@
                     theme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
                 }
                 document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+    <script>
+        // Device tier: adds html.perf-low on weak phones so the CSS can drop purely-decorative,
+        // always-running effects (see "perf-low" rules). Layout, colours, images and text stay identical.
+        // Signals: Save-Data / 2G, very low RAM or few cores, then a real frame-time probe after load
+        // (needs two slow readings in a row before it is remembered, so one busy moment can't stick).
+        // Debug/override: add ?perf=low or ?perf=high to the URL once (remembered).
+        (function () {
+            try {
+                var root = document.documentElement, LS = window.localStorage;
+                var q = (location.search.match(/[?&]perf=(low|high)/) || [])[1];
+                if (q) LS.setItem('gz_perf', q === 'low' ? 'low' : 'ok');
+                var saved = LS.getItem('gz_perf');
+                var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency, c = navigator.connection || {};
+                var weak = (mem && mem <= 2) || (cores && cores <= 4 && mem && mem <= 3) ||
+                           c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '');
+                if (saved === 'low' || (saved !== 'ok' && weak)) { root.classList.add('perf-low'); }
+                if (q || saved === 'low') return; // decided; no probing
+                function probe() {
+                    if (document.hidden) {
+                        var again = function () { if (!document.hidden) { document.removeEventListener('visibilitychange', again); setTimeout(probe, 1500); } };
+                        document.addEventListener('visibilitychange', again);
+                        return;
+                    }
+                    var t = [], last = performance.now(), n = 0;
+                    function frame(now) {
+                        if (document.hidden) return;
+                        var d = now - last; last = now;
+                        if (n++ > 3) t.push(d);
+                        if (t.length < 45) requestAnimationFrame(frame); else done();
+                    }
+                    function done() {
+                        var a = t.slice().sort(function (x, y) { return x - y; });
+                        var med = a[a.length >> 1];
+                        var longs = t.filter(function (d) { return d > 50; }).length / t.length;
+                        var bad = med > 22 || longs > 0.25;
+                        if (bad) {
+                            root.classList.add('perf-low'); // help immediately for this session
+                            LS.setItem('gz_perf', saved === 'slow1' ? 'low' : 'slow1');
+                        } else if (saved !== 'ok') {
+                            LS.setItem('gz_perf', 'ok');
+                        }
+                    }
+                    requestAnimationFrame(frame);
+                }
+                window.addEventListener('load', function () { setTimeout(probe, 2500); });
             } catch (e) { /* ignore */ }
         })();
     </script>
@@ -260,6 +308,32 @@
         html[data-theme="dark"] .profile-edit-field input[type="text"]:focus,
         html[data-theme="dark"] .wallet-topup-amount-input:focus { background: rgba(76,147,255,0.1); }
         html, body { transition: background-color 0.35s ease, color 0.35s ease; }
+        /* Theme-switch motion (View Transitions API). While one runs, the plain colour fade is off so the
+           "new" snapshot is the finished theme; the browser's default cross-fade is replaced by the JS animations. */
+        html.vt-running, html.vt-running body { transition: none !important; }
+        html.vt-running::view-transition-old(root), html.vt-running::view-transition-new(root) {
+            animation: none; mix-blend-mode: normal;
+        }
+        html.vt-running::view-transition-old(root) { z-index: 1; }
+        html.vt-running::view-transition-new(root) { z-index: 2; }
+
+        /* ===== PERF: weak-device mode (html.perf-low, set by the device-tier script in <head>) =====
+           Only purely decorative, always-running effects are switched off. Nothing that carries meaning
+           (loading spinners, status dots, layout, colours, images) changes. */
+        html.perf-low .lb-strip::before, html.perf-low .rank1-spark, html.perf-low .rank1-shield,
+        html.perf-low .profile-card.rank1-aura::before, html.perf-low .profile-card.rank1-aura::after,
+        html.perf-low [class*="crown"], html.perf-low .bot-glow, html.perf-low .bot-visor::after,
+        html.perf-low .bot-cube-in, html.perf-low .nav-icon-wrap-wallet,
+        html.perf-low .tier-badge.tier-badge-glow, html.perf-low .tier-badge::before,
+        html.perf-low .avatar-tier-frame, html.perf-low .avatar-tier-frame::before, html.perf-low .avatar-tier-frame::after,
+        html.perf-low .slide-confirm-wrap.completed:has(> .btn:disabled) .slide-confirm-fill {
+            animation: none !important;
+        }
+        /* Shimmering skeletons repaint big gradients every frame; a still placeholder is enough. */
+        html.perf-low .skel, html.perf-low .home-banner-slide { animation: none !important; }
+        html.perf-low .bot-glow { filter: none !important; }
+        /* Long history lists: skip rendering rows that are off-screen (all devices, no visual change). */
+        .history-card { content-visibility: auto; contain-intrinsic-size: auto 92px; }
         /* While the theme swap's background-color transition is running, every
            backdrop-filter layer (header, bottom nav, modals, toast, the toggle
            itself) would otherwise re-blur on every frame because the pixels
@@ -3930,6 +4004,49 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
     border-color: rgba(61,220,114,0.45);
     color: #3DDC72; box-shadow: none;
 }
+
+/* Price pill: smaller, regular weight, vivid fresh green */
+.package-card.type-topup .pc-price,
+.package-card.type-currency .pc-price,
+.package-card.type-software .pc-row-price {
+    font-size: 11px; font-weight: 400; letter-spacing: 0;
+    padding: 4px 6px;
+    background: rgba(0,200,83,0.16);
+    border: 1px solid rgba(0,200,83,0.55);
+    color: #00B94A;
+}
+.package-card.type-topup .pc-price .pc-cur,
+.package-card.type-currency .pc-price .pc-cur { font-size: 8px; font-weight: 400; margin-left: 2px; opacity: 1; }
+html[data-theme="dark"] .package-card.type-topup .pc-price,
+html[data-theme="dark"] .package-card.type-currency .pc-price,
+html[data-theme="dark"] .package-card.type-software .pc-row-price {
+    background: rgba(0,230,100,0.18);
+    border-color: rgba(0,230,100,0.6);
+    color: #1FEA75;
+}
+
+/* Game name pill: vivid blue (light) / vivid purple (dark) */
+.game-card .game-card-name {
+    background-color: rgba(24,119,242,0.16);
+    box-shadow: inset 0 0 0 1px rgba(24,119,242,0.55);
+    color: #1670F0;
+}
+html[data-theme="dark"] .game-card .game-card-name {
+    background-color: rgba(168,85,247,0.22);
+    box-shadow: inset 0 0 0 1px rgba(168,85,247,0.65);
+    color: #C99BFF;
+}
+/* Dark mode price pill: vivid red */
+html[data-theme="dark"] .package-card.type-topup .pc-price,
+html[data-theme="dark"] .package-card.type-currency .pc-price,
+html[data-theme="dark"] .package-card.type-software .pc-row-price {
+    background: rgba(255,59,59,0.18);
+    border-color: rgba(255,59,59,0.6);
+    color: #FF5252;
+}
+/* Admin Online/Offline badge: a little bigger */
+.admin-status-bar { padding: 5px 13px; font-size: 12.5px; gap: 7px; }
+.admin-status-bar .admin-status-dot { width: 8px; height: 8px; }
 </style>
 <script id="card-name-size">
 /* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
@@ -8441,7 +8558,7 @@ function gameNameStyle(name) {
                 const p = methods[id];
                 return `
                     <div class="payment-option" data-payment-id="${id}" onclick="selectPaymentMethod('${id}')">
-                        <div class="payment-option-icon">${p.image ? `<img src="${(window.escapeHtml ? window.escapeHtml(p.image) : p.image)}" alt="${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
+                        <div class="payment-option-icon">${p.image ? `<img loading="lazy" decoding="async" src="${(window.escapeHtml ? window.escapeHtml(p.image) : p.image)}" alt="${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
                         <div class="payment-option-text">
                             <span class="payment-option-name">${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}</span>${p.hot ? ' <span style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#FF6B35,#F7931E);padding:2px 6px;border-radius:6px;vertical-align:middle;">🔥 HOT</span>' : ''}
                             ${p.availabilityNote ? `<span class="payment-option-availability">${(window.escapeHtml ? window.escapeHtml(p.availabilityNote) : p.availabilityNote)}</span>` : ''}
@@ -8915,7 +9032,7 @@ function gameNameStyle(name) {
             const rows = (cfg.rows || []).filter(Boolean).map(r => `<div class="od-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
             document.getElementById('order-review-body').innerHTML = `
                 <div class="or-head">
-                    <div class="hc-thumb">${cfg.img ? `<img src="${cfg.img}" alt="" onerror="this.style.display='none'">` : ''}</div>
+                    <div class="hc-thumb">${cfg.img ? `<img loading="lazy" decoding="async" src="${cfg.img}" alt="" onerror="this.style.display='none'">` : ''}</div>
                     <div style="min-width:0;">
                         <div class="or-game">${esc(cfg.game || '')}</div>
                         ${cfg.sub ? `<div class="or-sub">${esc(cfg.sub)}</div>` : ''}
@@ -10158,7 +10275,7 @@ function gameNameStyle(name) {
                 const p = methods[id];
                 return `
                     <div class="payment-option" data-wallet-payment-id="${id}" onclick="selectWalletPaymentMethod('${id}')">
-                        <div class="payment-option-icon">${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
+                        <div class="payment-option-icon">${p.image ? `<img loading="lazy" decoding="async" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
                         <div class="payment-option-text">
                             <span class="payment-option-name">${escapeHtml(p.name)}</span>${p.hot ? ' <span style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#FF6B35,#F7931E);padding:2px 6px;border-radius:6px;vertical-align:middle;">🔥 HOT</span>' : ''}
                             ${p.availabilityNote ? `<span class="payment-option-availability">${escapeHtml(p.availabilityNote)}</span>` : ''}
@@ -10619,7 +10736,7 @@ function gameNameStyle(name) {
                     <div class="detail-grid-item"><span>Status</span><b><span class="badge ${walletStatusBadgeClass(t.status)}">${orderStatusLabel(t.status)}</span></b></div>
                     <div class="detail-grid-item"><span>Payment Method</span><b>${t.paymentMethod || '-'}</b></div>
                     <div class="detail-grid-item"><span>Date</span><b>${t.timestamp && t.timestamp.toDate ? t.timestamp.toDate().toLocaleString() : '-'}</b></div>
-                    ${t.receiptUrl ? `<div class="detail-grid-item full"><span>Receipt</span><img src="${escapeHtml(t.receiptUrl)}" style="width:100%;border-radius:10px;margin-top:6px;"></div>` : ''}
+                    ${t.receiptUrl ? `<div class="detail-grid-item full"><span>Receipt</span><img loading="lazy" decoding="async" src="${escapeHtml(t.receiptUrl)}" style="width:100%;border-radius:10px;margin-top:6px;"></div>` : ''}
                     ${t.status === 'Rejected' && t.statusNote ? `<div class="detail-grid-item full"><span>Reason</span><b>${escapeHtml(t.statusNote)}</b></div>` : ''}
                 </div>
             `;
@@ -12425,7 +12542,7 @@ function gameNameStyle(name) {
                 const iconEl = el.querySelector('.social-link-icon');
                 if (!(platform in socialDefaultIconHTML)) socialDefaultIconHTML[platform] = iconEl.innerHTML;
                 if (image) {
-                    iconEl.innerHTML = `<img src="${image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    iconEl.innerHTML = `<img loading="lazy" decoding="async" src="${image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                 } else {
                     iconEl.innerHTML = socialDefaultIconHTML[platform];
                 }
@@ -12727,26 +12844,27 @@ function gameNameStyle(name) {
                 text.innerText = 'Admin Offline';
             }
         }
+        // Admin status now comes from the Worker's edge-cached /admin-status route instead of a live
+        // Firestore listener on settings/presence - a listener bills one read per admin heartbeat per open
+        // storefront; this costs no Firestore reads on the storefront side.
+        async function fetchAdminStatus() {
+            try {
+                const res = await fetch(`${(typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev')}/admin-status`, { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const d = await res.json();
+                if (!d || d.ok !== true) throw new Error('bad response');
+                lastAdminActiveMs = (typeof d.ageMs === 'number') ? (Date.now() - d.ageMs) : null;
+            } catch (e) {
+                console.error('Admin status fetch error:', e); // keep the last known value; Offline if none yet
+            }
+            adminPresenceLoaded = true;
+            renderAdminStatus();
+        }
         deferInit(() => {
-            onSnapshot(doc(db, "settings", "presence"), (docSnap) => {
-                const data = docSnap.exists() ? docSnap.data() : null;
-                let ms = null;
-                const la = data && data.lastActive;
-                if (la) {
-                    if (typeof la.toMillis === 'function') ms = la.toMillis();
-                    else if (typeof la === 'number') ms = la;
-                    else if (la.seconds != null) ms = la.seconds * 1000;
-                    else { const t = new Date(la).getTime(); if (!isNaN(t)) ms = t; }
-                }
-                lastAdminActiveMs = ms;
-                adminPresenceLoaded = true;
-                renderAdminStatus();
-            }, (error) => {
-                console.error("Admin presence fetch error:", error);
-                adminPresenceLoaded = true; // read failed: show Offline instead of hiding the badge
-                renderAdminStatus();
-            });
-            setInterval(renderAdminStatus, 20000); // re-check the threshold even with no new snapshot
+            fetchAdminStatus();
+            setInterval(() => { if (!document.hidden) fetchAdminStatus(); }, 120000); // refresh every 2 min while visible
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchAdminStatus(); });
+            setInterval(renderAdminStatus, 20000); // re-check the threshold between fetches
         });
 
         // Remember the customer's last Player ID locally so History can look up
@@ -13628,7 +13746,7 @@ function gameNameStyle(name) {
             return `
                 <div class="list-card history-card ${historyStatusClassFor(data.status)}" style="animation-delay:${Math.min(pos, 8) * 0.03}s" onclick="openOrderDetail(${index})">
                     <div class="hc-left">
-                        <div class="hc-thumb">${gameImg ? `<img src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
+                        <div class="hc-thumb">${gameImg ? `<img loading="lazy" decoding="async" src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
                         <div class="list-info">
                             <h5>${data.game}</h5>
                             <p>${dateStr}</p>
@@ -13769,7 +13887,7 @@ function gameNameStyle(name) {
                 ${voucherCodeBlockHTML(data, data.id)}
                 <div class="detail-form-card od-receipt" style="gap:0;">
                     <div class="od-receipt-head">
-                        <div class="hc-thumb" style="width:38px;height:38px;">${gameImg ? `<img src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
+                        <div class="hc-thumb" style="width:38px;height:38px;">${gameImg ? `<img loading="lazy" decoding="async" src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
                         <div style="flex:1;min-width:0;">
                             <h4 style="font-size:14px;font-weight: 600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${data.game}</h4>
                             <p style="font-size:10.5px;color:var(--text-muted);margin-top:2px;">${dateStr}</p>
@@ -13799,7 +13917,7 @@ function gameNameStyle(name) {
 
                 ${data.receiptUrl ? `
                     <p class="detail-section-title" style="margin:18px 0 8px;">${t('od_payment_receipt')}</p>
-                    <img src="${escapeHtml(data.receiptUrl)}" style="width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:var(--surface-alt);border:1px solid var(--border);">
+                    <img loading="lazy" decoding="async" src="${escapeHtml(data.receiptUrl)}" style="width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:var(--surface-alt);border:1px solid var(--border);">
                 ` : ''}
 
                 ${data.statusNote ? `
@@ -16561,7 +16679,7 @@ function gameNameStyle(name) {
             const row = (label, value, style) => value ? `<div class="od-row"><span>${label}</span><b${style ? ` style="${style}"` : ''}>${value}</b></div>` : '';
             return `
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <div class="hc-thumb" style="width:34px;height:34px;">${gameImg ? `<img src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
+                    <div class="hc-thumb" style="width:34px;height:34px;">${gameImg ? `<img loading="lazy" decoding="async" src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
                     <div style="flex:1;min-width:0;">
                         <h4 style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.game || '')}</h4>
                         <p style="font-size:10px;color:var(--text-muted);margin-top:1px;">${historyDateTimeFmt.format(new Date(item.ts))}</p>
@@ -16664,7 +16782,7 @@ function gameNameStyle(name) {
             if (hasManualTheme()) return; // user has an explicit preference — automation stays out of the way
             const auto = getAutoTheme();
             if (document.documentElement.getAttribute('data-theme') !== auto) {
-                setThemeSmooth(auto);
+                runThemeTransition(auto, 'blur');
             }
         }
         // Re-check every minute so the theme flips live at 7:00 AM / 7:00 PM
@@ -16673,7 +16791,7 @@ function gameNameStyle(name) {
 
         function resetThemeToAuto() {
             try { localStorage.removeItem('gz_theme'); } catch (e) { /* private browsing */ }
-            setThemeSmooth(getAutoTheme());
+            runThemeTransition(getAutoTheme(), 'blur');
             updateThemeAutoNote();
         }
         window.resetThemeToAuto = resetThemeToAuto;
@@ -16712,10 +16830,104 @@ function gameNameStyle(name) {
         // instant call to setThemeSmooth - just the plain background-color
         // fade already defined on html/body (see the `transition:
         // background-color 0.35s ease` rule), no extra motion layered on top.
+        // Motion for a theme change: manual toggle = circle reveal from the tap point ('circle'),
+        // automatic 7 AM / 7 PM switch = soft blur zoom ('blur'). Uses the View Transitions API, which
+        // always cleans up after itself (no stuck overlay); falls back to the plain instant swap when the
+        // browser lacks it, the user prefers reduced motion, or another transition is still running.
+        function themeTransitionFallback(theme, kind, x, y) {
+            const root = document.documentElement;
+            let cleaned = false;
+            let veil = null;
+            const cleanup = () => {
+                if (cleaned) return; cleaned = true;
+                root.classList.remove('vt-running');
+                if (veil && veil.parentNode) veil.parentNode.removeChild(veil);
+            };
+            root.classList.add('vt-running'); // plain colour fade off; the motion below replaces it
+            setTimeout(cleanup, 1500);        // safety net: never leave a veil / class behind
+            try {
+                if (kind === 'circle') {
+                    const cx = (typeof x === 'number') ? x : window.innerWidth / 2;
+                    const cy = (typeof y === 'number') ? y : window.innerHeight / 2;
+                    const r = Math.ceil(Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy)));
+                    const oldBg = getComputedStyle(document.body).backgroundColor;
+                    veil = document.createElement('div');
+                    // A circle whose huge box-shadow paints the OLD colour everywhere outside it, so as the
+                    // circle grows it reveals the new theme underneath, starting at the tap point.
+                    veil.style.cssText = 'position:fixed;left:' + cx + 'px;top:' + cy + 'px;width:0;height:0;border-radius:50%;' +
+                        'transform:translate(-50%,-50%);pointer-events:none;z-index:2147483000;' +
+                        'box-shadow:0 0 0 ' + (r * 2 + 60) + 'px ' + oldBg + ';';
+                    document.body.appendChild(veil);
+                    setThemeSmooth(theme);
+                    const a = veil.animate(
+                        [{ width: '0px', height: '0px' }, { width: (r * 2) + 'px', height: (r * 2) + 'px' }],
+                        { duration: 800, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }
+                    );
+                    a.onfinish = cleanup; a.oncancel = cleanup;
+                } else {
+                    setThemeSmooth(theme);
+                    const a = document.body.animate({ opacity: [0.15, 1] }, { duration: 700, easing: 'ease' });
+                    a.onfinish = cleanup; a.oncancel = cleanup;
+                }
+            } catch (err) {
+                cleanup();
+                setThemeSmooth(theme);
+            }
+        }
+
+        function runThemeTransition(theme, kind, x, y) {
+            const root = document.documentElement;
+            const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            if (reduce || root.classList.contains('perf-low') || root.classList.contains('vt-running')) {
+                setThemeSmooth(theme);
+                return;
+            }
+            if (!document.startViewTransition) {
+                // Browsers without View Transitions (older WebViews, Firefox etc.) get a lightweight,
+                // self-cleaning equivalent so the motion works everywhere.
+                themeTransitionFallback(theme, kind, x, y);
+                return;
+            }
+            let finished = false;
+            const done = () => { if (finished) return; finished = true; root.classList.remove('vt-running'); };
+            root.classList.add('vt-running');
+            try {
+                const t = document.startViewTransition(() => { setThemeSmooth(theme); });
+                t.ready.then(() => {
+                    const pe = '::view-transition-new(root)';
+                    if (kind === 'circle') {
+                        const cx = (typeof x === 'number') ? x : window.innerWidth / 2;
+                        const cy = (typeof y === 'number') ? y : window.innerHeight / 2;
+                        const r = Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy));
+                        root.animate(
+                            { clipPath: [`circle(0px at ${cx}px ${cy}px)`, `circle(${Math.ceil(r)}px at ${cx}px ${cy}px)`] },
+                            { duration: 800, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: pe }
+                        );
+                    } else {
+                        root.animate(
+                            { opacity: [0, 1], filter: ['blur(10px)', 'blur(0px)'], transform: ['scale(1.06)', 'scale(1)'] },
+                            { duration: 800, easing: 'ease', pseudoElement: pe }
+                        );
+                    }
+                }).catch(() => {});
+                t.finished.then(done, done);
+                setTimeout(done, 2500); // safety net: never leave the page in transition mode
+            } catch (err) {
+                done();
+                setThemeSmooth(theme);
+            }
+        }
+        window.runThemeTransition = runThemeTransition;
+
         function toggleTheme(e) {
             const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
             const next = current === 'dark' ? 'light' : 'dark';
-            setThemeSmooth(next);
+            let px, py;
+            if (e && typeof e.clientX === 'number' && (e.clientX || e.clientY)) { px = e.clientX; py = e.clientY; }
+            else if (e && e.currentTarget && e.currentTarget.getBoundingClientRect) {
+                const b = e.currentTarget.getBoundingClientRect(); px = b.left + b.width / 2; py = b.top + b.height / 2;
+            }
+            runThemeTransition(next, 'circle', px, py);
             try { localStorage.setItem('gz_theme', next); } catch (err) { /* private browsing */ }
             updateThemeAutoNote();
         }
