@@ -19055,5 +19055,47 @@ html.perf-low .pc-star { box-shadow: none; }
         updateUI();
     })();
     </script>
+<script id="wallet-balance-countup-js">
+/* Wallet Balance count-up: Wallet page ကို ဖွင့်တိုင်း / app ပြန်ဖွင့်တိုင်း (background ကပြန်လာတာပါ) 0 ကနေ ပြန်ရေတွက်မယ်။
+   Home live-stats လိုပဲ IntersectionObserver သုံးထားတယ် - မြင်ရတဲ့အချိန်မှာပဲ စတာ။ */
+(function () {
+    var el = document.getElementById('wallet-balance-amount');
+    if (!el || !('IntersectionObserver' in window)) return;
+    var token = 0, inView = false;
+    function target() { return parseInt(String(el.dataset.balTarget || el.textContent).replace(/[^\d]/g, ''), 10) || 0; }
+    function fmt(n) { return Math.round(n).toLocaleString('en-US') + ' MMK'; }
+    function run() {
+        var to = target();
+        if (!to) return;
+        var my = ++token, t0 = performance.now(), dur = 1400;
+        function tick(now) {
+            if (my !== token) return;
+            var p = Math.min(1, (now - t0) / dur);
+            el.textContent = fmt(to * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    }
+    new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+            if (en.isIntersecting) {
+                if (!inView) { inView = true; run(); }
+            } else {
+                inView = false; token++;
+                var to = target();
+                if (to) el.textContent = fmt(to);
+            }
+        });
+    }, { threshold: 0.3 }).observe(el);
+    // Telegram/browser ကို background ကနေ ပြန်ဖွင့်တဲ့အခါ (page reload မဖြစ်ဘဲ) ပြန်ရေတွက်
+    function resume() { if (inView && !document.hidden) run(); }
+    document.addEventListener('visibilitychange', resume);
+    window.addEventListener('pageshow', function (e) { if (e.persisted) resume(); });
+    try {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.onEvent) tg.onEvent('activated', resume);
+    } catch (e) {}
+})();
+</script>
 </body>
 </html>
