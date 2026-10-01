@@ -3401,6 +3401,114 @@
         html[data-theme="dark"] .pay-type-tabs { background: rgba(255,255,255,0.04); }
         .pay-type-tab.active { background: var(--glass-bg-strong); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); border-radius: 12px; }
         .recent-id-chip { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; }
+
+        /* ===== Account Info: joined glass Player ID + Server grid ===== */
+        .idg-card { gap: 0; padding: 14px; }
+        .idg {
+            --idg-line: rgba(100,115,150,.26); --idg-fill: rgba(255,255,255,.58);
+            position: relative; display: flex; align-items: stretch; padding: 8px; border-radius: 24px;
+            background: var(--glass-bg); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+            border: 1.5px solid var(--idg-line);
+            box-shadow: var(--glass-shadow-sm);
+            transition: border-color .4s ease, box-shadow .45s ease;
+        }
+        html[data-theme="dark"] .idg { --idg-line: rgba(255,255,255,.16); --idg-fill: rgba(255,255,255,.06); }
+        .idg::before, .idg::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+        .idg::before { opacity: 0; transition: opacity .45s ease; background: linear-gradient(135deg, rgba(134,239,172,.40), rgba(209,250,229,.12)); }
+        .idg::after { opacity: 0; z-index: 2; }
+        .idg:not([data-state="valid"]):not([data-state="invalid"]):not([data-state="checking"]):focus-within {
+            --idg-line: rgba(var(--accent-rgb),.6);
+            box-shadow: var(--glass-shadow-sm), 0 0 0 4px rgba(var(--accent-rgb),.14);
+        }
+        /* checking: soft blue scan line */
+        .idg[data-state="checking"] { --idg-line: rgba(var(--accent-rgb),.55); }
+        .idg[data-state="checking"]::after {
+            opacity: 1; background: linear-gradient(105deg, transparent 35%, rgba(var(--accent-rgb),.24) 50%, transparent 65%) 0 0 / 200% 100%;
+            animation: idgScan 1.25s linear infinite;
+        }
+        /* valid: soft light-green glow over the whole grid */
+        .idg[data-state="valid"] {
+            --idg-line: rgba(52,211,153,.62); --idg-fill: rgba(187,247,208,.5);
+            box-shadow: 0 0 0 4px rgba(74,222,128,.17), 0 10px 30px rgba(34,197,94,.24), inset 0 1px 1px rgba(255,255,255,.75);
+        }
+        .idg[data-state="valid"]::before { opacity: 1; }
+        .idg[data-state="valid"]::after {
+            opacity: 1; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.7) 50%, transparent 62%) 0 0 / 220% 100%;
+            animation: idgSweep .95s ease-out 1 forwards;
+        }
+        html[data-theme="dark"] .idg[data-state="valid"] { --idg-fill: rgba(52,211,153,.13); box-shadow: 0 0 0 4px rgba(52,211,153,.14), 0 10px 30px rgba(16,185,129,.26), inset 0 1px 1px rgba(255,255,255,.1); }
+        html[data-theme="dark"] .idg::before { background: linear-gradient(135deg, rgba(52,211,153,.24), rgba(16,185,129,.05)); }
+        /* invalid: soft red + one quick shake */
+        .idg[data-state="invalid"] {
+            --idg-line: rgba(248,113,113,.65); --idg-fill: rgba(254,226,226,.5);
+            box-shadow: 0 0 0 4px rgba(248,113,113,.13), var(--glass-shadow-sm);
+            animation: idgShake .42s ease;
+        }
+        .idg[data-state="invalid"]::before { opacity: 1; background: linear-gradient(135deg, rgba(252,165,165,.34), rgba(254,226,226,.1)); }
+        html[data-theme="dark"] .idg[data-state="invalid"] { --idg-fill: rgba(248,113,113,.1); }
+        html[data-theme="dark"] .idg[data-state="invalid"]::before { background: linear-gradient(135deg, rgba(248,113,113,.2), rgba(127,29,29,.05)); }
+
+        .idg-field {
+            position: relative; z-index: 1; flex: 1 1 0; min-width: 0; display: flex; align-items: center;
+            border-radius: 16px; background: var(--idg-fill); border: 1px solid var(--idg-line);
+            transition: background-color .4s ease, border-color .4s ease;
+        }
+        .idg:not([data-state="valid"]):not([data-state="invalid"]) .idg-field:focus-within { background: var(--glass-bg-strong); }
+        .idg-server { margin-left: 16px; }
+        .idg-server::before { content: ''; position: absolute; left: -9px; top: 18%; bottom: 18%; width: 1px; background: var(--idg-line); transition: background-color .4s ease; }
+        .detail-form-card .idg .idg-field input[type="text"],
+        .detail-form-card .idg .idg-field select {
+            display: block; width: 100%; min-width: 0; margin: 0; border: 0; border-radius: 16px; box-shadow: none; outline: none;
+            background-color: transparent; color: var(--text); padding: 15px 14px;
+            font-family: inherit; font-size: 16px; font-weight: 500; letter-spacing: .02em; line-height: 1.2;
+        }
+        .detail-form-card .idg .idg-field input[type="text"]::placeholder { color: var(--text-muted); font-weight: 400; letter-spacing: 0; }
+        .detail-form-card .idg .idg-field input[type="text"]:focus,
+        .detail-form-card .idg .idg-field select:focus { background-color: transparent; border: 0; box-shadow: none; }
+        .detail-form-card .idg .idg-field select {
+            padding-right: 36px; cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239C9EA1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 14px 14px;
+        }
+        .detail-form-card .idg .idg-field select:not(.has-value) { color: var(--text-muted); font-weight: 400; }
+        .detail-form-card .idg .idg-field select.has-value { font-weight: 600; border: 0; }
+        #detail-ingame-id { padding-right: 40px !important; }
+        .idg-clear {
+            display: none; position: absolute; right: 9px; top: 50%; width: 24px; height: 24px; margin-top: -12px; padding: 0;
+            border: 0; border-radius: 50%; background: rgba(120,130,160,.22); color: var(--text-secondary);
+            font-size: 17px; line-height: 24px; text-align: center; cursor: pointer;
+        }
+        .idg-field.has-text .idg-clear { display: block; }
+        .idg-badge {
+            position: absolute; top: -10px; right: 20px; z-index: 3; width: 22px; height: 22px; border-radius: 50%;
+            background: linear-gradient(135deg, #34d399, #22c55e); box-shadow: 0 4px 12px rgba(34,197,94,.45);
+            display: flex; align-items: center; justify-content: center;
+            transform: scale(0); transition: transform .45s cubic-bezier(.34,1.56,.64,1);
+        }
+        .idg-badge svg { width: 12px; height: 12px; display: block; }
+        .idg[data-state="valid"] .idg-badge { transform: scale(1); }
+        @keyframes idgScan { from { background-position: 200% 0; } to { background-position: -100% 0; } }
+        @keyframes idgSweep { from { background-position: 170% 0; opacity: 1; } to { background-position: -70% 0; opacity: 0; } }
+        @keyframes idgShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
+        html.perf-low .idg { -webkit-backdrop-filter: none; backdrop-filter: none; }
+        html.perf-low .idg::after { animation: none !important; }
+        @media (prefers-reduced-motion: reduce) { .idg, .idg::after, .idg-badge { animation: none !important; transition: none !important; } }
+        #detail-id-status .vp { background: rgba(134,239,172,.16); border-color: rgba(52,211,153,.42); }
+
+        /* Recent chips: ID (server) on top, the player's name auto-saved underneath */
+        .recent-id-chip { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; max-width: 210px; padding: 8px 32px 8px 14px; border-radius: 18px; color: var(--text); transition: border-color .3s ease, background-color .3s ease; }
+        .recent-id-chip .rc-main { font-size: 13.5px; font-weight: 600; color: var(--text); }
+        .recent-id-chip .rc-name { font-size: 11px; font-weight: 500; color: var(--text-secondary); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .recent-id-chip .rc-x { position: absolute; top: 50%; right: 7px; width: 18px; height: 18px; margin-top: -9px; padding: 0; border: 0; border-radius: 50%; background: rgba(120,130,160,.2); color: var(--text-secondary); font-size: 13px; line-height: 18px; text-align: center; cursor: pointer; }
+        .recent-id-chip.on { border-color: rgba(var(--accent-rgb),.6); background: var(--accent-soft); }
+        .recent-id-chip.on.ok { border-color: rgba(52,211,153,.7); background: rgba(134,239,172,.22); }
+        .recent-ids-row { padding: 8px 2px 4px; }
+
+        /* Remember checkbox */
+        .detail-form-card .idg-remember { display: flex; align-items: center; gap: 12px; margin-top: 14px; font-size: 13.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; user-select: none; -webkit-user-select: none; }
+        .idg-remember input { -webkit-appearance: none; appearance: none; flex: 0 0 22px; width: 22px; height: 22px; margin: 0; border-radius: 7px; border: 1.5px solid rgba(120,130,160,.5); background: var(--glass-bg); cursor: pointer; transition: background-color .2s ease, border-color .2s ease, transform .15s ease; }
+        .idg-remember input:active { transform: scale(.9); }
+        .idg-remember input:checked { border-color: var(--accent); background: var(--accent) url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.3l2.4 2.4 4.6-5'/%3E%3C/svg%3E") center / 14px 14px no-repeat; }
         .modal-overlay, .success-overlay { background: rgba(0,0,10,0.45); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
         /* Social contact bubble — the header's old Messenger/Telegram quick
            circles moved out of the header into one draggable floating
@@ -5795,26 +5903,32 @@ html.perf-low .pc-star { box-shadow: none; }
 
             <div id="account-info-section">
             <h3 class="detail-section-title" data-i18n="sec_account_info">Account Info</h3>
-            <div class="detail-form-card">
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1; min-width:0;">
-                        <label>In-Game ID</label>
-                        <input type="text" id="detail-ingame-id" placeholder="Enter your ID" oninput="sanitizeIdDigitsInput(this); onPlayerIdFieldChange()">
+            <div class="detail-form-card idg-card">
+                <!-- Joined glass grid: Player ID + Server in one frame. data-state drives the look:
+                     idle / typing / checking (blue scan) / valid (soft green glow) / invalid (soft red). -->
+                <div class="idg" id="idg" data-state="idle">
+                    <div class="idg-field" id="idg-id-field">
+                        <input type="text" id="detail-ingame-id" placeholder="Player ID" aria-label="Player ID" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="idgIdInput(this)">
+                        <button type="button" class="idg-clear" id="idg-clear" aria-label="Clear" tabindex="-1" data-no-haptic onclick="idgClear()">&times;</button>
                     </div>
-                    <div style="flex:1; min-width:0;" id="detail-server-id-wrap">
-                        <label>Server ID <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
-                        <input type="text" id="detail-server-id" placeholder="Server ID" oninput="sanitizeIdDigitsInput(this); onPlayerIdFieldChange()">
+                    <div class="idg-field idg-server" id="detail-server-id-wrap">
+                        <input type="text" id="detail-server-id" placeholder="Server" aria-label="Server" autocomplete="off" oninput="sanitizeIdDigitsInput(this); onPlayerIdFieldChange()">
                     </div>
+                    <span class="idg-badge" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4 4.6-5"/></svg></span>
                 </div>
+                <div id="detail-id-status" style="margin-top:12px;display:none;"></div>
                 <div id="recent-ids-block" style="display:none;">
-                    <p class="recent-ids-label">Recent IDs — tap to fill</p>
+                    <p class="recent-ids-label">Recent</p>
                     <div class="recent-ids-row" id="recent-ids-row"></div>
                 </div>
+                <label class="idg-remember">
+                    <input type="checkbox" id="idg-remember" checked onchange="idgToggleRemember(this)">
+                    <span>Remember this ID on this device</span>
+                </label>
                 <button type="button" id="confirm-id-btn" class="confirm-id-btn" onclick="confirmPlayerIdManual()" style="display:none;">
                     <span class="confirm-id-spinner" id="confirm-id-spinner"><i></i><i></i><i></i></span>
                     <span id="confirm-id-btn-text" data-i18n="btn_confirm_id">Confirm ID</span>
                 </button>
-                <div id="detail-id-status" style="margin-top:8px;display:none;"></div>
             </div>
             </div>
 
@@ -7064,7 +7178,13 @@ html.perf-low .pc-star { box-shadow: none; }
             const match = idField.value.match(/\(([^)]+)\)/);
             if (!match) return;
             const serverIdField = document.getElementById('detail-server-id');
-            if (serverIdField.tagName === 'SELECT') return; // region picker - a pasted numeric code has no matching option
+            if (serverIdField.tagName === 'SELECT') {
+                // region picker - only take the bracketed code when it matches an option; either way drop it from the ID
+                const v = match[1].trim();
+                if (Array.from(serverIdField.options).some(o => o.value === v)) { serverIdField.value = v; serverIdField.classList.add('has-value'); }
+                idField.value = idField.value.replace(/\s*\([^)]*\)\s*/, '').trim();
+                return;
+            }
             serverIdField.value = match[1].trim();
             idField.value = idField.value.replace(/\s*\([^)]*\)\s*/, '').trim();
         }
@@ -7079,6 +7199,41 @@ html.perf-low .pc-star { box-shadow: none; }
         }
         window.sanitizeIdDigitsInput = sanitizeIdDigitsInput;
 
+        // Player ID box input handler. The "123456789 (7891)" split has to run BEFORE
+        // sanitizing, otherwise the brackets are stripped first and the server code
+        // gets glued onto the ID.
+        function idgIdInput(el) {
+            autoFillServerIdFromBrackets();
+            sanitizeIdDigitsInput(el);
+            onPlayerIdFieldChange();
+        }
+        window.idgIdInput = idgIdInput;
+
+        // Joined glass grid state: idle | typing | checking | valid | invalid
+        function idgSet(state) {
+            const g = document.getElementById('idg');
+            if (!g) return;
+            if (g.dataset.state !== state) {
+                g.dataset.state = state;
+                if (state === 'valid' && window.haptic) window.haptic('success');
+            }
+            const idEl = document.getElementById('detail-ingame-id');
+            const f = document.getElementById('idg-id-field');
+            if (f && idEl) f.classList.toggle('has-text', !!idEl.value);
+            if (window.idgMarkChips) window.idgMarkChips(state === 'valid');
+        }
+        window.idgSet = idgSet;
+
+        function idgClear() {
+            const a = document.getElementById('detail-ingame-id');
+            const sv = document.getElementById('detail-server-id');
+            a.value = '';
+            if (sv) { sv.value = ''; if (sv.tagName === 'SELECT') sv.classList.remove('has-value'); }
+            onPlayerIdFieldChange();
+            a.focus();
+        }
+        window.idgClear = idgClear;
+
         // Debounced live check against G2Bulk's checkPlayerId - only runs for
         // games linked to a G2Bulk code. Shows the resolved in-game name so the
         // customer can catch a typo'd ID before paying.
@@ -7089,6 +7244,7 @@ html.perf-low .pc-star { box-shadow: none; }
             playerIdVerified = null;
             verifiedPlayerName = null;
             clearTimeout(playerIdCheckTimer);
+            idgSet(document.getElementById('detail-ingame-id').value.trim() ? 'typing' : 'idle');
 
             if (!selectedGameG2BulkCode && !selectedGameFazerCardCategory) { statusEl.style.display = 'none'; confirmBtn.style.display = 'none'; return; }
 
@@ -7336,7 +7492,7 @@ html.perf-low .pc-star { box-shadow: none; }
 
         // Shared check logic used by both the debounced auto-check and the
         // manual "Confirm ID" button.
-        async function runPlayerIdCheck() {
+        async function runPlayerIdCheckCore() {
             const statusEl = document.getElementById('detail-id-status');
             const confirmBtn = document.getElementById('confirm-id-btn');
             const btnText = document.getElementById('confirm-id-btn-text');
@@ -7475,6 +7631,25 @@ html.perf-low .pc-star { box-shadow: none; }
                 confirmBtn.classList.remove('checking', 'confirmed');
                 btnText.innerText = t('btn_confirm_id');
                 confirmBtn.disabled = false;
+            }
+        }
+
+        // Wrapper around the check: drives the glass grid colour (blue scan -> green / red),
+        // auto-remembers a verified ID + player name, and throws away a stale answer if the
+        // customer edited the ID / server while the request was still running.
+        async function runPlayerIdCheck() {
+            const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const pid = val('detail-ingame-id'), sid = val('detail-server-id');
+            idgSet('checking');
+            await runPlayerIdCheckCore();
+            if (val('detail-ingame-id') !== pid || val('detail-server-id') !== sid) { onPlayerIdFieldChange(); return; }
+            if (playerIdVerified === true) {
+                idgSet('valid');
+                if (window.idgRemember) window.idgRemember(selectedGameId, pid, sid, verifiedPlayerName);
+            } else if (playerIdVerified === false) {
+                idgSet('invalid');
+            } else {
+                idgSet('typing');
             }
         }
         window.runPlayerIdCheck = runPlayerIdCheck;
@@ -8075,7 +8250,7 @@ html.perf-low .pc-star { box-shadow: none; }
             } else {
                 el = document.createElement('input');
                 el.type = 'text';
-                el.placeholder = 'Server ID';
+                el.placeholder = 'Server';
                 el.setAttribute('oninput', 'sanitizeIdDigitsInput(this); onPlayerIdFieldChange()');
             }
             el.id = 'detail-server-id';
@@ -8331,7 +8506,7 @@ html.perf-low .pc-star { box-shadow: none; }
             // so existing games keep behaving exactly as before) hide that input entirely.
             const needsServerId = needsPlayerId && game.serverIdRequired !== false;
             const serverIdWrap = document.getElementById('detail-server-id-wrap');
-            serverIdWrap.style.display = needsServerId ? 'block' : 'none';
+            serverIdWrap.style.display = needsServerId ? '' : 'none';
             renderServerIdField(game);
             if (!needsServerId) document.getElementById('detail-server-id').value = '';
             playerIdVerified = null;
@@ -13254,9 +13429,10 @@ html.perf-low .pc-star { box-shadow: none; }
         }
 
         function saveContact(playerId, gameId, serverId) {
+            const remember = rememberEnabled();
             try {
                 localStorage.setItem('gz_playerId', playerId); // global, for History lookup
-                if (gameId) {
+                if (gameId && remember) {
                     localStorage.setItem('gz_playerId:' + gameId, playerId); // per-game, for prefill
                     // Per-game Server ID, for prefill. Only overwrite when a value was
                     // actually provided so games that don't use Server ID (or an order
@@ -13264,7 +13440,7 @@ html.perf-low .pc-star { box-shadow: none; }
                     if (serverId) localStorage.setItem('gz_serverId:' + gameId, serverId);
                 }
             } catch (e) { /* private browsing - ignore, order itself still succeeds */ }
-            addRecentId(playerId, gameId, serverId);
+            if (remember) addRecentId(playerId, gameId, serverId, currentVerifiedName());
         }
 
         // Keeps a short history (most-recent-first, deduped) of every ID the
@@ -13284,42 +13460,119 @@ html.perf-low .pc-star { box-shadow: none; }
                 const list = JSON.parse(localStorage.getItem(recentIdsStorageKey(gameId)) || '[]');
                 if (!Array.isArray(list)) return [];
                 return list
-                    .map(entry => typeof entry === 'string' ? { playerId: entry, serverId: '' } : entry)
-                    .filter(e => e && typeof e.playerId === 'string' && e.playerId.trim());
+                    .map(entry => typeof entry === 'string' ? { playerId: entry, serverId: '', name: '' } : entry)
+                    .filter(e => e && typeof e.playerId === 'string' && e.playerId.trim())
+                    .map(e => ({ playerId: e.playerId, serverId: e.serverId || '', name: typeof e.name === 'string' ? e.name : '' }));
             } catch (e) { return []; }
         }
-        function addRecentId(playerId, gameId, serverId) {
+        // "Remember this ID on this device" checkbox (default on).
+        function rememberEnabled() {
+            try { return localStorage.getItem('gz_remember_id') !== '0'; } catch (e) { return true; }
+        }
+        function currentVerifiedName() {
+            try { return (typeof verifiedPlayerName !== 'undefined' && verifiedPlayerName) ? String(verifiedPlayerName) : ''; } catch (e) { return ''; }
+        }
+        // keepPos = update an existing entry in place (used by auto-save on verify) instead of
+        // jumping it to the front, so the chips don't shuffle under the customer's thumb.
+        function addRecentId(playerId, gameId, serverId, name, keepPos) {
             if (!playerId || !playerId.trim()) return;
             try {
                 const cleanedId = playerId.trim();
                 const cleanedServer = (serverId || '').trim();
-                let list = getRecentIds(gameId).filter(e => e.playerId !== cleanedId);
-                list.unshift({ playerId: cleanedId, serverId: cleanedServer });
+                const cleanedName = (name || '').trim().slice(0, 40);
+                const same = e => e.playerId === cleanedId && e.serverId === cleanedServer;
+                let list = getRecentIds(gameId);
+                const idx = list.findIndex(same);
+                if (idx >= 0 && keepPos) {
+                    if (cleanedName) list[idx].name = cleanedName;
+                } else {
+                    const prevName = idx >= 0 ? list[idx].name : '';
+                    list = list.filter(e => !same(e));
+                    list.unshift({ playerId: cleanedId, serverId: cleanedServer, name: cleanedName || prevName });
+                }
                 list = list.slice(0, RECENT_IDS_MAX);
                 localStorage.setItem(recentIdsStorageKey(gameId), JSON.stringify(list));
             } catch (e) { /* private browsing - ignore */ }
             renderRecentIds(gameId);
         }
+        // Called when an ID + server verifies: auto-saves the ID with the player's name (if remembering is on).
+        window.idgRemember = function (gameId, playerId, serverId, name) {
+            if (!gameId || !playerId || !rememberEnabled()) return;
+            try {
+                localStorage.setItem('gz_playerId:' + gameId, playerId);
+                if (serverId) localStorage.setItem('gz_serverId:' + gameId, serverId);
+            } catch (e) {}
+            addRecentId(playerId, gameId, serverId, name, true);
+        };
+        function removeRecentId(gameId, playerId, serverId) {
+            try {
+                const list = getRecentIds(gameId).filter(e => !(e.playerId === playerId && e.serverId === (serverId || '')));
+                localStorage.setItem(recentIdsStorageKey(gameId), JSON.stringify(list));
+                if (localStorage.getItem('gz_playerId:' + gameId) === playerId) {
+                    localStorage.removeItem('gz_playerId:' + gameId);
+                    localStorage.removeItem('gz_serverId:' + gameId);
+                }
+            } catch (e) {}
+            renderRecentIds(gameId);
+        }
+        function idgMarkChips(valid) {
+            const row = document.getElementById('recent-ids-row');
+            if (!row) return;
+            const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const pid = v('detail-ingame-id'), sid = v('detail-server-id');
+            row.querySelectorAll('.recent-id-chip').forEach(c => {
+                const on = !!pid && c.dataset.pid === pid && c.dataset.sid === sid;
+                c.classList.toggle('on', on);
+                c.classList.toggle('ok', on && !!valid);
+            });
+        }
+        window.idgMarkChips = idgMarkChips;
         function renderRecentIds(gameId) {
             const block = document.getElementById('recent-ids-block');
             const row = document.getElementById('recent-ids-row');
             if (!block || !row) return;
+            const rem = document.getElementById('idg-remember');
+            if (rem) rem.checked = rememberEnabled();
             const entries = getRecentIds(gameId);
             if (entries.length === 0) {
                 block.style.display = 'none';
-                row.innerHTML = '';
+                row.textContent = '';
                 return;
             }
             block.style.display = 'block';
-            row.innerHTML = entries.map(e => {
-                const label = e.serverId ? `${e.playerId} (${e.serverId})` : e.playerId;
-                const safe = label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                const jsSafeId = e.playerId.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                const jsSafeServer = (e.serverId || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                return `<div class="recent-id-chip" onclick="fillRecentId('${jsSafeId}', '${jsSafeServer}')">${safe}</div>`;
-            }).join('');
+            row.textContent = '';
+            entries.forEach(e => {
+                const chip = document.createElement('div');
+                chip.className = 'recent-id-chip';
+                chip.setAttribute('role', 'button');
+                chip.dataset.pid = e.playerId;
+                chip.dataset.sid = e.serverId;
+                const main = document.createElement('span');
+                main.className = 'rc-main';
+                main.textContent = e.serverId ? `${e.playerId} (${e.serverId})` : e.playerId;
+                chip.appendChild(main);
+                if (e.name) {
+                    const nm = document.createElement('span');
+                    nm.className = 'rc-name';
+                    nm.textContent = e.name; // player name comes from an external API - textContent only
+                    chip.appendChild(nm);
+                }
+                const x = document.createElement('button');
+                x.type = 'button';
+                x.className = 'rc-x';
+                x.setAttribute('aria-label', 'Remove');
+                x.setAttribute('data-no-haptic', '');
+                x.textContent = '\u00d7';
+                x.addEventListener('click', ev => { ev.stopPropagation(); removeRecentId(gameId, e.playerId, e.serverId); });
+                chip.addEventListener('click', () => fillRecentId(e.playerId, e.serverId, true));
+                chip.appendChild(x);
+                row.appendChild(chip);
+            });
+            const g = document.getElementById('idg');
+            idgMarkChips(!!g && g.dataset.state === 'valid');
         }
-        function fillRecentId(id, serverId) {
+        // instant = tapped from a chip: verify right away instead of waiting for the typing debounce.
+        function fillRecentId(id, serverId, instant) {
             document.getElementById('detail-ingame-id').value = id;
             const serverField = document.getElementById('detail-server-id');
             if (serverField) {
@@ -13327,8 +13580,19 @@ html.perf-low .pc-star { box-shadow: none; }
                 if (serverField.tagName === 'SELECT') serverField.classList.toggle('has-value', !!serverField.value);
             }
             if (window.onPlayerIdFieldChange) window.onPlayerIdFieldChange();
+            if (instant && window.confirmPlayerIdManual) window.confirmPlayerIdManual();
         }
         window.fillRecentId = fillRecentId;
+        window.idgToggleRemember = function (el) {
+            try { localStorage.setItem('gz_remember_id', el.checked ? '1' : '0'); } catch (e) {}
+            if (window.haptic) window.haptic('select');
+            // switched on while the current ID is already verified: save it straight away
+            const g = document.getElementById('idg');
+            if (el.checked && g && g.dataset.state === 'valid') {
+                window.idgRemember(selectedGameId, document.getElementById('detail-ingame-id').value.trim(),
+                    document.getElementById('detail-server-id').value.trim(), currentVerifiedName());
+            }
+        };
         window.renderRecentIds = renderRecentIds;
         window.getSavedContactForGame = getSavedContactForGame;
 
