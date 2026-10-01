@@ -3495,6 +3495,51 @@
         @media (prefers-reduced-motion: reduce) { .idg, .idg::after, .idg-badge { animation: none !important; transition: none !important; } }
         #detail-id-status .vp { background: rgba(134,239,172,.16); border-color: rgba(52,211,153,.42); }
 
+        /* ===== Account Info tweaks: wider Player ID / compact Server + real glass look ===== */
+        .idg { padding: 6px; border-radius: 22px; }
+        .idg .idg-field:not(.idg-server) { flex: 1 1 0; }          /* Player ID takes the remaining width */
+        .idg .idg-server { flex: 0 0 31%; max-width: 128px; min-width: 88px; margin-left: 14px; }  /* Server stays short */
+        .idg-server::before { left: -8px; }
+        .detail-form-card .idg .idg-field input[type="text"],
+        .detail-form-card .idg .idg-field select { padding: 12px 12px; font-size: 15px; }
+        .detail-form-card .idg .idg-server input[type="text"],
+        .detail-form-card .idg .idg-server select { text-align: center; padding-left: 8px; padding-right: 8px; }
+        .detail-form-card .idg .idg-server select { padding-right: 26px; background-position: right 8px center; background-size: 12px 12px; text-align: left; padding-left: 12px; }
+        #detail-ingame-id { padding-right: 36px !important; }
+
+        /* Glass: own blur (the global --blur is "none" on phones), frosted gradient, bright rim */
+        .idg {
+            background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.18));
+            -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
+            border: 1px solid rgba(255,255,255,.7);
+            box-shadow: 0 8px 26px rgba(31,45,90,.14), inset 0 1.5px 1px rgba(255,255,255,.9), inset 0 -6px 12px rgba(31,45,90,.05);
+        }
+        .idg-field {
+            background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.28));
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,.75);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,.95), inset 0 -2px 6px rgba(31,45,90,.06), 0 2px 8px rgba(31,45,90,.06);
+        }
+        .idg:not([data-state="valid"]):not([data-state="invalid"]):not([data-state="checking"]):focus-within {
+            border-color: rgba(var(--accent-rgb),.6);
+            box-shadow: 0 8px 26px rgba(31,45,90,.14), 0 0 0 4px rgba(var(--accent-rgb),.16), inset 0 1.5px 1px rgba(255,255,255,.9);
+        }
+        html[data-theme="dark"] .idg {
+            background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+            border-color: rgba(255,255,255,.18);
+            box-shadow: 0 8px 26px rgba(0,0,10,.5), inset 0 1px 1px rgba(255,255,255,.18), inset 0 -6px 12px rgba(0,0,0,.25);
+        }
+        html[data-theme="dark"] .idg-field {
+            background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+            border-color: rgba(255,255,255,.16);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,.14), 0 2px 8px rgba(0,0,10,.3);
+        }
+        .idg[data-state="valid"] .idg-field { background: linear-gradient(180deg, rgba(220,252,231,.75), rgba(187,247,208,.35)); border-color: rgba(52,211,153,.6); }
+        .idg[data-state="invalid"] .idg-field { background: linear-gradient(180deg, rgba(254,226,226,.75), rgba(254,202,202,.35)); border-color: rgba(248,113,113,.6); }
+        html[data-theme="dark"] .idg[data-state="valid"] .idg-field { background: rgba(52,211,153,.14); }
+        html[data-theme="dark"] .idg[data-state="invalid"] .idg-field { background: rgba(248,113,113,.12); }
+        html.perf-low .idg, html.perf-low .idg-field { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
         /* Recent chips: ID (server) on top, the player's name auto-saved underneath */
         .recent-id-chip { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; max-width: 210px; padding: 8px 32px 8px 14px; border-radius: 18px; color: var(--text); transition: border-color .3s ease, background-color .3s ease; }
         .recent-id-chip .rc-main { font-size: 13.5px; font-weight: 600; color: var(--text); }
@@ -4200,6 +4245,98 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
 /* Admin Online/Offline badge: a little bigger */
 .admin-status-bar { padding: 5px 13px; font-size: 12.5px; gap: 7px; }
 .admin-status-bar .admin-status-dot { width: 8px; height: 8px; }
+
+/* ===== Home: gap between profile strip and banner + glowing "Admin Online" ===== */
+.mini-profile-bar { margin-bottom: 14px; }
+.bullet-chat-wrapper.show + .content-area, .bullet-chat-wrapper.show { margin-bottom: 0; }
+.admin-status-bar.online-text {
+    background: linear-gradient(135deg, rgba(74,222,128,.28), rgba(34,197,94,.10));
+    border-color: rgba(34,197,94,.65);
+    box-shadow: 0 0 10px rgba(34,197,94,.45), 0 0 22px rgba(34,197,94,.22), inset 0 1px 1px rgba(255,255,255,.55);
+    animation: adminGlow 2.2s ease-in-out infinite;
+}
+.admin-status-bar.online-text #admin-status-text { color: #16a34a; font-weight: 700; text-shadow: 0 0 8px rgba(34,197,94,.55); }
+.admin-status-dot.online {
+    background: #22e06b; box-shadow: 0 0 6px 1px rgba(34,224,107,.95), 0 0 12px 3px rgba(34,224,107,.5);
+    animation: adminDot 1.4s ease-in-out infinite;
+}
+html[data-theme="dark"] .admin-status-bar.online-text {
+    background: linear-gradient(135deg, rgba(61,220,114,.30), rgba(16,185,129,.10));
+    border-color: rgba(74,255,135,.7);
+    box-shadow: 0 0 12px rgba(61,220,114,.55), 0 0 26px rgba(61,220,114,.28), inset 0 1px 1px rgba(255,255,255,.15);
+}
+html[data-theme="dark"] .admin-status-bar.online-text #admin-status-text { color: #5dff95; text-shadow: 0 0 10px rgba(93,255,149,.75); }
+html[data-theme="dark"] .admin-status-dot.online { background: #5dff95; box-shadow: 0 0 7px 2px rgba(93,255,149,1), 0 0 14px 4px rgba(61,220,114,.6); }
+@keyframes adminGlow { 0%,100% { box-shadow: 0 0 8px rgba(34,197,94,.35), 0 0 16px rgba(34,197,94,.15), inset 0 1px 1px rgba(255,255,255,.55); } 50% { box-shadow: 0 0 14px rgba(34,197,94,.65), 0 0 28px rgba(34,197,94,.32), inset 0 1px 1px rgba(255,255,255,.55); } }
+@keyframes adminDot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .8; } }
+html.perf-low .admin-status-bar.online-text, html.perf-low .admin-status-dot.online { animation: none; }
+@media (prefers-reduced-motion: reduce) { .admin-status-bar.online-text, .admin-status-dot.online { animation: none; } }
+
+/* ===== Wallet login: full-screen "Welcome Back" page (replaces the bottom-sheet popup) ===== */
+#wallet-google-gate-overlay.lg-page {
+    display: block; align-items: initial; justify-content: initial; z-index: 400; overflow: hidden;
+    background: linear-gradient(180deg, #eef3ff 0%, #e4ecff 55%, #dfe8fb 100%);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    transform: translateX(24px); transition: opacity .28s ease, transform .32s cubic-bezier(.22,.8,.3,1);
+}
+#wallet-google-gate-overlay.lg-page.show { transform: translateX(0); }
+html[data-theme="dark"] #wallet-google-gate-overlay.lg-page { background: linear-gradient(180deg, #0f1a33 0%, #0b1530 60%, #091226 100%); }
+.lg-blob { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+    background: linear-gradient(145deg, rgba(255,255,255,.75), rgba(150,180,255,.28));
+    border: 1.5px solid rgba(120,160,255,.35); box-shadow: inset 0 2px 6px rgba(255,255,255,.7), 0 10px 30px rgba(76,120,255,.12); }
+.lg-blob-a { width: 220px; height: 220px; top: -90px; left: -90px; }
+.lg-blob-b { width: 120px; height: 120px; top: 22%; right: -60px; }
+.lg-blob-c { width: 260px; height: 260px; bottom: -120px; right: -90px; }
+html[data-theme="dark"] .lg-blob { background: linear-gradient(145deg, rgba(120,160,255,.16), rgba(76,147,255,.05)); border-color: rgba(120,160,255,.22); box-shadow: none; }
+.lg-back { position: absolute; z-index: 3; top: calc(14px + env(safe-area-inset-top, 0px)); left: 16px; width: 42px; height: 42px; border-radius: 14px; border: 1px solid rgba(255,255,255,.8); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text);
+    background: linear-gradient(145deg, rgba(255,255,255,.85), rgba(255,255,255,.45)); box-shadow: 0 6px 16px rgba(60,90,170,.14), inset 0 1px 1px #fff; }
+html[data-theme="dark"] .lg-back { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); box-shadow: none; }
+.lg-scroll { position: absolute; inset: 0; z-index: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; padding: calc(70px + env(safe-area-inset-top, 0px)) 24px calc(30px + env(safe-area-inset-bottom, 0px)); }
+.lg-inner { width: 100%; max-width: 380px; margin: auto; text-align: center; }
+.lg-logo { width: 104px; height: 104px; margin: 0 auto 22px; border-radius: 32px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    background: linear-gradient(150deg, rgba(255,255,255,.95), rgba(225,235,255,.6)); border: 1px solid rgba(255,255,255,.9);
+    box-shadow: 0 18px 40px rgba(76,120,255,.22), inset 0 2px 3px #fff, inset 0 -6px 12px rgba(120,150,230,.12); }
+.lg-logo img { width: 72%; height: 72%; object-fit: contain; }
+html[data-theme="dark"] .lg-logo { background: linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.05)); border-color: rgba(255,255,255,.18); box-shadow: 0 18px 40px rgba(0,0,10,.45), inset 0 1px 2px rgba(255,255,255,.2); }
+.lg-title { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -.3px; color: #0c1330; }
+html[data-theme="dark"] .lg-title { color: #f2f6ff; }
+.lg-sub { margin: 8px 0 2px; font-size: 13px; letter-spacing: .22em; color: #5c6a8a; font-weight: 500; }
+.lg-sub-mm { margin: 0 0 26px; font-size: 12.5px; line-height: 1.6; color: #6b7794; }
+html[data-theme="dark"] .lg-sub, html[data-theme="dark"] .lg-sub-mm { color: #9fb0d4; }
+.lg-field { position: relative; margin-bottom: 14px; }
+.lg-field-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #6b7794; pointer-events: none; }
+.lg-field input { width: 100%; box-sizing: border-box; height: 58px; padding: 0 18px 0 54px; border-radius: 20px; font-size: 15px; font-family: inherit; color: #1b2440; outline: none;
+    background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(238,244,255,.6)); border: 1.5px solid rgba(255,255,255,.95);
+    box-shadow: 0 6px 18px rgba(70,100,180,.12), inset 0 1px 2px #fff, inset 0 -3px 8px rgba(120,150,220,.1);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: border-color .25s, box-shadow .25s; }
+.lg-field input::placeholder { color: #8591ad; }
+.lg-field input:focus { border-color: rgba(var(--accent-rgb),.65); box-shadow: 0 6px 18px rgba(70,100,180,.12), 0 0 0 4px rgba(var(--accent-rgb),.16), inset 0 1px 2px #fff; }
+html[data-theme="dark"] .lg-field input { color: #eaf0ff; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); border-color: rgba(255,255,255,.16); box-shadow: inset 0 1px 1px rgba(255,255,255,.12), 0 6px 18px rgba(0,0,10,.3); }
+html[data-theme="dark"] .lg-field input::placeholder { color: #7d8db3; }
+html[data-theme="dark"] .lg-field-icon { color: #9fb0d4; }
+.lg-primary { width: 100%; height: 58px; border-radius: 22px; border: 1px solid rgba(255,255,255,.35); cursor: pointer; color: #fff; font-family: inherit; font-size: 17px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; position: relative; margin-top: 4px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2f5be8 55%, #3f4fe0 100%);
+    box-shadow: 0 12px 28px rgba(47,91,232,.42), inset 0 1.5px 1px rgba(255,255,255,.45), inset 0 -4px 10px rgba(20,40,160,.25); transition: transform .15s ease, opacity .2s; }
+.lg-primary:active { transform: scale(.98); opacity: .92; }
+.lg-primary:disabled { opacity: .6; }
+.lg-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.24); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.3); }
+.lg-resend { margin-top: 12px; background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
+.lg-divider { display: flex; align-items: center; gap: 12px; margin: 26px 6px 18px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: #6b7794; font-weight: 500; }
+.lg-divider::before, .lg-divider::after { content: ''; flex: 1; height: 1px; background: rgba(90,115,180,.35); }
+html[data-theme="dark"] .lg-divider { color: #9fb0d4; }
+html[data-theme="dark"] .lg-divider::before, html[data-theme="dark"] .lg-divider::after { background: rgba(255,255,255,.18); }
+.lg-social { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.lg-social-btn, .lg-gis { width: 64px; height: 64px; border-radius: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,.95); padding: 0; min-height: 0;
+    background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(232,240,255,.6)); box-shadow: 0 8px 20px rgba(70,100,180,.15), inset 0 1px 2px #fff; overflow: hidden; }
+html[data-theme="dark"] .lg-social-btn, html[data-theme="dark"] .lg-gis { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); box-shadow: 0 8px 20px rgba(0,0,10,.35); }
+.lg-social-btn:active { transform: scale(.95); }
+.lg-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lg-tg { display: flex; align-items: center; justify-content: center; min-height: 64px; }
+.lg-tg:empty { display: none; }
+.lg-foot { margin: 34px 0 0; font-size: 11px; letter-spacing: .3em; color: #6b7794; }
+html[data-theme="dark"] .lg-foot { color: #8294bd; }
+body:has(#wallet-google-gate-overlay.show) .bottom-nav { display: none; }
 </style>
 <script id="card-name-size">
 /* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
@@ -5074,40 +5211,51 @@ html.perf-low .pc-star { box-shadow: none; }
              linked account (balance/history follow the customer across
              devices), unlike browsing/ordering which work on the guest ID
              alone. -->
-        <div class="modal-overlay" id="wallet-google-gate-overlay" onclick="if(event.target===this) closeWalletGoogleGate()">
-            <div class="modal-box" style="max-width:340px;text-align:center;padding:26px 22px;position:relative;">
-                <div class="modal-close" onclick="closeWalletGoogleGate()" style="position:absolute;top:14px;right:14px;">
-                    <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
+        <div class="modal-overlay lg-page" id="wallet-google-gate-overlay" role="dialog" aria-label="Sign in">
+            <span class="lg-blob lg-blob-a"></span><span class="lg-blob lg-blob-b"></span><span class="lg-blob lg-blob-c"></span>
+            <button type="button" class="lg-back" onclick="closeWalletGoogleGate()" aria-label="Back" data-no-haptic>
+                <svg class="ui-icon" style="width:20px;height:20px;"><use href="#icon-chevron-right" transform="rotate(180 12 12)"></use></svg>
+            </button>
+            <div class="lg-scroll">
+                <div class="lg-inner">
+                    <div class="lg-logo"><img id="lg-logo-img" src="" alt="" style="display:none;" onerror="this.style.display='none';document.getElementById('lg-logo-icon').style.display='block';"><svg class="ui-icon" id="lg-logo-icon" style="width:44px;height:44px;color:var(--accent);"><use href="#icon-gamepad"></use></svg></div>
+                    <h1 class="lg-title">Welcome Back</h1>
+                    <p class="lg-sub">Sign in to use Wallet</p>
+                    <p class="lg-sub-mm">Wallet ကို အသုံးပြုရန် Login ဝင်ရန် လိုအပ်ပါသည်။</p>
+
+                    <div id="wallet-gate-email-step-input">
+                        <div class="lg-field">
+                            <svg class="ui-icon lg-field-icon"><use href="#icon-mail"></use></svg>
+                            <input type="email" id="wallet-gate-email-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                        </div>
+                        <button type="button" class="lg-primary" id="wallet-gate-email-send-btn" onclick="handleSendEmailCode('wallet-gate')">
+                            <span>Send code</span>
+                            <span class="lg-arrow"><svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-chevron-right"></use></svg></span>
+                        </button>
+                    </div>
+                    <div id="wallet-gate-email-step-code" style="display:none;">
+                        <div class="lg-field">
+                            <svg class="ui-icon lg-field-icon"><use href="#icon-lock"></use></svg>
+                            <input type="text" id="wallet-gate-email-code-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('wallet-gate');">
+                        </div>
+                        <button type="button" class="lg-primary" id="wallet-gate-email-verify-btn" onclick="handleVerifyEmailCode('wallet-gate')">
+                            <span>Verify code</span>
+                            <span class="lg-arrow"><svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-chevron-right"></use></svg></span>
+                        </button>
+                        <button type="button" class="lg-resend" id="wallet-gate-email-resend-btn" onclick="handleSendEmailCode('wallet-gate', true)">Resend code</button>
+                    </div>
+
+                    <div class="lg-divider"><span>or continue with</span></div>
+                    <div class="lg-social">
+                        <div id="wallet-gate-google-gis" class="gis-btn-slot lg-gis" style="display:flex;justify-content:center;"></div>
+                        <button type="button" class="lg-social-btn gis-fallback" id="wallet-gate-google-btn" onclick="handleWalletGateGoogleSignIn()" aria-label="Continue with Google">
+                            <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+                            <span id="wallet-gate-google-btn-label" class="lg-sr">Continue with Google</span>
+                        </button>
+                        <div id="wallet-gate-telegram-widget" class="lg-tg"></div>
+                    </div>
+                    <p class="lg-foot">PLAY &bull; COMPETE &bull; GROW TOGETHER</p>
                 </div>
-                <div style="font-size:15px;font-weight:600;margin-bottom:8px;">Sign in to use Wallet</div>
-                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:0 0 18px;">
-                    Wallet ကို အသုံးပြုရန် Login ဝင်ရန် လိုအပ်ပါသည်။
-                </p>
-                <div id="wallet-gate-email-step-input">
-                    <input type="email" id="wallet-gate-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
-                    <button type="button" class="google-login-btn" id="wallet-gate-email-send-btn" onclick="handleSendEmailCode('wallet-gate')" style="width:100%;justify-content:center;">
-                        <span>Send code</span>
-                    </button>
-                </div>
-                <div id="wallet-gate-email-step-code" style="display:none;">
-                    <input type="text" id="wallet-gate-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('wallet-gate');">
-                    <button type="button" class="google-login-btn" id="wallet-gate-email-verify-btn" onclick="handleVerifyEmailCode('wallet-gate')" style="width:100%;justify-content:center;">
-                        <span>Verify code</span>
-                    </button>
-                    <button type="button" class="email-login-resend" id="wallet-gate-email-resend-btn" onclick="handleSendEmailCode('wallet-gate', true)">Resend code</button>
-                </div>
-                <div class="email-login-divider"><span>or connect instantly</span></div>
-                <div id="wallet-gate-google-gis" class="gis-btn-slot" style="display:flex;justify-content:center;"></div>
-                <div id="wallet-gate-telegram-widget" style="margin-top:10px;display:flex;justify-content:center;"></div>
-                <button type="button" class="google-login-btn gis-fallback" id="wallet-gate-google-btn" onclick="handleWalletGateGoogleSignIn()" style="width:100%;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 48 48">
-                        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
-                        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
-                        <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
-                        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/>
-                    </svg>
-                    <span id="wallet-gate-google-btn-label">Continue with Google</span>
-                </button>
             </div>
         </div>
 
@@ -10622,11 +10770,19 @@ html.perf-low .pc-star { box-shadow: none; }
 
         // The Wallet page's own "Login" button: opens the Login form
         // (Google / Telegram / Email) directly as a popup on the Wallet page.
+        function lgSyncLogo() {
+            try {
+                const src = document.getElementById('header-logo-img');
+                const dst = document.getElementById('lg-logo-img');
+                const ico = document.getElementById('lg-logo-icon');
+                if (src && dst && src.getAttribute('src')) { dst.src = src.getAttribute('src'); dst.style.display = 'block'; if (ico) ico.style.display = 'none'; }
+            } catch (e) {}
+        }
         function openWalletAuthGate() {
             walletGatePending = false;
             const ov = document.getElementById('wallet-google-gate-overlay');
             if (!ov) return;
-            ov.classList.add('show');
+            ov.classList.add('show'); lgSyncLogo();
             if (window.renderGisButtons) window.renderGisButtons();
             renderTelegramWidgetInto('wallet-gate-telegram-widget');
         }
@@ -10635,7 +10791,7 @@ html.perf-low .pc-star { box-shadow: none; }
         function openWalletTopupModal() {
             if (!isCustomerAuthenticated()) {
                 walletGatePending = true;
-                document.getElementById('wallet-google-gate-overlay').classList.add('show');
+                document.getElementById('wallet-google-gate-overlay').classList.add('show'); lgSyncLogo();
                 if (window.renderGisButtons) window.renderGisButtons();
                 renderTelegramWidgetInto('wallet-gate-telegram-widget');
                 return;
