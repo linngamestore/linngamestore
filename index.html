@@ -10180,7 +10180,8 @@ html.perf-low .pc-star { box-shadow: none; }
             el.dataset.balTarget = String(to);
             if (el._balRaf) cancelAnimationFrame(el._balRaf);
             const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (from === to || reduce || document.documentElement.classList.contains('perf-low')) {
+            const forceCount = el.id === 'wallet-balance-amount' || el.id === 'profile-card-balance';
+            if (from === to || (!forceCount && (reduce || document.documentElement.classList.contains('perf-low')))) {
                 el._balShown = to; el.innerText = fmt(to); walletCountDone(el, to, false); return;
             }
             const dur = 1100, t0 = performance.now();
@@ -16344,21 +16345,41 @@ html.perf-low .pc-star { box-shadow: none; }
         // - Products reuses the games catalogue already kept live in
         //   RAW_GAMES by listenGames() above (no extra read) - it's every
         //   package across every game, so it stays in sync via rerenderAll().
-        function animateStatCount(el, endValue, duration = 1400) {
-            if (!el) return;
-            endValue = Math.max(0, Math.round(Number(endValue) || 0));
-            const startValue = Number(el.dataset.hlsCur || 0);
+        // Counting starts only once the card is actually on screen (the card sits at
+        // the bottom of Home, so a count that began at page load had already finished
+        // before anyone scrolled to it). Always runs, even on low-power / reduced-motion.
+        const hlsObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries) => {
+            entries.forEach((en) => {
+                const el = en.target;
+                if (en.isIntersecting && !el._hlsVisible) {
+                    el._hlsVisible = true;
+                    if (el._hlsTarget != null) hlsRun(el, el._hlsTarget);
+                }
+            });
+        }, { threshold: 0.3 }) : null;
+        function hlsRun(el, endValue, duration = 1400) {
+            const startValue = Number(el._hlsShown || 0);
+            const token = (el._hlsToken = (el._hlsToken || 0) + 1);
             if (startValue === endValue) { el.innerText = endValue.toLocaleString(); return; }
             const startTime = performance.now();
             function tick(now) {
+                if (el._hlsToken !== token) return; // newer animation took over
                 const p = Math.min(1, (now - startTime) / duration);
-                const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic - fast start, gentle settle
+                const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
                 const current = Math.round(startValue + (endValue - startValue) * eased);
+                el._hlsShown = current;
                 el.innerText = current.toLocaleString();
                 if (p < 1) requestAnimationFrame(tick);
-                else el.dataset.hlsCur = endValue;
             }
             requestAnimationFrame(tick);
+        }
+        function animateStatCount(el, endValue, duration = 1400) {
+            if (!el) return;
+            endValue = Math.max(0, Math.round(Number(endValue) || 0));
+            el._hlsTarget = endValue;
+            if (!hlsObserver) { hlsRun(el, endValue, duration); return; }
+            if (!el._hlsObserved) { el._hlsObserved = true; hlsObserver.observe(el); }
+            if (el._hlsVisible) hlsRun(el, endValue, duration);
         }
         function updateHomeProductsStat() {
             const el = document.getElementById('hls-products');
