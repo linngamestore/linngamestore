@@ -12812,6 +12812,12 @@ html.perf-low .pc-star { box-shadow: none; }
         // a verified Telegram payload for a Firebase custom token and sign in.
         async function completeTelegramSignIn(endpoint, body) {
             try {
+                // Tell the Worker which guest account this device uses so it can link
+                // it to the (verified) Telegram id - needed for accounts that already hold a balance.
+                try {
+                    const gidForLink = window.getGuestId ? window.getGuestId() : '';
+                    if (gidForLink) body = { ...body, guestId: gidForLink };
+                } catch (e) { /* ignore */ }
                 const res = await fetch(`${AUTH_WORKER_URL}${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
