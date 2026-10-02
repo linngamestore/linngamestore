@@ -1052,9 +1052,9 @@
         /* Gemini-style colour glow around the LIVE bar — colours (yellow / red / blue / green) continuously run around the bar. */
         .bullet-chat-wrapper { position: relative; overflow: visible; isolation: isolate; background: transparent; }
         .bullet-chat-wrapper::before {
-            content: ''; position: absolute; inset: -3px; border-radius: 15px; z-index: -2; pointer-events: none;
+            content: ''; position: absolute; inset: -1px; border-radius: 13px; z-index: -2; pointer-events: none;
             background: conic-gradient(from var(--linn-a), #FBBC04, #EA4335, #4285F4, #34A853, #FBBC04);
-            filter: blur(7px); opacity: .95;
+            filter: blur(4px); opacity: .9;
             animation: linnSpin 3.5s linear infinite;
         }
         .bullet-chat-wrapper::after {
@@ -2525,13 +2525,45 @@
             font-size: 12.5px; font-weight: 500; color: var(--text-muted); background: var(--bg);
             padding: 6px 10px; border-radius: 8px; letter-spacing: 0.3px;
         }
-        .wallet-amount-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0 2px; }
+        .wallet-amount-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0 2px; max-height: 200px; overflow-y: auto; overscroll-behavior: contain; padding: 10px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 16px; -webkit-overflow-scrolling: touch; }
+        .wallet-amount-presets .wallet-preset-chip { background: var(--surface); }
         .wallet-preset-chip {
             padding: 13px 6px; border-radius: 13px; text-align: center; font-size: 14px; font-weight: 500;
             background: var(--surface-alt); border: 1.5px solid var(--border); color: var(--text); cursor: pointer; transition: 0.15s;
         }
         .wallet-preset-chip:active { transform: scale(0.94); }
+        .wallet-topup-amount-input { font-variant-numeric: tabular-nums; }
+        .wallet-topup-amount-input.amt-anim { color: var(--accent); }
         .wallet-preset-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-color); box-shadow: 0 5px 14px rgba(var(--accent-rgb),0.35); }
+        /* Top-up amount — refined look */
+        .wallet-topup-amount-input {
+            padding: 20px 84px 20px 20px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; border-radius: 18px;
+            border: 1.5px solid var(--border); box-shadow: 0 6px 20px rgba(var(--accent-rgb),0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+        .wallet-topup-amount-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(var(--accent-rgb),0.14), 0 8px 24px rgba(var(--accent-rgb),0.12); }
+        .wallet-topup-amount-input::placeholder { color: var(--text-muted); font-weight: 600; }
+        .wallet-amount-currency {
+            right: 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: var(--accent);
+            background: rgba(var(--accent-rgb),0.1); padding: 7px 12px; border-radius: 999px;
+        }
+        .wallet-amount-presets {
+            gap: 8px; padding: 10px; max-height: 200px; border-radius: 20px; background: var(--surface-alt);
+            border: 1px solid var(--border); box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
+            scrollbar-width: thin; scrollbar-color: rgba(var(--accent-rgb),0.35) transparent;
+        }
+        .wallet-amount-presets::-webkit-scrollbar { width: 4px; }
+        .wallet-amount-presets::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb),0.35); border-radius: 4px; }
+        .wallet-amount-presets .wallet-preset-chip {
+            padding: 12px 4px; border-radius: 14px; font-size: 13.5px; font-weight: 600; letter-spacing: -0.2px; font-variant-numeric: tabular-nums;
+            background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform .15s, box-shadow .2s, background .2s, color .2s;
+        }
+        .wallet-amount-presets .wallet-preset-chip.active {
+            background: linear-gradient(135deg, rgba(var(--accent-rgb),1), rgba(var(--accent-rgb),0.78)); border-color: transparent; color: var(--on-color);
+            box-shadow: 0 6px 16px rgba(var(--accent-rgb),0.38), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
         /* Minimum top-up notice: always visible under the presets, turns red when the typed amount is below the minimum */
         .wallet-min-note { margin: 10px 2px 0; font-size: 12px; line-height: 1.4; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
         .wallet-min-note::before { content: 'i'; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
@@ -5418,7 +5450,7 @@ html.perf-low .pc-star { box-shadow: none; }
                         Enter Amount
                     </h3>
                     <div class="wallet-amount-input-wrap">
-                        <input type="text" id="wallet-topup-amount" class="wallet-topup-amount-input" placeholder="0" inputmode="numeric" maxlength="8" oninput="sanitizeWalletTopupAmountInput(this)" onblur="finalizeWalletTopupAmountInput(this)">
+                        <input type="text" id="wallet-topup-amount" class="wallet-topup-amount-input" placeholder="0" inputmode="numeric" maxlength="10" oninput="sanitizeWalletTopupAmountInput(this)" onblur="finalizeWalletTopupAmountInput(this)">
                         <span class="wallet-amount-currency">MMK</span>
                     </div>
                     <div class="wallet-amount-presets" id="wallet-amount-presets"></div>
@@ -11072,6 +11104,8 @@ html.perf-low .pc-star { box-shadow: none; }
                 : `အနည်းဆုံး ${n} MMK မှသာ တင်နိုင်ပါသည်။`;
         }
         const WALLET_TOPUP_MAX = 10000000;
+        function walletAmtNum() { return Number(String(document.getElementById('wallet-topup-amount').value).replace(/\D/g, '')) || 0; }
+        let walletAmtAnim = null;
         // While typing: keep digits only, and if pasting/typing pushes the
         // value past the 10,000,000 ceiling, clamp it down immediately.
         // The "always ends in 00" cleanup waits for blur (below) so it
@@ -11079,7 +11113,9 @@ html.perf-low .pc-star { box-shadow: none; }
         function sanitizeWalletTopupAmountInput(el) {
             let digits = el.value.replace(/\D/g, '').slice(0, 8);
             if (Number(digits) > WALLET_TOPUP_MAX) digits = String(WALLET_TOPUP_MAX);
-            if (digits !== el.value) el.value = digits;
+            if (walletAmtAnim) { cancelAnimationFrame(walletAmtAnim); walletAmtAnim = null; }
+            const fmt = digits ? Number(digits).toLocaleString('en-US') : '';
+            if (fmt !== el.value) el.value = fmt;
             renderWalletTopupPresets();
         }
         window.sanitizeWalletTopupAmountInput = sanitizeWalletTopupAmountInput;
@@ -11091,15 +11127,15 @@ html.perf-low .pc-star { box-shadow: none; }
             if (raw === 0) { el.value = ''; renderWalletTopupPresets(); return; }
             let rounded = Math.round(raw / 100) * 100;
             if (rounded > WALLET_TOPUP_MAX) rounded = WALLET_TOPUP_MAX;
-            el.value = String(rounded);
+            el.value = rounded.toLocaleString('en-US');
             renderWalletTopupPresets();
         }
         window.finalizeWalletTopupAmountInput = finalizeWalletTopupAmountInput;
 
-        const WALLET_AMOUNT_PRESETS = [5000, 10000, 20000, 50000, 100000, 200000];
+        const WALLET_AMOUNT_PRESETS = [5000, 10000, 20000, 50000, 100000, ...Array.from({length: 19}, (_, i) => 150000 + i * 50000)];
         function renderWalletTopupPresets() {
             const wrap = document.getElementById('wallet-amount-presets');
-            const currentVal = Number(document.getElementById('wallet-topup-amount').value) || 0;
+            const currentVal = walletAmtNum() || 0;
             const minNote = document.getElementById('wallet-min-note');
             if (minNote) { minNote.textContent = walletMinText(); minNote.classList.toggle('warn', currentVal > 0 && currentVal < WALLET_TOPUP_MIN); }
             const minHint = document.getElementById('wallet-min-hint');
@@ -11110,8 +11146,23 @@ html.perf-low .pc-star { box-shadow: none; }
         }
         function pickWalletAmountPreset(v) {
             const input = document.getElementById('wallet-topup-amount');
-            input.value = v;
-            finalizeWalletTopupAmountInput(input);
+            if (walletAmtAnim) cancelAnimationFrame(walletAmtAnim);
+            const from = walletAmtNum();
+            const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduce || from === v) { input.value = v.toLocaleString('en-US'); finalizeWalletTopupAmountInput(input); return; }
+            const t0 = performance.now(), dur = 450;
+            input.classList.add('amt-anim');
+            const step = (now) => {
+                const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+                input.value = Math.round(from + (v - from) * e).toLocaleString('en-US');
+                if (p < 1) walletAmtAnim = requestAnimationFrame(step);
+                else { walletAmtAnim = null; input.classList.remove('amt-anim'); input.value = v.toLocaleString('en-US'); finalizeWalletTopupAmountInput(input); }
+            };
+            renderWalletTopupPresets_active(v);
+            walletAmtAnim = requestAnimationFrame(step);
+        }
+        function renderWalletTopupPresets_active(v) {
+            document.querySelectorAll('#wallet-amount-presets .wallet-preset-chip').forEach(c => c.classList.toggle('active', c.textContent.replace(/\D/g,'') === String(v)));
         }
         window.pickWalletAmountPreset = pickWalletAmountPreset;
         window.renderWalletTopupPresets = renderWalletTopupPresets;
@@ -11187,7 +11238,7 @@ html.perf-low .pc-star { box-shadow: none; }
         let cryptoActiveTopupId = null;
 
         function openCryptoTopupModal() {
-            const amount = Number(document.getElementById('wallet-topup-amount').value);
+            const amount = walletAmtNum();
             if (!amount || amount <= 0) { window.showToast('Please enter an amount first.', 'fail'); return; }
             if (amount < WALLET_TOPUP_MIN) { window.showToast(walletMinToast(), 'fail'); return; }
             document.getElementById('crypto-topup-amount-display').innerText = `${amount.toLocaleString()} MMK`;
@@ -11270,7 +11321,7 @@ html.perf-low .pc-star { box-shadow: none; }
 
         async function createCryptoPayment() {
             if (!selectedCryptoMethod) return;
-            const amount = Number(document.getElementById('wallet-topup-amount').value);
+            const amount = walletAmtNum();
             const guestId = window.getGuestId ? window.getGuestId() : null;
             if (!guestId) { window.showToast('Could not identify your account. Please reload.', 'fail'); return; }
 
@@ -11407,7 +11458,7 @@ html.perf-low .pc-star { box-shadow: none; }
         window.previewWalletReceiptImage = previewWalletReceiptImage;
 
         async function submitWalletTopup(btnEl) {
-            const amount = Number(document.getElementById('wallet-topup-amount').value);
+            const amount = walletAmtNum();
             if (!amount || amount <= 0) { window.showToast('Please enter a valid amount.', 'fail'); if (window.resetWalletSlideConfirmThumb) window.resetWalletSlideConfirmThumb(); return; }
             if (amount < WALLET_TOPUP_MIN) { window.showToast(walletMinToast(), 'fail'); if (window.resetWalletSlideConfirmThumb) window.resetWalletSlideConfirmThumb(); return; }
             if (amount > WALLET_TOPUP_MAX) { window.showToast(`Maximum top up amount is ${WALLET_TOPUP_MAX.toLocaleString()} MMK.`, 'fail'); if (window.resetWalletSlideConfirmThumb) window.resetWalletSlideConfirmThumb(); return; }
