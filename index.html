@@ -19212,7 +19212,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 dockSocialFab(left ? 'left' : 'right');               // heads back to an edge (either one) and settles there
                 later(() => { setCls('fab-wander', false); wanderOn = false; roaming = false; scheduleRoam(); }, fast ? 900 : 1800);
             }
-            function wander() {
+            function freeStroll() {
                 if (document.querySelector('[id$="-overlay"].show, .modal.show') || /^(input|textarea|select)$/i.test((document.activeElement && document.activeElement.tagName) || '')) { scheduleRoam(); return; }
                 roaming = true; wanderOn = true;
                 const W = window.innerWidth, H = window.innerHeight, fw = fab.offsetWidth, fh = fab.offsetHeight;
@@ -19244,7 +19244,7 @@ html.perf-low .pc-star { box-shadow: none; }
             function scheduleRoam() { clearTimeout(roamTimer); roamTimer = setTimeout(roam, rand(14000, 22000)); }
             function roam() {
                 if (!(isIdle() && !isNight() && !isOpen() && !isDrag() && !playing() && !document.hidden)) { scheduleRoam(); return; }
-                if (!reduce && Math.random() < 0.7) { wander(); return; }   // mostly it strolls wherever it likes
+                if (!reduce && Math.random() < 0.7) { freeStroll(); return; }   // mostly it strolls wherever it likes
                 roaming = true;
                 const toLeft = !fab.classList.contains('dock-left');   // right edge -> comes back out on the left
                 setCls('fab-lean', false);
