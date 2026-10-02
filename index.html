@@ -4812,6 +4812,18 @@ html.perf-low .pc-star { box-shadow: none; }
         /* Preset amount box: fixed 3-row height (it was being squeezed flat by the flex modal body) */
         .wallet-amount-presets { flex: 0 0 auto !important; height: 158px !important; min-height: 158px !important; max-height: 158px !important; box-sizing: border-box; grid-auto-rows: 40px; align-content: start; }
         .wallet-amount-presets .wallet-preset-chip { min-height: 40px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+    
+        /* ===== Smoothness pass: no stacked backdrop-filters (they made scrolling / tapping stutter) =====
+           Glass look is kept with translucent fills + highlights instead of live blur on every small element. */
+        .wallet-amount-presets .wallet-preset-chip { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(255,255,255,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.75); transition: transform .12s ease, background .15s ease; }
+        .wallet-amount-presets { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(255,255,255,0.34); contain: layout paint; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; transform: translateZ(0); }
+        .wallet-topup-amount-input { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(255,255,255,0.45); transition: border-color .2s, box-shadow .2s; }
+        .pkg-type-tabs, .history-status-tabs, .game-subtab-bar, #notif-page .pkg-type-tabs, #guide-page .pkg-type-tabs { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+        .pkg-type-tab, .history-status-tab, .game-subtab-btn { transition: background .2s ease, color .15s ease, transform .12s ease; }
+        .game-search-wrap.expanded { box-shadow: none; }
+        html[data-theme="dark"] .wallet-amount-presets .wallet-preset-chip { background: rgba(255,255,255,0.1); }
+        html[data-theme="dark"] .wallet-amount-presets { background: rgba(255,255,255,0.07); }
+        html[data-theme="dark"] .wallet-topup-amount-input { background: rgba(255,255,255,0.09); }
     </style>
 </head>
 <body>
@@ -7244,6 +7256,9 @@ html.perf-low .pc-star { box-shadow: none; }
             // session even after leaving the tab. Stop it here instead;
             // loadHistory() re-subscribes instantly next time the tab opens.
             if (pageId !== 'history' && window.stopListenHistory) window.stopListenHistory();
+            // LIVE ticker announcements: only listen while the Home tab is open.
+            if (isHome && window.listenAnnouncements) window.listenAnnouncements();
+            else if (!isHome && window.stopListenAnnouncements) window.stopListenAnnouncements();
         }
 
         let toastHideTimer = null;
@@ -14599,12 +14614,18 @@ html.perf-low .pc-star { box-shadow: none; }
         // Admin-managed announcement messages (e.g. "Open 9AM - 9PM daily") —
         // written from the admin panel's Store Ticker page, shown in the same
         // ticker as real order activity even if no orders exist yet.
-        let announcementsListenerAttached = false;
+        let announcementsListenerAttached = false, announcementsUnsub = null;
+        // Only the Home tab shows the LIVE ticker, so the listener runs only while Home is open (see showPage).
+        function stopListenAnnouncements() {
+            if (announcementsUnsub) { try { announcementsUnsub(); } catch (e) {} announcementsUnsub = null; }
+            announcementsListenerAttached = false;
+        }
+        window.stopListenAnnouncements = stopListenAnnouncements;
         function listenAnnouncements() {
             if (announcementsListenerAttached) return;
             announcementsListenerAttached = true;
             const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(30));
-            onSnapshot(q, (snap) => {
+            announcementsUnsub = onSnapshot(q, (snap) => {
                 // Fetched newest-first (so limit() keeps the most recent ones),
                 // then reversed back to oldest-first for the ticker's scroll order.
                 latestAnnouncements = snap.docs.map(docSnap => docSnap.data()).reverse();
@@ -14613,6 +14634,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 console.error("Announcements listener error:", error);
             });
         }
+        window.listenAnnouncements = listenAnnouncements;
         deferInit(() => { listenAnnouncements(); listenTierSettings(); });
 
         // Wallet top-up toast: shows recent COMPLETED top-ups from every
