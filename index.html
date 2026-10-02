@@ -2126,6 +2126,8 @@
             background: #fff;
             box-shadow: none;
         }
+        .pc-cost { margin-top: 2px; font-size: 10px; font-weight: 600; color: #b45309; background: rgba(245,158,11,.14); border-radius: 6px; padding: 1px 6px; display: inline-block; letter-spacing: .2px; }
+        .package-card.type-currency .pc-cost { color: #fff; background: rgba(0,0,0,.28); }
         .pc-price .pc-cur { font-size: 9px; font-weight: 600; opacity: 0.92; letter-spacing: 0.2px; }
         .package-card.type-topup .pc-price-bar, .package-card.type-currency .pc-price-bar { padding-top: 5px; padding-bottom: 5px; }
 
@@ -2594,6 +2596,26 @@
         .wallet-pay-info-card .pm-copy-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.92); }
 
         /* Top up history rows */
+
+        /* ---- Compact wallet Transaction History ---- */
+        .wtx-tabs { display: flex; gap: 6px; margin: 0 0 8px; overflow-x: auto; scrollbar-width: none; }
+        .wtx-tabs::-webkit-scrollbar { display: none; }
+        .wtx-chip { flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); border-radius: 999px; padding: 4px 11px; font-size: 11.5px; font-weight: 500; cursor: pointer; }
+        .wtx-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .wtx-row { display: flex; align-items: center; gap: 9px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 7px 10px; margin-bottom: 5px; }
+        .wtx-ico { width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+        .wtx-ico.in { background: #E7F8EE; color: #1E8E4F; }
+        .wtx-ico.out { background: #FDE8E8; color: #C0392B; }
+        .wtx-ico.buy { background: #EEF1FD; color: #405DE6; }
+        .wtx-body { flex: 1; min-width: 0; }
+        .wtx-title { font-size: 12.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wtx-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wtx-amt { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .wtx-amt.in { color: #1E8E4F; }
+        .wtx-amt.out { color: #C0392B; }
+        .wtx-amt.buy { color: var(--text); }
+        .wtx-more { display: block; width: 100%; border: 0; background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; padding: 6px; cursor: pointer; }
+        .wtx-empty { text-align: center; font-size: 12px; color: var(--text-muted); padding: 14px 0; }
         .wallet-topup-row {
             position: relative; overflow: hidden;
             display: flex; align-items: center; gap: 11px;
@@ -5328,6 +5350,16 @@ html.perf-low .pc-star { box-shadow: none; }
             <div class="home-live-stats-wrap">
                 <div class="home-live-stats-grid">
                     <div class="home-live-stat">
+                        <span class="home-live-stat-label" data-i18n="stat_direct">Direct Top Up</span>
+                        <div class="home-live-stat-value"><span id="hls-direct">0</span></div>
+                        <span class="home-live-stat-desc" data-i18n="stat_direct_desc">Games available</span>
+                    </div>
+                    <div class="home-live-stat">
+                        <span class="home-live-stat-label" data-i18n="stat_vouchers">Gift Cards &amp; Vouchers</span>
+                        <div class="home-live-stat-value"><span id="hls-vouchers">0</span></div>
+                        <span class="home-live-stat-desc" data-i18n="stat_vouchers_desc">Ready to redeem</span>
+                    </div>
+                    <div class="home-live-stat">
                         <span class="home-live-stat-label" data-i18n="stat_users">Community</span>
                         <div class="home-live-stat-value"><span id="hls-users">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_users_desc">Players onboard</span>
@@ -5510,6 +5542,18 @@ html.perf-low .pc-star { box-shadow: none; }
                     </button>
                     <p class="wallet-min-hint" id="wallet-min-hint"></p>
                 </div>
+
+                <h3 class="wallet-section-title">
+                    <svg class="ui-icon"><use href="#icon-history"></use></svg>
+                    Transactions
+                </h3>
+                <div class="wtx-tabs" id="wallet-txn-tabs">
+                    <button type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
+                    <button type="button" class="wtx-chip" data-f="in" onclick="setWalletTxnFilter('in')">Deposits</button>
+                    <button type="button" class="wtx-chip" data-f="out" onclick="setWalletTxnFilter('out')">Withdrawals</button>
+                    <button type="button" class="wtx-chip" data-f="buy" onclick="setWalletTxnFilter('buy')">Purchases</button>
+                </div>
+                <div id="wallet-txn-list" style="margin-bottom:14px;"></div>
 
                 <h3 class="wallet-section-title">
                     <svg class="ui-icon"><use href="#icon-history"></use></svg>
@@ -6767,6 +6811,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 title_guide: 'Top-Up in 4 Steps', dash_orders: 'Orders',
                 dash_step1: 'Choose your game and package', dash_step2: 'Enter your In-Game ID',
                 dash_step3: 'Pay from Wallet or upload a receipt', dash_step4: 'Get your order delivered instantly',
+                stat_direct: 'Direct Top Up', stat_direct_desc: 'Games available', stat_vouchers: 'Gift Cards & Vouchers', stat_vouchers_desc: 'Ready to redeem',
                 stat_users: 'Community', stat_users_desc: 'Players onboard',
                 stat_products: 'Catalog', stat_products_desc: 'Top-up packages',
                 stat_sales: 'Orders Done', stat_sales_desc: 'Completed all-time',
@@ -6921,6 +6966,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 title_guide: '၄ ဆင့်နဲ့ Top-Up လုပ်ပါ', dash_orders: 'အော်ဒါများ',
                 dash_step1: 'ဂိမ်းနှင့် Package ရွေးပါ', dash_step2: 'သင့် In-Game ID ရိုက်ထည့်ပါ',
                 dash_step3: 'Wallet ဖြင့်ဖြစ်စေ Receipt တင်ပြီးဖြစ်စေ ပေးချေပါ', dash_step4: 'အော်ဒါကို ချက်ချင်းလက်ခံရယူပါ',
+                stat_direct: 'Direct Top Up', stat_direct_desc: 'ကစားနိုင်သော ဂိမ်းများ', stat_vouchers: 'Gift Card နှင့် Voucher', stat_vouchers_desc: 'ရယူနိုင်ပါပြီ',
                 stat_users: 'အသင်းဝင်များ', stat_users_desc: 'ပါဝင်လာသော ကစားသမားများ',
                 stat_products: 'ကတလောက်', stat_products_desc: 'ငွေဖြည့်ရွေးစရာများ',
                 stat_sales: 'ပြီးဆုံးအော်ဒါများ', stat_sales_desc: 'စုစုပေါင်း ပြီးမြောက်ခဲ့သည်',
@@ -7243,6 +7289,8 @@ html.perf-low .pc-star { box-shadow: none; }
             // nothing to subscribe to yet).
             if (pageId === 'wallet' && window.isCustomerAuthenticated && window.isCustomerAuthenticated() && window.listenWalletTopups) window.listenWalletTopups();
             else if (window.stopListenWalletTopups) window.stopListenWalletTopups();
+            if (pageId === 'wallet' && window.isCustomerAuthenticated && window.isCustomerAuthenticated() && window.listenWalletTxns) window.listenWalletTxns();
+            else if (window.stopListenWalletTxns) window.stopListenWalletTxns();
             // Payment methods: needed wherever a payment-method picker or the
             // wallet top-up modal can appear - game-detail's checkout, and the
             // Wallet page itself.
@@ -7685,7 +7733,7 @@ html.perf-low .pc-star { box-shadow: none; }
         // numbers - some games use alphanumeric player IDs, not plain
         // digits only. No length cap, so IDs of any length are accepted.
         function sanitizeIdDigitsInput(el) {
-            const cleaned = el.value.replace(/[^a-zA-Z0-9]/g, '');
+            const cleaned = el.value.replace(/[\u1000-\u109F\uA9E0-\uA9FF\uAA60-\uAA7F]/g, ''); // everything allowed except Myanmar script
             if (cleaned !== el.value) el.value = cleaned;
         }
         window.sanitizeIdDigitsInput = sanitizeIdDigitsInput;
@@ -9297,6 +9345,8 @@ html.perf-low .pc-star { box-shadow: none; }
             }
 
             list.innerHTML = entries.map(({ pkg, i }, pos) => {
+                // Cost is no longer sent to the browser (private gameCosts collection).
+                const costHtml = '';
                 const img = pkg.image || DEFAULT_PACKAGE_ICON;
                 const imgTag = `<img class="pc-img" src="${img}" alt="" loading="lazy" onerror="this.src='${DEFAULT_PACKAGE_ICON}'">`;
                 // Small corner stock badge, live from G2Bulk stock - only
@@ -9327,14 +9377,15 @@ html.perf-low .pc-star { box-shadow: none; }
                     <div class="pc-row-info">
                         <span class="pc-row-name">${pkg.amount}</span>
                         <span class="pc-row-price">${Number(pkg.price || 0).toLocaleString()} MMK</span>
+                        ${costHtml}
                     </div>${tagHtml}`
                     : isVoucher
                     ? `<div class="pc-amount-badge">${pkg.amount}</div>
                     <div class="pc-img-wrap">${imgTag}</div>
-                    <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span></div>${tagHtml}`
+                    <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span>${costHtml}</div>${tagHtml}`
                     : `<div class="pc-img-wrap">${imgTag}</div>
                     <div class="pc-label-wrap${tagHtml ? ' has-tag' : ''}"><span class="pc-label${pcLabelSizeClass(String(pkg.amount))}">${pkg.amount}</span>${tagHtml}</div>
-                    <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span></div>`;
+                    <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span>${costHtml}</div>`;
                 return `
                 <div class="package-card ${cardTypeClass} game-card-anim${zoomIn ? ' card-zoom' : ''}${outOfStock ? ' out-of-stock' : ''}" style="--i:${Math.min(pos, 12)}" data-index="${i}" onclick="${outOfStock ? '' : `selectPackageOption(${i})`}">
                     ${stockBadge}<span class="pc-selected-check"><svg class="ui-icon"><use href="#icon-check"></use></svg></span>
@@ -9343,6 +9394,8 @@ html.perf-low .pc-star { box-shadow: none; }
             }).join('');
             revealCardsIn(list);
         }
+
+        window.renderDetailPackageList = renderDetailPackageList;
 
         function selectPackageOption(index) {
             const pkgToSelect = window.currentGamePackages[index];
@@ -10319,7 +10372,6 @@ html.perf-low .pc-star { box-shadow: none; }
                 serverRegion: selectedGameServerName,
                 amount: selectedPackage.amount,
                 price: getOrderTotal(),
-                cost: (Number(selectedPackage.cost) || 0),
                 quantity: 1,
                 inGameId,
                 serverId,
@@ -10353,7 +10405,6 @@ html.perf-low .pc-star { box-shadow: none; }
                 serverRegion: selectedGameServerName,
                 amount: selectedPackage.amount,
                 price: getOrderTotal(),
-                cost: (Number(selectedPackage.cost) || 0),
                 quantity: 1,
                 inGameId,
                 serverId,
@@ -10946,6 +10997,25 @@ html.perf-low .pc-star { box-shadow: none; }
                     renderWalletPayBox();
                 }
                 currentKycStatus = data.kycStatus || 'none';
+                // Admin-designated accounts (set from the admin panel's User List > Admin tab)
+                // also see each package's COST next to the price.
+                const nowAdmin = data.storeAdmin === true;
+                if (nowAdmin !== window.isStoreAdmin) {
+                    window.isStoreAdmin = nowAdmin;
+                    try { if (typeof window.renderDetailPackageList === 'function' && window.currentGamePackages && document.getElementById('detail-package-list')) window.renderDetailPackageList(); } catch (e) { /* not on a game page */ }
+                }
+                // Admin zeroed a wallet that had no history -> one-time warning (admin-written field).
+                try {
+                    const ww = data.walletWarning;
+                    if (ww && ww.at && localStorage.getItem('linn_wallet_warn_seen') !== String(ww.at)) {
+                        localStorage.setItem('linn_wallet_warn_seen', String(ww.at));
+                        const bar = document.createElement('div');
+                        bar.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:99999;background:#B91C1C;color:#fff;padding:14px 16px;border-radius:14px;font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.35);';
+                        bar.innerHTML = '<b>⚠️ Wallet Warning</b><br>သင့် Wallet ထဲက ' + Number(ww.amount || 0).toLocaleString() + ' MMK ကို Top Up / Order မှတ်တမ်းမရှိသောကြောင့် ပယ်ချလိုက်ပါသည်။ မှားယွင်းမှုဟု ယူဆပါက Help Center သို့ ဆက်သွယ်ပါ။<div style="text-align:right;margin-top:8px;"><button style="background:#fff;color:#B91C1C;border:0;border-radius:8px;padding:6px 14px;font-weight:600;">OK</button></div>';
+                        bar.querySelector('button').onclick = () => bar.remove();
+                        document.body.appendChild(bar);
+                    }
+                } catch (e) { /* never break the balance listener */ }
                 myFavoriteGames = Array.isArray(data.favoriteGames) ? data.favoriteGames : [];
                 renderFavoriteGamesRow();
                 updateFavoriteButtonState();
@@ -11812,6 +11882,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 walletTopupCache = items;
                 walletTopupsLoaded = true;
                 renderWalletTopupList();
+                if (window.renderWalletTxns) window.renderWalletTxns();
             }, (error) => console.error('Wallet topups listener error:', error));
         }
         function stopListenWalletTopups() {
@@ -11820,6 +11891,95 @@ html.perf-low .pc-star { box-shadow: none; }
         }
         window.listenWalletTopups = listenWalletTopups;
         window.stopListenWalletTopups = stopListenWalletTopups;
+
+        // ---------- Compact Transaction History (wallet page) ----------
+        // One merged, newest-first list from three live sources, all this user's own docs:
+        //   Deposits    = Completed walletTopups  +  refunded wallet orders
+        //   Withdrawals = walletAdjustments (admin deductions / corrections)
+        //   Purchases   = orders paid from the wallet
+        let walletTxnFilter = 'all';
+        let walletTxnLimit = 15;
+        let walletTxnOrders = [], walletTxnAdjusts = [];
+        let walletTxnUnsubs = [];
+        function listenWalletTxns() {
+            if (walletTxnUnsubs.length) return;
+            const gid = window.getGuestId ? window.getGuestId() : null;
+            if (!gid) return;
+            const ordersQ = query(collection(db, "orders"), where("userId", "==", gid), where("paidFromWallet", "==", true));
+            walletTxnUnsubs.push(onSnapshot(ordersQ, (snap) => {
+                walletTxnOrders = [];
+                snap.forEach(d => walletTxnOrders.push({ id: d.id, ...d.data() }));
+                renderWalletTxns();
+            }, (e) => console.error('Wallet txn orders listener error:', e)));
+            const adjQ = query(collection(db, "walletAdjustments"), where("userId", "==", gid));
+            walletTxnUnsubs.push(onSnapshot(adjQ, (snap) => {
+                walletTxnAdjusts = [];
+                snap.forEach(d => walletTxnAdjusts.push({ id: d.id, ...d.data() }));
+                renderWalletTxns();
+            }, (e) => console.error('Wallet txn adjustments listener error:', e)));
+            renderWalletTxns();
+        }
+        function stopListenWalletTxns() {
+            walletTxnUnsubs.forEach(u => { try { u(); } catch (e) {} });
+            walletTxnUnsubs = [];
+        }
+        function setWalletTxnFilter(f) {
+            walletTxnFilter = f;
+            walletTxnLimit = 15;
+            document.querySelectorAll('#wallet-txn-tabs .wtx-chip').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+            renderWalletTxns();
+        }
+        function showMoreWalletTxns() { walletTxnLimit += 15; renderWalletTxns(); }
+        function buildWalletTxns() {
+            const ms = (ts) => (ts && ts.toMillis) ? ts.toMillis() : (typeof ts === 'number' ? ts : 0);
+            const rows = [];
+            (walletTopupCache || []).forEach(t => {
+                if (t.status !== 'Completed') return;
+                rows.push({ type: 'in', amount: Number(t.amount) || 0, title: t.source === 'admin' ? 'Top Up (Admin)' : 'Top Up', sub: t.paymentMethod || '', at: ms(t.confirmedAt) || ms(t.timestamp) });
+            });
+            walletTxnOrders.forEach(o => {
+                const label = `${o.game || 'Order'}${o.itemAmount ? ' · ' + o.itemAmount : ''}`;
+                // Purchase: the wallet was really charged (new flow marks walletDebited; legacy flow charged in the browser).
+                if (o.walletFlow !== 2 || o.walletDebited === true) {
+                    rows.push({ type: 'buy', amount: Number(o.price) || 0, title: label, sub: orderStatusLabel(o.status || 'Pending'), at: ms(o.timestamp) });
+                }
+                if (o.walletRefunded === true) {
+                    rows.push({ type: 'in', amount: Number(o.price) || 0, title: 'Refund', sub: label, at: ms(o.refundedAt) || ms(o.timestamp) });
+                }
+            });
+            walletTxnAdjusts.forEach(a => {
+                const amt = Number(a.amount) || 0;
+                if (!amt) return;
+                rows.push({ type: amt < 0 ? 'out' : 'in', amount: Math.abs(amt), title: amt < 0 ? 'Wallet Deduction' : 'Wallet Adjustment', sub: a.reason || '', at: ms(a.timestamp) });
+            });
+            rows.sort((x, y) => y.at - x.at);
+            return rows;
+        }
+        function renderWalletTxns() {
+            const box = document.getElementById('wallet-txn-list');
+            if (!box) return;
+            let rows = buildWalletTxns();
+            if (walletTxnFilter !== 'all') rows = rows.filter(r => r.type === walletTxnFilter);
+            if (!rows.length) { box.innerHTML = '<div class="wtx-empty">No transactions yet</div>'; return; }
+            const sign = { in: '+', out: '−', buy: '−' };
+            const glyph = { in: '↓', out: '↑', buy: '🛍' };
+            const html = rows.slice(0, walletTxnLimit).map(r => `
+                <div class="wtx-row">
+                    <div class="wtx-ico ${r.type}">${glyph[r.type]}</div>
+                    <div class="wtx-body">
+                        <div class="wtx-title">${escapeHtml(r.title)}</div>
+                        <div class="wtx-sub">${r.sub ? escapeHtml(r.sub) + ' • ' : ''}${r.at ? new Date(r.at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Just now'}</div>
+                    </div>
+                    <div class="wtx-amt ${r.type}">${sign[r.type]}${r.amount.toLocaleString()}</div>
+                </div>`).join('');
+            box.innerHTML = html + (rows.length > walletTxnLimit ? '<button type="button" class="wtx-more" onclick="showMoreWalletTxns()">Show more</button>' : '');
+        }
+        window.listenWalletTxns = listenWalletTxns;
+        window.stopListenWalletTxns = stopListenWalletTxns;
+        window.setWalletTxnFilter = setWalletTxnFilter;
+        window.showMoreWalletTxns = showMoreWalletTxns;
+        window.renderWalletTxns = renderWalletTxns;
+
 
         function openWalletTopupDetail(index) {
             const t = walletTopupCache[index];
@@ -12498,9 +12658,13 @@ html.perf-low .pc-star { box-shadow: none; }
         // never issues its own extra Firestore read.
         async function notifyTelegramConnected(telegramId, guestId, name, balance) {
             try {
+                // The Worker only accepts this from the signed-in Telegram user
+                // themself (it verifies the Firebase ID token), so send it along.
+                const idToken = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+                if (!idToken) return;
                 await fetch(`${AUTH_WORKER_URL}/notify-connected`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
                     body: JSON.stringify({ telegramId: String(telegramId), guestId, name, balance: Number(balance) || 0 })
                 });
             } catch (e) {
@@ -14311,9 +14475,6 @@ html.perf-low .pc-star { box-shadow: none; }
                     game: gameName,
                     itemAmount: amount,
                     price: price,
-                    // Provider cost snapshot at order time (for profit/margin
-                    // reporting in admin.html).
-                    cost: Number(cost) || 0,
                     // How many of this voucher/package are bundled into this
                     // single order (always 1 for a normal top-up order). The
                     // admin-side fulfillment flow reads this to know how many
@@ -14434,7 +14595,6 @@ html.perf-low .pc-star { box-shadow: none; }
                     game: gameName,
                     itemAmount: amount,
                     price: price,
-                    cost: Number(cost) || 0,
                     quantity: quantity || 1,
                     paymentMethod: 'Wallet Balance',
                     paidFromWallet: true,
@@ -17287,7 +17447,7 @@ html.perf-low .pc-star { box-shadow: none; }
         // replay for whichever stat cards are on screen right now.
         function hlsReplayVisible() {
             if (document.hidden) return;
-            ['hls-users', 'hls-products', 'hls-sales', 'hls-delivered'].forEach((id) => {
+            ['hls-direct', 'hls-vouchers', 'hls-users', 'hls-products', 'hls-sales', 'hls-delivered'].forEach((id) => {
                 const el = document.getElementById(id);
                 if (el && el._hlsVisible && el._hlsTarget != null) { el._hlsShown = 0; hlsRun(el, el._hlsTarget); }
             });
@@ -17326,6 +17486,15 @@ html.perf-low .pc-star { box-shadow: none; }
                 total += Array.isArray(g.packages) && g.packages.length ? g.packages.length : 1;
             });
             animateStatCount(el, total);
+            // Direct Top Up = games in the Top Up tab; Gift Cards & Vouchers = games in the Voucher tab
+            let direct = 0, vouchers = 0;
+            Object.values(RAW_GAMES || {}).forEach(g => {
+                if (!g) return;
+                if (isVoucherGame(g)) vouchers++;
+                else if (g.fulfillProvider !== 'software') direct++;
+            });
+            animateStatCount(document.getElementById('hls-direct'), direct);
+            animateStatCount(document.getElementById('hls-vouchers'), vouchers);
         }
         window.updateHomeProductsStat = updateHomeProductsStat;
         let homeLiveStatsLoadedAt = 0;
@@ -17342,14 +17511,15 @@ html.perf-low .pc-star { box-shadow: none; }
         async function loadHomeLiveStats() {
             updateHomeProductsStat(); // instant - reuses already-loaded local data, no extra read
             try {
-                const [usersSnap, salesSnap, deliveredSnap] = await Promise.all([
-                    getCountFromServer(collection(db, "users")),
-                    getCountFromServer(query(collection(db, "orders"), where("status", "==", "Success"))),
-                    getCountFromServer(query(collection(db, "walletTopups"), where("status", "==", "Completed")))
-                ]);
-                animateStatCount(document.getElementById('hls-users'), usersSnap.data().count);
-                animateStatCount(document.getElementById('hls-sales'), salesSnap.data().count);
-                animateStatCount(document.getElementById('hls-delivered'), deliveredSnap.data().count);
+                // Counts come from the Worker (edge-cached, counts only) - the browser
+                // can no longer read other customers' orders / top-ups directly.
+                const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+                const res = await fetch(`${base}/public-stats`);
+                const st = await res.json();
+                if (!st || !st.ok) throw new Error('stats unavailable');
+                animateStatCount(document.getElementById('hls-users'), st.users);
+                animateStatCount(document.getElementById('hls-sales'), st.sales);
+                animateStatCount(document.getElementById('hls-delivered'), st.delivered);
                 homeLiveStatsLoadedAt = Date.now();
                 updateHomeStatsTimestampLabel();
             } catch (error) {
