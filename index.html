@@ -10974,13 +10974,25 @@ html.perf-low .pc-star { box-shadow: none; }
         }
         window.animateBalance = animateBalance;
 
-        let walletBalanceListenerAttached = false;
-        function listenWalletBalance() {
-            if (walletBalanceListenerAttached) return;
-            walletBalanceListenerAttached = true;
+        // The listener is (re)attached whenever the Firebase Auth user changes (see
+        // onAuthStateChanged below) and retried after a permission error. Under the hardened
+        // firestore.rules a money-holding users/{id} doc can only be read by its signed-in
+        // owner, so a listener opened BEFORE the saved session is restored (or one that was
+        // opened while the balance was still 0) gets killed by Firestore and used to stay dead
+        // until a full reload - the balance then never moved after an admin top-up.
+        let walletBalanceUnsub = null;
+        let walletBalanceListenerKey = '';
+        let walletBalanceRetryTimer = null;
+        function listenWalletBalance(force) {
             const gid = window.getGuestId ? window.getGuestId() : null;
             if (!gid) return;
-            onSnapshot(doc(db, "users", gid), (snap) => {
+            const uid = (auth.currentUser && auth.currentUser.uid) || '';
+            const key = gid + '|' + uid;
+            if (!force && walletBalanceUnsub && walletBalanceListenerKey === key) return;
+            if (walletBalanceUnsub) { try { walletBalanceUnsub(); } catch (e) { /* ignore */ } walletBalanceUnsub = null; }
+            if (walletBalanceRetryTimer) { clearTimeout(walletBalanceRetryTimer); walletBalanceRetryTimer = null; }
+            walletBalanceListenerKey = key;
+            walletBalanceUnsub = onSnapshot(doc(db, "users", gid), (snap) => {
                 const data = snap.exists() ? snap.data() : {};
                 const bal = Number(data.walletBalance || 0);
                 currentWalletBalance = bal;
@@ -11019,8 +11031,15 @@ html.perf-low .pc-star { box-shadow: none; }
                 myFavoriteGames = Array.isArray(data.favoriteGames) ? data.favoriteGames : [];
                 renderFavoriteGamesRow();
                 updateFavoriteButtonState();
-            }, (error) => console.error('Wallet balance listener error:', error));
+            }, (error) => {
+                console.error('Wallet balance listener error:', error);
+                walletBalanceUnsub = null; // Firestore has already ended this listener
+                walletBalanceListenerKey = '';
+                if (walletBalanceRetryTimer) clearTimeout(walletBalanceRetryTimer);
+                walletBalanceRetryTimer = setTimeout(() => listenWalletBalance(true), 15000);
+            });
         }
+        window.listenWalletBalance = listenWalletBalance;
 
         // ---------- Favorite Games (My Favorites quick-access row) ----------
         // Stored as users/{gid}.favoriteGames: [gameId,...]. Kept in sync by
@@ -13256,6 +13275,7 @@ html.perf-low .pc-star { box-shadow: none; }
         setTimeout(markAuthResolved, 5000);
         onAuthStateChanged(auth, async (user) => {
             markAuthResolved();
+            try { listenWalletBalance(); } catch (e) { console.error('listenWalletBalance re-attach failed:', e); }
             // Catches a persisted Google session (returning device) whose
             // linked guest account was banned after the last time they
             // actually signed in - without this, they'd stay "signed in"
