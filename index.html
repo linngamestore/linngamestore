@@ -2194,15 +2194,40 @@
            in admin.html), so customers on the Voucher tab can tap straight
            through to the redeem page instead of hunting for it themselves. */
         .game-desc-redeem-btn {
-            position: relative; display: flex; align-items: center; justify-content: center; gap: 6px;
-            width: 100%; margin-top: 12px; padding: 11px 14px; border: none; border-radius: 11px;
-            background: linear-gradient(135deg, #9B5CF6, #7C3AED); color: #fff;
-            font-size: 13.5px; font-weight: 600; cursor: pointer;
-            box-shadow: 0 4px 14px -4px rgba(124,58,237,0.55);
+            position: relative; overflow: hidden; isolation: isolate;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: fit-content; min-width: 168px; max-width: 100%; margin: 12px auto 0; padding: 9px 46px 9px 16px; border-radius: 13px;
+            border: 1px solid rgba(255,255,255,0.55);
+            background: linear-gradient(135deg, rgba(167,112,255,0.95), rgba(99,102,241,0.92) 55%, rgba(79,70,229,0.95));
+            color: #fff; font-size: 13.5px; font-weight: 700; letter-spacing: 0.2px; cursor: pointer;
+            text-shadow: 0 1px 2px rgba(49,24,140,0.35);
+            box-shadow: 0 8px 18px -8px rgba(99,70,229,0.65), inset 0 1.5px 1px rgba(255,255,255,0.65), inset 0 -10px 16px rgba(49,24,140,0.28);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
         }
-        .game-desc-redeem-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
-        .game-desc-redeem-btn:active { transform: scale(0.97); box-shadow: 0 2px 8px -2px rgba(124,58,237,0.5); }
+        /* glass gloss on the upper half + a soft light sweep */
+        .game-desc-redeem-btn::before {
+            content: ''; position: absolute; left: 3px; right: 3px; top: 2px; height: 48%; z-index: -1; pointer-events: none;
+            border-radius: 11px 11px 16px 16px / 11px 11px 10px 10px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.04));
+        }
+        .game-desc-redeem-btn::after {
+            content: ''; position: absolute; top: 0; bottom: 0; left: -45%; width: 28%; z-index: -1; pointer-events: none;
+            transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            animation: redeemSweep 3.6s ease-in-out infinite;
+        }
+        @keyframes redeemSweep { 0%, 55% { left: -45%; } 100% { left: 130%; } }
+        .game-desc-redeem-btn .rb-lead { width: 16px; height: 16px; flex-shrink: 0; }
+        .game-desc-redeem-btn .rb-go {
+            position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+            width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.24); border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.5);
+        }
+        .game-desc-redeem-btn .rb-go svg { width: 14px; height: 14px; }
+        .game-desc-redeem-btn:active { transform: scale(0.97); box-shadow: 0 4px 12px -4px rgba(99,70,229,0.6), inset 0 1.5px 1px rgba(255,255,255,0.55), inset 0 -8px 14px rgba(49,24,140,0.3); }
+        html[data-theme="dark"] .game-desc-redeem-btn { border-color: rgba(255,255,255,0.22); box-shadow: 0 10px 26px -8px rgba(124,92,255,0.55), inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -10px 16px rgba(20,10,80,0.4); }
+        @media (prefers-reduced-motion: reduce) { .game-desc-redeem-btn::after { animation: none; display: none; } }
         /* "Open Game" button — shown wherever the admin has configured an app
            link for the game (Android package / iOS scheme, see appAndroidPackage
            / appIosScheme etc. on the game doc), so customers can jump straight
@@ -4837,6 +4862,7 @@ html.perf-low .pc-star { box-shadow: none; }
         html[data-theme="dark"] .wallet-amount-presets { background: rgba(255,255,255,0.07); }
         html[data-theme="dark"] .wallet-topup-amount-input { background: rgba(255,255,255,0.09); }
     </style>
+<style id="tg-iab-css">.in-app-browser .lg-tg-ov { pointer-events: none !important; }</style>
 <style id="order-badge-glass">
 /* Order / top-up status badges: glass pill (tinted translucent fill + thin hue border + outline icon) */
 .badge.badge-success, .badge.badge-warning, .badge.badge-processing, .badge.badge-danger {
@@ -6445,8 +6471,9 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 <p class="game-desc-text" id="detail-game-desc-text"></p>
                 <button type="button" class="game-desc-toggle" id="detail-game-desc-toggle" onclick="toggleGameDescExpand()" style="display:none;">Show more</button>
                 <button type="button" class="game-desc-redeem-btn" id="detail-game-desc-redeem-btn" onclick="openGameRedeemLink()" style="display:none;">
-                    <svg class="ui-icon"><use href="#icon-external-link"></use></svg>
+                    <svg class="ui-icon rb-lead"><use href="#icon-gift"></use></svg>
                     <span>Redeem Now</span>
+                    <i class="rb-go"><svg class="ui-icon"><use href="#icon-chevron-right"></use></svg></i>
                 </button>
                 <button type="button" class="game-open-app-btn" id="detail-game-desc-open-btn" onclick="openGameApp(selectedGameId)" style="display:none;">
                     <svg class="ui-icon"><use href="#icon-gamepad"></use></svg>
@@ -12886,7 +12913,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 await applyTelegramProfile(result.user, data.user);
             } catch (e) {
                 console.error('Telegram sign-in error:', e);
-                if (window.showToast) window.showToast('Telegram sign-in failed. Please try again.', 'fail');
+                if (window.showToast) window.showToast('Telegram sign-in failed (' + ((e && e.message) ? e.message : 'unknown error') + '). Please try again.', 'fail');
             }
         }
 
@@ -12927,6 +12954,44 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
         }
         window.renderTelegramWidgets = renderTelegramWidgets;
         renderTelegramWidgets();
+
+        // Facebook / Messenger / Instagram / Line in-app browsers cannot open Telegram's login popup,
+        // so the Telegram tile does nothing there. Detect them and send the visitor to a real browser instead.
+        const IN_APP_BROWSER = /FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|MicroMessenger/i.test(navigator.userAgent);
+        if (IN_APP_BROWSER) document.documentElement.classList.add('in-app-browser');
+        function openInExternalBrowser() {
+            const url = location.href.split('#')[0];
+            if (/Android/i.test(navigator.userAgent)) {
+                if (window.showToast) window.showToast('Telegram login အတွက် Chrome နဲ့ ပြန်ဖွင့်ပေးနေပါတယ်', 'info');
+                const u = new URL(url);
+                setTimeout(() => {
+                    location.href = 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+                }, 700);
+            } else if (window.showToast) {
+                window.showToast('Telegram login အတွက် ညာဘက်အပေါ် menu ကနေ "Open in Safari / Browser" ကို ရွေးပါ', 'info');
+            }
+        }
+        document.addEventListener('click', function (e) {
+            if (!IN_APP_BROWSER) return;
+            const tile = e.target && e.target.closest && e.target.closest('.lg-tg-tile');
+            if (!tile) return;
+            e.preventDefault();
+            openInExternalBrowser();
+        }, true);
+
+        // When the widget could not use a popup it returns here with #tgAuthResult=<base64url json>.
+        setTimeout(function () {
+            const m = location.hash.match(/tgAuthResult=([A-Za-z0-9\-_=%]+)/);
+            if (!m) return;
+            try {
+                let b = decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/');
+                while (b.length % 4) b += '=';
+                const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+                const data = JSON.parse(new TextDecoder().decode(bytes));
+                history.replaceState(null, '', location.pathname + location.search);
+                if (data && data.hash) completeTelegramSignIn('/auth/widget', data);
+            } catch (err) { console.error('tgAuthResult parse failed:', err); }
+        }, 800);
 
         // ---------------- Email OTP login (linnstore-otp-worker.js) ----------------
         // Separate, simpler Worker from the Google/Telegram Firebase-auth flow
