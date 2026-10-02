@@ -14642,6 +14642,20 @@ html.perf-low .pc-star { box-shadow: none; }
                 try {
                     const userSnap = await getDoc(doc(db, "users", guestId));
                     walletBalanceSeen = userSnap.exists() ? Number(userSnap.data().walletBalance || 0) : 0;
+                    // Ownership pre-check: firestore.rules + the Worker only accept a wallet order from the
+                    // login that OWNS this wallet. Tell the customer clearly BEFORE we try (and fail) to write.
+                    if (userSnap.exists() && walletBalanceSeen > 0 && auth.currentUser) {
+                        const ud = userSnap.data(), au = auth.currentUser;
+                        const em = String(au.email || '').toLowerCase();
+                        const owned = ud.authUid === au.uid
+                            || (ud.emailAuthUid && ud.emailAuthUid === au.uid)
+                            || (em && (String(ud.googleEmail || '').toLowerCase() === em || String(ud.facebookEmail || '').toLowerCase() === em));
+                        let linkedViaTg = false;
+                        if (!owned && String(au.uid).startsWith('tg_')) {
+                            try { const ls = await getDoc(doc(db, "telegramAccounts", au.uid)); linkedViaTg = ls.exists() && ls.data().guestId === guestId; } catch (e) { /* fall through */ }
+                        }
+                        if (!owned && !linkedViaTg) throw new Error('WALLET_NOT_LINKED');
+                    }
                     if (userSnap.exists() && userSnap.data().banned) {
                         window.showToast('Your account has been restricted. Contact support.', 'fail');
                         btnElement.innerText = originalText;
@@ -14722,7 +14736,11 @@ html.perf-low .pc-star { box-shadow: none; }
                     : error.message === 'INSUFFICIENT_BALANCE'
                     ? 'Your wallet balance is no longer enough for this order. Please top up.'
                     : error.message === 'NEEDS_GOOGLE_SIGNIN'
-                    ? 'Please sign in with Google to pay with your wallet.'
+                    ? 'Wallet နဲ့ ဝယ်ရန် Telegram / Google / Email နဲ့ Login အရင်ဝင်ပါ။'
+                    : error.message === 'WALLET_NOT_LINKED'
+                    ? 'ဤ Wallet ကို သင့် Login နဲ့ မချိတ်ရသေးပါ။ Support ကို ဆက်သွယ်ပြီး Telegram ID ချိတ်ပေးခိုင်းပါ။'
+                    : (error && (error.code === 'permission-denied' || /insufficient permissions/i.test(error.message || '')))
+                    ? 'Wallet ကို သင့် Login နဲ့ အတည်ပြုလို့ မရသေးပါ။ Telegram / Google ကို ပြန်ဝင်ပြီး ထပ်စမ်းပါ၊ မရသေးရင် Support ကို ဆက်သွယ်ပါ။'
                     : (error.message || 'Failed to place order! Check Connection.');
                 window.showToast(msg, 'fail');
                 btnElement.innerText = originalText;
