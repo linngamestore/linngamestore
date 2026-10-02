@@ -4405,14 +4405,22 @@ html[data-theme="dark"] .game-card .game-card-name {
     box-shadow: inset 0 0 0 1px rgba(168,85,247,0.65);
     color: #C99BFF;
 }
-/* Dark mode price pill: vivid red */
+/* Price pill stays GREEN in dark mode too; Cost (admin-tagged accounts only) is BLUE */
 html[data-theme="dark"] .package-card.type-topup .pc-price,
 html[data-theme="dark"] .package-card.type-currency .pc-price,
 html[data-theme="dark"] .package-card.type-software .pc-row-price {
-    background: rgba(255,59,59,0.18);
-    border-color: rgba(255,59,59,0.6);
-    color: #FF5252;
+    background: rgba(0,230,100,0.18);
+    border-color: rgba(0,230,100,0.6);
+    color: #1FEA75;
 }
+.package-card .pc-cost {
+    display: inline-block; margin-top: 4px; padding: 3px 6px; border-radius: 8px;
+    font-size: 11px; font-weight: 400; line-height: 1.3; letter-spacing: 0;
+    background: rgba(24,119,242,0.16); border: 1px solid rgba(24,119,242,0.55); color: #1670F0;
+}
+.package-card.type-currency .pc-cost { background: #1877F2; border-color: #fff; color: #fff; }
+html[data-theme="dark"] .package-card .pc-cost { background: rgba(59,130,246,0.2); border-color: rgba(96,165,250,0.65); color: #60A5FA; }
+html[data-theme="dark"] .package-card.type-currency .pc-cost { background: #1877F2; border-color: #fff; color: #fff; }
 /* Admin Online/Offline badge: a little bigger */
 .admin-status-bar { padding: 5px 13px; font-size: 12.5px; gap: 7px; }
 .admin-status-bar .admin-status-dot { width: 8px; height: 8px; }
@@ -9110,6 +9118,31 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             return url.toString();
         }
 
+        // Admin-tagged accounts (users/{id}.storeAdmin === true) see each package's COST next to
+        // the price. Costs live in the private gameCosts/{gameId} doc (same order as the game's
+        // packages array), so they are fetched only for admin accounts, per opened game.
+        window.currentGameCosts = null;
+        async function loadAdminCostsForGame(gameId) {
+            window.currentGameCosts = null;
+            if (!window.isStoreAdmin || !gameId) return;
+            try {
+                const snap = await window.getDoc(window.doc(window.db, 'gameCosts', gameId));
+                if (!snap.exists()) return;
+                const raw = Array.isArray(snap.data().costs) ? snap.data().costs : [];
+                const game = window.GAMES ? window.GAMES[gameId] : null;
+                const allPkgs = (game && Array.isArray(game.packages)) ? game.packages : [];
+                // Re-align to the store's filtered package list (malformed entries are dropped there).
+                const aligned = [];
+                allPkgs.forEach((pkg, i) => { if (pkg && typeof pkg === 'object') aligned.push(Number(raw[i]) || 0); });
+                if (gameId !== selectedGameId) return; // customer already left this game
+                window.currentGameCosts = aligned;
+                if (document.getElementById('detail-package-list') && window.currentStorePage === 'game-detail') renderDetailPackageList();
+            } catch (e) {
+                console.error('Admin cost load error (check firestore.rules for gameCosts):', e);
+            }
+        }
+        window.loadAdminCostsForGame = loadAdminCostsForGame;
+
         function openGameDetail(gameId) {
             if (window.__suppressNextCardClick) { window.__suppressNextCardClick = false; return; }
             const game = window.GAMES ? window.GAMES[gameId] : null;
@@ -9157,6 +9190,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             // package can never take down the whole list/page again.
             const gamePackages = (Array.isArray(game.packages) ? game.packages : []).filter(pkg => pkg && typeof pkg === 'object');
             window.currentGamePackages = gamePackages;
+            loadAdminCostsForGame(gameId);
             // Drives which price-card layout renderDetailPackageList uses:
             // voucher/giftcard games keep the gift-card style; every other
             // (direct top-up) game uses the plain product-card layout.
@@ -9403,8 +9437,9 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             }
 
             list.innerHTML = entries.map(({ pkg, i }, pos) => {
-                // Cost is no longer sent to the browser (private gameCosts collection).
-                const costHtml = '';
+                // Cost comes from the private gameCosts doc and is only loaded for admin-tagged accounts.
+                const costVal = (window.isStoreAdmin && Array.isArray(window.currentGameCosts)) ? window.currentGameCosts[i] : undefined;
+                const costHtml = costVal !== undefined ? `<div class="pc-cost">Cost ${Number(costVal).toLocaleString()} MMK</div>` : '';
                 const img = pkg.image || DEFAULT_PACKAGE_ICON;
                 const imgTag = `<img class="pc-img" src="${img}" alt="" loading="lazy" onerror="this.src='${DEFAULT_PACKAGE_ICON}'">`;
                 // Small corner stock badge, live from G2Bulk stock - only
@@ -11077,6 +11112,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 const nowAdmin = data.storeAdmin === true;
                 if (nowAdmin !== window.isStoreAdmin) {
                     window.isStoreAdmin = nowAdmin;
+                    if (nowAdmin) { if (typeof selectedGameId !== 'undefined' && selectedGameId && window.loadAdminCostsForGame) window.loadAdminCostsForGame(selectedGameId); } else { window.currentGameCosts = null; }
                     try { if (typeof window.renderDetailPackageList === 'function' && window.currentGamePackages && document.getElementById('detail-package-list')) window.renderDetailPackageList(); } catch (e) { /* not on a game page */ }
                 }
                 // Admin zeroed a wallet that had no history -> one-time warning (admin-written field).
