@@ -1051,33 +1051,9 @@
 
         /* Gemini-style colour glow around the LIVE bar — plays for ~5s right when the store opens, then fades out.
            Ring + soft blurred halo share one flowing Google-colour gradient (yellow / red / blue / green). */
-        .bullet-chat-wrapper.bc-glow {
-            --bc-grad: linear-gradient(90deg, #FBBC04 0%, #EA4335 22%, #4285F4 50%, #4285F4 62%, #34A853 82%, #FBBC04 100%);
-            position: relative; isolation: isolate; overflow: visible;
-        }
-        .bullet-chat-wrapper.bc-glow::before,
-        .bullet-chat-wrapper.bc-glow::after {
-            content: ''; position: absolute; inset: -2px; border-radius: 14px; pointer-events: none;
-            background: var(--bc-grad); background-size: 200% 100%;
-            opacity: 0;
-            animation: bcFlow 2.4s linear infinite, bcIn .5s ease-out forwards;
-        }
-        .bullet-chat-wrapper.bc-glow::before {
-            --bc-op: 1; padding: 2px; z-index: 1;
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-        }
-        .bullet-chat-wrapper.bc-glow::after { --bc-op: .55; z-index: -1; inset: -3px; filter: blur(9px); }
-        .bullet-chat-wrapper.bc-glow.bc-glow-out::before,
-        .bullet-chat-wrapper.bc-glow.bc-glow-out::after { animation: bcFlow 2.4s linear infinite, bcOut .6s ease-in forwards; }
-        @keyframes bcFlow { to { background-position: 200% 0; } }
-        @keyframes bcIn  { from { opacity: 0; } to { opacity: var(--bc-op, 1); } }
-        @keyframes bcOut { from { opacity: var(--bc-op, 1); } to { opacity: 0; } }
-        html.perf-low .bullet-chat-wrapper.bc-glow::after { display: none; }
-        @media (prefers-reduced-motion: reduce) {
-            .bullet-chat-wrapper.bc-glow::before, .bullet-chat-wrapper.bc-glow::after { animation: bcIn .5s ease-out forwards; }
-            .bullet-chat-wrapper.bc-glow.bc-glow-out::before, .bullet-chat-wrapper.bc-glow.bc-glow-out::after { animation: bcOut .6s ease-in forwards; }
+        .bullet-chat-wrapper.bc-glow { position: relative; overflow: visible; }
+        .bullet-chat-wrapper .bc-sparkle {
+            position: absolute; left: -16px; top: -16px; pointer-events: none; z-index: 3;
         }
 
         /* Content & Pages */
@@ -3520,6 +3496,18 @@
         }
         .idg-badge svg { width: 12px; height: 12px; display: block; }
         .idg[data-state="valid"] .idg-badge { transform: scale(1); }
+        /* No check-mark badge on the grid any more (green glow alone shows "valid"). */
+        .idg .idg-badge, .idg[data-state="valid"] .idg-badge { display: none !important; }
+        /* "ID not found" -> the whole grid (frame + both fields) turns a soft light red. */
+        .idg[data-state="invalid"] {
+            background: linear-gradient(135deg, rgba(254,226,226,.85), rgba(254,242,242,.55));
+            border-color: rgba(248,113,113,.45);
+            box-shadow: 0 0 0 4px rgba(248,113,113,.12), 0 8px 22px rgba(248,113,113,.16);
+        }
+        .idg[data-state="invalid"] .idg-field { background: linear-gradient(180deg, rgba(254,226,226,.8), rgba(254,205,211,.4)); border-color: rgba(248,113,113,.5); }
+        .idg[data-state="invalid"] input[type="text"] { color: #b42318; }
+        html[data-theme="dark"] .idg[data-state="invalid"] { background: rgba(248,113,113,.10); border-color: rgba(248,113,113,.35); box-shadow: 0 0 0 4px rgba(248,113,113,.10), 0 8px 22px rgba(127,29,29,.25); }
+        html[data-theme="dark"] .idg[data-state="invalid"] input[type="text"] { color: #fca5a5; }
         @keyframes idgScan { from { background-position: 200% 0; } to { background-position: -100% 0; } }
         @keyframes idgSweep { from { background-position: 170% 0; opacity: 1; } to { background-position: -70% 0; opacity: 0; } }
         @keyframes idgShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
@@ -4364,6 +4352,24 @@ html[data-theme="dark"] .lg-divider::before, html[data-theme="dark"] .lg-divider
     background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(232,240,255,.6)); box-shadow: 0 8px 20px rgba(70,100,180,.15), inset 0 1px 2px #fff; overflow: hidden; }
 html[data-theme="dark"] .lg-social-btn, html[data-theme="dark"] .lg-gis { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); box-shadow: 0 8px 20px rgba(0,0,10,.35); }
 .lg-social-btn:active { transform: scale(.95); }
+.lg-social-btn.gis-fallback { display: none; }
+/* Telegram tile: the real Telegram Login Widget iframe sits invisibly on top (scaled to cover the whole tile) */
+.lg-tg-tile { position: relative; width: 64px; height: 64px; border-radius: 22px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255,255,255,.95);
+    background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(232,240,255,.6)); box-shadow: 0 8px 20px rgba(70,100,180,.15), inset 0 1px 2px #fff; color: #229ED9; }
+html[data-theme="dark"] .lg-tg-tile { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); box-shadow: 0 8px 20px rgba(0,0,10,.35); }
+.lg-tg-tile > svg { width: 28px; height: 28px; pointer-events: none; }
+.lg-tg-ov { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0.01; z-index: 2; overflow: hidden; }
+.lg-tg-ov iframe { position: absolute !important; left: 0; top: 0; transform: scale(1.8); transform-origin: 0 0; }
+/* Onboarding screen = same full-page look as the Wallet login page */
+.onboarding-overlay.lg-onb { display: block; padding: 0; overflow: hidden; background: linear-gradient(180deg, #eef3ff 0%, #e4ecff 55%, #dfe8fb 100%); background-image: linear-gradient(180deg, #eef3ff 0%, #e4ecff 55%, #dfe8fb 100%); }
+html[data-theme="dark"] .onboarding-overlay.lg-onb { background: linear-gradient(180deg, #0f1a33 0%, #0b1530 60%, #091226 100%); background-image: linear-gradient(180deg, #0f1a33 0%, #0b1530 60%, #091226 100%); }
+.onboarding-overlay.lg-onb::before { display: none; }
+.lg-onb .lg-scroll { padding-top: calc(36px + env(safe-area-inset-top, 0px)); }
+.lg-onb .lg-title { margin-bottom: 4px; }
+/* Google's own button (real sign-in) rendered invisibly over a tile that matches the other social tiles,
+   so only ONE Google tile is visible instead of a clipped "Sign in as ..." box next to the G tile. */
+.lg-gis { position: relative; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><path fill='%23FFC107' d='M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z'/><path fill='%23FF3D00' d='M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z'/><path fill='%234CAF50' d='M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z'/><path fill='%231976D2' d='M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z'/></svg>"); background-repeat: no-repeat; background-position: center; background-size: 22px 22px; }
+.lg-gis > div, .lg-gis > iframe { position: absolute !important; left: 0; top: 0; width: 100% !important; height: 100% !important; opacity: 0.01; z-index: 2; overflow: hidden; }
 .lg-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .lg-tg { display: flex; align-items: center; justify-content: center; min-height: 64px; }
 .lg-tg:empty { display: none; }
@@ -4562,68 +4568,72 @@ html.perf-low .pc-star { box-shadow: none; }
          localStorage['linn_onboarded']='1' so it's skipped on every later
          visit. If a Google session already exists (returning device),
          onboarding completes immediately with no login step shown. -->
-    <div class="onboarding-overlay" id="onboarding-overlay" style="display:none;">
-        <div class="onboarding-card">
-            <div class="onboarding-logo" id="onboarding-logo">
-                <div class="skel" id="onboarding-logo-skeleton" style="position:absolute;inset:0;border-radius:20px;"></div>
-                <svg class="ui-icon" id="onboarding-logo-default-icon" style="width:32px;height:32px;color:var(--accent);display:none;"><use href="#icon-gamepad"></use></svg>
-                <img id="onboarding-logo-img" src="" alt="" style="display:none;" onerror="this.style.display='none';">
-            </div>
-            <div class="onboarding-logo-status" id="onboarding-logo-status">Connecting…</div>
-            <div class="onboarding-title">Linn Game Store</div>
-
-            <!-- Step 0: waiting to see if a session already exists, so a
-                 returning device doesn't flash the login step first. -->
-            <div class="onboarding-step" id="onboard-step-checking">
-                <span class="ld-ripple"><i></i><i></i></span>
-            </div>
-
-            <!-- Step 1: Google sign-in -->
-            <div class="onboarding-step" id="onboard-step-login" style="display:none;">
-                <div class="onboarding-welcome-sub">အသုံးပြုရန် Sign in ဝင်ပါ</div>
-                <div id="onboard-google-gis" class="gis-btn-slot"></div>
-                <button type="button" class="google-login-btn gis-fallback onboarding-primary-btn" id="onboard-google-btn" onclick="handleOnboardGoogleSignIn()">
-                    <svg width="18" height="18" viewBox="0 0 48 48">
-                        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
-                        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
-                        <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
-                        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/>
-                    </svg>
-                    <span id="onboard-google-btn-label">Continue with Google</span>
-                    <span class="onboarding-btn-arrow"><svg class="ui-icon" style="width:15px;height:15px;"><use href="#icon-chevron-right"></use></svg></span>
-                </button>
-
-                <div class="email-login-divider onboarding-divider"><span>or continue with</span></div>
-                <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">
-                    <div id="onboard-telegram-widget" style="display:flex;justify-content:center;"></div>
-                    <button type="button" class="onboarding-social-btn" id="onboard-facebook-btn" onclick="window.showToast('Facebook sign-in coming soon', 'info')" aria-label="Facebook sign-in coming soon" style="opacity:0.45;">
-                        <svg class="ui-icon" style="width:20px;height:20px;color:#1877F2;" fill="currentColor" stroke="none"><use href="#icon-facebook"></use></svg>
-                    </button>
+    <div class="onboarding-overlay lg-onb" id="onboarding-overlay" style="display:none;">
+        <span class="lg-blob lg-blob-a"></span><span class="lg-blob lg-blob-b"></span><span class="lg-blob lg-blob-c"></span>
+        <div class="lg-scroll">
+            <div class="lg-inner">
+                <div class="lg-logo" id="onboarding-logo" style="position:relative;">
+                    <div class="skel" id="onboarding-logo-skeleton" style="position:absolute;inset:0;border-radius:32px;"></div>
+                    <svg class="ui-icon" id="onboarding-logo-default-icon" style="width:44px;height:44px;color:var(--accent);display:none;"><use href="#icon-gamepad"></use></svg>
+                    <img id="onboarding-logo-img" src="" alt="" style="display:none;" onerror="this.style.display='none';">
                 </div>
-                <div id="onboard-email-step-input">
-                    <div class="onboarding-input-wrap">
-                        <svg class="ui-icon onboarding-input-icon" style="width:15px;height:15px;"><use href="#icon-mail"></use></svg>
-                        <input type="email" id="onboard-email-input" class="email-login-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                <div class="onboarding-logo-status" id="onboarding-logo-status">Connecting…</div>
+                <h1 class="lg-title">Linn Game Store</h1>
+
+                <!-- Step 0: waiting to see if a session already exists, so a
+                     returning device doesn't flash the login step first. -->
+                <div class="onboarding-step" id="onboard-step-checking">
+                    <span class="ld-ripple"><i></i><i></i></span>
+                </div>
+
+                <!-- Step 1: same login form as the Wallet login page -->
+                <div class="onboarding-step" id="onboard-step-login" style="display:none;">
+                    <p class="lg-sub">Sign in to continue</p>
+                    <p class="lg-sub-mm">အသုံးပြုရန် Sign in ဝင်ပါ။</p>
+
+                    <div id="onboard-email-step-input">
+                        <div class="lg-field">
+                            <svg class="ui-icon lg-field-icon"><use href="#icon-mail"></use></svg>
+                            <input type="email" id="onboard-email-input" placeholder="Email address" autocomplete="email" inputmode="email">
+                        </div>
+                        <button type="button" class="lg-primary" id="onboard-email-send-btn" onclick="handleSendEmailCode('onboard')">
+                            <span>Send code</span>
+                            <span class="lg-arrow"><svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-chevron-right"></use></svg></span>
+                        </button>
                     </div>
-                    <button type="button" class="google-login-btn" id="onboard-email-send-btn" onclick="handleSendEmailCode('onboard')">
-                        <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-bell"></use></svg>
-                        <span>Continue with Email</span>
-                    </button>
-                </div>
-                <div id="onboard-email-step-code" style="display:none;">
-                    <div class="onboarding-input-wrap">
-                        <svg class="ui-icon onboarding-input-icon" style="width:15px;height:15px;"><use href="#icon-lock"></use></svg>
-                        <input type="text" id="onboard-email-code-input" class="email-login-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('onboard');">
+                    <div id="onboard-email-step-code" style="display:none;">
+                        <div class="lg-field">
+                            <svg class="ui-icon lg-field-icon"><use href="#icon-lock"></use></svg>
+                            <input type="text" id="onboard-email-code-input" placeholder="6-digit code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) handleVerifyEmailCode('onboard');">
+                        </div>
+                        <button type="button" class="lg-primary" id="onboard-email-verify-btn" onclick="handleVerifyEmailCode('onboard')">
+                            <span>Verify code</span>
+                            <span class="lg-arrow"><svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-chevron-right"></use></svg></span>
+                        </button>
+                        <button type="button" class="lg-resend" id="onboard-email-resend-btn" onclick="handleSendEmailCode('onboard', true)">Resend code</button>
                     </div>
-                    <button type="button" class="google-login-btn" id="onboard-email-verify-btn" onclick="handleVerifyEmailCode('onboard')">
-                        <span>Verify Code</span>
-                    </button>
-                    <button type="button" class="email-login-resend" id="onboard-email-resend-btn" onclick="handleSendEmailCode('onboard', true)">Resend code</button>
-                </div>
 
-                <button type="button" class="onboarding-guest-btn" id="onboard-guest-btn" onclick="handleOnboardGuestContinue()">
-                    Continue as Guest<br><span style="font-size:11.5px;opacity:.75;">ဧည့်သည်အဖြစ် ဆက်လက်ရန်</span>
-                </button>
+                    <div class="lg-divider"><span>or continue with</span></div>
+                    <div class="lg-social">
+                        <div id="onboard-google-gis" class="gis-btn-slot lg-gis"></div>
+                        <button type="button" class="lg-social-btn gis-fallback" id="onboard-google-btn" onclick="handleOnboardGoogleSignIn()" aria-label="Continue with Google">
+                            <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+                            <span id="onboard-google-btn-label" class="lg-sr">Continue with Google</span>
+                        </button>
+                        <button type="button" class="lg-social-btn" id="onboard-facebook-btn" onclick="window.showToast('Facebook sign-in coming soon', 'info')" aria-label="Facebook sign-in coming soon" style="opacity:0.45;">
+                            <svg class="ui-icon" style="width:26px;height:26px;color:#1877F2;" fill="currentColor" stroke="none"><use href="#icon-facebook"></use></svg>
+                        </button>
+                        <div class="lg-tg-tile" aria-label="Continue with Telegram">
+                            <svg class="ui-icon" fill="currentColor" stroke="none"><use href="#icon-telegram-filled"></use></svg>
+                            <div id="onboard-telegram-widget" class="lg-tg-ov"></div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="onboarding-guest-btn" id="onboard-guest-btn" onclick="handleOnboardGuestContinue()" style="margin-top:26px;">
+                        Continue as Guest<br><span style="font-size:11.5px;opacity:.75;">ဧည့်သည်အဖြစ် ဆက်လက်ရန်</span>
+                    </button>
+                    <p class="lg-foot">PLAY &bull; COMPETE &bull; GROW TOGETHER</p>
+                </div>
             </div>
         </div>
     </div>
@@ -5292,7 +5302,10 @@ html.perf-low .pc-star { box-shadow: none; }
                             <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
                             <span id="wallet-gate-google-btn-label" class="lg-sr">Continue with Google</span>
                         </button>
-                        <div id="wallet-gate-telegram-widget" class="lg-tg"></div>
+                        <div class="lg-tg-tile" aria-label="Continue with Telegram">
+                            <svg class="ui-icon" fill="currentColor" stroke="none"><use href="#icon-telegram-filled"></use></svg>
+                            <div id="wallet-gate-telegram-widget" class="lg-tg-ov"></div>
+                        </div>
                     </div>
                     <p class="lg-foot">PLAY &bull; COMPETE &bull; GROW TOGETHER</p>
                 </div>
@@ -5664,7 +5677,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 </div>
                 <div class="collapsible-body" id="account-body">
                     <div class="google-account-card" id="google-account-signedout">
-                        <div id="google-signin-gis" class="gis-btn-slot" style="display:flex;justify-content:center;"></div>
+                        <div id="google-signin-gis" class="gis-btn-slot lg-gis" style="margin:0 auto;"></div>
                         <div id="profile-telegram-widget" style="margin-top:10px;display:flex;justify-content:center;"></div>
                         <button type="button" class="google-login-btn gis-fallback" id="google-signin-btn" onclick="handleGoogleSignIn()">
                             <svg width="18" height="18" viewBox="0 0 48 48">
@@ -5765,7 +5778,7 @@ html.perf-low .pc-star { box-shadow: none; }
                             <button type="button" class="link-connect-btn" id="link-row-google-btn" onclick="toggleLinkWidget('google')">ချိတ်ဆက်မည်</button>
                         </div>
                         <div id="link-google-widget-area" style="display:none;margin:8px 0 4px;justify-content:center;">
-                            <div id="link-google-gis" class="gis-btn-slot" style="display:flex;justify-content:center;"></div>
+                            <div id="link-google-gis" class="gis-btn-slot lg-gis" style="margin:0 auto;"></div>
                             <button type="button" class="google-login-btn gis-fallback" id="link-google-btn" style="display:none;" onclick="handleGoogleSignIn('link-google-btn')">
                                 <svg width="18" height="18" viewBox="0 0 48 48">
                                     <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
@@ -7957,6 +7970,7 @@ html.perf-low .pc-star { box-shadow: none; }
             clearTimeout(ncTimer);
             ncRunId++;
             ncShownAt = null;
+            ncSig = '';
             const result = document.getElementById('nc-result');
             result.style.display = 'none';
             result.innerHTML = '';
@@ -7973,14 +7987,12 @@ html.perf-low .pc-star { box-shadow: none; }
         }
         window.ncOnGameChange = ncOnGameChange;
 
+        let ncSig = ''; // game|id|server of the check that is running or already on screen
         function ncOnFieldChange() {
             const key = document.getElementById('nc-game').value;
             const entries = ncGroups[key];
             const result = document.getElementById('nc-result');
-            clearTimeout(ncTimer);
-            ncRunId++;
-            ncShownAt = null;
-            if (!entries) { result.style.display = 'none'; return; }
+            if (!entries) { clearTimeout(ncTimer); ncRunId++; ncShownAt = null; ncSig = ''; result.style.display = 'none'; return; }
             const idField = document.getElementById('nc-player-id');
             const serverField = document.getElementById('nc-server-id');
             // "123456789 (7891)" pasted format: bracketed number is the server/zone ID.
@@ -7992,10 +8004,19 @@ html.perf-low .pc-star { box-shadow: none; }
             const needsServer = entries.some(g => g.serverIdRequired !== false);
             const playerId = idField.value.trim();
             const serverId = serverField.value.trim();
+            const sig = key + '|' + playerId + '|' + serverId;
+            // Same input as the check already running / shown: a repeat event must not wipe the
+            // result and start over (that was the "info shows, vanishes, shows again" flicker).
+            if (sig === ncSig && result.innerHTML) return;
+            clearTimeout(ncTimer);
+            ncRunId++;
+            ncShownAt = null;
+            ncSig = '';
             if (!playerId || (needsServer && !serverId)) { result.style.display = 'none'; result.innerHTML = ''; return; }
+            ncSig = sig;
             result.innerHTML = `<p class="id-checking-text">${ncEsc(t('checking_id_text'))}</p>`;
             result.style.display = 'flex';
-            ncTimer = setTimeout(ncRunCheck, 700);
+            ncTimer = setTimeout(ncRunCheck, 450);
         }
         window.ncOnFieldChange = ncOnFieldChange;
 
@@ -8016,7 +8037,20 @@ html.perf-low .pc-star { box-shadow: none; }
         }
 
         // One provider check for one game entry -> { outcome: 'valid'|'invalid'|'unknown', name, geo }
-        async function ncCheckEntry(g, playerId, serverId) {
+        const ncCheckCache = new Map();
+        function ncCheckEntry(g, playerId, serverId) {
+            const prov = g.g2bulkCode ? 'g:' + g.g2bulkCode : (g.fazercardCategoryId ? 'f:' + g.fazercardCategoryId : '');
+            const sid = g.serverIdRequired !== false ? serverId : '';
+            const key = prov + '|' + playerId + '|' + sid;
+            const hit = ncCheckCache.get(key);
+            if (hit && Date.now() - hit.t < 120000) return hit.p;   // same ID re-checked / region entries sharing one provider game
+            const p = ncCheckEntryRaw(g, playerId, serverId);
+            ncCheckCache.set(key, { t: Date.now(), p });
+            p.then(r => { if (!r || r.outcome === 'unknown') ncCheckCache.delete(key); }, () => ncCheckCache.delete(key));
+            if (ncCheckCache.size > 60) ncCheckCache.delete(ncCheckCache.keys().next().value);
+            return p;
+        }
+        async function ncCheckEntryRaw(g, playerId, serverId) {
             const sid = g.serverIdRequired !== false ? serverId : '';
             let outcome = 'unknown', name = null, geo = {};
             let reason = '';
@@ -8060,6 +8094,7 @@ html.perf-low .pc-star { box-shadow: none; }
             clearTimeout(ncTimer);
             ncRunId++;
             ncShownAt = null;
+            ncSig = '';
             const result = document.getElementById('nc-result');
             if (result) { result.style.display = 'none'; result.innerHTML = ''; }
             if (clearInputs) {
@@ -8137,8 +8172,10 @@ html.perf-low .pc-star { box-shadow: none; }
         // adjustments right after typing don't close it by accident.
         window.addEventListener('scroll', () => {
             if (ncShownAt === null || window.currentStorePage !== 'name-check') return;
-            if (Date.now() - ncShownAt < 800) return;
-            if (Math.abs(window.scrollY - ncShownScrollY) > 50) ncDismissResult(false);
+            if (Date.now() - ncShownAt < 1500) return;
+            const ae = document.activeElement;
+            if (ae && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;   // keyboard open: viewport shifts aren't a real scroll
+            if (Math.abs(window.scrollY - ncShownScrollY) > 120) ncDismissResult(false);
         }, { passive: true });
         // Entering the Name Check page scrolls to the top; re-baseline so that alone doesn't count as a scroll.
         window.ncResetScrollBaseline = () => {
@@ -8146,6 +8183,9 @@ html.perf-low .pc-star { box-shadow: none; }
         };
 
         async function ncRunCheck() {
+            try { await ncRunCheckInner(); } catch (e) { console.error('Name check error:', e); ncSig = ''; }
+        }
+        async function ncRunCheckInner() {
             const myRun = ++ncRunId;
             const key = document.getElementById('nc-game').value;
             const entries = ncGroups[key];
@@ -8155,9 +8195,17 @@ html.perf-low .pc-star { box-shadow: none; }
             const serverId = serverEl.value.trim();
             const serverLabel = serverEl.tagName === 'SELECT' ? (serverEl.options[serverEl.selectedIndex]?.text || serverId) : serverId;
             if (!playerId) return;
-            const settled = await Promise.all(entries.map(g =>
-                ncCheckEntry(g, playerId, serverId).catch(() => ({ outcome: 'unknown' })).then(r => ({ g, r }))
-            ));
+            const settled = [];
+            await new Promise(resolve => {
+                let pending = entries.length;
+                entries.forEach(g => {
+                    ncCheckEntry(g, playerId, serverId).catch(() => ({ outcome: 'unknown' })).then(r => {
+                        settled.push({ g, r });
+                        if (r && r.outcome === 'valid' && r.name) resolve();   // first good answer is enough - show it now
+                        if (--pending === 0) resolve();
+                    });
+                });
+            });
             if (myRun !== ncRunId) return; // a newer edit/selection superseded this check
             const box = document.getElementById('nc-result');
             box.innerHTML = '';
@@ -8180,7 +8228,7 @@ html.perf-low .pc-star { box-shadow: none; }
             valid.forEach(({ g, r }) => {
                 let region = pcRegionLabel(r.geo.region, g.serverName);
                 if (r.geo.country) region += ' · ' + r.geo.country;
-                const dedupe = r.name + '|' + region;
+                const dedupe = String(r.name).trim().toLowerCase();
                 if (seen.has(dedupe)) return;
                 seen.add(dedupe);
                 const card = buildPlayerDetailCard(r.name, region, (serverLabel && g.serverIdRequired !== false) ? serverLabel : '', playerId);
@@ -11552,7 +11600,7 @@ html.perf-low .pc-star { box-shadow: none; }
         (function waitForGis(attemptsLeft) {
             if (initGisSignIn()) return;
             if (attemptsLeft <= 0) {
-                document.querySelectorAll('.gis-fallback').forEach((el) => { el.style.display = ''; });
+                document.querySelectorAll('.gis-fallback').forEach((el) => { el.style.display = 'flex'; });
                 document.querySelectorAll('.gis-btn-slot').forEach((el) => { el.style.display = 'none'; });
                 return;
             }
@@ -12649,6 +12697,13 @@ html.perf-low .pc-star { box-shadow: none; }
                 const el = document.getElementById('onboard-step-' + s);
                 if (el) el.style.display = (s === step) ? 'block' : 'none';
             });
+            if (step === 'login') {
+                setTimeout(() => {
+                    const w = document.getElementById('onboard-telegram-widget');
+                    const f = w && w.querySelector('iframe');
+                    if (w && f && !f.offsetWidth) { w.innerHTML = ''; delete w.dataset.tgRendered; renderTelegramWidgetInto('onboard-telegram-widget'); }
+                }, 700);
+            }
         }
 
         function handleOnboardAuthState(user) {
@@ -14156,11 +14211,97 @@ html.perf-low .pc-star { box-shadow: none; }
             const w = document.getElementById('bullet-chat-wrapper');
             if (!w || !w.classList.contains('show') || w.classList.contains('home-hidden')) return;
             bulletGlowStarted = true;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            // Colourful sparkle dust (Google colours) that pops off the edge of the bar and drifts
+            // outward while twinkling — individual particles, no continuous line/ring.
+            const PAD = 16, COLORS = ['#FBBC04', '#EA4335', '#4285F4', '#34A853', '#A142F4'];
+            const bw = w.offsetWidth, bh = w.offsetHeight;
+            if (!bw || !bh) return;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const cv = document.createElement('canvas');
+            cv.className = 'bc-sparkle';
+            cv.width = (bw + PAD * 2) * dpr; cv.height = (bh + PAD * 2) * dpr;
+            cv.style.width = (bw + PAD * 2) + 'px'; cv.style.height = (bh + PAD * 2) + 'px';
             w.classList.add('bc-glow');
-            setTimeout(() => {
-                w.classList.add('bc-glow-out');
-                setTimeout(() => w.classList.remove('bc-glow', 'bc-glow-out'), 650);
-            }, BULLET_GLOW_MS);
+            w.appendChild(cv);
+            const ctx = cv.getContext('2d');
+            ctx.scale(dpr, dpr);
+
+            // Random point on the bar's rounded-rect outline + its outward normal
+            const R = Math.min(12, bh / 2);
+            const segs = [bw - 2 * R, Math.PI * R / 2, bh - 2 * R, Math.PI * R / 2, bw - 2 * R, Math.PI * R / 2, bh - 2 * R, Math.PI * R / 2];
+            const total = segs.reduce((a, b) => a + b, 0);
+            const edgePoint = () => {
+                let t = Math.random() * total, i = 0;
+                while (i < segs.length - 1 && t > segs[i]) { t -= segs[i]; i++; }
+                const f = segs[i] ? t / segs[i] : 0;
+                const x0 = PAD, y0 = PAD, x1 = PAD + bw, y1 = PAD + bh;
+                switch (i) {
+                    case 0: return { x: x0 + R + f * (bw - 2 * R), y: y0, nx: 0, ny: -1 };
+                    case 1: { const a = -Math.PI / 2 + f * Math.PI / 2; return { x: x1 - R + Math.cos(a) * R, y: y0 + R + Math.sin(a) * R, nx: Math.cos(a), ny: Math.sin(a) }; }
+                    case 2: return { x: x1, y: y0 + R + f * (bh - 2 * R), nx: 1, ny: 0 };
+                    case 3: { const a = f * Math.PI / 2; return { x: x1 - R + Math.cos(a) * R, y: y1 - R + Math.sin(a) * R, nx: Math.cos(a), ny: Math.sin(a) }; }
+                    case 4: return { x: x1 - R - f * (bw - 2 * R), y: y1, nx: 0, ny: 1 };
+                    case 5: { const a = Math.PI / 2 + f * Math.PI / 2; return { x: x0 + R + Math.cos(a) * R, y: y1 - R + Math.sin(a) * R, nx: Math.cos(a), ny: Math.sin(a) }; }
+                    case 6: return { x: x0, y: y1 - R - f * (bh - 2 * R), nx: -1, ny: 0 };
+                    default: { const a = Math.PI + f * Math.PI / 2; return { x: x0 + R + Math.cos(a) * R, y: y0 + R + Math.sin(a) * R, nx: Math.cos(a), ny: Math.sin(a) }; }
+                }
+            };
+
+            const lowPerf = document.documentElement.classList.contains('perf-low');
+            const MAX = lowPerf ? 28 : 60, PER_SEC = lowPerf ? 26 : 55;
+            const parts = [];
+            const t0 = performance.now();
+            let last = t0, acc = 0;
+            const frame = (now) => {
+                const dt = Math.min(0.05, (now - last) / 1000); last = now;
+                const emitting = now - t0 < BULLET_GLOW_MS;
+                if (emitting) {
+                    acc += dt * PER_SEC;
+                    while (acc >= 1 && parts.length < MAX) {
+                        acc -= 1;
+                        const p = edgePoint();
+                        const sp = 6 + Math.random() * 14;
+                        parts.push({
+                            x: p.x, y: p.y,
+                            vx: p.nx * sp + (Math.random() - 0.5) * 6,
+                            vy: p.ny * sp + (Math.random() - 0.5) * 6 - 2,
+                            r: 0.7 + Math.random() * 1.7,
+                            life: 0, max: 0.9 + Math.random() * 1.1,
+                            tw: Math.random() * 6.28, c: COLORS[(Math.random() * COLORS.length) | 0],
+                            star: Math.random() < 0.3
+                        });
+                    }
+                    acc = Math.min(acc, 3);
+                }
+                ctx.clearRect(0, 0, bw + PAD * 2, bh + PAD * 2);
+                for (let i = parts.length - 1; i >= 0; i--) {
+                    const p = parts[i];
+                    p.life += dt;
+                    if (p.life >= p.max) { parts.splice(i, 1); continue; }
+                    p.x += p.vx * dt; p.y += p.vy * dt;
+                    const k = p.life / p.max;
+                    const a = Math.sin(Math.PI * k) * (0.65 + 0.35 * Math.sin(p.tw + p.life * 14));
+                    ctx.globalAlpha = Math.max(0, a) * 0.28;
+                    ctx.fillStyle = p.c;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 2.4, 0, 6.2832); ctx.fill(); // soft halo
+                    ctx.globalAlpha = Math.max(0, a);
+                    if (p.star) { // tiny 4-point sparkle
+                        const s = p.r * 2.2;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y - s); ctx.quadraticCurveTo(p.x, p.y, p.x + s, p.y);
+                        ctx.quadraticCurveTo(p.x, p.y, p.x, p.y + s); ctx.quadraticCurveTo(p.x, p.y, p.x - s, p.y);
+                        ctx.quadraticCurveTo(p.x, p.y, p.x, p.y - s); ctx.fill();
+                    } else {
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+                    }
+                }
+                ctx.globalAlpha = 1;
+                if (emitting || parts.length) requestAnimationFrame(frame);
+                else { cv.remove(); w.classList.remove('bc-glow'); }
+            };
+            requestAnimationFrame(frame);
         }
         window.startBulletGlow = startBulletGlow;
 
@@ -15277,17 +15418,99 @@ html.perf-low .pc-star { box-shadow: none; }
             ctx.restore();
 
             canvas.toBlob(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `receipt-${(providerOrderId || data.id || index)}.png`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
+                if (!blob) { window.showToast('Could not create the receipt image.', 'fail'); return; }
+                showReceiptPreview(blob, `receipt-${(providerOrderId || data.id || index)}.png`);
             }, 'image/png');
         }
-        window.downloadOrderReceipt = downloadOrderReceipt;
+        window.downloadOrderReceipt = async function (index) {
+            try { await downloadOrderReceipt(index); }
+            catch (e) { console.error('Receipt error:', e); window.showToast('Could not create the receipt image.', 'fail'); }
+        };
+
+        // ---------- Reliable image save for phones ----------
+        // Plain <a download> + an immediately-revoked blob URL silently does nothing in many
+        // mobile browsers (iOS Safari, Facebook/Telegram/Messenger in-app browsers, some
+        // Firefox/Android builds). Order of attempts: Web Share sheet (in-app/iOS) ->
+        // anchor download with a delayed revoke -> preview overlay where the image can be
+        // long-pressed and saved.
+        function isRestrictedDownloadEnv() {
+            const ua = navigator.userAgent || '';
+            const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|Telegram|Messenger|; wv\)/i.test(ua);
+            return ios || inApp;
+        }
+        // Review step: shows the finished receipt first; the person then taps Cancel (discard)
+        // or Download Receipt (actually saves / opens the share sheet).
+        let rcPreviewState = { blob: null, filename: '', url: null };
+        function closeReceiptPreview() {
+            const ov = document.getElementById('rc-preview-overlay');
+            if (ov) ov.classList.remove('show');
+            if (rcPreviewState.url) { URL.revokeObjectURL(rcPreviewState.url); rcPreviewState.url = null; }
+            rcPreviewState.blob = null;
+        }
+        function confirmReceiptDownload() {
+            if (!rcPreviewState.blob) return;
+            deliverPngBlob(rcPreviewState.blob, rcPreviewState.filename, true);
+        }
+        window.closeReceiptPreview = closeReceiptPreview;
+        window.confirmReceiptDownload = confirmReceiptDownload;
+        function showReceiptPreview(blob, filename) {
+            let ov = document.getElementById('rc-preview-overlay');
+            if (!ov) {
+                ov = document.createElement('div');
+                ov.id = 'rc-preview-overlay';
+                ov.className = 'modal-overlay';
+                ov.onclick = (e) => { if (e.target === ov) closeReceiptPreview(); };
+                ov.innerHTML = '<div class="modal-box"><div class="modal-header"><h3>Review Receipt</h3>'
+                    + '<div class="modal-close" onclick="closeReceiptPreview()">'
+                    + '<svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg></div></div>'
+                    + '<div class="modal-body">'
+                    + '<img id="rc-preview-img" alt="Receipt" style="width:100%;height:auto;border-radius:10px;display:block;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;">'
+                    + '<div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap;">'
+                    + '<button type="button" class="btn" style="padding:9px 18px;background:var(--surface-alt);color:var(--text);border:1px solid var(--border);" onclick="closeReceiptPreview()">Cancel</button>'
+                    + '<button type="button" class="btn btn-primary" style="padding:9px 18px;display:inline-flex;align-items:center;gap:8px;" onclick="confirmReceiptDownload()">'
+                    + '<svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-download"></use></svg><span>Download Receipt</span></button>'
+                    + '</div></div></div>';
+                document.body.appendChild(ov);
+            }
+            if (rcPreviewState.url) URL.revokeObjectURL(rcPreviewState.url);
+            rcPreviewState = { blob, filename, url: URL.createObjectURL(blob) };
+            document.getElementById('rc-preview-img').src = rcPreviewState.url;
+            ov.classList.add('show');
+        }
+        async function deliverPngBlob(blob, filename, fromPreview) {
+            try {
+                const url = URL.createObjectURL(blob);
+                if (isRestrictedDownloadEnv()) {
+                    try {
+                        const file = new File([blob], filename, { type: 'image/png' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({ files: [file], title: filename });
+                            return;
+                        }
+                    } catch (e) {
+                        if (e && e.name === 'AbortError') return; // user closed the share sheet
+                    }
+                    if (!fromPreview) { showReceiptPreview(blob, filename); return; }
+                    // Already in the review screen and Share isn't available: try a normal download,
+                    // and remind that the image above can be long-pressed to save.
+                    window.showToast('ပုံကို ဖိထားပြီး Save image နှိပ်ပါ', 'success');
+                }
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.rel = 'noopener';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { a.remove(); }, 1000);
+                setTimeout(() => { URL.revokeObjectURL(url); }, 60000);
+            } catch (e) {
+                console.error('Receipt save error:', e);
+                window.showToast('Could not save the receipt image.', 'fail');
+            }
+        }
+        window.deliverPngBlob = deliverPngBlob;
 
         // ---------- Minimal QR encoder (byte mode, ECC level M, versions 1-10) ----------
         // Self-contained so the Verified Receipt needs no CDN. Returns a boolean[][]
@@ -15674,9 +15897,7 @@ html.perf-low .pc-star { box-shadow: none; }
             if (!vrState.blob || !vrState.data) return;
             const d = vrState.data;
             const id = d.g2bulkOrderId || d.jcplaysOrderId || d.fazercardOrderId || d.id || 'order';
-            const a = document.createElement('a');
-            a.href = vrState.url; a.download = `verified-receipt-${id}-${vrState.theme}.png`;
-            document.body.appendChild(a); a.click(); a.remove();
+            deliverPngBlob(vrState.blob, `verified-receipt-${id}-${vrState.theme}.png`);
         }
         window.openVerifiedReceipt = openVerifiedReceipt;
         window.setVerifiedReceiptTheme = setVerifiedReceiptTheme;
