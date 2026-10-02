@@ -4808,6 +4808,10 @@ html.perf-low .pc-star { box-shadow: none; }
         /* Free roaming: while strolling across the screen the robot never blocks taps (pointer-events none) and ignores the edge-hiding transforms. */
         .social-fab.fab-wander { transform: none !important; opacity: 1 !important; pointer-events: none !important;
             transition: left 1.7s cubic-bezier(.45,.05,.3,1), bottom 1.7s cubic-bezier(.45,.05,.3,1), transform .4s ease, opacity .35s ease; }
+    
+        /* Preset amount box: fixed 3-row height (it was being squeezed flat by the flex modal body) */
+        .wallet-amount-presets { flex: 0 0 auto !important; height: 158px !important; min-height: 158px !important; max-height: 158px !important; box-sizing: border-box; grid-auto-rows: 40px; align-content: start; }
+        .wallet-amount-presets .wallet-preset-chip { min-height: 40px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
