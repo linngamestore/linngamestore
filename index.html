@@ -5505,12 +5505,11 @@ html.perf-low .pc-star { box-shadow: none; }
                  authenticated via Telegram/Google/Email yet - Wallet needs a
                  real linked account so balance/history follow them across
                  devices. Toggled by renderWalletAuthGate(). -->
-            <div id="wallet-login-required" style="display:none;text-align:center;padding:70px 20px 40px;flex-direction:column;align-items:center;gap:14px;">
-                <svg class="ui-icon" style="width:38px;height:38px;opacity:.5;"><use href="#icon-lock"></use></svg>
-                <p style="font-size:13.5px;color:var(--text-secondary);line-height:1.5;margin:0;max-width:260px;">
-                    Wallet ကို အသုံးပြုရန် Login ဝင်ရပါမည်။
+            <div id="wallet-login-required" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin:0 0 14px;border-radius:14px;background:var(--card-bg, rgba(127,127,127,.1));">
+                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:0;">
+                    Wallet နဲ့ ဝယ်ရန်နှင့် Top Up လုပ်ရန် Login ဝင်ပါ။
                 </p>
-                <button type="button" class="btn wallet-login-glass-btn" style="width:100%;max-width:260px;" onclick="openWalletAuthGate()">Login</button>
+                <button type="button" class="btn wallet-login-glass-btn" style="flex-shrink:0;padding:8px 18px;" onclick="openWalletAuthGate()">Login</button>
             </div>
 
             <div id="wallet-authed-content">
@@ -5583,6 +5582,10 @@ html.perf-low .pc-star { box-shadow: none; }
                     <p class="lg-sub-mm">Wallet ကို အသုံးပြုရန် Login ဝင်ရန် လိုအပ်ပါသည်။</p>
 
                     <div id="wallet-gate-email-step-input">
+                        <div class="lg-field">
+                            <svg class="ui-icon lg-field-icon"><use href="#icon-user"></use></svg>
+                            <input type="text" id="wallet-gate-email-name-input" placeholder="Name / နာမည်" autocomplete="name" maxlength="40">
+                        </div>
                         <div class="lg-field">
                             <svg class="ui-icon lg-field-icon"><use href="#icon-mail"></use></svg>
                             <input type="email" id="wallet-gate-email-input" placeholder="Email address" autocomplete="email" inputmode="email">
@@ -7287,9 +7290,9 @@ html.perf-low .pc-star { box-shadow: none; }
             // Wallet top-up history: only needed on the Wallet page, and only
             // once signed in (signed-out visitors see just the Login gate,
             // nothing to subscribe to yet).
-            if (pageId === 'wallet' && window.isCustomerAuthenticated && window.isCustomerAuthenticated() && window.listenWalletTopups) window.listenWalletTopups();
+            if (pageId === 'wallet' && window.listenWalletTopups) window.listenWalletTopups();
             else if (window.stopListenWalletTopups) window.stopListenWalletTopups();
-            if (pageId === 'wallet' && window.isCustomerAuthenticated && window.isCustomerAuthenticated() && window.listenWalletTxns) window.listenWalletTxns();
+            if (pageId === 'wallet' && window.listenWalletTxns) window.listenWalletTxns();
             else if (window.stopListenWalletTxns) window.stopListenWalletTxns();
             // Payment methods: needed wherever a payment-method picker or the
             // wallet top-up modal can appear - game-detail's checkout, and the
@@ -9504,6 +9507,11 @@ html.perf-low .pc-star { box-shadow: none; }
 
         // ---------- Pay with Wallet vs Pay with Kpay/Wave/etc. ----------
         function choosePaymentType(type) {
+            if (type === 'wallet' && !(window.canPayWithWallet && window.canPayWithWallet())) {
+                if (window.showToast) window.showToast('Wallet နဲ့ ဝယ်ရန် Login ဝင်ပါ။ မဝင်ဘဲ Payment နဲ့ ဝယ်နိုင်ပါတယ်။', 'fail');
+                if (window.openWalletAuthGate) window.openWalletAuthGate();
+                type = 'payment';
+            }
             selectedPaymentType = type;
             document.querySelectorAll('#detail-pay-type-tabs .pay-type-tab').forEach(el => el.classList.toggle('active', el.dataset.type === type));
 
@@ -11243,6 +11251,9 @@ html.perf-low .pc-star { box-shadow: none; }
             return false;
         }
         window.isCustomerAuthenticated = isCustomerAuthenticated;
+        // Paying an order FROM the wallet needs a real Firebase session
+        // (Google / Telegram) - firestore.rules + Worker check authUid.
+        window.canPayWithWallet = function () { return !!auth.currentUser; };
 
         // Shows/hides the Wallet page's own content vs. its "Login" gate.
         // Called on entering the Wallet tab and after every successful
@@ -11254,7 +11265,7 @@ html.perf-low .pc-star { box-shadow: none; }
             if (!gate || !content) return;
             const authed = isCustomerAuthenticated();
             gate.style.display = authed ? 'none' : 'flex';
-            content.style.display = authed ? '' : 'none';
+            content.style.display = '';   // balance & history always readable
             if (authed) { const ov = document.getElementById('wallet-google-gate-overlay'); if (ov) ov.classList.remove('show'); }
         }
         window.renderWalletAuthGate = renderWalletAuthGate;
@@ -12122,7 +12133,7 @@ html.perf-low .pc-star { box-shadow: none; }
             // the local profile email so that case is treated as signed-in
             // here too, same as Google/Telegram.
             let emailOnly = '';
-            if (!user) {
+            if (!user || String(user.uid || '').startsWith('em_')) {
                 try {
                     const p = window.getSavedProfile ? window.getSavedProfile() : {};
                     emailOnly = (p && p.email) || '';
@@ -12134,7 +12145,7 @@ html.perf-low .pc-star { box-shadow: none; }
                 signedOutEl.style.display = 'none';
                 signedInEl.style.display = 'flex';
                 const isTelegram = !!user && String(user.uid || '').startsWith('tg_');
-                const isEmailOnly = !user && !!emailOnly;
+                const isEmailOnly = !!emailOnly && (!user || String(user.uid || '').startsWith('em_'));
                 const nameEl = document.getElementById('google-account-name');
                 const emailEl = document.getElementById('google-account-email');
                 const avatarImg = document.getElementById('google-account-avatar');
@@ -12911,6 +12922,17 @@ html.perf-low .pc-star { box-shadow: none; }
                 window.showToast('မှန်ကန်တဲ့ email လိပ်စာထည့်ပါ', 'fail');
                 return;
             }
+            // Login form has a Name box: required unless this device already has a saved name.
+            const nameEl = document.getElementById(`${ctx || 'onboard'}-email-name-input`);
+            if (nameEl) {
+                let savedName = '';
+                try { savedName = ((window.getSavedProfile ? window.getSavedProfile() : {}).name || '').trim(); } catch (e) { /* ignore */ }
+                if (!nameEl.value.trim() && !savedName) {
+                    window.showToast('နာမည်ထည့်ပါ', 'fail');
+                    nameEl.focus();
+                    return;
+                }
+            }
             if (els.sendBtn) els.sendBtn.disabled = true;
             try {
                 const res = await fetch(`${EMAIL_AUTH_WORKER_URL}/auth/send-code`, {
@@ -12940,13 +12962,25 @@ html.perf-low .pc-star { box-shadow: none; }
             if (!code || !guestId) return;
             if (els.verifyBtn) els.verifyBtn.disabled = true;
             try {
+                // Signed-in Google/Telegram users linking an e-mail prove ownership of their account.
+                const verifyHeaders = { 'Content-Type': 'application/json' };
+                try { if (auth.currentUser) verifyHeaders['Authorization'] = 'Bearer ' + await auth.currentUser.getIdToken(); } catch (e) { /* ignore */ }
                 const res = await fetch(`${EMAIL_AUTH_WORKER_URL}/auth/verify-code`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: verifyHeaders,
                     body: JSON.stringify({ email: pendingLoginEmail, code, guestId }),
                 });
                 const data = await res.json();
                 if (!res.ok || !data.valid) throw new Error(data.error || 'Code မှားနေပါသည်');
+
+                // E-mail login gets a REAL Firebase session (uid em_...) so Wallet
+                // balance / top-ups / wallet purchases work like Google & Telegram.
+                // Skipped when already signed in (e.g. linking e-mail to a Google
+                // account) so that session isn't swapped out.
+                if (data.token && !auth.currentUser) {
+                    try { await signInWithCustomToken(auth, data.token); }
+                    catch (e) { console.error('E-mail custom sign-in failed:', e); }
+                }
 
                 // The email may resolve to a different (canonical) guestId
                 // than this device currently has - e.g. signed in from
@@ -13005,6 +13039,22 @@ html.perf-low .pc-star { box-shadow: none; }
                     await setDoc(doc(db, "emailAccounts", pendingLoginEmail), { guestId: targetGid }, { merge: true });
                 } catch (e) {
                     console.error('linkedEmail save error:', e);
+                }
+
+                // Name from the Login form: an existing account keeps its own name;
+                // a new one gets the typed name (profile + users/{id}.name).
+                try {
+                    const nameEl = document.getElementById(`${ctx}-email-name-input`);
+                    const typedName = ((nameEl && nameEl.value) || '').trim();
+                    const p2 = window.getSavedProfile ? window.getSavedProfile() : {};
+                    const tSnap = await getDoc(doc(db, "users", targetGid));
+                    const existingName = tSnap.exists() ? String(tSnap.data().name || '').trim() : '';
+                    const finalName = existingName || typedName || p2.name || '';
+                    if (!existingName && finalName) await setDoc(doc(db, "users", targetGid), { name: finalName }, { merge: true });
+                    localStorage.setItem('gz_profile', JSON.stringify({ ...p2, name: finalName, email: pendingLoginEmail }));
+                    if (window.renderProfileFields) window.renderProfileFields();
+                } catch (e) {
+                    console.error('login name save error:', e);
                 }
 
                 if (ctx === 'account-link') {
@@ -13215,6 +13265,7 @@ html.perf-low .pc-star { box-shadow: none; }
         }
 
         function handleOnboardAuthState(user) {
+            completeOnboarding(); return;   // login is offered on the Wallet page only
             try {
                 if (localStorage.getItem(ONBOARD_KEY) === '1') return; // already onboarded
             } catch (e) { /* private browsing - fall through and show onboarding */ }
