@@ -2622,6 +2622,21 @@
 
         /* Top up history rows */
 
+        /* ---- Wallet: Transactions (green) / Top Up History (blue) tabs ---- */
+        .wseg { display: flex; gap: 6px; padding: 5px; margin: 4px 0 12px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(15,23,42,0.05); }
+        .wseg-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 8px; border: 0; border-radius: 12px; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .25s ease, color .25s ease, box-shadow .25s ease, transform .15s ease; -webkit-tap-highlight-color: transparent; }
+        .wseg-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .wseg-btn:active { transform: scale(.97); }
+        .wseg-btn.blue.active { color: #fff; background: linear-gradient(135deg, #3B82F6, #1D4ED8); box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+        .wseg-btn.green.active { color: #fff; background: linear-gradient(135deg, #22C55E, #15803D); box-shadow: 0 6px 16px rgba(22,163,74,.35); }
+        .wseg-btn.blue:not(.active) svg { color: #3B82F6; }
+        .wseg-btn.green:not(.active) svg { color: #22C55E; }
+        .wseg-pane { display: none; }
+        .wseg-pane.active { display: block; animation: wsegIn .28s ease both; }
+        @keyframes wsegIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        #wallet-pane-txn .wtx-chip.active { background: #16A34A; border-color: #16A34A; }
+        #wallet-pane-txn .wtx-more { color: #16A34A; }
+        @media (prefers-reduced-motion: reduce) { .wseg-pane.active { animation: none; } .wseg-btn { transition: none; } }
         /* ---- Compact wallet Transaction History ---- */
         .wtx-tabs { display: flex; gap: 6px; margin: 0 0 8px; overflow-x: auto; scrollbar-width: none; }
         .wtx-tabs::-webkit-scrollbar { display: none; }
@@ -3364,6 +3379,7 @@
         #history .history-card { animation: none; }
         #wallet.tab-enter .wallet-balance-card, #wallet.tab-enter .wallet-section-title, #wallet.tab-enter #wallet-topup-list > * { animation: cardPop 0.5s var(--ease-spring) backwards; }
         #wallet.tab-enter .wallet-section-title { animation-delay: 120ms; }
+        #wallet.tab-enter .wseg { animation: cardPop 0.5s var(--ease-spring) backwards; animation-delay: 120ms; }
         #wallet.tab-enter #wallet-topup-list > :nth-child(1) { animation-delay: 235ms; }
         #wallet.tab-enter #wallet-topup-list > :nth-child(2) { animation-delay: 290ms; }
         #wallet.tab-enter #wallet-topup-list > :nth-child(3) { animation-delay: 345ms; }
@@ -4909,8 +4925,30 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
 .badge.badge-warning::before { animation: badgeSpokes 1.6s steps(8) infinite; }
 @media (prefers-reduced-motion: reduce) { .badge.badge-warning::before { animation: none; } }
 </style>
+<style id="maint-css">
+#maint-overlay{display:none;position:fixed;inset:0;z-index:2147483100;align-items:center;justify-content:center;padding:24px;background:rgba(10,12,20,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;text-align:center;font-family:'Manrope','Outfit',system-ui,sans-serif}
+#maint-overlay .maint-card{max-width:360px;width:100%}
+#maint-overlay .maint-ico{font-size:56px;line-height:1;margin-bottom:14px}
+#maint-overlay h2{margin:0 0 26px;font-size:26px;font-weight:800;letter-spacing:.3px}
+#maint-overlay p{margin:0 0 10px;font-size:14px;line-height:1.6;opacity:.85;white-space:pre-line}
+#maint-overlay .maint-reason{font-size:13px;opacity:.7}
+#maint-overlay .maint-support{display:block;width:100%;margin-top:10px;padding:13px 20px;border:0;border-radius:14px;background:#fff;color:#111;font-weight:700;font-size:15px;cursor:pointer}
+#maint-overlay .maint-support.alt{background:rgba(255,255,255,.14);color:#fff}
+#maint-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:2147482000;align-items:center;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;background:#f59e0b;color:#1a1200;font-size:13px;font-weight:700;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+html.maint-locked,html.maint-locked body{overflow:hidden!important}
+</style>
 </head>
 <body>
+<div id="maint-banner" role="status" aria-live="polite"><span>🔧</span><span id="maint-banner-text"></span></div>
+<div id="maint-overlay" role="alertdialog" aria-modal="true">
+  <div class="maint-card">
+    <div class="maint-ico">🔧</div>
+    <h2>Maintenance</h2>
+    <button type="button" class="maint-support" onclick="maintContact('telegram')">💬 Contact Support (Telegram)</button>
+    <button type="button" class="maint-support alt" onclick="maintContact('messenger')">💬 Contact Support (Messenger)</button>
+  </div>
+</div>
+
 
     <!-- Onboarding gate: Google sign-in (or Guest), then straight into the
          app. Shown once per device; completing it sets
@@ -5604,24 +5642,31 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                     <p class="wallet-min-hint" id="wallet-min-hint"></p>
                 </div>
 
-                <h3 class="wallet-section-title">
-                    <svg class="ui-icon"><use href="#icon-history"></use></svg>
-                    Transactions
-                </h3>
-                <div class="wtx-tabs" id="wallet-txn-tabs">
-                    <button type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
-                    <button type="button" class="wtx-chip" data-f="in" onclick="setWalletTxnFilter('in')">Deposits</button>
-                    <button type="button" class="wtx-chip" data-f="out" onclick="setWalletTxnFilter('out')">Withdrawals</button>
-                    <button type="button" class="wtx-chip" data-f="buy" onclick="setWalletTxnFilter('buy')">Purchases</button>
+                <div class="wseg" id="wallet-seg" role="tablist">
+                    <button type="button" class="wseg-btn green active" id="wseg-btn-txn" role="tab" aria-selected="true" onclick="setWalletSegTab('txn')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12M16 3l4 4-4 4"/><path d="M17 17H5M8 13l-4 4 4 4"/></svg>
+                        <span>Transactions</span>
+                    </button>
+                    <button type="button" class="wseg-btn blue" id="wseg-btn-topup" role="tab" aria-selected="false" onclick="setWalletSegTab('topup')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+                        <span>Top Up History</span>
+                    </button>
                 </div>
-                <div id="wallet-txn-list" style="margin-bottom:14px;"></div>
 
-                <h3 class="wallet-section-title">
-                    <svg class="ui-icon"><use href="#icon-history"></use></svg>
-                    Top Up History
-                </h3>
-                <div id="wallet-topup-list"></div>
-                <div id="wallet-topup-empty" style="display:none;"></div>
+                <div class="wseg-pane active" id="wallet-pane-txn" role="tabpanel">
+                    <div class="wtx-tabs" id="wallet-txn-tabs">
+                        <button type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
+                        <button type="button" class="wtx-chip" data-f="in" onclick="setWalletTxnFilter('in')">Deposits</button>
+                        <button type="button" class="wtx-chip" data-f="out" onclick="setWalletTxnFilter('out')">Withdrawals</button>
+                        <button type="button" class="wtx-chip" data-f="buy" onclick="setWalletTxnFilter('buy')">Purchases</button>
+                    </div>
+                    <div id="wallet-txn-list" style="margin-bottom:14px;"></div>
+                </div>
+
+                <div class="wseg-pane" id="wallet-pane-topup" role="tabpanel">
+                    <div id="wallet-topup-list"></div>
+                    <div id="wallet-topup-empty" style="display:none;"></div>
+                </div>
             </div>
         </div>
 
@@ -5984,7 +6029,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                  from the Profile page too, without needing a separate Settings page. -->
             <div class="detail-form-card profile-card-anim" id="profile-prefs-card" style="margin-top:14px;animation-delay:40ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('profile-prefs-body','profile-prefs-chevron')" role="button" aria-label="Show preferences">
-                    <label style="align-self:flex-start;margin-top:0;">Preferences</label>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><label style="align-self:flex-start;margin-top:0;">Preferences</label></span>
                     <svg class="ui-icon collapsible-chevron" id="profile-prefs-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="profile-prefs-body">
@@ -6060,7 +6105,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                  Collapsed by default like the sections below - tap the header to open. -->
             <div class="detail-form-card profile-card-anim" id="account-card" style="margin-top:14px;animation-delay:120ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('account-body','account-chevron')" role="button" aria-label="Show account">
-                    <label style="align-self:flex-start;margin-top:0;">Account</label>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-user"></use></svg></span><label style="align-self:flex-start;margin-top:0;">Account</label></span>
                     <svg class="ui-icon collapsible-chevron" id="account-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="account-body">
@@ -6183,7 +6228,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
 
             <div class="vip-card profile-card-anim" id="vip-card" style="display:none;animation-delay:160ms;">
                 <div class="vip-card-head collapsible-header" onclick="toggleCollapsible('vip-body','vip-chevron')" role="button" aria-label="Show VIP status">
-                    <h4>VIP Status</h4>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-crown"></use></svg></span><h4>VIP Status</h4></span>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <div id="vip-tier-badge"></div>
                         <svg class="ui-icon collapsible-chevron" id="vip-chevron"><use href="#icon-chevron-right"></use></svg>
@@ -6204,7 +6249,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
 
             <div class="detail-form-card profile-card-anim" id="tier-preview-card" style="margin-top:14px;animation-delay:200ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('tier-preview-body','tier-preview-chevron')" role="button" aria-label="Show tier designs">
-                    <label style="align-self:flex-start;margin-top:0;">Tier Designs</label>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-trophy"></use></svg></span><label style="align-self:flex-start;margin-top:0;">Tier Designs</label></span>
                     <svg class="ui-icon collapsible-chevron" id="tier-preview-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="tier-preview-body">
@@ -6214,7 +6259,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
 
             <div class="detail-form-card profile-card-anim" id="social-links-card" style="margin-top:14px;animation-delay:240ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('social-links-body','social-links-chevron')" role="button" aria-label="Show social links">
-                    <label style="align-self:flex-start;margin-top:0;">Follow Us</label>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-globe"></use></svg></span><label style="align-self:flex-start;margin-top:0;">Follow Us</label></span>
                     <svg class="ui-icon collapsible-chevron" id="social-links-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="social-links-body">
@@ -6547,7 +6592,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                     <div id="detail-payment-info" class="detail-form-card" style="display:none; margin-top:10px;">
                         <p style="font-size:12px;color:var(--text-secondary);">Transfer the exact amount to:</p>
                         <div class="pm-qr-info-row">
-                            <img id="pm-qr" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass);">
+                            <img id="pm-qr" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass, rgba(127,127,127,.25));">
                             <div class="pm-info-grid">
                                 <div class="pm-info-box">
                                     <span class="pm-info-box-label">Name</span>
@@ -6589,7 +6634,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                         <p id="receipt-upload-status" style="font-size:12px;color:var(--text-secondary);display:none;"></p>
 
                         <label style="display:block;margin-top:14px;">Transaction ID</label>
-                        <input type="text" id="detail-transaction-id" placeholder="Detected automatically after you upload your receipt" autocomplete="off" readonly style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border-glass);background:var(--fill-soft);color:var(--text);font-size:14px;">
+                        <input type="text" id="detail-transaction-id" placeholder="Detected automatically after you upload your receipt" autocomplete="off" readonly style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border-glass, rgba(127,127,127,.25));background:var(--fill-soft, rgba(127,127,127,.08));color:var(--text);font-size:14px;">
                         <p style="font-size:11px;color:var(--text-secondary);margin-top:4px;">We read this automatically from your receipt screenshot. If it can't be found, it's set to "None".</p>
                     </div>
                 </div>
@@ -10014,7 +10059,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                         <p style="font-size:13px;color:#7A5B00;margin:0;">Your order is marked Success but no code was found. Please contact support with this order's ID and we'll sort it out.</p>
                     </div>`;
             }
-            const jsSafe = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const jsSafe = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r/g, '\\r').replace(/\n/g, '\\n').replace(/"/g, '&quot;');
             const rows = codes.map((c, i) => {
                 const copyKey = `${orderId || 'x'}::${i}::${c}`;
                 const maxed = (voucherCodeCopyCounts[copyKey] || 0) >= VOUCHER_CODE_COPY_LIMIT;
@@ -10492,7 +10537,6 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 fazercardCategoryId: selectedGameFazerCardCategory,
                 fazercardOfferId: selectedPackage.fazercardOfferId || null,
                 fazercardGiftCategoryId: selectedGameFazerCardGiftCategory,
-                fazercardGiftCardId: selectedPackage.fazercardGiftCardId || null,
                 fazercardGiftCardId: selectedPackage.fazercardGiftCardId || null
             }, btnElement);
         }
@@ -10810,6 +10854,49 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
         window.setDoc = setDoc;
         window.serverTimestamp = serverTimestamp;
 
+        // ---------- Maintenance kill switch ----------
+        // settings/maintenance (public read) is flipped by the order Worker / admin panel.
+        // enabled:true -> full-screen closed screen. scheduledAt in the future -> countdown banner.
+        // firestore.rules ALSO refuses new orders/top-ups while enabled, so a stale page can't slip through.
+        let __maintState = {};
+        let __maintTimer = null;
+        function maintMs(v) { return v && v.toMillis ? v.toMillis() : (v ? Date.parse(v) : NaN); }
+        function maintFmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+        // Support links come from the same settings/social doc the header chat bubble uses.
+        function maintContact(kind) {
+            const L = window.SOCIAL_LINKS || {};
+            const tg = (L.supportTelegram || '').trim() || window.SUPPORT_TELEGRAM_USERNAME || 'linn270_0';
+            const ms = (L.supportMessenger || '').trim() || 'sandarlinn69';
+            const url = kind === 'messenger' ? `https://m.me/${ms}` : `https://t.me/${tg}`;
+            window.open(url, '_blank', 'noopener');
+        }
+        window.maintContact = maintContact;
+        function renderMaintenance() {
+            const ov = document.getElementById('maint-overlay');
+            const bn = document.getElementById('maint-banner');
+            if (!ov || !bn) return;
+            const m = __maintState || {};
+            const at = maintMs(m.scheduledAt);
+            const closed = m.enabled === true || (!isNaN(at) && Date.now() >= at);
+            const pending = !closed && !isNaN(at) && at > Date.now();
+            window.__MAINT_CLOSED = closed;
+            ov.style.display = closed ? 'flex' : 'none';
+            document.documentElement.classList.toggle('maint-locked', closed);
+            bn.style.display = pending ? 'flex' : 'none';
+            if (pending) {
+                document.getElementById('maint-banner-text').textContent =
+                    `ပြုပြင်ထိန်းသိမ်းမှုအတွက် ${maintFmt(at - Date.now())} အကြာတွင် ပိတ်ပါမည် · Closing soon` + (m.reason ? ' — ' + m.reason : '');
+            }
+            if (pending && !__maintTimer) __maintTimer = setInterval(renderMaintenance, 1000);
+            if (!pending && __maintTimer) { clearInterval(__maintTimer); __maintTimer = null; }
+        }
+        try {
+            onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
+                __maintState = snap.exists() ? snap.data() : {};
+                renderMaintenance();
+            }, (err) => console.error('maintenance listener error:', err));
+        } catch (e) { console.error('maintenance listener setup failed:', e); }
+
         // PERF: on page load, ~8 Firestore realtime listeners were all being
         // opened in the same tick as the onboarding/login screen — each one
         // is a live network connection the browser has to set up and keep
@@ -10858,6 +10945,52 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
         // calling api.imgbb.com directly, so the ImgBB API key stays server-side
         // and never ships in this file's client-side JS (same "key never reaches
         // the browser" pattern as the fazercards-functions Worker).
+        // Shrinks big photos (and converts HEIC/other formats the browser can
+        // decode) to a JPEG before upload, so the Worker's 10MB limit and its
+        // jpeg/png/webp/gif/avif allow-list are not hit by raw phone photos.
+        // Falls back to the original file if anything fails.
+        async function prepareImageForUpload(file) {
+            try {
+                if (!file || typeof file === 'string') return file;
+                const okType = /^image\/(jpeg|png|webp)$/.test(file.type || '');
+                if (okType && file.size <= 1.5 * 1024 * 1024) return file;
+                const MAX_DIM = 1600;
+                let src, w, h;
+                if (window.createImageBitmap) {
+                    src = await createImageBitmap(file);
+                    w = src.width; h = src.height;
+                } else {
+                    const url = URL.createObjectURL(file);
+                    try {
+                        src = await new Promise((resolve, reject) => {
+                            const im = new Image();
+                            im.onload = () => resolve(im);
+                            im.onerror = reject;
+                            im.src = url;
+                        });
+                    } finally { URL.revokeObjectURL(url); }
+                    w = src.naturalWidth; h = src.naturalHeight;
+                }
+                const k = Math.min(1, MAX_DIM / Math.max(w, h));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.max(1, Math.round(w * k));
+                canvas.height = Math.max(1, Math.round(h * k));
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(src, 0, 0, canvas.width, canvas.height);
+                if (src.close) src.close();
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+                if (!blob) return file;
+                if (okType && blob.size >= file.size) return file;
+                const base = String(file.name || 'photo').replace(/\.[^.]+$/, '');
+                return new File([blob], base + '.jpg', { type: 'image/jpeg' });
+            } catch (e) {
+                console.warn('prepareImageForUpload fallback:', e);
+                return file;
+            }
+        }
+
         const IMGBB_UPLOAD_URL = 'https://imgbb-function.linngamestore.workers.dev';
 
         async function uploadReceiptToImgBB(file) {
@@ -10866,7 +10999,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             statusEl.innerText = 'Uploading receipt...';
 
             const form = new FormData();
-            form.append('image', file);
+            form.append('image', await prepareImageForUpload(file));
 
             const res = await fetch(IMGBB_UPLOAD_URL, {
                 method: 'POST',
@@ -10886,7 +11019,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             statusEl.innerText = 'Uploading photo...';
 
             const form = new FormData();
-            form.append('image', file);
+            form.append('image', await prepareImageForUpload(file));
 
             const res = await fetch(IMGBB_UPLOAD_URL, {
                 method: 'POST',
@@ -10976,7 +11109,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             statusEl.style.display = 'block';
             statusEl.innerText = 'Uploading receipt...';
             const form = new FormData();
-            form.append('image', file);
+            form.append('image', await prepareImageForUpload(file));
             const res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form });
             const data = await res.json();
             if (!data.success) throw new Error(data.error?.message || 'Receipt upload failed');
@@ -11160,10 +11293,10 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 return `
                     <div class="game-card popular-card game-card-anim card-pop pinned" data-game-id="${id}" style="--i:${Math.min(i, 8)}" onclick="openGameDetail('${id}')">
                         <div class="game-card-img-wrap" style="--card-bg-img:url('${optimizedGameImg(g.image, 200)}')">
-                            <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                            <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(g.name))}" loading="lazy" decoding="async">
                             ${pinBadgeHtml()}
                         </div>
-                        <div class="game-card-name" style="${gameNameStyle(g.serverName || g.name)}">${g.serverName || g.name}</div>
+                        <div class="game-card-name" style="${gameNameStyle(g.serverName || g.name)}">${escapeHtml(g.serverName || g.name || '')}</div>
                     </div>
                 `;
             }).join('');
@@ -11663,13 +11796,13 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                              style="${outOfRange ? 'opacity:0.45;pointer-events:none;' : ''}"
                              onclick="selectCryptoMethod('${m.code}')">
                             <div class="payment-option-icon"><svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg></div>
-                            <span class="payment-option-name">${m.label || m.code}${rangeHint}</span>
+                            <span class="payment-option-name">${escapeHtml(m.label || m.code)}${rangeHint}</span>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
                 console.error('loadCryptoPaymentMethods error:', error);
-                list.innerHTML = `<p class="empty-msg">${error.message || 'Could not load payment methods.'}</p>`;
+                list.innerHTML = `<p class="empty-msg">${escapeHtml(error.message || 'Could not load payment methods.')}</p>`;
             }
         }
 
@@ -11823,6 +11956,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
         window.previewWalletReceiptImage = previewWalletReceiptImage;
 
         async function submitWalletTopup(btnEl) {
+            if (window.__MAINT_CLOSED) { window.showToast('🔧 ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); if (window.resetWalletSlideConfirmThumb) window.resetWalletSlideConfirmThumb(); return; }
             const amount = walletAmtNum();
             if (!amount || amount <= 0) { window.showToast('Please enter a valid amount.', 'fail'); if (window.resetWalletSlideConfirmThumb) window.resetWalletSlideConfirmThumb(); return; }
             if (amount < WALLET_TOPUP_MIN) { window.showToast(walletMinToast(), 'fail'); if (window.resetWalletSlideConfirmThumb) window.resetWalletSlideConfirmThumb(); return; }
@@ -12044,6 +12178,17 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             walletTxnUnsubs.forEach(u => { try { u(); } catch (e) {} });
             walletTxnUnsubs = [];
         }
+        // Wallet page: Transactions (green) and Top Up History (blue) are separate tabs.
+        function setWalletSegTab(tab) {
+            const topup = tab === 'topup';
+            document.getElementById('wallet-pane-txn').classList.toggle('active', !topup);
+            document.getElementById('wallet-pane-topup').classList.toggle('active', topup);
+            const bt = document.getElementById('wseg-btn-txn'), bu = document.getElementById('wseg-btn-topup');
+            bt.classList.toggle('active', !topup); bu.classList.toggle('active', topup);
+            bt.setAttribute('aria-selected', String(!topup)); bu.setAttribute('aria-selected', String(topup));
+            if (window.haptic) { try { window.haptic('select'); } catch (e) {} }
+        }
+        window.setWalletSegTab = setWalletSegTab;
         function setWalletTxnFilter(f) {
             walletTxnFilter = f;
             walletTxnLimit = 15;
@@ -13619,7 +13764,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             // the text stays readable over the dark background.
             const textColor = materialTier ? TIER_MATERIAL_TEXT[tier.name] : tier.color;
             return `<span class="tier-badge${glowClass}${materialClass}" style="background:${tier.bg};color:${textColor};${glowStyle}">
-                ${tierIconSVG(tier)}${tier.name}
+                ${tierIconSVG(tier)}${escapeHtml(tier.name)}
             </span>`;
         }
 
@@ -13643,12 +13788,12 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                             <div class="tier-preview-photo">
                                 <svg class="ui-icon"><use href="#icon-user"></use></svg>
                             </div>
-                            <div class="avatar-tier-frame" data-tier="${tier.name.toLowerCase()}">
+                            <div class="avatar-tier-frame" data-tier="${escapeHtml(tier.name.toLowerCase())}">
                                 ${sparks}
                             </div>
                         </div>
                     </div>
-                    <span class="tier-preview-label" style="color:${tier.color};">${tier.name}</span>
+                    <span class="tier-preview-label" style="color:${tier.color};">${escapeHtml(tier.name)}</span>
                 </div>
             `).join('');
             grid.dataset.rendered = '1';
@@ -14608,7 +14753,8 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
         }
 
         async function submitOrder(orderData, btnElement) {
-            const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
+            if (window.__MAINT_CLOSED) { window.showToast('🔧 ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
+                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
@@ -14757,7 +14903,8 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
         // rendered) so two rapid orders can never both slip through on a
         // balance that only actually covers one of them.
         async function submitWalletOrder(orderData, btnElement) {
-            const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
+            if (window.__MAINT_CLOSED) { window.showToast('🔧 ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
+                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
@@ -14766,6 +14913,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             try {
                 const guestId = window.getGuestId ? window.getGuestId() : '';
                 if (!guestId) throw new Error('Could not identify your account. Please reload and try again.');
+                if (!auth.currentUser) throw new Error('NEEDS_GOOGLE_SIGNIN');
 
                 let walletBalanceSeen = null; // filled by the ban-check read below
                 try {
@@ -14793,6 +14941,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                         return;
                     }
                 } catch (banCheckError) {
+                    if (banCheckError && banCheckError.message === 'WALLET_NOT_LINKED') throw banCheckError;
                     console.error("Ban check error:", banCheckError);
                 }
 
@@ -15048,7 +15197,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             wrap.classList.add('show');
             const item = walletToastQueue[walletToastIndex % walletToastQueue.length];
             walletToastIndex = (walletToastIndex + 1) % walletToastQueue.length;
-            msgEl.innerHTML = `<b>${maskDisplayName(item.name)}</b> topped up ${(item.amount || 0).toLocaleString()} MMK`;
+            msgEl.innerHTML = `<b>${escapeHtml(maskDisplayName(item.name))}</b> topped up ${(item.amount || 0).toLocaleString()} MMK`;
             msgEl.classList.remove('toast-cycle');
             void msgEl.offsetWidth; // restart the css animation
             msgEl.classList.add('toast-cycle');
@@ -15515,7 +15664,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 ? `<div class="od-row"><span>${t('od_order_id')}</span><b style="font-family:monospace;">${providerOrderId}</b></div>`
                 : '';
             const inGameNameRow = data.inGameName
-                ? `<div class="od-row"><span>${t('od_ingame_name')}</span><b>${data.inGameName}</b></div>`
+                ? `<div class="od-row"><span>${t('od_ingame_name')}</span><b>${escapeHtml(String(data.inGameName))}</b></div>`
                 : '';
             const serverIdRow = data.serverId
                 ? `<div class="od-row"><span>${t('od_server_id')}</span><b>${data.serverId}</b></div>`
@@ -17091,7 +17240,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                 return `
                     <div class="game-card game-card-anim card-pop" style="--i:${Math.min(i, 8)}" onclick="gameDetailReturnPage='server-select'; openGameDetail('${id}')">
                         <div class="game-card-img-wrap" style="--card-bg-img:url('${optimizedGameImg(g.image, 200)}')">
-                            <img src="${optimizedGameImg(g.image, 200)}" alt="${label}" loading="lazy" decoding="async">
+                            <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(label))}" loading="lazy" decoding="async">
                         </div>
                         <div class="game-card-name" style="${gameNameStyle(label)}">${label}</div>
                     </div>
@@ -17176,12 +17325,12 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             return `
                 <div class="game-card popular-card game-card-anim card-pop${isGamePinned(gr.repId) ? ' pinned' : ''}" data-game-id="${gr.repId}" style="--i:${Math.min(i, 8)}" onclick="openGameEntry(${gr.idx})">
                     <div class="game-card-img-wrap" style="--card-bg-img:url('${optimizedGameImg(g.image, 200)}')">
-                        <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                        <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(g.name))}" loading="lazy" decoding="async">
                         ${categoryBadgeHtml(g.category)}
                         ${serverCountBadgeHtml(gr)}
                         ${pinBadgeHtml()}
                     </div>
-                    <div class="game-card-name" style="${gameNameStyle(g.name)}">${g.name}</div>
+                    <div class="game-card-name" style="${gameNameStyle(g.name)}">${escapeHtml(g.name || '')}</div>
                 </div>
             `;
         }
@@ -17332,12 +17481,12 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             return `
                     <div class="game-card game-card-anim ${motionCls}${isGamePinned(gr.repId) ? ' pinned' : ''}" data-game-id="${gr.repId}" style="${motionVars}" onclick="openGameEntry(${gr.idx})">
                         <div class="game-card-img-wrap" style="--card-bg-img:url('${optimizedGameImg(g.image, 200)}')">
-                            <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                            <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(g.name))}" loading="lazy" decoding="async">
                             ${categoryBadgeHtml(g.category)}
                             ${serverCountBadgeHtml(gr)}
                             ${pinBadgeHtml()}
                         </div>
-                        <div class="game-card-name" style="${gameNameStyle(g.name)}">${g.name}</div>
+                        <div class="game-card-name" style="${gameNameStyle(g.name)}">${escapeHtml(g.name || '')}</div>
                     </div>
                 `;
         }
@@ -17452,9 +17601,9 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                             <div class="voucher-card popular-voucher-card game-card-anim card-pop" style="--i:${Math.min(i, 8)}" onclick="openVoucherGameEntry(${gr.idx})">
                                 <span class="voucher-card-tag">Gift Card</span>
                                 <div class="voucher-card-stack">
-                                    <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                                    <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(g.name))}" loading="lazy" decoding="async">
                                 </div>
-                                <div class="voucher-card-name">${g.name}</div>
+                                <div class="voucher-card-name">${escapeHtml(g.name || '')}</div>
                             </div>
                         `;
                     }).join('');
@@ -17478,9 +17627,9 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                     <div class="voucher-card game-card-anim card-pop" style="--i:${Math.min(i, 12)}" onclick="openVoucherGameEntry(${groups.indexOf(gr)})">
                         <span class="voucher-card-tag">Gift Card</span>
                         <div class="voucher-card-stack">
-                            <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                            <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(g.name))}" loading="lazy" decoding="async">
                         </div>
-                        <div class="voucher-card-name">${g.name}</div>
+                        <div class="voucher-card-name">${escapeHtml(g.name || '')}</div>
                     </div>
                 `;
             }).join('');
@@ -17511,10 +17660,10 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
             return `
                     <div class="game-card game-card-anim card-pop" data-game-id="${gr.repId}" style="--i:${Math.min(i, 12)}" onclick="openSoftwareGameEntry(${gr.idx})">
                         <div class="game-card-img-wrap" style="--card-bg-img:url('${optimizedGameImg(g.image, 200)}')">
-                            <img src="${optimizedGameImg(g.image, 200)}" alt="${g.name}" loading="lazy" decoding="async">
+                            <img src="${optimizedGameImg(g.image, 200)}" alt="${escapeHtml(String(g.name))}" loading="lazy" decoding="async">
                             ${serverCountBadgeHtml(gr)}
                         </div>
-                        <div class="game-card-name" style="${gameNameStyle(g.name)}">${g.name}</div>
+                        <div class="game-card-name" style="${gameNameStyle(g.name)}">${escapeHtml(g.name || '')}</div>
                     </div>
                 `;
         }
@@ -19315,12 +19464,12 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                     });
                 }
                 function arm() { if (armed) return; armed = true; window.addEventListener('deviceorientation', onOri, { passive: true }); }
-                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     fab.addEventListener('click', function once() {
                         fab.removeEventListener('click', once, true);
                         DeviceOrientationEvent.requestPermission().then(r => { if (r === 'granted') arm(); }).catch(() => {});
                     }, true);
-                } else arm();
+                } else if ('DeviceOrientationEvent' in window) arm();
             })();
             R['fall'] = function () {   // dropped from above
                 express('surprise', 1500); emit('!', '#ffd66b'); hands(150, -150, 1200);
@@ -19342,7 +19491,7 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
                         if (hits.length >= 4 && t - lastDizzy > 5000 && !document.hidden) { lastDizzy = t; hits = []; react('dizzy'); } }
                 }
                 function arm() { if (armed) return; armed = true; window.addEventListener('devicemotion', onMotion); }
-                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     fab.addEventListener('click', function once() {
                         fab.removeEventListener('click', once, true);
                         DeviceMotionEvent.requestPermission().then(r => { if (r === 'granted') arm(); }).catch(() => {});
