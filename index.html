@@ -16360,22 +16360,43 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 ]));
             } catch (e) { /* system fonts fallback */ }
 
-            // Store logo (CORS-safe load; falls back to a drawn badge so the PNG export can never be blocked)
+            // Store logo = the same image the header shows. Loaded CORS-safe so the PNG export is never
+            // blocked. A copy cached earlier by the header <img> (no CORS headers) can make a plain
+            // crossOrigin load fail, so retry with a cache-bypassing fetch and a cache-busted URL.
             const loadImg = (url) => new Promise(res => {
                 if (!url) return res(null);
                 const im = new Image();
                 im.crossOrigin = 'anonymous';
-                const t = setTimeout(() => res(null), 2500);
+                const t = setTimeout(() => res(null), 4000);
                 im.onload = () => { clearTimeout(t); res(im); };
                 im.onerror = () => { clearTimeout(t); res(null); };
                 im.src = url;
             });
+            const loadLogo = async (url) => {
+                if (!url) return null;
+                let im = await loadImg(url);
+                if (im && im.naturalWidth) return im;
+                try {
+                    const r = await fetch(url, { mode: 'cors', cache: 'reload' });
+                    const bl = await r.blob();
+                    const ou = URL.createObjectURL(bl);
+                    im = await loadImg(ou);
+                    if (im && im.naturalWidth) return im;
+                } catch (e) { /* try cache-busted URL next */ }
+                im = await loadImg(url + (url.indexOf('?') >= 0 ? '&' : '?') + 'cb=' + Date.now());
+                if (im && im.naturalWidth) return im;
+                // Host sends no CORS headers: last resort is a public image proxy that does (logo is public anyway)
+                im = await loadImg('https://wsrv.nl/?output=png&url=' + encodeURIComponent(url));
+                return (im && im.naturalWidth) ? im : null;
+            };
+            // Receipt sits on white, so use the Light Mode logo; fall back to whatever the header is showing.
             const logoUrl = (typeof lastBrandingData !== 'undefined' && lastBrandingData && lastBrandingData.logoUrl)
                 || ((typeof APP_LOGO_URL !== 'undefined') ? APP_LOGO_URL : '');
-            const logoImg = await loadImg(logoUrl);
+            const logoScale = (typeof lastBrandingData !== 'undefined' && lastBrandingData && typeof lastBrandingData.logoScale === 'number' && lastBrandingData.logoScale > 0) ? lastBrandingData.logoScale : 1;
+            const logoImg = await loadLogo(logoUrl);
 
             // ---- Canvas (logical 960x640 @2x) ----
-            const S = 2, CW = 960, CH = 640, CX = 60, CY = 60, CARD_W = 840, CARD_H = 520, LW = 330;
+            const S = 2, CARD_W = 840, CARD_H = 520, CW = CARD_W, CH = CARD_H, CX = 0, CY = 0, LW = 330; // image = the receipt card only (no backdrop)
             const canvas = document.createElement('canvas');
             canvas.width = CW * S; canvas.height = CH * S;
             const ctx = canvas.getContext('2d');
@@ -16423,20 +16444,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 ctx.restore();
             };
 
-            // Backdrop: soft light bg + blue curved shapes (like the reference)
-            let g = ctx.createLinearGradient(0, 0, CW, CH);
-            g.addColorStop(0, '#FFFFFF'); g.addColorStop(1, '#E8EEF8');
-            ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
-            g = ctx.createLinearGradient(CW - 380, 0, CW, CH * 0.6);
-            g.addColorStop(0, '#2F8DFF'); g.addColorStop(1, '#1264DB');
-            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CW + 70, 110, 330, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#1769E0'; ctx.beginPath(); ctx.arc(CW - 20, CH + 190, 300, 0, Math.PI * 2); ctx.fill();
-
-            // Card + shadow
-            ctx.save();
-            ctx.shadowColor = 'rgba(18,60,130,0.20)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 18;
-            ctx.fillStyle = '#fff'; rr(CX, CY, CARD_W, CARD_H, 10); ctx.fill();
-            ctx.restore();
+            let g; // no backdrop / shadow: the PNG is just the receipt card (transparent rounded corners)
 
             ctx.save();
             rr(CX, CY, CARD_W, CARD_H, 10); ctx.clip();
@@ -16478,9 +16486,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const rx0 = CX + LW + 38, rx1 = CX + CARD_W - 38;
 
             // Header: logo + store name (left) · issued date/time (right)
-            const LOGO = 40, logoY = CY + 26;
+            const LOGO = 48, logoY = CY + 22;
             if (logoImg && logoImg.naturalWidth) {
-                const k = Math.min(LOGO / logoImg.naturalWidth, LOGO / logoImg.naturalHeight);
+                // Frameless, like the header: just the logo image (contain-fit, same Logo Size scale as the header)
+                const k = Math.min(LOGO / logoImg.naturalWidth, LOGO / logoImg.naturalHeight) * logoScale;
                 const dw = logoImg.naturalWidth * k, dh = logoImg.naturalHeight * k;
                 ctx.drawImage(logoImg, rx0 + (LOGO - dw) / 2, logoY + (LOGO - dh) / 2, dw, dh);
             } else {
@@ -21426,5 +21435,18 @@ window.TELEGRAM_BOT_ID = window.TELEGRAM_BOT_ID || '';   // e.g. '123456789'
   ['touchend','touchcancel'].forEach(function(t){ document.addEventListener(t, function(){ box = null; target = null; }, {passive:true}); });
 })();
 </script>
+<style id="linn-perf-fix">
+/* PERF (anti-jank): the running rainbow border animated a custom property (--linn-a) on EVERY game card + name pill,
+   which repaints each card's conic-gradient on the main thread every frame (and re-blurs the glass panel behind them).
+   Cards keep the same rainbow colours, just static; entrance pop/wave/rise animations are unchanged.
+   Also: no backdrop blur on the big games panel / tiny status badges / hidden overlays (blur there is invisible but costly). */
+html .game-card{animation:none}
+html .game-card.card-pop{animation:cardPop .5s var(--ease-spring) backwards;animation-delay:calc(var(--i,0)*55ms)}
+html .game-card.card-wave{animation:cardWave 1s var(--ease-out) backwards;animation-delay:min(calc((var(--r,0) + var(--c,0)) * 170ms),1400ms)}
+html .popular-card.card-pop{animation:bubbleRise 1.05s cubic-bezier(.3,.8,.35,1) backwards;animation-delay:calc(var(--i,0)*95ms)}
+.games-grid-scroll{-webkit-backdrop-filter:none;backdrop-filter:none}
+.badge,.badge.badge-success,.badge.badge-warning,.badge.badge-processing,.badge.badge-danger{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.modal-overlay:not(.show),.success-overlay:not(.show),.drawer-overlay:not(.show){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+</style>
 </body>
 </html>
