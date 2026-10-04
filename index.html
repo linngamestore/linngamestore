@@ -668,7 +668,7 @@
         .link-connect-btn:active { transform: scale(0.94); }
         .link-connect-btn.is-linked { border-color: #22C55E; color: #22C55E; background: rgba(34,197,94,0.1); cursor: default; }
         .link-connect-btn.is-open { background: var(--accent); color: #fff; }
-        .ui-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .ui-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.85; stroke-linecap: round; stroke-linejoin: round; }
         .svg-icon { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         
         /* Header */
@@ -4551,6 +4551,86 @@ html[data-theme="dark"] .onboarding-overlay.lg-onb { background: linear-gradient
 html[data-theme="dark"] .lg-foot { color: #8294bd; }
 body:has(#wallet-google-gate-overlay.show) .bottom-nav { display: none; }
 </style>
+<style id="glass-home-override">
+/* ===== Glass design: Top-Up steps + live stat cards (blue only, matches page bg) ===== */
+.dash-guide-step, .home-live-stat {
+  background: linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,.28));
+  -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.65); border-top: 1px solid rgba(255,255,255,.9);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(31,50,100,.12), inset 0 1px 0 rgba(255,255,255,.8);
+  position: relative; overflow: hidden;
+}
+.home-live-stat { padding: 16px; }
+.home-live-stat::before { content:""; position:absolute; left:0; right:0; top:0; height:45%; pointer-events:none;
+  background: linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,0)); border-radius: 20px 20px 0 0; }
+.home-live-stat > * { position: relative; }
+.dash-guide-num {
+  background: linear-gradient(145deg, rgba(var(--accent-rgb),.95), rgba(var(--accent-rgb),.7));
+  border: 1px solid rgba(255,255,255,.5);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb),.4), inset 0 1px 0 rgba(255,255,255,.5);
+}
+/* Dark mode: same dark navy as the rest of the page, plain white-tint glass */
+html[data-theme="dark"] .dash-guide-step, html[data-theme="dark"] .home-live-stat {
+  background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.10); border-top-color: rgba(255,255,255,.20);
+  box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10);
+}
+html[data-theme="dark"] .home-live-stat::before { background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,0)); }
+
+/* ===== Game catalog: same glass look as the Top Up / Voucher / Software tabs ===== */
+html .game-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(255,255,255,.34));
+  border: 1px solid rgba(255,255,255,.7); border-top-color: rgba(255,255,255,.95);
+  box-shadow: 0 6px 18px rgba(31,45,90,.10), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -1px 3px rgba(31,38,80,.05);
+}
+html .game-card-name { color: var(--text-secondary); font-weight: 500; }
+html .cat-filter-chip {
+  background: rgba(120,130,160,.12); border: 1px solid rgba(255,255,255,.6);
+  color: var(--text-secondary); font-weight: 500;
+  box-shadow: inset 0 1px 3px rgba(31,38,80,.08), 0 1px 0 rgba(255,255,255,.6);
+  transition: background .25s ease, color .2s ease, box-shadow .25s ease, transform .15s ease;
+}
+html .cat-filter-chip.active {
+  color: #fff; border-color: rgba(255,255,255,.35);
+  background: linear-gradient(135deg, var(--cat-color, var(--accent)), color-mix(in srgb, var(--cat-color, var(--accent)) 72%, transparent));
+  box-shadow: 0 6px 16px -4px var(--cat-color, var(--accent)), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html[data-theme="dark"] .game-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.10); border-top-color: rgba(255,255,255,.22);
+  box-shadow: 0 6px 18px rgba(0,0,10,.40), inset 0 1px 0 rgba(255,255,255,.10);
+}
+html[data-theme="dark"] .game-card-name { color: var(--text); }
+html[data-theme="dark"] .cat-filter-chip {
+  background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.10); color: var(--text-secondary);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.35);
+}
+html[data-theme="dark"] .cat-filter-chip.active { color: #fff; box-shadow: 0 6px 18px -4px var(--cat-color, var(--accent)), inset 0 1px 0 rgba(255,255,255,.25); }
+
+/* Soft, distinct pastel tint per stat card (cool tones that sit well on the dark navy) */
+.home-live-stats-grid .home-live-stat:nth-child(1){ --tint: 96,165,250; }   /* sky blue */
+.home-live-stats-grid .home-live-stat:nth-child(2){ --tint: 167,139,250; }  /* soft violet */
+.home-live-stats-grid .home-live-stat:nth-child(3){ --tint: 45,212,191; }   /* teal */
+.home-live-stats-grid .home-live-stat:nth-child(4){ --tint: 129,140,248; }  /* indigo */
+.home-live-stats-grid .home-live-stat:nth-child(5){ --tint: 56,189,248; }   /* cyan */
+.home-live-stats-grid .home-live-stat:nth-child(6){ --tint: 244,114,182; }  /* soft rose */
+.home-live-stat {
+  background:
+    linear-gradient(135deg, rgba(var(--tint),.28), rgba(var(--tint),.08) 70%),
+    linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+  border-color: rgba(var(--tint),.45); border-top-color: rgba(255,255,255,.8);
+}
+html[data-theme="dark"] .home-live-stat {
+  background:
+    linear-gradient(135deg, rgba(var(--tint),.20), rgba(var(--tint),.04) 75%),
+    linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  border-color: rgba(var(--tint),.28); border-top-color: rgba(var(--tint),.50);
+  box-shadow: 0 6px 20px rgba(0,0,0,.35), 0 0 22px rgba(var(--tint),.07), inset 0 1px 0 rgba(255,255,255,.10);
+}
+html[data-theme="dark"] .home-live-stat .home-live-stat-label { color: rgb(var(--tint)); filter: brightness(1.25) saturate(.7); }
+</style>
+
 <script id="card-name-size">
 /* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
 function gameNameStyle(name) {
@@ -4578,7 +4658,7 @@ html .game-card {
     border: 1.5px solid transparent;
     background:
         linear-gradient(var(--surface), var(--surface)) padding-box,
-        conic-gradient(from var(--linn-a), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
+        conic-gradient(from var(--linn-a), #4285F4, #A56CE8, #F0505F, #A56CE8, #4285F4) border-box;
     animation: linnSpin 4s linear infinite;
 }
 /* keep the entrance animations working alongside the spin */
@@ -4599,13 +4679,13 @@ html[data-theme="dark"] .game-card .game-card-name {
     background:
         linear-gradient(rgba(24,119,242,0.14), rgba(24,119,242,0.14)) padding-box,
         linear-gradient(var(--surface), var(--surface)) padding-box,
-        conic-gradient(from calc(var(--linn-a) + 180deg), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
+        conic-gradient(from calc(var(--linn-a) + 180deg), #4285F4, #A56CE8, #F0505F, #A56CE8, #4285F4) border-box;
 }
 html[data-theme="dark"] .game-card .game-card-name {
     background:
         linear-gradient(rgba(168,85,247,0.22), rgba(168,85,247,0.22)) padding-box,
         linear-gradient(var(--surface), var(--surface)) padding-box,
-        conic-gradient(from calc(var(--linn-a) + 180deg), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
+        conic-gradient(from calc(var(--linn-a) + 180deg), #4285F4, #A56CE8, #F0505F, #A56CE8, #4285F4) border-box;
 }
 /* card skeletons (game grid, popular, voucher, software): soft light-blue image block, plain white name pill */
 .skel-game-card .skel.skel-img, .skel-popular-card .skel.skel-img, .skel-popular-voucher-card .skel.skel-img, .skel-software-card .skel.skel-img {
@@ -4956,6 +5036,91 @@ html.perf-low .pc-star { box-shadow: none; }
         html[data-theme="dark"] .wallet-amount-presets { background: rgba(255,255,255,0.07); }
         html[data-theme="dark"] .wallet-topup-amount-input { background: rgba(255,255,255,0.09); }
     </style>
+<style id="history-tab-badge-colors">
+/* Active History status tab uses the same hue as its order badge (Pending=amber, Processing=indigo, Completed=green, Failed=pink) */
+.history-status-tab[data-k="Pending"].active    { --tab-rgb: 245,158,11; }
+.history-status-tab[data-k="Processing"].active { --tab-rgb: 99,102,241; }
+.history-status-tab[data-k="Success"].active    { --tab-rgb: 16,185,129; }
+.history-status-tab[data-k="Fail"].active       { --tab-rgb: 236,72,153; }
+</style>
+<style id="drawer-glass-buttons">
+/* Sidebar buttons: glass look = translucent gradient + bright top rim + soft inner glow.
+   Uses var(--blur) so desktop gets live blur while phones (where --blur is none) stay light. */
+.side-drawer .drawer-nav-item:not(.active),
+.side-drawer .drawer-profile-card,
+.side-drawer .drawer-close,
+.side-drawer.drawer-sliding .drawer-nav-item:not(.active),
+.side-drawer.drawer-sliding .drawer-profile-card,
+.side-drawer.drawer-sliding .drawer-close {
+    background: linear-gradient(145deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.28) 55%, rgba(255,255,255,0.16) 100%);
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 6px 18px rgba(31,45,90,0.10),
+                inset 0 1.5px 1px rgba(255,255,255,0.95),
+                inset 0 -8px 14px rgba(255,255,255,0.14);
+}
+.side-drawer .drawer-nav-item:not(.active),
+.side-drawer .drawer-profile-card,
+.side-drawer .drawer-close {
+    -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+}
+.side-drawer.drawer-sliding .drawer-nav-item:not(.active),
+.side-drawer.drawer-sliding .drawer-profile-card,
+.side-drawer.drawer-sliding .drawer-close {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+/* Active item: tinted glass instead of a flat solid fill */
+.side-drawer .drawer-nav-item.active {
+    background: linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0) 55%),
+                linear-gradient(120deg, #3DB8FF 0%, #1877F2 50%, #3B4FE0 100%);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: 0 8px 20px rgba(24,119,242,0.38),
+                inset 0 1.5px 1px rgba(255,255,255,0.6),
+                inset 0 -8px 14px rgba(255,255,255,0.10);
+    -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+}
+/* Dark mode */
+html[data-theme="dark"] .side-drawer .drawer-nav-item:not(.active),
+html[data-theme="dark"] .side-drawer .drawer-profile-card,
+html[data-theme="dark"] .side-drawer .drawer-close,
+html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-nav-item:not(.active),
+html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-profile-card,
+html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-close {
+    background: linear-gradient(145deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.06) 55%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 6px 18px rgba(0,0,10,0.40),
+                inset 0 1.5px 1px rgba(255,255,255,0.24),
+                inset 0 -8px 14px rgba(255,255,255,0.03);
+}
+html[data-theme="dark"] .side-drawer .drawer-nav-item.active {
+    border-color: rgba(255,255,255,0.35);
+    box-shadow: 0 8px 20px rgba(24,119,242,0.45),
+                inset 0 1.5px 1px rgba(255,255,255,0.40),
+                inset 0 -8px 14px rgba(255,255,255,0.06);
+}
+</style>
+<style id="pc-tag-on-image">
+/* TOP / HOT tags now sit on the package IMAGE (bottom-left), not in the price/label area */
+.package-card .pc-img-wrap { position: relative; }
+.package-card .pc-img-wrap .pc-tag {
+    position: absolute; top: auto; right: auto; left: 6px; bottom: 6px; z-index: 3;
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 3px 8px 3px 6px; border-radius: 999px;
+    font-size: 9.5px; font-weight: 800; letter-spacing: .6px; line-height: 1; color: #fff;
+    border: 1px solid rgba(255,255,255,.55);
+    text-shadow: 0 1px 2px rgba(0,0,0,.28);
+    box-shadow: 0 3px 8px rgba(0,0,0,.28), inset 0 1px 1px rgba(255,255,255,.65);
+}
+.package-card .pc-img-wrap .pc-tag-icon { width: 11px; height: 11px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+.package-card .pc-img-wrap .pc-tag-top {
+    background: linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,0) 55%), linear-gradient(135deg, #FFD84D 0%, #FFA41B 100%);
+}
+.package-card .pc-img-wrap .pc-tag-hot {
+    background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 55%), linear-gradient(135deg, #FF8A3D 0%, #FF2D55 100%);
+}
+/* software rows have a small 56px image: shrink the tag to fit */
+.package-card.type-software .pc-img-wrap .pc-tag { left: 3px; bottom: 3px; padding: 2px 5px 2px 4px; font-size: 8px; gap: 2px; letter-spacing: .3px; }
+.package-card.type-software .pc-img-wrap .pc-tag-icon { width: 9px; height: 9px; }
+</style>
 <style id="tg-iab-css">.in-app-browser .lg-tg-ov { pointer-events: none !important; }</style>
 <style id="order-badge-glass">
 /* Order / top-up status badges: glass pill (tinted translucent fill + thin hue border + outline icon) */
@@ -4987,10 +5152,10 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
     background: currentColor !important;
     -webkit-mask: var(--bi) center / contain no-repeat; mask: var(--bi) center / contain no-repeat;
 }
-.badge.badge-success    { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9.5'/><path d='M8 12.4l2.7 2.7L16 9.6'/></svg>"); }
-.badge.badge-warning    { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'><path d='M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21M5.6 5.6l2.4 2.4M16 16l2.4 2.4M5.6 18.4L8 16M16 8l2.4-2.4'/></svg>"); }
-.badge.badge-processing { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M20 12.5V8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h6'/><path d='M4.5 8l6 4.2a2.4 2.4 0 0 0 2.8 0L19 8.5'/><path d='M16 18.5h5.5M19 15.8l2.7 2.7-2.7 2.7'/></svg>"); }
-.badge.badge-danger     { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'><circle cx='12' cy='12' r='9.5'/><path d='M9 9l6 6M15 9l-6 6'/></svg>"); }
+.badge.badge-success    { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9.5' fill='black' fill-opacity='.22'/><path d='M7.8 12.4l3 3 5.4-6'/></svg>"); }
+.badge.badge-warning    { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9.5' fill='black' fill-opacity='.22'/><path d='M12 7v5.2l3.3 2'/></svg>"); }
+.badge.badge-processing { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 11a8 8 0 0 0-14-4.5L4 8.5'/><path d='M4 4v4.5h4.5'/><path d='M4 13a8 8 0 0 0 14 4.5l2-2'/><path d='M20 20v-4.5h-4.5'/></svg>"); }
+.badge.badge-danger     { --bi: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9.5' fill='black' fill-opacity='.22'/><path d='M9 9l6 6M15 9l-6 6'/></svg>"); }
 @keyframes badgeSpokes { to { transform: rotate(360deg); } }
 .badge.badge-warning::before { animation: badgeSpokes 1.6s steps(8) infinite; }
 @media (prefers-reduced-motion: reduce) { .badge.badge-warning::before { animation: none; } }
@@ -5206,9 +5371,6 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
                             <span id="onboard-google-btn-label" class="lg-sr">Continue with Google</span>
                         </button>
-                        <button type="button" class="lg-social-btn" id="onboard-facebook-btn" onclick="window.showToast('Facebook sign-in coming soon', 'info')" aria-label="Facebook sign-in coming soon" style="opacity:0.45;">
-                            <svg class="ui-icon" style="width:26px;height:26px;color:#1877F2;" fill="currentColor" stroke="none"><use href="#icon-facebook"></use></svg>
-                        </button>
                         <div class="lg-tg-tile" aria-label="Continue with Telegram">
                             <svg class="ui-icon" fill="currentColor" stroke="none"><use href="#icon-telegram-filled"></use></svg>
                             <div id="onboard-telegram-widget" class="lg-tg-ov"></div>
@@ -5245,56 +5407,56 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             <circle cx="22" cy="8.2" r="1.4" fill="#FFF6DE" stroke="#B9791F" stroke-width="0.6"></circle>
             <circle cx="12" cy="14.5" r="1.5" fill="#E0982A" stroke="none"></circle>
         </symbol>
-        <symbol id="icon-gamepad" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path></symbol>
-        <symbol id="icon-gamepad-nav" viewBox="0 0 24 24"><path d="M7 8h10a4 4 0 0 1 4 4v3.2a2.3 2.3 0 0 1-3.9 1.65L15.6 15.4a2 2 0 0 0-1.4-.58h-4.4a2 2 0 0 0-1.4.58l-1.5 1.45A2.3 2.3 0 0 1 3 15.2V12a4 4 0 0 1 4-4Z"></path><line x1="7.2" y1="11.5" x2="9.4" y2="11.5"></line><line x1="8.3" y1="10.4" x2="8.3" y2="12.6"></line><circle cx="16" cy="10.8" r="0.9" fill="currentColor" stroke="none"></circle><circle cx="17.7" cy="12.5" r="0.9" fill="currentColor" stroke="none"></circle></symbol>
-        <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></symbol>
-        <symbol id="icon-history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="3" x2="12" y2="4.5"></line><line x1="12" y1="19.5" x2="12" y2="21"></line><line x1="3" y1="12" x2="4.5" y2="12"></line><line x1="19.5" y1="12" x2="21" y2="12"></line><polyline points="12 7 12 12.5 16 15"></polyline></symbol>
-        <symbol id="icon-history-nav" viewBox="0 0 24 24"><path d="M5 4.5h11.5a2.5 2.5 0 0 1 2.5 2.5v12.2c0 .55-.6.9-1.08.62l-1.86-1.08a1 1 0 0 0-1 0l-1.36.79a1 1 0 0 1-1 0l-1.36-.79a1 1 0 0 0-1 0l-1.36.79a1 1 0 0 1-1 0L6.1 17.75a1 1 0 0 0-1 0L3.5 18.7V7A2.5 2.5 0 0 1 5 4.5Z"></path><line x1="7.5" y1="8.5" x2="14.5" y2="8.5"></line><line x1="7.5" y1="12" x2="14.5" y2="12"></line><line x1="7.5" y1="15.5" x2="11.5" y2="15.5"></line></symbol>
-        <symbol id="icon-wallet" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path></symbol>
-        <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+        <symbol id="icon-gamepad" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M7 8h10a4 4 0 0 1 4 4v3.2a2.3 2.3 0 0 1-3.9 1.65L15.6 15.4a2 2 0 0 0-1.4-.58h-4.4a2 2 0 0 0-1.4.58l-1.5 1.45A2.3 2.3 0 0 1 3 15.2V12a4 4 0 0 1 4-4Z"/><path d="M8.3 10.3v2.4M7.1 11.5h2.4"/><circle cx="16" cy="10.8" r=".9" fill="currentColor" stroke="none"/><circle cx="17.7" cy="12.5" r=".9" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-gamepad-nav" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M7 8h10a4 4 0 0 1 4 4v3.2a2.3 2.3 0 0 1-3.9 1.65L15.6 15.4a2 2 0 0 0-1.4-.58h-4.4a2 2 0 0 0-1.4.58l-1.5 1.45A2.3 2.3 0 0 1 3 15.2V12a4 4 0 0 1 4-4Z"/><path d="M8.3 10.3v2.4M7.1 11.5h2.4"/><circle cx="16" cy="10.8" r=".9" fill="currentColor" stroke="none"/><circle cx="17.7" cy="12.5" r=".9" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M4 10.5 12 3.5l8 7V19a2 2 0 0 1-2 2h-3.5v-5a1.5 1.5 0 0 0-1.5-1.5h-2A1.5 1.5 0 0 0 9.5 16v5H6a2 2 0 0 1-2-2v-8.5Z"/></symbol>
+        <symbol id="icon-history" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></symbol>
+        <symbol id="icon-history-nav" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M5 4.5h11.5A2.5 2.5 0 0 1 19 7v12.2c0 .55-.6.9-1.08.62l-1.86-1.08a1 1 0 0 0-1 0l-1.36.79a1 1 0 0 1-1 0l-1.36-.79a1 1 0 0 0-1 0l-1.36.79a1 1 0 0 1-1 0L6.1 17.75a1 1 0 0 0-1 0L3.5 18.7V7A2.5 2.5 0 0 1 5 4.5Z"/><path d="M7.5 8.5h7M7.5 12h7M7.5 15.5h4"/></symbol>
+        <symbol id="icon-wallet" viewBox="0 0 24 24"><rect fill="currentColor" fill-opacity=".16" x="3" y="7" width="18" height="13" rx="3.5"/><path d="M6 7V6a2 2 0 0 1 2-2h8.5A1.5 1.5 0 0 1 18 5.5V7"/><path d="M21 12.5h-4a2 2 0 0 0 0 4h4"/><circle cx="17.2" cy="14.5" r=".8" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="8" r="4"/><path fill="currentColor" fill-opacity=".16" d="M4 20.5v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1Z"/></symbol>
 
-        <symbol id="icon-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></symbol>
-        <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></symbol>
-        <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></symbol>
-        <symbol id="icon-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></symbol>
-        <symbol id="icon-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2l.5-.5M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></symbol>
-        <symbol id="icon-megaphone" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></symbol>
-        <symbol id="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
-        <symbol id="icon-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></symbol>
-        <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
-        <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
-        <symbol id="icon-chevron-right" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></symbol>
-        <symbol id="icon-chevron-left" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></symbol>
-        <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
-        <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></symbol>
-        <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
-        <symbol id="icon-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></symbol>
-        <symbol id="icon-telegram" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></symbol>
+        <symbol id="icon-trophy" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M7 3.5h10v6a5 5 0 0 1-10 0v-6Z"/><path d="M7 5.5H4.5V7A3 3 0 0 0 7.4 10M17 5.5h2.5V7a3 3 0 0 1-2.9 3"/><path d="M12 14.5V18"/><path fill="currentColor" fill-opacity=".16" d="M8 20.5v-1a1.5 1.5 0 0 1 1.5-1.5h5a1.5 1.5 0 0 1 1.5 1.5v1Z"/></symbol>
+        <symbol id="icon-bell" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M6 9.5a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4s2-1.5 2-6.5Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4.5L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14 4.5l2-2"/><path d="M20 20v-4.5h-4.5"/></symbol>
+        <symbol id="icon-rocket" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M12.5 14.5l-3-3a20 20 0 0 1 2.2-4.3C14 4 17.5 2.5 21.5 2.5c0 4-1.5 7.5-4.7 9.8a20 20 0 0 1-4.3 2.2Z"/><path d="M9.5 11.5H5l2-3.5h3.5M12.5 14.5V19l3.5-2v-3.5"/><path d="M5.5 16.5c-1.4 1-1.8 3.9-1.8 3.9s2.9-.4 3.9-1.8"/><circle cx="16" cy="8" r="1.3"/></symbol>
+        <symbol id="icon-megaphone" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M4 9.5v5a1 1 0 0 0 1 1h2.5L16 20V4L7.5 8.5H5a1 1 0 0 0-1 1Z"/><path d="M19.5 9a4.5 4.5 0 0 1 0 6"/><path d="M8 15.5l.8 3.5"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.9-4.9"/></symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="icon-chevron-right" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+        <symbol id="icon-chevron-left" viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></symbol>
+        <symbol id="icon-copy" viewBox="0 0 24 24"><rect fill="currentColor" fill-opacity=".16" x="8.5" y="8.5" width="12" height="12" rx="3"/><path d="M15.5 8.5v-2a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h2"/></symbol>
+        <symbol id="icon-camera" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M3.5 9.5a2 2 0 0 1 2-2h1.6a1 1 0 0 0 .85-.47l.7-1.2A1.5 1.5 0 0 1 9.95 5h4.1a1.5 1.5 0 0 1 1.3.83l.7 1.2a1 1 0 0 0 .85.47h1.6a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.3"/></symbol>
+        <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V13"/><path fill="currentColor" fill-opacity=".16" d="M17.5 3.5l3 3L12 15l-4 1 1-4 8.5-8.5Z"/></symbol>
+        <symbol id="icon-facebook" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M17.5 2.8h-2.8a4.5 4.5 0 0 0-4.5 4.5V10H7.5v3.6h2.7v7.6h3.7v-7.6h2.9l.7-3.6h-3.6V7.9a1 1 0 0 1 1-1h2.6Z"/></symbol>
+        <symbol id="icon-telegram" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M21 3.5 3.5 10.3a.8.8 0 0 0 0 1.5l4.4 1.6 1.7 5.3a.8.8 0 0 0 1.3.3l2.5-2.3 4.2 3.1a1 1 0 0 0 1.6-.6L22 4.4a.9.9 0 0 0-1-.9Z"/><path d="M8 13.4l9.5-6.2"/></symbol>
         <symbol id="icon-telegram-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21.9 3.5c.28-1.17-.86-2.1-1.94-1.65L1.6 9.62c-1.23.5-1.2 2.24.04 2.7l4.6 1.68 1.78 5.74c.28.9 1.42 1.16 2.06.47l2.55-2.75 4.65 3.5c.9.68 2.2.19 2.44-.93L21.9 3.5zM8.9 13.9l9.3-6.9-7.5 8.2-.3 3.2-1.5-4.5z"></path></symbol>
         <symbol id="icon-messenger-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.15 2 11.27c0 2.92 1.45 5.53 3.72 7.24V22l3.4-1.87c.91.25 1.87.39 2.88.39 5.52 0 10-4.15 10-9.27C22 6.15 17.52 2 12 2zm1.01 12.48-2.55-2.72-4.98 2.72 5.48-5.82 2.61 2.72 4.92-2.72-5.48 5.82z"></path></symbol>
-        <symbol id="icon-tiktok" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></symbol>
-        <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></symbol>
-        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></symbol>
-        <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></symbol>
-        <symbol id="icon-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></symbol>
-        <symbol id="icon-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></symbol>
-        <symbol id="icon-feather" viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></symbol>
-        <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></symbol>
-        <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></symbol>
-        <symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></symbol>
-        <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
-        <symbol id="icon-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></symbol>
-        <symbol id="icon-alert" viewBox="0 0 24 24"><line x1="12" y1="7" x2="12" y2="13.5"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
-        <symbol id="icon-info" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="11"></line><line x1="12" y1="7" x2="12.01" y2="7"></line></symbol>
-        <symbol id="icon-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4"></rect><path d="M12 8v13"></path><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"></path></symbol>
-        <symbol id="icon-external-link" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></symbol>
-        <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
-        <symbol id="icon-message-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"></circle><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"></circle></symbol>
-        <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></symbol>
-        <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></symbol>
-        <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"></path><circle cx="12" cy="9" r="2.5"></circle></symbol>
-        <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></symbol>
-        <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polyline points="2 6 12 13 22 6"></polyline></symbol>
+        <symbol id="icon-tiktok" viewBox="0 0 24 24"><path d="M10 17.5V6l9-2v11.5"/><circle fill="currentColor" fill-opacity=".16" cx="7" cy="17.5" r="3"/><circle fill="currentColor" fill-opacity=".16" cx="16" cy="15.5" r="3"/></symbol>
+        <symbol id="icon-grid" viewBox="0 0 24 24"><rect fill="currentColor" fill-opacity=".16" x="3.5" y="3.5" width="7" height="7" rx="2"/><rect fill="currentColor" fill-opacity=".16" x="13.5" y="3.5" width="7" height="7" rx="2"/><rect fill="currentColor" fill-opacity=".16" x="3.5" y="13.5" width="7" height="7" rx="2"/><rect fill="currentColor" fill-opacity=".16" x="13.5" y="13.5" width="7" height="7" rx="2"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M12 21.5c-4.2-1.8-7-5.2-7-9.5V6l7-2.7L19 6v6c0 4.3-2.8 7.7-7 9.5Z"/></symbol>
+        <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-compass" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path fill="currentColor" fill-opacity=".16" d="m15.8 8.2-1.9 5.7-5.7 1.9 1.9-5.7 5.7-1.9Z"/></symbol>
+        <symbol id="icon-smile" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M8.5 14a4 4 0 0 0 7 0"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-feather" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><path d="M16 8 2.5 21.5M17.5 15H9"/></symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.8 6.8 0 0 0 9.7 9.7Z"/></symbol>
+        <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 16v1.5A2.5 2.5 0 0 0 7 20h10a2.5 2.5 0 0 0 2.5-2.5V16"/></symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24"><rect fill="currentColor" fill-opacity=".16" x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-star" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M12 3.2l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.6l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8L12 3.2Z"/></symbol>
+        <symbol id="icon-alert" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><circle cx="12" cy="16.5" r="1.05" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-info" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r="1.05" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-gift" viewBox="0 0 24 24"><rect fill="currentColor" fill-opacity=".16" x="3.5" y="8" width="17" height="4" rx="1.2"/><path fill="currentColor" fill-opacity=".16" d="M5 12v6.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V12"/><path d="M12 8v13"/><path d="M12 8c-.5-2.5-2-4.5-4-4.5a2 2 0 0 0 0 4.5M12 8c.5-2.5 2-4.5 4-4.5a2 2 0 0 1 0 4.5"/></symbol>
+        <symbol id="icon-external-link" viewBox="0 0 24 24"><path d="M13.5 4.5h6v6M19.5 4.5 11 13"/><path d="M17.5 14v3.5a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2H10"/></symbol>
+        <symbol id="icon-help" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M9.4 9.4a2.7 2.7 0 0 1 5.2.9c0 1.7-2.6 2.2-2.6 3.7"/><circle cx="12" cy="17.2" r="1.05" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-message-circle" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-globe" viewBox="0 0 24 24"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z"/></symbol>
+        <symbol id="icon-flag" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M5 4.5c3-1.5 5 1.5 8 0 2-1 4-1 6 0v9c-2-1-4-1-6 0-3 1.5-5-1.5-8 0Z"/><path d="M5 21V4.5"/></symbol>
+        <symbol id="icon-pin" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M12 21.5s6.5-5.6 6.5-11.2A6.5 6.5 0 0 0 5.5 10.3C5.5 15.9 12 21.5 12 21.5Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+        <symbol id="icon-book" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity=".16" d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v14.5H7.5A2.5 2.5 0 0 0 5 20Z"/><path d="M5 20a2.5 2.5 0 0 0 2.5 1H19v-3.5"/><path d="M9 7.5h6"/></symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24"><rect fill="currentColor" fill-opacity=".16" x="3" y="5" width="18" height="14" rx="3.5"/><path d="m4 8 8 5.5L20 8"/></symbol>
 
         <!-- Simplified national flags for the EN/MY language toggle -->
         <symbol id="flag-en" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice">
@@ -5839,17 +6001,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
                 <div class="wseg" id="wallet-seg" role="tablist">
                     <button type="button" class="wseg-btn green" id="wseg-btn-txn" role="tab" aria-selected="false" onclick="setWalletSegTab('txn')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12M16 3l4 4-4 4"/><path d="M17 17H5M8 13l-4 4 4 4"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h13.5M15 4.5 18.5 8 15 11.5"/><path d="M19 16H5.5M9 12.5 5.5 16 9 19.5"/></svg>
                         <span>Transactions</span>
                     </button>
                     <button type="button" class="wseg-btn blue active" id="wseg-btn-topup" role="tab" aria-selected="true" onclick="setWalletSegTab('topup')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
                         <span>Top Up History</span>
                     </button>
                 </div>
 
                 <div class="wseg-viewport" id="wallet-viewport">
-                <div class="wseg-track no-anim" id="wallet-track" style="transform:translateX(-50%)">
+                <div class="wseg-track no-anim" id="wallet-track" style="transform:translateX(0)">
                 <div class="wseg-pane off" id="wallet-pane-txn" role="tabpanel">
                     <div class="wtx-tabs" id="wallet-txn-tabs">
                         <button type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
@@ -6228,7 +6390,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                  from the Profile page too, without needing a separate Settings page. -->
             <div class="detail-form-card profile-card-anim" id="profile-prefs-card" style="margin-top:14px;animation-delay:40ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('profile-prefs-body','profile-prefs-chevron')" role="button" aria-label="Show preferences">
-                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><label style="align-self:flex-start;margin-top:0;">Preferences</label></span>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h7M17 6h3M4 12h2M12 12h8M4 18h9M19 18h1"/><circle fill="currentColor" fill-opacity=".16" cx="14" cy="6" r="2.6"/><circle fill="currentColor" fill-opacity=".16" cx="9" cy="12" r="2.6"/><circle fill="currentColor" fill-opacity=".16" cx="16" cy="18" r="2.6"/></svg></span><label style="align-self:flex-start;margin-top:0;">Preferences</label></span>
                     <svg class="ui-icon collapsible-chevron" id="profile-prefs-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="profile-prefs-body">
@@ -6259,7 +6421,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 </div>
                 <div class="prefs-row" style="margin-top:10px;">
                     <span class="prefs-row-label">
-                        <span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="8" y="3" width="8" height="18" rx="2"></rect><path d="M4 8v8M20 8v8"></path></svg></span>
+                        <span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect fill="currentColor" fill-opacity=".16" x="8" y="3" width="8" height="18" rx="2.5"></rect><path d="M4.5 8v8M19.5 8v8"></path></svg></span>
                         <span>
                             Haptic Feedback
                             <small id="haptic-toggle-state" style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">On</small>
@@ -6267,13 +6429,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     </span>
                     <div class="push-toggle on" id="haptic-toggle" onclick="toggleHaptic()" role="button" aria-label="Toggle haptic feedback">
                         <span class="push-toggle-thumb">
-                            <svg class="svg-icon" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="8" y="3" width="8" height="18" rx="2"></rect><path d="M4 8v8M20 8v8"></path></svg>
+                            <svg class="svg-icon" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect fill="currentColor" fill-opacity=".16" x="8" y="3" width="8" height="18" rx="2.5"></rect><path d="M4.5 8v8M19.5 8v8"></path></svg>
                         </span>
                     </div>
                 </div>
                 <div class="prefs-row" style="margin-top:10px;">
                     <span class="prefs-row-label">
-                        <span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="5" y="8" width="14" height="11" rx="4"></rect><path d="M12 8V5M9.5 13.5h.01M14.5 13.5h.01"></path></svg></span>
+                        <span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect fill="currentColor" fill-opacity=".16" x="5" y="8" width="14" height="11" rx="4"></rect><path d="M12 8V5M9.5 13.5h.01M14.5 13.5h.01"></path></svg></span>
                         <span>
                             Robot Play
                             <small id="botplay-toggle-state" style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">On</small>
@@ -6281,7 +6443,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     </span>
                     <div class="push-toggle on" id="botplay-toggle" onclick="toggleBotPlay()" role="button" aria-label="Toggle robot playing by itself" data-no-haptic>
                         <span class="push-toggle-thumb">
-                            <svg class="svg-icon" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="5" y="8" width="14" height="11" rx="4"></rect><path d="M12 8V5"></path></svg>
+                            <svg class="svg-icon" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect fill="currentColor" fill-opacity=".16" x="5" y="8" width="14" height="11" rx="4"></rect><path d="M12 8V5"></path></svg>
                         </span>
                     </div>
                 </div>
@@ -7787,6 +7949,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 verticalIntent = false;
                 dragEl = TAB_ORDER.indexOf(window.currentStorePage || 'home') !== -1
                     ? document.querySelector('.page-section.active') : null;
+                // A touch that starts inside a popup/modal (slide-to-submit, inputs...) never drags the page behind it
+                if (e.target.closest && e.target.closest('.modal-overlay, .modal-box, .drawer-overlay')) dragEl = null;
             }, { passive: true });
 
             content.addEventListener('touchmove', (e) => {
@@ -9709,21 +9873,21 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 // Admin-assigned promo star pill — 'top' or 'hot' (see admin
                 // package editor). Same star icon for both, colored differently.
                 const tagHtml = (pkg.badge === 'top' || pkg.badge === 'hot')
-                    ? `<span class="pc-tag pc-tag-${pkg.badge}"><svg class="pc-tag-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>${pkg.badge === 'top' ? 'TOP' : 'HOT'}</span>`
+                    ? `<span class=\"pc-tag pc-tag-${pkg.badge}\"><svg class=\"pc-tag-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\">${pkg.badge === 'top' ? '<path d="M12 3.4l2.5 5.3 5.8.8-4.2 4.1 1 5.8L12 16.7l-5.1 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.4Z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.6 9.1l1.4-2.3" stroke="#fff" stroke-opacity=".7" stroke-width="1.2" stroke-linecap="round" fill="none"/>' : '<path d="M12 2.4c.7 3.2 2.7 4.8 4.4 6.7C18 10.9 19.2 12.8 19.2 15.2a7.2 7.2 0 0 1-14.4 0c0-2.3 1-4.1 2.4-5.6.3 1.5 1 2.5 2.1 3.1C9 9.1 9.9 5.2 12 2.4Z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><path d="M12 21.2a3.7 3.7 0 0 1-3.7-3.7c0-1.8 1.1-3 2.2-4.1.5-.5.9-1.2 1.1-2 2 1.4 4.2 3.1 4.2 6A3.7 3.7 0 0 1 12 21.2Z" fill="#FFE9A8" fill-opacity=".95"/>'}</svg>${pkg.badge === 'top' ? 'TOP' : 'HOT'}</span>`
                     : '';
                 const bodyHTML = isSoftware
-                    ? `<div class="pc-img-wrap">${imgTag}</div>
+                    ? `<div class="pc-img-wrap">${imgTag}${tagHtml}</div>
                     <div class="pc-row-info">
                         <span class="pc-row-name">${pkg.amount}</span>
                         <span class="pc-row-price">${Number(pkg.price || 0).toLocaleString()} MMK</span>
                         ${costHtml}
-                    </div>${tagHtml}`
+                    </div>`
                     : isVoucher
                     ? `<div class="pc-amount-badge">${pkg.amount}</div>
-                    <div class="pc-img-wrap">${imgTag}</div>
-                    <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span>${costHtml}</div>${tagHtml}`
-                    : `<div class="pc-img-wrap">${imgTag}</div>
-                    <div class="pc-label-wrap${tagHtml ? ' has-tag' : ''}"><span class="pc-label${pcLabelSizeClass(String(pkg.amount))}">${pkg.amount}</span>${tagHtml}</div>
+                    <div class="pc-img-wrap">${imgTag}${tagHtml}</div>
+                    <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span>${costHtml}</div>`
+                    : `<div class="pc-img-wrap">${imgTag}${tagHtml}</div>
+                    <div class="pc-label-wrap"><span class="pc-label${pcLabelSizeClass(String(pkg.amount))}">${pkg.amount}</span></div>
                     <div class="pc-price-bar"><span class="pc-price">${Number(pkg.price || 0).toLocaleString()}<span class="pc-cur">MMK</span></span>${costHtml}</div>`;
                 return `
                 <div class="package-card ${cardTypeClass} game-card-anim${zoomIn ? ' card-zoom' : ''}${outOfStock ? ' out-of-stock' : ''}" style="--i:${Math.min(pos, 12)}" data-index="${i}" onclick="${outOfStock ? '' : `selectPackageOption(${i})`}">
@@ -9901,7 +10065,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             box.classList.toggle('wp-low', !enough); box.classList.toggle('wp-ok', enough);
             box.innerHTML = `<div class="wp">
                 <div class="wp-head">
-                    <span class="wp-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7l12-3v3"/><circle cx="17" cy="14" r="1"/></svg></span>
+                    <span class="wp-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect fill="currentColor" fill-opacity=".16" x="3" y="7" width="18" height="13" rx="3.5"/><path d="M6 7V6a2 2 0 0 1 2-2h8.5A1.5 1.5 0 0 1 18 5.5V7"/><path d="M21 12.5h-4a2 2 0 0 0 0 4h4"/><circle cx="17.2" cy="14.5" r=".8" fill="currentColor" stroke="none"/></svg></span>
                     <div><div class="wp-lbl">Wallet Balance</div><div class="wp-bal">${bal.toLocaleString()} MMK</div></div>
                     <span class="wp-chip">Available 24/7</span>
                 </div>
@@ -9958,7 +10122,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     <div class="payment-option" data-payment-id="${id}" onclick="selectPaymentMethod('${id}')">
                         <div class="payment-option-icon">${p.image ? `<img loading="lazy" decoding="async" src="${(window.escapeHtml ? window.escapeHtml(p.image) : p.image)}" alt="${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
                         <div class="payment-option-text">
-                            <div class="payment-option-title"><span class="payment-option-name">${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}</span>${p.hot ? '<span class="pay-hot"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.75-.55C9.29 3.71 6.68 8 8.87 13.62c.18.46-.36.89-.75.59-1.81-1.37-2-3.34-1.84-4.75.06-.52-.62-.77-.91-.34C4.69 10.16 4 11.84 4 14.37c.38 5.6 5.11 7.32 6.81 7.54 2.43.31 5.06-.14 6.95-1.87 2.08-1.93 2.84-5.01 1.72-7.69z"/></svg>HOT</span>' : ''}</div>
+                            <div class="payment-option-title"><span class="payment-option-name">${(window.escapeHtml ? window.escapeHtml(p.name) : p.name)}</span>${p.hot ? '<span class="pay-hot"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.4c.7 3.2 2.7 4.8 4.4 6.7C18 10.9 19.2 12.8 19.2 15.2a7.2 7.2 0 0 1-14.4 0c0-2.3 1-4.1 2.4-5.6.3 1.5 1 2.5 2.1 3.1C9 9.1 9.9 5.2 12 2.4Z\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linejoin=\"round\"/><path d=\"M12 21.2a3.7 3.7 0 0 1-3.7-3.7c0-1.8 1.1-3 2.2-4.1.5-.5.9-1.2 1.1-2 2 1.4 4.2 3.1 4.2 6A3.7 3.7 0 0 1 12 21.2Z\" fill=\"#FFE9A8\" fill-opacity=\".95\"/></svg>HOT</span>' : ''}</div>
                             ${p.availabilityNote ? `<span class="payment-option-availability">${(window.escapeHtml ? window.escapeHtml(p.availabilityNote) : p.availabilityNote)}</span>` : ''}
                         </div>
                     </div>
@@ -11897,7 +12061,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     <div class="payment-option" data-wallet-payment-id="${id}" onclick="selectWalletPaymentMethod('${id}')">
                         <div class="payment-option-icon">${p.image ? `<img loading="lazy" decoding="async" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}">` : '<svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg>'}</div>
                         <div class="payment-option-text">
-                            <div class="payment-option-title"><span class="payment-option-name">${escapeHtml(p.name)}</span>${p.hot ? '<span class="pay-hot"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.75-.55C9.29 3.71 6.68 8 8.87 13.62c.18.46-.36.89-.75.59-1.81-1.37-2-3.34-1.84-4.75.06-.52-.62-.77-.91-.34C4.69 10.16 4 11.84 4 14.37c.38 5.6 5.11 7.32 6.81 7.54 2.43.31 5.06-.14 6.95-1.87 2.08-1.93 2.84-5.01 1.72-7.69z"/></svg>HOT</span>' : ''}</div>
+                            <div class="payment-option-title"><span class="payment-option-name">${escapeHtml(p.name)}</span>${p.hot ? '<span class="pay-hot"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.4c.7 3.2 2.7 4.8 4.4 6.7C18 10.9 19.2 12.8 19.2 15.2a7.2 7.2 0 0 1-14.4 0c0-2.3 1-4.1 2.4-5.6.3 1.5 1 2.5 2.1 3.1C9 9.1 9.9 5.2 12 2.4Z\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linejoin=\"round\"/><path d=\"M12 21.2a3.7 3.7 0 0 1-3.7-3.7c0-1.8 1.1-3 2.2-4.1.5-.5.9-1.2 1.1-2 2 1.4 4.2 3.1 4.2 6A3.7 3.7 0 0 1 12 21.2Z\" fill=\"#FFE9A8\" fill-opacity=\".95\"/></svg>HOT</span>' : ''}</div>
                             ${p.availabilityNote ? `<span class="payment-option-availability">${escapeHtml(p.availabilityNote)}</span>` : ''}
                         </div>
                     </div>
@@ -12422,7 +12586,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (!rows.length) { box.innerHTML = '<div class="wtx-empty">No transactions yet</div>'; return; }
             const sign = { in: '+', out: '−', buy: '−' };
             const glyph = { in: '↓', out: '↑', buy: '' };
-            const padSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h4M8 9v4"/><circle cx="15.5" cy="10.5" r=".6"/><circle cx="17.5" cy="12.5" r=".6"/><path d="M7 6h10a4 4 0 0 1 4 4l.5 5a3 3 0 0 1-5.2 2.2L15 16H9l-1.3 1.2A3 3 0 0 1 2.5 15L3 10a4 4 0 0 1 4-4z"/></svg>';
+            const padSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" fill-opacity=".16" d="M7 8h10a4 4 0 0 1 4 4v3.2a2.3 2.3 0 0 1-3.9 1.65L15.6 15.4a2 2 0 0 0-1.4-.58h-4.4a2 2 0 0 0-1.4.58l-1.5 1.45A2.3 2.3 0 0 1 3 15.2V12a4 4 0 0 1 4-4Z"/><path d="M8.3 10.3v2.4M7.1 11.5h2.4"/><circle cx="16" cy="10.8" r=".9" fill="currentColor" stroke="none"/><circle cx="17.7" cy="12.5" r=".9" fill="currentColor" stroke="none"/></svg>';
             const html = rows.slice(0, walletTxnLimit).map(r => `
                 <div class="wtx-row">
                     ${r.type === 'buy'
@@ -13330,6 +13494,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             ['onboard-telegram-widget', 'profile-telegram-widget'].forEach(renderTelegramWidgetInto);
         }
         window.renderTelegramWidgets = renderTelegramWidgets;
+        window.renderTelegramWidgetInto = renderTelegramWidgetInto;
+        window.completeTelegramSignIn = completeTelegramSignIn;
         renderTelegramWidgets();
 
         // Facebook / Messenger / Instagram / Line in-app browsers cannot open Telegram's login popup,
@@ -15613,7 +15779,18 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (status === 'Processing') return 'Processing';
             return 'Pending';
         }
+        // Auto tab jump: when an order is placed or its status changes while History is
+        // open, show the tab for its new status. Completed / Failed fall back to "All" after 2 seconds;
+        // Pending / Processing stay put until the status changes again.
+        let historyAutoTabTimer = null;
+        let HISTORY_PREV_STATUS = null;   // { orderId: status } from the previous snapshot
+        let HISTORY_SERVER_SEEN = false;  // true once a server-confirmed snapshot was processed
+        function historyCenterActiveTab() {
+            const a = document.querySelector('#history-container .history-status-tab.active');
+            if (a && a.scrollIntoView) { try { a.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* ignore */ } }
+        }
         function setHistoryStatusFilter(key) {
+            clearTimeout(historyAutoTabTimer); // a manual tap cancels the pending auto-return
             HISTORY_FILTER_STATUS = key;
             renderHistoryOrders(HISTORY_ORDERS);
         }
@@ -16447,10 +16624,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         async function deliverPngBlob(blob, filename, fromPreview) {
             try {
                 const ua = navigator.userAgent || '';
+                const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
                 const inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|Telegram|Messenger|; wv\)/i.test(ua);
-                // In-app browsers (Facebook / Telegram / Messenger ...) block file downloads,
-                // so only there we hand the PNG to the system share sheet (it has "Save Image").
-                if (inApp && navigator.canShare) {
+                const tgMini = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+                // iOS (Safari + every iOS webview), in-app browsers and the Telegram mini app
+                // silently ignore <a download>, so they get the system share sheet ("Save Image").
+                const restricted = ios || inApp || tgMini;
+                if (restricted && navigator.canShare && navigator.share) {
                     try {
                         const file = new File([blob], filename, { type: 'image/png' });
                         if (navigator.canShare({ files: [file] })) {
@@ -16459,9 +16639,16 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         }
                     } catch (e) {
                         if (e && e.name === 'AbortError') return; // user closed the share sheet
+                        console.warn('Share failed, falling back:', e);
                     }
                 }
-                // Everywhere else (desktop, Android Chrome, iOS Safari): a real file download.
+                if (restricted) {
+                    // Share unavailable: the preview image is already on screen, so tell the
+                    // person how to save it (long-press -> Save Image) instead of a fake "Downloading...".
+                    window.showToast('Press and hold the receipt image, then choose "Save Image".', 'success');
+                    return;
+                }
+                // Desktop + Android Chrome: a real file download.
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -16961,6 +17148,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             historyLoadedOnce = false;
             HISTORY_FILTER_DATE = null;
             HISTORY_FILTER_STATUS = 'all';
+            clearTimeout(historyAutoTabTimer);
+            HISTORY_PREV_STATUS = null;
+            HISTORY_SERVER_SEEN = false;
             container.innerHTML = loadingStateHTML('bars');
 
             const q = query(collection(db, "orders"), where("userId", "==", guestId));
@@ -16979,7 +17169,31 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 historyLoadedOnce = true;
                 const orders = [];
                 snap.forEach(docSnap => orders.push({ id: docSnap.id, ...docSnap.data() }));
-                runWhenNotTouching(document.querySelector('#history-container .order-list-scroll') || container, () => renderHistoryOrders(orders));
+                // New order or status change (after the first server snapshot) -> jump to that status tab
+                let jumpTo = null;
+                if (HISTORY_PREV_STATUS && HISTORY_SERVER_SEEN) {
+                    orders.forEach(o => { if (HISTORY_PREV_STATUS[o.id] !== o.status) jumpTo = historyStatusGroup(o.status); });
+                }
+                HISTORY_PREV_STATUS = {};
+                orders.forEach(o => { HISTORY_PREV_STATUS[o.id] = o.status; });
+                if (!snap.metadata.fromCache) HISTORY_SERVER_SEEN = true;
+                if (jumpTo) {
+                    clearTimeout(historyAutoTabTimer);
+                    HISTORY_FILTER_STATUS = jumpTo;
+                    // Pending / Processing stay on their tab until the order moves on;
+                    // only a finished order (Completed / Failed) returns to All after 2s.
+                    if (jumpTo === 'Success' || jumpTo === 'Fail') {
+                        historyAutoTabTimer = setTimeout(() => {
+                            HISTORY_FILTER_STATUS = 'all';
+                            renderHistoryOrders(HISTORY_ORDERS);
+                            historyCenterActiveTab();
+                        }, 2000);
+                    }
+                }
+                runWhenNotTouching(document.querySelector('#history-container .order-list-scroll') || container, () => {
+                    renderHistoryOrders(orders);
+                    if (jumpTo) historyCenterActiveTab();
+                });
             }, (error) => {
                 console.error("History fetch error: ", error);
                 container.innerHTML = emptyStateHTML('icon-refresh', 'Could not load history', 'Check your connection and try again.');
@@ -16990,6 +17204,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // loadHistory() call (whenever History is opened again) always
         // re-subscribes fresh rather than thinking it's still live.
         function stopListenHistory() {
+            clearTimeout(historyAutoTabTimer);
             if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; historyListenerGuestId = null; }
         }
         window.stopListenHistory = stopListenHistory;
@@ -20501,7 +20716,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             bt.setAttribute('aria-selected', String(!topup)); bu.setAttribute('aria-selected', String(topup));
             track.classList.remove('dragging');
             track.classList.toggle('no-anim', !animate);
-            track.style.transform = topup ? 'translateX(-50%)' : 'translateX(0)';
+            track.style.transform = topup ? 'translateX(0)' : 'translateX(-50%)';
             // once the slide has finished the hidden pane collapses, so the page is only as tall as the visible list
             const settle = () => { (topup ? pt : pu).classList.add('off'); };
             if (animate) track._offT = setTimeout(settle, 360); else settle();
@@ -20538,7 +20753,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
                     if (Math.abs(mx) < Math.abs(my) * 1.2) { lock = 'y'; active = false; return; }     // normal vertical scroll
                     // at either end of the two tabs, leave the gesture to the app's own page swipe
-                    if ((walletSegCur === 'txn' && mx > 0) || (walletSegCur === 'topup' && mx < 0)) { lock = 'y'; active = false; return; }
+                    if ((walletSegCur === 'txn' && mx < 0) || (walletSegCur === 'topup' && mx > 0)) { lock = 'y'; active = false; return; }
                     lock = 'x';
                     clearTimeout(track._offT);
                     pt.classList.remove('off'); pu.classList.remove('off');
@@ -20548,7 +20763,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (lock !== 'x') return;
                 e.stopPropagation();
                 dx = mx;
-                const base = walletSegCur === 'topup' ? -w : 0;
+                const base = walletSegCur === 'topup' ? 0 : -w;
                 const x = Math.max(-w, Math.min(0, base + dx));
                 track.style.transform = 'translateX(' + x + 'px)';
             }, { passive: true });
@@ -20558,8 +20773,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (e && e.stopPropagation) e.stopPropagation();   // don't let the page-level tab swipe also fire
                 const th = Math.min(70, w * 0.2);
                 let next = walletSegCur;
-                if (walletSegCur === 'topup' && dx >= th) next = 'txn';
-                else if (walletSegCur === 'txn' && dx <= -th) next = 'topup';
+                if (walletSegCur === 'topup' && dx <= -th) next = 'txn';
+                else if (walletSegCur === 'txn' && dx >= th) next = 'topup';
                 const changed = next !== walletSegCur;
                 walletSegApply(next, true);
                 if (changed && window.haptic) { try { window.haptic('select'); } catch (err) {} }
@@ -21073,6 +21288,106 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
     document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
     start();
+})();
+</script>
+
+<style id="wallet-seg-order-and-mirror">
+/* Wallet tabs: Top Up History on the left, Transactions on the right (panes follow, so swiping stays natural) */
+#wseg-btn-topup { order: -1; }
+#wallet-pane-topup { order: -1; }
+
+/* Wallet Balance card: mirror / glass reflection */
+.wallet-balance-card {
+  background:
+    linear-gradient(112deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.16) 30%, rgba(255,255,255,0) 30.4%),
+    linear-gradient(165deg, #8567DC 0%, #6B4BC8 34%, #4C32A4 70%, #3A2584 100%);
+  box-shadow: 0 14px 30px -12px rgba(76,50,164,.65), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -14px 24px -12px rgba(255,255,255,.18);
+}
+.wallet-balance-card::after {
+  z-index: 2; mix-blend-mode: normal; opacity: .75;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.08) 34%, rgba(255,255,255,.38) 46%, rgba(255,255,255,.70) 50%, rgba(255,255,255,.38) 54%, rgba(255,255,255,.08) 66%, transparent 100%);
+}
+</style>
+<script id="tg-tile-tap">
+/* Telegram login tile.
+   Put your bot's numeric id (the number BEFORE the ":" in the BotFather token) here for the most reliable login:
+   with it the tile opens Telegram's login popup directly on tap (no hidden-iframe trick). */
+window.TELEGRAM_BOT_ID = window.TELEGRAM_BOT_ID || '';   // e.g. '123456789'
+(function(){
+  function slotOf(tile){ return tile.querySelector('.lg-tg-ov'); }
+  function widgetOk(slot){ var f = slot && slot.querySelector('iframe'); return !!(f && f.offsetWidth > 0); }
+  function rerender(slot){
+    if (!slot || !slot.id || typeof window.renderTelegramWidgetInto !== 'function') return;
+    slot.innerHTML = ''; delete slot.dataset.tgRendered; window.renderTelegramWidgetInto(slot.id);
+  }
+  // Make sure every visible Telegram tile really has a loaded widget (retry a few times after a form opens)
+  function ensureWidgets(){
+    document.querySelectorAll('.lg-tg-tile .lg-tg-ov').forEach(function(slot){
+      if (slot.offsetParent !== null && !widgetOk(slot)) rerender(slot);
+    });
+  }
+  var ov = document.getElementById('wallet-google-gate-overlay');
+  if (ov) new MutationObserver(function(){
+    if (ov.classList.contains('show')) [700, 1800, 3500].forEach(function(ms){ setTimeout(ensureWidgets, ms); });
+  }).observe(ov, {attributes:true, attributeFilter:['class']});
+
+  document.addEventListener('click', function(e){
+    var tile = e.target && e.target.closest && e.target.closest('.lg-tg-tile');
+    if (!tile) return;
+    var tg = window.Telegram && window.Telegram.WebApp;
+    // 1) Inside the Telegram Mini App: sign in straight with Telegram's own data
+    if (tg && tg.initData && typeof window.completeTelegramSignIn === 'function') {
+      e.preventDefault(); e.stopPropagation();
+      window.completeTelegramSignIn('/auth/miniapp', { initData: tg.initData });
+      return;
+    }
+    // 2) Bot id known: open Telegram's login popup directly (works in Chrome / Safari)
+    if (window.TELEGRAM_BOT_ID && window.Telegram && window.Telegram.Login && window.Telegram.Login.auth) {
+      e.preventDefault(); e.stopPropagation();
+      window.Telegram.Login.auth({ bot_id: window.TELEGRAM_BOT_ID, request_access: 'write' }, function(user){
+        if (user && typeof window.completeTelegramSignIn === 'function') window.completeTelegramSignIn('/auth/widget', user);
+      });
+      return;
+    }
+    // 3) Fallback: the invisible widget on the tile gets the tap; if it never loaded, rebuild it
+    var slot = slotOf(tile);
+    if (slot && !widgetOk(slot)) {
+      rerender(slot);
+      if (window.showToast) window.showToast('Telegram ခလုတ်ကို ပြန်ပြင်နေပါတယ် - ခဏနေ ထပ်နှိပ်ပါ', 'info');
+    }
+  }, true);
+  var st = document.createElement('style');
+  st.textContent = '.lg-tg-tile{cursor:pointer;-webkit-tap-highlight-color:transparent}.lg-tg-tile:active{transform:scale(.95)}.lg-tg-ov{pointer-events:auto}.in-app-browser .lg-tg-ov{pointer-events:none!important}';
+  document.head.appendChild(st);
+})();
+</script>
+<script id="scroll-handoff">
+/* When an inner scroll box (package grid, order history list, wallet amount presets) hits its top/bottom
+   edge, keep the same finger-drag scrolling the parent instead of "sticking": the surrounding popup body
+   if the box sits in one, otherwise the whole page. */
+(function(){
+  var SEL = '.package-grid-scroll, .order-list-scroll, .wallet-amount-presets';
+  var box = null, target = null, lastY = 0;
+  function scrollableParent(el){
+    for (var p = el.parentElement; p && p !== document.body && p !== document.documentElement; p = p.parentElement) {
+      var oy = getComputedStyle(p).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight + 1) return p;
+    }
+    return null; // = the window
+  }
+  document.addEventListener('touchstart', function(e){
+    box = e.target.closest ? e.target.closest(SEL) : null;
+    if (box && e.touches.length === 1) { lastY = e.touches[0].clientY; target = scrollableParent(box); }
+    else box = null;
+  }, {passive:true});
+  document.addEventListener('touchmove', function(e){
+    if (!box || e.touches.length !== 1) return;
+    var y = e.touches[0].clientY, dy = lastY - y; lastY = y;   // dy > 0: finger moving up (scroll down)
+    var atTop = box.scrollTop <= 0;
+    var atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 1;
+    if ((dy > 0 && atBottom) || (dy < 0 && atTop)) { if (target) target.scrollTop += dy; else window.scrollBy(0, dy); }
+  }, {passive:true});
+  ['touchend','touchcancel'].forEach(function(t){ document.addEventListener(t, function(){ box = null; target = null; }, {passive:true}); });
 })();
 </script>
 </body>
