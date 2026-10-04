@@ -16650,6 +16650,27 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         console.warn('Share failed, falling back:', e);
                     }
                 }
+                if (tgMini || inApp) {
+                    // Telegram's WebView can't save blob: files. Host the PNG, then hand the real URL to
+                    // Telegram's native downloader (Bot API 8.0+) or the external browser (Chrome).
+                    try {
+                        window.showToast('Preparing download...', 'success');
+                        const form = new FormData();
+                        form.append('image', new File([blob], filename, { type: 'image/png' }));
+                        const up = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form });
+                        const upData = await up.json();
+                        if (!upData || !upData.success) throw new Error('upload failed');
+                        const hostedUrl = upData.data.url;
+                        const tg = window.Telegram && window.Telegram.WebApp;
+                        if (tgMini && tg && typeof tg.downloadFile === 'function' && (!tg.isVersionAtLeast || tg.isVersionAtLeast('8.0'))) {
+                            tg.downloadFile({ url: hostedUrl, file_name: filename });
+                            return;
+                        }
+                        if (tgMini && tg && typeof tg.openLink === 'function') { tg.openLink(hostedUrl, { try_instant_view: false }); return; }
+                        window.open(hostedUrl, '_blank');
+                        return;
+                    } catch (e3) { console.warn('Hosted download failed, falling back:', e3); }
+                }
                 if (restricted) {
                     try {
                         const u2 = URL.createObjectURL(blob);
