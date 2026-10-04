@@ -16314,7 +16314,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
         async function downloadOrderReceipt(index) {
             const data = HISTORY_ORDERS[index];
-            if (!data) return;
+            if (!data) { window.showToast('Order data not found. Please reopen the order.', 'fail'); return; }
 
             const STORE_NAME = 'Linn Game Store';
             const STORE_DOMAIN = 'linngamestore.com';
@@ -16350,13 +16350,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
             // Fonts (Poppins + Noto Sans Myanmar are already on the page) — wait for them so Burmese names don't fall back to boxes
             try {
-                if (typeof vrEnsureFonts === 'function') await vrEnsureFonts();
+                const __cap = (pr) => Promise.race([pr, new Promise(r => setTimeout(r, 2500))]);
+                if (typeof vrEnsureFonts === 'function') await __cap(vrEnsureFonts());
                 const sample = [userName, itemTitle, data.inGameName].filter(Boolean).join(' ');
-                await Promise.all([
+                await __cap(Promise.all([
                     document.fonts.load('600 16px "Noto Sans Myanmar"', sample),
                     document.fonts.load('500 14px "Noto Sans Myanmar"', sample),
                     document.fonts.load('600 16px Poppins'), document.fonts.load('500 14px Poppins'), document.fonts.load('400 13px Poppins'), document.fonts.load('700 18px Poppins')
-                ]);
+                ]));
             } catch (e) { /* system fonts fallback */ }
 
             // Store logo (CORS-safe load; falls back to a drawn badge so the PNG export can never be blocked)
@@ -16364,7 +16365,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (!url) return res(null);
                 const im = new Image();
                 im.crossOrigin = 'anonymous';
-                const t = setTimeout(() => res(null), 4000);
+                const t = setTimeout(() => res(null), 2500);
                 im.onload = () => { clearTimeout(t); res(im); };
                 im.onerror = () => { clearTimeout(t); res(null); };
                 im.src = url;
@@ -16561,14 +16562,20 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
             ctx.restore();
 
-            canvas.toBlob(blob => {
-                if (!blob) { window.showToast('Could not create the receipt image.', 'fail'); return; }
-                showReceiptPreview(blob, `receipt-${(providerOrderId || data.id || index)}.png`);
-            }, 'image/png');
+            const __fname = `receipt-${(providerOrderId || data.id || index)}.png`;
+            const __blob = await new Promise(res => {
+                try { canvas.toBlob(b => res(b), 'image/png'); } catch (e) { res(null); }
+            });
+            if (__blob) { showReceiptPreview(__blob, __fname); return; }
+            // toBlob returned null (some webviews): rebuild the PNG from a data URL
+            const __b64 = canvas.toDataURL('image/png').split(',')[1];
+            const __bin = atob(__b64); const __u8 = new Uint8Array(__bin.length);
+            for (let i = 0; i < __bin.length; i++) __u8[i] = __bin.charCodeAt(i);
+            showReceiptPreview(new Blob([__u8], { type: 'image/png' }), __fname);
         }
         window.downloadOrderReceipt = async function (index) {
-            try { await downloadOrderReceipt(index); }
-            catch (e) { console.error('Receipt error:', e); window.showToast('Could not create the receipt image.', 'fail'); }
+            try { window.showToast('Creating receipt...', 'success'); await downloadOrderReceipt(index); }
+            catch (e) { console.error('Receipt error:', e); window.showToast('Receipt error: ' + ((e && e.message) || e), 'fail'); }
         };
 
         // ---------- Reliable image save for phones ----------
