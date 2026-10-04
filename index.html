@@ -4607,6 +4607,76 @@ html[data-theme="dark"] .game-card .game-card-name {
         linear-gradient(var(--surface), var(--surface)) padding-box,
         conic-gradient(from calc(var(--linn-a) + 180deg), #ff4d8d, #ffb800, #22d3a5, #3b82f6, #a855f7, #ff4d8d) border-box;
 }
+/* card skeletons (game grid, popular, voucher, software): soft light-blue image block, plain white name pill */
+.skel-game-card .skel.skel-img, .skel-popular-card .skel.skel-img, .skel-popular-voucher-card .skel.skel-img, .skel-software-card .skel.skel-img {
+    background: linear-gradient(90deg, #dbeafe 25%, #eff6ff 37%, #dbeafe 63%); background-size: 400% 100%;
+}
+html[data-theme="dark"] .skel-game-card .skel.skel-img, html[data-theme="dark"] .skel-popular-card .skel.skel-img,
+html[data-theme="dark"] .skel-popular-voucher-card .skel.skel-img, html[data-theme="dark"] .skel-software-card .skel.skel-img {
+    background: linear-gradient(90deg, #1e3a5f 25%, #2a4a75 37%, #1e3a5f 63%); background-size: 400% 100%;
+}
+.skel-game-card .skel.skel-name, .skel-popular-card .skel.skel-name, .skel-popular-voucher-card .skel.skel-name, .skel-software-card .skel.skel-name {
+    background: #fff; animation: none; border: 1px solid var(--border);
+}
+/* Horizontal strips (Popular Games, category chips, ...) use overflow-x:auto, which silently makes overflow-y:auto too.
+   If a strip is even 1px taller than its box, a vertical swipe that starts on it latches onto the strip: the page
+   doesn't move on the first swipe and only scrolls on the next one. Locking the strips to horizontal-only lets
+   vertical swipes go straight to the page (no visual change - overflow-x:auto already clipped vertically). */
+.popular-scroll-wrap, .cat-filter-scroll, .lb-strip, .history-date-filter-wrap, .history-status-tabs, .recent-ids-row, .wtx-tabs { overflow-y: hidden; }
+/* ROOT CAUSE of "first swipe doesn't scroll the Home page": .content-area has overflow-x:hidden, which silently makes it
+   overflow-y:auto too, i.e. a nested scroll container. On Home the "rise" cards (translateY(48px) until scrolled into view)
+   overflow it by a few px, so the first vertical swipe latches onto .content-area (scrolls its tiny range / nothing) and the
+   page only moves on the next swipe. overflow-x:clip clips sideways overflow without creating a scroll container. */
+main.content-area { overflow-x: clip; }
+/* Popular Games: cards float up like bubbles (rise, overshoot, wobble, settle), then keep a soft idle bob */
+@keyframes bubbleRise {
+    0%   { opacity: 0; transform: translateY(38px) scale(.45); }
+    45%  { opacity: 1; transform: translateY(-9px) scale(1.08) rotate(-1.5deg); }
+    65%  { transform: translateY(3px) scale(.97) rotate(1deg); }
+    82%  { transform: translateY(-2px) scale(1.01) rotate(-.4deg); }
+    100% { opacity: 1; transform: none; }
+}
+@keyframes bubbleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+/* room above the row so the overshoot / bob isn't clipped (overflow-x:auto clips vertically); net layout unchanged */
+.popular-scroll-wrap { padding-top: 10px; margin-top: -8px; }
+html .popular-card.card-pop {
+    animation: bubbleRise 1.05s cubic-bezier(.3,.8,.35,1) backwards, linnSpin 4s linear infinite;
+    animation-delay: calc(var(--i, 0) * 95ms), 0s;
+}
+html .popular-card .game-card-img-wrap.img-ready {
+    animation: bubbleBob 3.4s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.55s); will-change: transform;
+}
+html.is-scrolling .popular-card .game-card-img-wrap.img-ready { animation-play-state: paused; }
+html.perf-low .popular-card .game-card-img-wrap.img-ready { animation: none; will-change: auto; }
+@media (prefers-reduced-motion: reduce) {
+    html .popular-card.card-pop { animation: none; }
+    html .popular-card .game-card-img-wrap.img-ready { animation: none; will-change: auto; }
+}
+/* Profile page menu tabs (Preferences, Account, Tier Designs, Follow Us, Support, Terms): much more compact.
+   Only the tab headers shrink - the rows inside the opened sections keep their normal size. */
+#profile-prefs-card, #account-card, #tier-preview-card, #social-links-card, #support-entry-card, #terms-entry-card {
+    padding: 7px 12px; border-radius: 14px; margin-top: 8px !important; gap: 0;
+}
+#profile-prefs-card > .collapsible-header .prefs-row-icon, #account-card > .collapsible-header .prefs-row-icon,
+#tier-preview-card > .collapsible-header .prefs-row-icon, #social-links-card > .collapsible-header .prefs-row-icon,
+#support-entry-card .prefs-row-icon, #terms-entry-card .prefs-row-icon {
+    width: 24px; height: 24px; border-radius: 8px;
+}
+#profile-prefs-card > .collapsible-header .prefs-row-icon svg, #account-card > .collapsible-header .prefs-row-icon svg,
+#tier-preview-card > .collapsible-header .prefs-row-icon svg, #social-links-card > .collapsible-header .prefs-row-icon svg,
+#support-entry-card .prefs-row-icon svg, #terms-entry-card .prefs-row-icon svg {
+    width: 14px !important; height: 14px !important;
+}
+#profile-prefs-card > .collapsible-header .prefs-row-label, #account-card > .collapsible-header .prefs-row-label,
+#tier-preview-card > .collapsible-header .prefs-row-label, #social-links-card > .collapsible-header .prefs-row-label,
+#support-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label { gap: 8px; font-size: 12.5px; }
+#profile-prefs-card > .collapsible-header label, #account-card > .collapsible-header label,
+#tier-preview-card > .collapsible-header label, #social-links-card > .collapsible-header label {
+    font-size: 12.5px; align-self: center !important; margin: 0 !important; line-height: 1.2;
+}
+#profile-prefs-card > .collapsible-header .collapsible-chevron, #account-card > .collapsible-header .collapsible-chevron,
+#tier-preview-card > .collapsible-header .collapsible-chevron, #social-links-card > .collapsible-header .collapsible-chevron,
+#support-entry-card > div > .ui-icon, #terms-entry-card > div > .ui-icon { width: 12px !important; height: 12px !important; }
 /* The two floating glass docks re-blur everything moving under them on every frame of a swipe
    (that is what makes a fling die early). Drop the blur only while scrolling, slightly more opaque
    so the change is barely visible - same trick as html.theme-switching. */
@@ -4998,6 +5068,61 @@ html[data-theme="dark"] #name-check-card select:focus, html[data-theme="dark"] #
     background-color: rgba(255,255,255,.11); border-color: rgba(96,165,250,.6);
     box-shadow: 0 0 0 3px rgba(96,165,250,.18), inset 0 1px 0 rgba(255,255,255,.12);
 }
+</style>
+<style id="nc-picker-css">
+/* ===== Name Check: custom game picker (replaces the native <select> popup) ===== */
+#name-check-card.ncp-ready #nc-game { display: none !important; }
+#name-check-card.ncp-open { position: relative; z-index: 60; }
+.ncp { position: relative; margin-top: 8px; }
+.ncp-trigger { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 6px 12px; border-radius: 14px; cursor: pointer;
+  background: rgba(255,255,255,.50); border: 1px solid rgba(255,255,255,.85);
+  -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
+  box-shadow: 0 4px 14px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(15,23,42,.04);
+  transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.ncp.open .ncp-trigger, .ncp-trigger:focus-visible { outline: none; border-color: rgba(59,130,246,.65); background: rgba(255,255,255,.72);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.16), 0 6px 18px rgba(59,130,246,.14), inset 0 1px 0 rgba(255,255,255,.95); }
+.ncp-ph { flex: 1; min-width: 0; font-size: 13.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ncp-chev { width: 16px; height: 16px; flex-shrink: 0; margin-left: auto; color: #6B7280; transition: transform .25s ease; }
+.ncp.open .ncp-chev { transform: rotate(180deg); color: #2563EB; }
+.ncp-tag { --h: 215; display: inline-flex; align-items: center; gap: 7px; max-width: calc(100% - 28px); padding: 3px 6px 3px 4px; border-radius: 999px;
+  background: linear-gradient(180deg, hsla(var(--h),90%,60%,.24), hsla(var(--h),90%,60%,.10)); border: 1px solid hsla(var(--h),80%,50%,.38);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6); color: hsl(var(--h),70%,34%); font-size: 12.5px; font-weight: 600; }
+.ncp-tag .ncp-tn { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ncp-x { all: unset; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: hsla(var(--h),85%,50%,.18); color: hsl(var(--h),70%,34%); font-size: 13px; line-height: 1; cursor: pointer; flex-shrink: 0; }
+.ncp-x:active { transform: scale(.88); }
+.ncp-av { width: 24px; height: 24px; border-radius: 8px; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--border); color: var(--text-muted); font-size: 12px; font-weight: 700; }
+.ncp-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ncp-panel { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 70; border-radius: 16px; overflow: hidden; display: none;
+  background: rgba(255,255,255,.82); border: 1px solid rgba(255,255,255,.9);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: 0 18px 40px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.95); }
+.ncp.open .ncp-panel { display: block; animation: ncpIn .18s ease both; }
+@keyframes ncpIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+#name-check-card input.ncp-search { display: block; box-sizing: border-box; width: calc(100% - 16px); margin: 8px; padding: 9px 12px; font-size: 13px; border-radius: 11px; }
+.ncp-list { max-height: 264px; overflow-y: auto; overscroll-behavior: contain; padding: 0 6px 6px; -webkit-overflow-scrolling: touch; }
+.ncp-item { --h: 215; display: flex; align-items: center; gap: 10px; padding: 7px 9px; margin-bottom: 5px; border-radius: 13px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(135deg, hsla(var(--h),90%,62%,.13), hsla(var(--h),90%,62%,.05)); border: 1px solid hsla(var(--h),80%,55%,.16); transition: background .15s, border-color .15s; }
+.ncp-item .ncp-av { width: 36px; height: 36px; border-radius: 10px; font-size: 14px; }
+.ncp-item .ncp-in { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ncp-item:active, .ncp-item.hl { background: linear-gradient(135deg, hsla(var(--h),90%,60%,.24), hsla(var(--h),90%,60%,.12)); border-color: hsla(var(--h),80%,50%,.32); }
+.ncp-item.sel { background: linear-gradient(135deg, hsla(var(--h),90%,60%,.26), hsla(var(--h),90%,60%,.12)); border-color: hsla(var(--h),80%,50%,.45); }
+.ncp-item.sel::after { content: ''; width: 16px; height: 16px; flex-shrink: 0; background: hsl(var(--h),70%,42%);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>") center / contain no-repeat; }
+.ncp-empty { padding: 18px 10px; text-align: center; font-size: 12.5px; color: var(--text-muted); }
+html[data-theme="dark"] .ncp-trigger { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.15); box-shadow: 0 4px 14px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10); }
+html[data-theme="dark"] .ncp.open .ncp-trigger { background: rgba(255,255,255,.11); border-color: rgba(96,165,250,.6); box-shadow: 0 0 0 3px rgba(96,165,250,.18), inset 0 1px 0 rgba(255,255,255,.12); }
+html[data-theme="dark"] .ncp-chev { color: #A8B0BF; }
+html[data-theme="dark"] .ncp-tag { color: hsl(var(--h),90%,82%); background: linear-gradient(180deg, hsla(var(--h),90%,60%,.30), hsla(var(--h),90%,60%,.12)); border-color: hsla(var(--h),85%,65%,.5); }
+html[data-theme="dark"] .ncp-x { background: hsla(var(--h),90%,75%,.22); color: hsl(var(--h),90%,82%); }
+html[data-theme="dark"] .ncp-item { background: linear-gradient(135deg, hsla(var(--h),85%,60%,.16), hsla(var(--h),85%,60%,.06)); border-color: hsla(var(--h),80%,65%,.20); }
+html[data-theme="dark"] .ncp-panel { background: rgba(28,32,44,.86); border-color: rgba(255,255,255,.14); box-shadow: 0 18px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10); }
+html[data-theme="dark"] .ncp-item:active, html[data-theme="dark"] .ncp-item.hl { background: linear-gradient(135deg, hsla(var(--h),85%,60%,.28), hsla(var(--h),85%,60%,.12)); }
+html[data-theme="dark"] .ncp-item.sel { background: linear-gradient(135deg, hsla(var(--h),85%,60%,.30), hsla(var(--h),85%,60%,.12)); border-color: hsla(var(--h),85%,65%,.5); }
+html[data-theme="dark"] .ncp-item.sel::after { background: hsl(var(--h),90%,75%); }
+@media (prefers-reduced-motion: reduce) { .ncp.open .ncp-panel { animation: none; } .ncp-chev { transition: none; } }
 </style>
 <style id="maint-css">
 #maint-overlay{display:none;position:fixed;inset:0;z-index:2147483100;align-items:center;justify-content:center;padding:24px;background:rgba(10,12,20,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;text-align:center;font-family:'Manrope','Outfit',system-ui,sans-serif}
@@ -20446,6 +20571,141 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         window.walletSegApply = walletSegApply;
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initWalletSeg);
         else initWalletSeg();
+})();
+</script>
+<script id="nc-picker-js">
+(function () {
+    function init() {
+        var sel = document.getElementById('nc-game');
+        var card = document.getElementById('name-check-card');
+        if (!sel || !card || document.getElementById('nc-picker')) return;
+
+        var wrap = document.createElement('div'); wrap.id = 'nc-picker'; wrap.className = 'ncp';
+        var trigger = document.createElement('div'); trigger.className = 'ncp-trigger'; trigger.tabIndex = 0;
+        trigger.setAttribute('role', 'button'); trigger.setAttribute('aria-haspopup', 'listbox');
+        var panel = document.createElement('div'); panel.className = 'ncp-panel';
+        var search = document.createElement('input'); search.type = 'text'; search.className = 'ncp-search';
+        search.placeholder = 'Search game...'; search.autocomplete = 'off'; search.setAttribute('autocapitalize', 'off');
+        var list = document.createElement('div'); list.className = 'ncp-list'; list.setAttribute('role', 'listbox');
+        panel.appendChild(search); panel.appendChild(list);
+        wrap.appendChild(trigger); wrap.appendChild(panel);
+        sel.insertAdjacentElement('afterend', wrap);
+        card.classList.add('ncp-ready');
+
+        var hl = 0;
+        // Every game gets its own pale hue: its position in the full game list x the golden angle,
+        // so no two games share a colour (filtering the list doesn't change anyone's colour).
+        function hueFor(key) {
+            var all = options(), idx = 0;
+            for (var i = 0; i < all.length; i++) { if (all[i].value === key) { idx = i; break; } }
+            return Math.round((idx * 137.508 + 215) % 360);
+        }
+        function options() { return Array.prototype.filter.call(sel.options, function (o) { return o.value; }); }
+        function imgFor(key) {
+            var G = window.GAMES || {}, plain = '', any = '';
+            Object.keys(G).forEach(function (id) {
+                var g = G[id];
+                if (!g || !g.image || String(g.name || '').trim().toLowerCase() !== key) return;
+                if (!g.serverName && !plain) plain = g.image;
+                if (!any) any = g.image;
+            });
+            return plain || any;
+        }
+        function avatar(key, name) {
+            var d = document.createElement('span'); d.className = 'ncp-av';
+            var letter = (name || '?').trim().charAt(0).toUpperCase();
+            var src = imgFor(key);
+            if (src) {
+                var im = new Image(); im.alt = ''; im.decoding = 'async'; im.draggable = false;
+                im.onerror = function () { im.remove(); d.textContent = letter; };
+                im.src = src; d.appendChild(im);
+            } else d.textContent = letter;
+            return d;
+        }
+        function renderTrigger() {
+            trigger.textContent = '';
+            var cur = sel.value && sel.options[sel.selectedIndex];
+            if (cur && cur.value) {
+                var tag = document.createElement('span'); tag.className = 'ncp-tag'; tag.style.setProperty('--h', hueFor(cur.value));
+                tag.appendChild(avatar(cur.value, cur.text));
+                var tn = document.createElement('span'); tn.className = 'ncp-tn'; tn.textContent = cur.text; tag.appendChild(tn);
+                var x = document.createElement('button'); x.type = 'button'; x.className = 'ncp-x'; x.textContent = '\u00d7'; x.setAttribute('aria-label', 'Clear');
+                x.addEventListener('click', function (e) { e.stopPropagation(); pick(''); });
+                tag.appendChild(x); trigger.appendChild(tag);
+            } else {
+                var ph = document.createElement('span'); ph.className = 'ncp-ph';
+                ph.textContent = (sel.options[0] && !sel.options[0].value) ? sel.options[0].text : 'Select game';
+                trigger.appendChild(ph);
+            }
+            var ns = 'http://www.w3.org/2000/svg';
+            var sv = document.createElementNS(ns, 'svg'); sv.setAttribute('class', 'ncp-chev'); sv.setAttribute('viewBox', '0 0 24 24');
+            sv.setAttribute('fill', 'none'); sv.setAttribute('stroke', 'currentColor'); sv.setAttribute('stroke-width', '2.5');
+            sv.setAttribute('stroke-linecap', 'round'); sv.setAttribute('stroke-linejoin', 'round');
+            var pl = document.createElementNS(ns, 'polyline'); pl.setAttribute('points', '6 9 12 15 18 9'); sv.appendChild(pl);
+            trigger.appendChild(sv);
+        }
+        function filtered() {
+            var q = search.value.trim().toLowerCase();
+            return options().filter(function (o) { return !q || o.text.toLowerCase().indexOf(q) !== -1; });
+        }
+        function renderList() {
+            var items = filtered();
+            list.textContent = '';
+            if (hl >= items.length) hl = 0;
+            if (!items.length) {
+                var em = document.createElement('div'); em.className = 'ncp-empty';
+                em.textContent = options().length ? 'No game found' : 'Loading games...';
+                list.appendChild(em); return;
+            }
+            items.forEach(function (o, i) {
+                var it = document.createElement('div');
+                it.className = 'ncp-item' + (o.value === sel.value ? ' sel' : '') + (i === hl && search.value ? ' hl' : '');
+                it.setAttribute('role', 'option'); it.style.setProperty('--h', hueFor(o.value));
+                it.appendChild(avatar(o.value, o.text));
+                var nm = document.createElement('span'); nm.className = 'ncp-in'; nm.textContent = o.text; it.appendChild(nm);
+                it.addEventListener('click', function () { pick(o.value); });
+                list.appendChild(it);
+            });
+        }
+        function open() {
+            if (wrap.classList.contains('open')) return;
+            search.value = ''; hl = 0; renderList();
+            wrap.classList.add('open'); card.classList.add('ncp-open');
+            trigger.setAttribute('aria-expanded', 'true');
+            var cur = list.querySelector('.sel'); if (cur && cur.scrollIntoView) { try { cur.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+        }
+        function close() {
+            wrap.classList.remove('open'); card.classList.remove('ncp-open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+        function pick(val) {
+            sel.value = val;
+            sel.classList.toggle('has-value', !!val);
+            sel.dispatchEvent(new Event('change', { bubbles: true }));   // runs ncOnGameChange() exactly like the native select did
+            renderTrigger(); close();
+            if (window.haptic) { try { window.haptic('select'); } catch (e) {} }
+        }
+
+        trigger.addEventListener('click', function () { wrap.classList.contains('open') ? close() : open(); });
+        trigger.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wrap.classList.contains('open') ? close() : open(); }
+        });
+        search.addEventListener('input', function () { hl = 0; renderList(); });
+        search.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); var f = filtered(); if (f[hl]) pick(f[hl].value); }   // auto-select the top match
+            else if (e.key === 'ArrowDown') { e.preventDefault(); hl = Math.min(hl + 1, filtered().length - 1); renderList(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); hl = Math.max(hl - 1, 0); renderList(); }
+            else if (e.key === 'Escape') close();
+        });
+        document.addEventListener('pointerdown', function (e) { if (!wrap.contains(e.target)) close(); }, true);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+        // The game list is (re)built into the hidden <select> by the app whenever the catalogue loads / language changes.
+        new MutationObserver(function () { renderTrigger(); if (wrap.classList.contains('open')) renderList(); })
+            .observe(sel, { childList: true });
+        renderTrigger();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
 <script id="haptic-js">
