@@ -4925,6 +4925,80 @@ html[data-theme="dark"] .badge.badge-processing, html[data-theme="dark"] .badge.
 .badge.badge-warning::before { animation: badgeSpokes 1.6s steps(8) infinite; }
 @media (prefers-reduced-motion: reduce) { .badge.badge-warning::before { animation: none; } }
 </style>
+<style id="wallet-glass-css">
+/* ===== Wallet: swipeable Transactions <-> Top Up History ===== */
+.wseg-viewport { overflow: hidden; width: 100%; }
+.wseg-track { display: flex; align-items: flex-start; width: 200%; transition: transform .32s cubic-bezier(.22,.8,.3,1); will-change: transform; }
+.wseg-track.no-anim, .wseg-track.dragging { transition: none; }
+.wseg-track .wseg-pane { display: block; flex: 0 0 50%; min-width: 0; width: 50%; animation: none; }
+.wseg-track .wseg-pane.off { height: 0; overflow: hidden; visibility: hidden; }
+
+/* ===== Glass buttons: tab switcher + filter chips ===== */
+.wseg { background: rgba(255,255,255,.52); -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%);
+        border: 1px solid rgba(255,255,255,.75); box-shadow: 0 8px 24px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95); }
+.wseg-btn { border: 1px solid transparent; color: var(--text-muted); }
+.wseg-btn.green.active, .wseg-btn.blue.active { -webkit-backdrop-filter: blur(10px) saturate(170%); backdrop-filter: blur(10px) saturate(170%); }
+.wseg-btn.green.active { color: #0F7A3A; background: linear-gradient(180deg, rgba(34,197,94,.30), rgba(34,197,94,.13));
+        border-color: rgba(34,197,94,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 5px 14px rgba(34,197,94,.20); }
+.wseg-btn.blue.active { color: #1D4ED8; background: linear-gradient(180deg, rgba(59,130,246,.30), rgba(59,130,246,.13));
+        border-color: rgba(59,130,246,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 5px 14px rgba(59,130,246,.20); }
+.wseg-btn.green.active svg { color: #16A34A; }
+.wseg-btn.blue.active svg { color: #2563EB; }
+html[data-theme="dark"] .wseg { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12);
+        box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10); }
+html[data-theme="dark"] .wseg-btn.green.active { color: #6EE7A0; background: linear-gradient(180deg, rgba(34,197,94,.28), rgba(34,197,94,.10)); border-color: rgba(74,222,128,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 16px rgba(34,197,94,.20); }
+html[data-theme="dark"] .wseg-btn.blue.active { color: #9CC0FF; background: linear-gradient(180deg, rgba(59,130,246,.30), rgba(59,130,246,.10)); border-color: rgba(96,165,250,.5); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 16px rgba(59,130,246,.22); }
+
+.wtx-chip { background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.8); color: var(--text-muted);
+        -webkit-backdrop-filter: blur(10px) saturate(160%); backdrop-filter: blur(10px) saturate(160%);
+        box-shadow: 0 2px 8px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.9); transition: background .2s, color .2s, border-color .2s, box-shadow .2s; }
+#wallet-pane-txn .wtx-chip.active, .wtx-chip.active { color: #0F7A3A; background: linear-gradient(180deg, rgba(34,197,94,.30), rgba(34,197,94,.13));
+        border-color: rgba(34,197,94,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 3px 10px rgba(34,197,94,.18); }
+html[data-theme="dark"] .wtx-chip { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.13); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+html[data-theme="dark"] #wallet-pane-txn .wtx-chip.active, html[data-theme="dark"] .wtx-chip.active { color: #6EE7A0; background: linear-gradient(180deg, rgba(34,197,94,.28), rgba(34,197,94,.10)); border-color: rgba(74,222,128,.45); }
+
+/* ===== Transaction card: purchased game's image instead of the bag icon ===== */
+.wtx-ico.img { width: 34px; height: 34px; border-radius: 10px; padding: 0; overflow: hidden; background: var(--border); }
+.wtx-ico.img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wtx-ico.img svg { width: 17px; height: 17px; }
+.wtx-ico.buy.img { color: #405DE6; }
+
+/* ===== Order status badge: a touch smaller ===== */
+.badge.badge-success, .badge.badge-warning, .badge.badge-processing, .badge.badge-danger { font-size: 10.5px; padding: 2px 8px; gap: 5px; }
+.badge.badge-success::before, .badge.badge-warning::before, .badge.badge-processing::before, .badge.badge-danger::before { width: 12px !important; height: 12px !important; }
+</style>
+<style id="wallet-tab-small-name-glass">
+/* ===== Wallet tabs: smaller ===== */
+.wseg { padding: 3px; gap: 4px; margin: 2px 0 10px; border-radius: 13px; }
+.wseg-btn { padding: 6px 8px; gap: 5px; font-size: 11.5px; border-radius: 10px; }
+.wseg-btn svg { width: 13px; height: 13px; }
+
+/* ===== Name Check: glass select + inputs ===== */
+#name-check-card select, #name-check-card input[type="text"] {
+    background-color: rgba(255,255,255,.50);
+    border: 1px solid rgba(255,255,255,.85);
+    border-radius: 14px;
+    -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
+    box-shadow: 0 4px 14px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(15,23,42,.04);
+    transition: border-color .2s, box-shadow .2s, background-color .2s;
+}
+#name-check-card select { background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); }
+#name-check-card select.has-value, #name-check-card select:hover { border-color: rgba(59,130,246,.55); }
+#name-check-card select:focus, #name-check-card input[type="text"]:focus {
+    outline: none; border-color: rgba(59,130,246,.65); background-color: rgba(255,255,255,.72);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.16), 0 6px 18px rgba(59,130,246,.14), inset 0 1px 0 rgba(255,255,255,.95);
+}
+#name-check-card select option { color: #050505; background: #fff; }
+html[data-theme="dark"] #name-check-card select, html[data-theme="dark"] #name-check-card input[type="text"] {
+    background-color: rgba(255,255,255,.07); border-color: rgba(255,255,255,.15); color: var(--text);
+    box-shadow: 0 4px 14px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10);
+}
+html[data-theme="dark"] #name-check-card select { background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A8B0BF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); }
+html[data-theme="dark"] #name-check-card select:focus, html[data-theme="dark"] #name-check-card input[type="text"]:focus {
+    background-color: rgba(255,255,255,.11); border-color: rgba(96,165,250,.6);
+    box-shadow: 0 0 0 3px rgba(96,165,250,.18), inset 0 1px 0 rgba(255,255,255,.12);
+}
+</style>
 <style id="maint-css">
 #maint-overlay{display:none;position:fixed;inset:0;z-index:2147483100;align-items:center;justify-content:center;padding:24px;background:rgba(10,12,20,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;text-align:center;font-family:'Manrope','Outfit',system-ui,sans-serif}
 #maint-overlay .maint-card{max-width:360px;width:100%}
@@ -5316,9 +5390,6 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 <div class="drawer-nav-item" data-page="home" onclick="drawerNavigate(window.lastGameSubTab || 'home')">
                     <svg class="ui-icon"><use href="#icon-gamepad-nav"></use></svg><span data-i18n="nav_game">Game</span>
                 </div>
-                <div class="drawer-nav-item" data-page="name-check" onclick="drawerNavigate('name-check')">
-                    <svg class="ui-icon"><use href="#icon-search"></use></svg><span data-i18n="nc_title">Name Check</span>
-                </div>
                 <div class="drawer-nav-item" data-page="history" onclick="drawerNavigate('history')">
                     <svg class="ui-icon"><use href="#icon-history-nav"></use></svg><span data-i18n="nav_history">History</span>
                 </div>
@@ -5395,22 +5466,21 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
              then flash-sale banner, wallet/order summary, popular games and
              the 4-step "how it works" guide, all live here. -->
         <div id="dashboard" class="page-section active">
-            <div class="home-banner-carousel" id="home-banner-carousel">
-                <div class="home-banner-track" id="home-banner-track">
-                    <!-- Slides are filled in by loadHomeBanners() from settings/homeBanners
-                         (admin-uploaded); falls back to these defaults if that doc is
-                         empty/missing so the page never ships with zero banners. -->
-                    <div class="home-banner-slide skel">
-                        <img src="/banners/banner-1.jpg" alt="" loading="eager" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
-                    </div>
-                    <div class="home-banner-slide skel">
-                        <img src="/banners/banner-2.jpg" alt="" loading="lazy" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
-                    </div>
-                    <div class="home-banner-slide skel">
-                        <img src="/banners/banner-3.jpg" alt="" loading="lazy" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()">
-                    </div>
+            <!-- HOME NAME CHECK: pick a game, enter the Player ID (+ Server ID only when that game needs one)
+                 and the store looks up the in-game name plus its region (replaces the old banner carousel). -->
+            <div id="name-check">
+            <h2 class="title-header section-title-spaced"><span data-i18n="nc_title">Name Check</span></h2>
+        <div class="detail-form-card" id="name-check-card">
+            <label style="margin-top:0;" data-i18n="nc_title">Name Check</label>
+            <select id="nc-game" onchange="ncOnGameChange()"><option value="">Select game</option></select>
+            <div id="nc-fields" style="display:none;">
+                <input type="text" id="nc-player-id" placeholder="Player ID" data-i18n-ph="nc_player_id_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
+                <div id="nc-server-wrap" style="display:none;">
+                    <input type="text" id="nc-server-id" placeholder="Server ID" data-i18n-ph="nc_server_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
                 </div>
-                <div class="home-banner-dots" id="home-banner-dots"></div>
+            </div>
+            <div id="nc-result" style="display:none;"></div>
+        </div>
             </div>
 
             <div id="popular-games-section">
@@ -5643,17 +5713,19 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 </div>
 
                 <div class="wseg" id="wallet-seg" role="tablist">
-                    <button type="button" class="wseg-btn green active" id="wseg-btn-txn" role="tab" aria-selected="true" onclick="setWalletSegTab('txn')">
+                    <button type="button" class="wseg-btn green" id="wseg-btn-txn" role="tab" aria-selected="false" onclick="setWalletSegTab('txn')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12M16 3l4 4-4 4"/><path d="M17 17H5M8 13l-4 4 4 4"/></svg>
                         <span>Transactions</span>
                     </button>
-                    <button type="button" class="wseg-btn blue" id="wseg-btn-topup" role="tab" aria-selected="false" onclick="setWalletSegTab('topup')">
+                    <button type="button" class="wseg-btn blue active" id="wseg-btn-topup" role="tab" aria-selected="true" onclick="setWalletSegTab('topup')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
                         <span>Top Up History</span>
                     </button>
                 </div>
 
-                <div class="wseg-pane active" id="wallet-pane-txn" role="tabpanel">
+                <div class="wseg-viewport" id="wallet-viewport">
+                <div class="wseg-track no-anim" id="wallet-track" style="transform:translateX(-50%)">
+                <div class="wseg-pane off" id="wallet-pane-txn" role="tabpanel">
                     <div class="wtx-tabs" id="wallet-txn-tabs">
                         <button type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
                         <button type="button" class="wtx-chip" data-f="in" onclick="setWalletTxnFilter('in')">Deposits</button>
@@ -5663,9 +5735,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     <div id="wallet-txn-list" style="margin-bottom:14px;"></div>
                 </div>
 
-                <div class="wseg-pane" id="wallet-pane-topup" role="tabpanel">
+                <div class="wseg-pane active" id="wallet-pane-topup" role="tabpanel">
                     <div id="wallet-topup-list"></div>
                     <div id="wallet-topup-empty" style="display:none;"></div>
+                </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -6353,24 +6427,6 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 <h2 style="font-size:18px; font-weight: 600; color:var(--text);" id="server-select-title">Game</h2>
             </div>
             <div class="cards-grid" id="server-select-grid"></div>
-        </div>
-
-        <!-- NAME CHECK PAGE: pick a game, enter the Player ID (+ Server ID only when that
-             game needs one) and the store looks up the in-game name plus its region,
-             using the same ID-check providers as the checkout page. -->
-        <div id="name-check" class="page-section">
-            <h2 class="title-header section-title-spaced"><span data-i18n="nc_title">Name Check</span></h2>
-            <div class="detail-form-card" id="name-check-card">
-                <label style="margin-top:0;" data-i18n="nc_title">Name Check</label>
-                <select id="nc-game" onchange="ncOnGameChange()"><option value="">Select game</option></select>
-                <div id="nc-fields" style="display:none;">
-                    <input type="text" id="nc-player-id" placeholder="Player ID" data-i18n-ph="nc_player_id_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
-                    <div id="nc-server-wrap" style="display:none;">
-                        <input type="text" id="nc-server-id" placeholder="Server ID" data-i18n-ph="nc_server_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
-                    </div>
-                </div>
-                <div id="nc-result" style="display:none;"></div>
-            </div>
         </div>
 
         <!-- TERMS AND POLICY PAGE -->
@@ -7372,14 +7428,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             window.scrollTo(0,0);
             window.currentStorePage = pageId;
             if (pageId === 'history' && window.loadHistory) window.loadHistory();
-            if (pageId === 'name-check' && window.ncRenderGameOptions) window.ncRenderGameOptions();
-            if (pageId === 'name-check' && window.ncResetScrollBaseline) window.ncResetScrollBaseline();
+            if (pageId === 'wallet' && window.walletSegReset) window.walletSegReset();
+            if (pageId === 'dashboard' && window.ncRenderGameOptions) window.ncRenderGameOptions();
+            if (pageId === 'dashboard' && window.ncResetScrollBaseline) window.ncResetScrollBaseline();
             if (pageId === 'profile' && window.renderProfileFields) window.renderProfileFields();
             if (pageId === 'profile' && window.loadProfileStats) window.loadProfileStats();
             if (pageId === 'profile' && window.renderTierPreviewGrid) window.renderTierPreviewGrid();
             if (pageId === 'profile' && window.renderPushToggleUI) window.renderPushToggleUI();
             if (pageId === 'profile') playProfileCardsIn();
-            if (['wallet', 'history', 'leaderboard', 'name-check'].includes(pageId)) playTabEnter(pageId);
+            if (['wallet', 'history', 'leaderboard'].includes(pageId)) playTabEnter(pageId);
             if (pageId === 'leaderboard' && window.loadLeaderboard) window.loadLeaderboard();
             if (pageId !== 'leaderboard' && window.stopLeaderboardLive) window.stopLeaderboardLive();
             if (pageId === 'voucher' && window.renderVoucherGames) window.renderVoucherGames();
@@ -8612,7 +8669,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // (the IDs stay). The first ~0.8s is ignored so keyboard / layout
         // adjustments right after typing don't close it by accident.
         window.addEventListener('scroll', () => {
-            if (ncShownAt === null || window.currentStorePage !== 'name-check') return;
+            if (ncShownAt === null || window.currentStorePage !== 'dashboard') return;
             if (Date.now() - ncShownAt < 1500) return;
             const ae = document.activeElement;
             if (ae && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;   // keyboard open: viewport shifts aren't a real scroll
@@ -8636,18 +8693,29 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const serverId = serverEl.value.trim();
             const serverLabel = serverEl.tagName === 'SELECT' ? (serverEl.options[serverEl.selectedIndex]?.text || serverId) : serverId;
             if (!playerId) return;
+            // Deterministic ranking: the plain/"Global" entry (no serverName) first, then by admin order.
+            // Result order must NOT depend on which provider call happens to answer first.
+            const rank = (g) => (g.serverName ? 1 : 0) * 1e6 + (typeof g.order === 'number' ? g.order : 9999);
+            const ranked = entries.slice().sort((a, b) => rank(a) - rank(b));
             const settled = [];
             await new Promise(resolve => {
-                let pending = entries.length;
-                entries.forEach(g => {
+                let pending = ranked.length, firstValidAt = 0, timer = null, done = false;
+                const finish = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+                ranked.forEach(g => {
                     ncCheckEntry(g, playerId, serverId).catch(() => ({ outcome: 'unknown' })).then(r => {
                         settled.push({ g, r });
-                        if (r && r.outcome === 'valid' && r.name) resolve();   // first good answer is enough - show it now
-                        if (--pending === 0) resolve();
+                        if (r && r.outcome === 'valid' && r.name) {
+                            // best-ranked entry answered valid -> it wins, no need to wait for the rest
+                            if (g === ranked[0]) return finish();
+                            // otherwise give the better-ranked entries a short moment to answer
+                            if (!firstValidAt) { firstValidAt = Date.now(); timer = setTimeout(finish, 1500); }
+                        }
+                        if (--pending === 0) finish();
                     });
                 });
             });
             if (myRun !== ncRunId) return; // a newer edit/selection superseded this check
+            settled.sort((a, b) => rank(a.g) - rank(b.g));
             const box = document.getElementById('nc-result');
             box.innerHTML = '';
             const valid = settled.filter(x => x.r.outcome === 'valid' && x.r.name);
@@ -8665,13 +8733,21 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 ncFinishResult(box);
                 return;
             }
-            const seen = new Set();
+            // One result per in-game name. Several store entries (Global / Singapore / Myanmar ...) can
+            // share one provider game and all answer "valid" for the same ID - that does NOT mean the
+            // account exists in each region, so only the best-ranked entry is shown. If the provider's reply
+            // itself carries a region/country, that real value is used (and an entry whose label matches it wins).
+            const byName = new Map();
             valid.forEach(({ g, r }) => {
-                let region = pcRegionLabel(r.geo.region, g.serverName);
-                if (r.geo.country) region += ' · ' + r.geo.country;
-                const dedupe = String(r.name).trim().toLowerCase();
-                if (seen.has(dedupe)) return;
-                seen.add(dedupe);
+                const k = String(r.name).trim().toLowerCase();
+                const cur = byName.get(k);
+                const rr = String((r.geo && r.geo.region) || '').trim().toLowerCase();
+                const matches = rr && String(g.serverName || '').trim().toLowerCase() === rr;
+                if (!cur || (matches && !cur.matches)) byName.set(k, { g, r, matches });
+            });
+            byName.forEach(({ g, r }) => {
+                let region = pcRegionLabel(r.geo && r.geo.region, g.serverName);
+                if (r.geo && r.geo.country) region += ' \u00b7 ' + r.geo.country;
                 const card = buildPlayerDetailCard(r.name, region, (serverLabel && g.serverIdRequired !== false) ? serverLabel : '', playerId);
                 box.appendChild(card);
             });
@@ -12179,16 +12255,6 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             walletTxnUnsubs = [];
         }
         // Wallet page: Transactions (green) and Top Up History (blue) are separate tabs.
-        function setWalletSegTab(tab) {
-            const topup = tab === 'topup';
-            document.getElementById('wallet-pane-txn').classList.toggle('active', !topup);
-            document.getElementById('wallet-pane-topup').classList.toggle('active', topup);
-            const bt = document.getElementById('wseg-btn-txn'), bu = document.getElementById('wseg-btn-topup');
-            bt.classList.toggle('active', !topup); bu.classList.toggle('active', topup);
-            bt.setAttribute('aria-selected', String(!topup)); bu.setAttribute('aria-selected', String(topup));
-            if (window.haptic) { try { window.haptic('select'); } catch (e) {} }
-        }
-        window.setWalletSegTab = setWalletSegTab;
         function setWalletTxnFilter(f) {
             walletTxnFilter = f;
             walletTxnLimit = 15;
@@ -12207,7 +12273,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const label = `${o.game || 'Order'}${o.itemAmount ? ' · ' + o.itemAmount : ''}`;
                 // Purchase: the wallet was really charged (new flow marks walletDebited; legacy flow charged in the browser).
                 if (o.walletFlow !== 2 || o.walletDebited === true) {
-                    rows.push({ type: 'buy', amount: Number(o.price) || 0, title: label, sub: orderStatusLabel(o.status || 'Pending'), at: ms(o.timestamp) });
+                    let gimg = '';
+                    try { gimg = findGameImage(o.game, o.serverRegion) || ''; } catch (e) { gimg = ''; }
+                    rows.push({ type: 'buy', amount: Number(o.price) || 0, title: label, sub: orderStatusLabel(o.status || 'Pending'), at: ms(o.timestamp), img: gimg });
                 }
                 if (o.walletRefunded === true) {
                     rows.push({ type: 'in', amount: Number(o.price) || 0, title: 'Refund', sub: label, at: ms(o.refundedAt) || ms(o.timestamp) });
@@ -12228,10 +12296,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (walletTxnFilter !== 'all') rows = rows.filter(r => r.type === walletTxnFilter);
             if (!rows.length) { box.innerHTML = '<div class="wtx-empty">No transactions yet</div>'; return; }
             const sign = { in: '+', out: '−', buy: '−' };
-            const glyph = { in: '↓', out: '↑', buy: '🛍' };
+            const glyph = { in: '↓', out: '↑', buy: '' };
+            const padSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h4M8 9v4"/><circle cx="15.5" cy="10.5" r=".6"/><circle cx="17.5" cy="12.5" r=".6"/><path d="M7 6h10a4 4 0 0 1 4 4l.5 5a3 3 0 0 1-5.2 2.2L15 16H9l-1.3 1.2A3 3 0 0 1 2.5 15L3 10a4 4 0 0 1 4-4z"/></svg>';
             const html = rows.slice(0, walletTxnLimit).map(r => `
                 <div class="wtx-row">
-                    <div class="wtx-ico ${r.type}">${glyph[r.type]}</div>
+                    ${r.type === 'buy'
+                        ? `<div class="wtx-ico buy img">${r.img ? `<img loading="lazy" decoding="async" draggable="false" src="${escapeHtml(r.img)}" alt="" onerror="this.remove()">` : ''}${r.img ? '' : padSvg}</div>`
+                        : `<div class="wtx-ico ${r.type}">${glyph[r.type]}</div>`}
                     <div class="wtx-body">
                         <div class="wtx-title">${escapeHtml(r.title)}</div>
                         <div class="wtx-sub">${r.sub ? escapeHtml(r.sub) + ' • ' : ''}${r.at ? new Date(r.at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Just now'}</div>
@@ -16250,22 +16321,23 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         }
         async function deliverPngBlob(blob, filename, fromPreview) {
             try {
-                const url = URL.createObjectURL(blob);
-                if (isRestrictedDownloadEnv()) {
+                const ua = navigator.userAgent || '';
+                const inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|Telegram|Messenger|; wv\)/i.test(ua);
+                // In-app browsers (Facebook / Telegram / Messenger ...) block file downloads,
+                // so only there we hand the PNG to the system share sheet (it has "Save Image").
+                if (inApp && navigator.canShare) {
                     try {
                         const file = new File([blob], filename, { type: 'image/png' });
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        if (navigator.canShare({ files: [file] })) {
                             await navigator.share({ files: [file], title: filename });
                             return;
                         }
                     } catch (e) {
                         if (e && e.name === 'AbortError') return; // user closed the share sheet
                     }
-                    if (!fromPreview) { showReceiptPreview(blob, filename); return; }
-                    // Already in the review screen and Share isn't available: try a normal download,
-                    // and remind that the image above can be long-pressed to save.
-                    window.showToast('ပုံကို ဖိထားပြီး Save image နှိပ်ပါ', 'success');
                 }
+                // Everywhere else (desktop, Android Chrome, iOS Safari): a real file download.
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = filename;
@@ -16275,6 +16347,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 a.click();
                 setTimeout(() => { a.remove(); }, 1000);
                 setTimeout(() => { URL.revokeObjectURL(url); }, 60000);
+                window.showToast('Downloading...', 'success');
             } catch (e) {
                 console.error('Receipt save error:', e);
                 window.showToast('Could not save the receipt image.', 'fail');
@@ -16862,6 +16935,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             GAMES = filtered;
             window.GAMES = GAMES;
             if (window.ncRenderGameOptions) window.ncRenderGameOptions();
+            if (window.renderWalletTxns) { try { window.renderWalletTxns(); } catch (e) {} }
             tryOpenPendingPackageDeepLink();
             runWhenNotTouching(document.querySelector('#all-games-grid')?.closest('.games-grid-scroll'), renderHomeGames);
             // The favorites row filters against window.GAMES too, so it needs
@@ -20285,7 +20359,96 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         } catch (e) {}
     })();
     </script>
-    <script id="haptic-js">
+    <script id="wallet-seg-js">
+(function () {
+        let walletSegCur = 'topup';
+        function walletSegApply(tab, animate) {
+            const topup = tab === 'topup';
+            walletSegCur = topup ? 'topup' : 'txn';
+            const track = document.getElementById('wallet-track');
+            const pt = document.getElementById('wallet-pane-txn'), pu = document.getElementById('wallet-pane-topup');
+            const bt = document.getElementById('wseg-btn-txn'), bu = document.getElementById('wseg-btn-topup');
+            if (!track || !pt || !pu || !bt || !bu) return;
+            clearTimeout(track._offT);
+            pt.classList.remove('off'); pu.classList.remove('off');
+            pt.classList.toggle('active', !topup); pu.classList.toggle('active', topup);
+            bt.classList.toggle('active', !topup); bu.classList.toggle('active', topup);
+            bt.setAttribute('aria-selected', String(!topup)); bu.setAttribute('aria-selected', String(topup));
+            track.classList.remove('dragging');
+            track.classList.toggle('no-anim', !animate);
+            track.style.transform = topup ? 'translateX(-50%)' : 'translateX(0)';
+            // once the slide has finished the hidden pane collapses, so the page is only as tall as the visible list
+            const settle = () => { (topup ? pt : pu).classList.add('off'); };
+            if (animate) track._offT = setTimeout(settle, 360); else settle();
+        }
+        function setWalletSegTab(tab) {
+            const next = tab === 'topup' ? 'topup' : 'txn';
+            if (next === walletSegCur) return;
+            walletSegApply(next, true);
+            if (window.haptic) { try { window.haptic('select'); } catch (e) {} }
+        }
+        // Wallet always opens on Top Up History.
+        window.walletSegReset = () => walletSegApply('topup', false);
+        // Swipe left/right on the list area to move between the two tabs.
+        function initWalletSeg() {
+            const vp = document.getElementById('wallet-viewport');
+            const track = document.getElementById('wallet-track');
+            if (!vp || !track || vp._segInit) return;
+            vp._segInit = true;
+            const pt = document.getElementById('wallet-pane-txn'), pu = document.getElementById('wallet-pane-topup');
+            let active = false, lock = null, sx = 0, sy = 0, dx = 0, w = 1;
+            vp.addEventListener('touchstart', (e) => {
+                active = false; lock = null; dx = 0;
+                if (e.touches.length !== 1) return;
+                if (e.target.closest && e.target.closest('.wtx-tabs')) return; // the filter chips scroll sideways on their own
+                active = true;
+                sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+                w = vp.getBoundingClientRect().width || 1;
+            }, { passive: true });
+            vp.addEventListener('touchmove', (e) => {
+                if (!active) return;
+                const t = e.touches[0];
+                const mx = t.clientX - sx, my = t.clientY - sy;
+                if (lock === null) {
+                    if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+                    if (Math.abs(mx) < Math.abs(my) * 1.2) { lock = 'y'; active = false; return; }     // normal vertical scroll
+                    // at either end of the two tabs, leave the gesture to the app's own page swipe
+                    if ((walletSegCur === 'txn' && mx > 0) || (walletSegCur === 'topup' && mx < 0)) { lock = 'y'; active = false; return; }
+                    lock = 'x';
+                    clearTimeout(track._offT);
+                    pt.classList.remove('off'); pu.classList.remove('off');
+                    track.classList.remove('no-anim');
+                    track.classList.add('dragging');
+                }
+                if (lock !== 'x') return;
+                e.stopPropagation();
+                dx = mx;
+                const base = walletSegCur === 'topup' ? -w : 0;
+                const x = Math.max(-w, Math.min(0, base + dx));
+                track.style.transform = 'translateX(' + x + 'px)';
+            }, { passive: true });
+            const end = (e) => {
+                if (!active || lock !== 'x') { active = false; return; }
+                active = false;
+                if (e && e.stopPropagation) e.stopPropagation();   // don't let the page-level tab swipe also fire
+                const th = Math.min(70, w * 0.2);
+                let next = walletSegCur;
+                if (walletSegCur === 'topup' && dx >= th) next = 'txn';
+                else if (walletSegCur === 'txn' && dx <= -th) next = 'topup';
+                const changed = next !== walletSegCur;
+                walletSegApply(next, true);
+                if (changed && window.haptic) { try { window.haptic('select'); } catch (err) {} }
+            };
+            vp.addEventListener('touchend', end);
+            vp.addEventListener('touchcancel', end);
+        }
+        window.setWalletSegTab = setWalletSegTab;
+        window.walletSegApply = walletSegApply;
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initWalletSeg);
+        else initWalletSeg();
+})();
+</script>
+<script id="haptic-js">
     /* Haptic feedback: Telegram Mini App HapticFeedback when opened inside Telegram,
        navigator.vibrate on Android browsers otherwise (iOS Safari has no web haptics, so it stays silent there).
        Profile > Preferences > Haptic Feedback switches it on/off (saved in localStorage "gz_haptic", default On). */
