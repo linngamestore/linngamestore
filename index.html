@@ -186,6 +186,7 @@
         // so users can still long-press to select/paste text they typed.
         document.addEventListener('contextmenu', function (e) {
             var tag = e.target.tagName;
+            if (e.target.closest && e.target.closest('[data-allow-save]')) return; // receipt images: allow long-press "Save image"
             if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
                 e.preventDefault();
             }
@@ -7115,7 +7116,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     <button type="button" data-vr-theme="dark" onclick="setVerifiedReceiptTheme('dark')" data-i18n="vr_dark">Dark</button>
                     <button type="button" data-vr-theme="light" onclick="setVerifiedReceiptTheme('light')" data-i18n="vr_light">Light</button>
                 </div>
-                <div class="vr-stage"><img id="vr-img" alt="Verified receipt"></div>
+                <div class="vr-stage"><img id="vr-img" data-allow-save="1" alt="Verified receipt"></div>
                 <button type="button" class="btn btn-primary" style="width:100%;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="saveVerifiedReceipt()">
                     <svg class="ui-icon" style="width:16px;height:16px;"><use href="#icon-download"></use></svg>
                     <span data-i18n="vr_save">Save Image</span>
@@ -16608,7 +16609,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     + '<div class="modal-close" onclick="closeReceiptPreview()">'
                     + '<svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg></div></div>'
                     + '<div class="modal-body">'
-                    + '<img id="rc-preview-img" alt="Receipt" style="width:100%;height:auto;border-radius:10px;display:block;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;">'
+                    + '<img id="rc-preview-img" data-allow-save="1" alt="Receipt" style="width:100%;height:auto;border-radius:10px;display:block;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;">'
                     + '<div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap;">'
                     + '<button type="button" class="btn" style="padding:9px 18px;background:var(--surface-alt);color:var(--text);border:1px solid var(--border);" onclick="closeReceiptPreview()">Cancel</button>'
                     + '<button type="button" class="btn btn-primary" style="padding:9px 18px;display:inline-flex;align-items:center;gap:8px;" onclick="confirmReceiptDownload()">'
@@ -16643,6 +16644,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     }
                 }
                 if (restricted) {
+                    try {
+                        const u2 = URL.createObjectURL(blob);
+                        const a2 = document.createElement('a');
+                        a2.href = u2; a2.download = filename; a2.rel = 'noopener'; a2.style.display = 'none';
+                        document.body.appendChild(a2); a2.click();
+                        setTimeout(() => { a2.remove(); URL.revokeObjectURL(u2); }, 60000);
+                    } catch (e2) { /* ignore */ }
                     // Share unavailable: the preview image is already on screen, so tell the
                     // person how to save it (long-press -> Save Image) instead of a fake "Downloading...".
                     window.showToast('Press and hold the receipt image, then choose "Save Image".', 'success');
