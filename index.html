@@ -706,6 +706,12 @@
         .logo.logo-loading .logo-status { display: flex; }
         .logo.logo-loading .logo-icon-wrap { display: none; }
         .logo-status-skel { display: none; }
+        /* Header logo: tiny gyro parallax (set by the script at the end of the page, max ~2px) + soft shadow below */
+        #header-logo .logo-icon-wrap {
+            translate: var(--lgx, 0px) var(--lgy, 0px);
+            filter: drop-shadow(calc(var(--lgx, 0px) * -0.6) calc(3px - var(--lgy, 0px) * 0.6) 3px rgba(124,77,255,.28));
+        }
+        html[data-theme="dark"] #header-logo .logo-icon-wrap { filter: drop-shadow(calc(var(--lgx, 0px) * -0.6) calc(3px - var(--lgy, 0px) * 0.6) 3px rgba(0,0,0,.5)); }
         .logo-status-text { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); animation: logoStatusPulse 1.2s ease-in-out infinite; }
         /* "LINN" brand text next to the logo icon: bold, with a soft color
            sweep animating across the letters (shimmer-like, not a full
@@ -5757,9 +5763,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             <!-- HOME NAME CHECK: pick a game, enter the Player ID (+ Server ID only when that game needs one)
                  and the store looks up the in-game name plus its region (replaces the old banner carousel). -->
             <div id="name-check">
-            <h2 class="title-header section-title-spaced"><span data-i18n="nc_title">Name Check</span></h2>
+            <h2 class="title-header section-title-spaced"><span>Linn Game Store</span></h2>
         <div class="detail-form-card" id="name-check-card">
-            <label style="margin-top:0;" data-i18n="nc_title">Name Check</label>
+            <label style="margin-top:0;">In-Game Server Check</label>
             <select id="nc-game" onchange="ncOnGameChange()"><option value="">Select game</option></select>
             <div id="nc-fields" style="display:none;">
                 <input type="text" id="nc-player-id" placeholder="Player ID" data-i18n-ph="nc_player_id_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
@@ -8673,6 +8679,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (!g) return false;
             if (isVoucherGame(g)) return false;
             if (g.playerIdRequired === false) return false;
+            if (g.serverIdRequired === false) return false; // ID-only games (no Server ID) are not listed
             return !!(g.g2bulkCode || g.fazercardCategoryId);
         }
 
@@ -21448,5 +21455,39 @@ html .popular-card.card-pop{animation:bubbleRise 1.05s cubic-bezier(.3,.8,.35,1)
 .badge,.badge.badge-success,.badge.badge-warning,.badge.badge-processing,.badge.badge-danger{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 .modal-overlay:not(.show),.success-overlay:not(.show),.drawer-overlay:not(.show){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 </style>
+<script>
+/* Header logo gyro parallax: shifts the logo up to ~2px left/right/up/down as the phone tilts.
+   Slowly re-centres, so holding the phone at any angle settles back to rest. Off for reduced-motion. */
+(function () {
+    try {
+        if (!('DeviceOrientationEvent' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var MAX = 2, bx = null, by = null, cx = 0, cy = 0, tx = 0, ty = 0, raf = 0, armed = false, el = null;
+        var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+        function loop() {
+            cx += (tx - cx) * 0.12; cy += (ty - cy) * 0.12;
+            el = el || document.getElementById('header-logo');
+            if (el) { el.style.setProperty('--lgx', cx.toFixed(2) + 'px'); el.style.setProperty('--lgy', cy.toFixed(2) + 'px'); }
+            raf = (Math.abs(tx - cx) > 0.02 || Math.abs(ty - cy) > 0.02) ? requestAnimationFrame(loop) : 0;
+        }
+        function onOri(e) {
+            if (document.hidden || e.gamma == null || e.beta == null) return;
+            var ang = (screen.orientation && screen.orientation.angle) || 0;
+            if (ang % 180 !== 0) return; // portrait only
+            if (bx === null) { bx = e.gamma; by = e.beta; }
+            bx += (e.gamma - bx) * 0.004; by += (e.beta - by) * 0.004;
+            tx = clamp((e.gamma - bx) / 12, -1, 1) * MAX;
+            ty = clamp((e.beta - by) / 12, -1, 1) * MAX;
+            if (!raf) raf = requestAnimationFrame(loop);
+        }
+        function arm() { if (armed) return; armed = true; window.addEventListener('deviceorientation', onOri, { passive: true }); }
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') { // iOS: needs a tap first
+            document.addEventListener('click', function once() {
+                document.removeEventListener('click', once, true);
+                DeviceOrientationEvent.requestPermission().then(function (r) { if (r === 'granted') arm(); }).catch(function () {});
+            }, true);
+        } else arm();
+    } catch (e) {}
+})();
+</script>
 </body>
 </html>
