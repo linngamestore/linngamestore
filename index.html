@@ -1910,13 +1910,12 @@
         /* Keeps the package grid scrollable inside its own box instead of the
            whole page — with many packages, the customer used to have to scroll
            all the way past every tile just to reach payment/confirm below. */
+        /* NO inner scroll any more: the package box is just a styled frame in the normal page flow,
+           so one finger-drag anywhere (on a card or on the frame) scrolls the whole page up/down. */
         .package-grid-scroll {
-            max-height: 48vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
             padding: 10px 2px; margin: 0 -2px;
             border: 1px solid var(--border); border-radius: 16px; background: var(--surface-alt);
         }
-        .package-grid-scroll::-webkit-scrollbar { width: 4px; }
-        .package-grid-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
         .package-grid-scroll .package-grid { padding: 0 8px; }
 
         /* Same idea for the Order/Transaction History list: the card list
@@ -6148,7 +6147,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         <div class="wallet-pay-info-card">
                             <p class="wallet-pay-info-label">Transfer the exact amount to</p>
                             <div class="pm-qr-info-row">
-                                <img id="wallet-pm-qr" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid rgba(255,255,255,0.4);">
+                                <img id="wallet-pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid rgba(255,255,255,0.4);">
                                 <div class="pm-info-grid">
                                     <div class="pm-info-box">
                                         <span class="pm-info-box-label">Name</span>
@@ -6182,7 +6181,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             <div class="upload-shot-icon"><svg class="ui-icon"><use href="#icon-camera"></use></svg></div>
                             <span class="upload-shot-label">Upload Screenshot</span>
                             <span class="upload-shot-hint">Tap to choose your payment screenshot</span>
-                            <img id="wallet-receipt-preview" src="" style="display:none;">
+                            <img id="wallet-receipt-preview" loading="lazy" decoding="async" src="" style="display:none;">
                             <span class="upload-shot-change" id="wallet-upload-shot-change" style="display:none;">
                                 <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><use href="#icon-camera"></use></svg> Change
                             </span>
@@ -6864,7 +6863,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             </div>
             <div class="detail-layout">
             <div class="detail-banner-col">
-            <img id="detail-game-banner" src="" alt="" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; margin-bottom:10px;">
+            <img id="detail-game-banner" loading="lazy" decoding="async" src="" alt="" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; margin-bottom:10px;">
 
             <div class="game-desc-card" id="detail-game-desc-wrap" style="display:none;">
                 <div class="game-desc-head">
@@ -6942,7 +6941,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     <div id="detail-payment-info" class="detail-form-card" style="display:none; margin-top:10px;">
                         <p style="font-size:12px;color:var(--text-secondary);">Transfer the exact amount to:</p>
                         <div class="pm-qr-info-row">
-                            <img id="pm-qr" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass, rgba(127,127,127,.25));">
+                            <img id="pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass, rgba(127,127,127,.25));">
                             <div class="pm-info-grid">
                                 <div class="pm-info-box">
                                     <span class="pm-info-box-label">Name</span>
@@ -6975,7 +6974,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             <div class="upload-shot-icon"><svg class="ui-icon"><use href="#icon-camera"></use></svg></div>
                             <span class="upload-shot-label">Upload Screenshot</span>
                             <span class="upload-shot-hint">Tap to choose your payment screenshot</span>
-                            <img id="receipt-preview" src="" style="display:none;">
+                            <img id="receipt-preview" loading="lazy" decoding="async" src="" style="display:none;">
                             <span class="upload-shot-change" id="upload-shot-change" style="display:none;">
                                 <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><use href="#icon-camera"></use></svg> Change
                             </span>
@@ -7036,6 +7035,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 <p id="notif-detail-body" style="white-space:pre-wrap; margin-top:8px;"></p>
             </div>
             <div id="notif-detail-order" style="display:none;"></div>
+            <div id="notif-detail-sheet" style="display:none;"></div>
         </div>
 
     </main>
@@ -8302,7 +8302,30 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // G2Bulk reports (if any and different) in brackets after it.
         // Single region only: the region G2Bulk reports wins; otherwise the store's own
         // server/region name, otherwise "Global". (No more "Singapore (Myanmar)" combos.)
-        function pcRegionLabel(apiRegion, storeName) {
+        // Server ID -> region table, checked FIRST (deterministic, beats provider/store labels).
+        // Keyed by game ('mlbb'); each row is a numeric Server ID range. Add rows as you confirm them.
+        const SERVER_REGION_MAP = {
+            mlbb: [
+                { from: 13678, to: 13678, region: 'Myanmar' }   // confirmed: ID 1159045022 / server 13678
+                // , { from: 13000, to: 13999, region: 'Myanmar' }   <- example of a range
+            ]
+        };
+        function gameKeyOf(g) {
+            if (!g) return '';
+            const code = String(g.g2bulkCode || g.g2bulkIdCheckCode || '').toLowerCase();
+            if (code === 'mlbb') return 'mlbb';
+            return /mobile\s*legends|mlbb/i.test(String(g.name || '')) ? 'mlbb' : '';
+        }
+        function regionFromServerId(gameKey, serverId) {
+            const rows = SERVER_REGION_MAP[gameKey];
+            const n = Number(String(serverId || '').trim());
+            if (!rows || !Number.isFinite(n) || !String(serverId || '').trim()) return '';
+            const hit = rows.find(r => n >= r.from && n <= r.to);
+            return hit ? hit.region : '';
+        }
+        function pcRegionLabel(apiRegion, storeName, gameKey, serverId) {
+            const mapped = regionFromServerId(gameKey, serverId);
+            if (mapped) return mapped;
             const api = (typeof fmtRegion === 'function') ? fmtRegion(apiRegion) : String(apiRegion || '');
             if (api) return api;
             return ((typeof fmtRegion === 'function') ? fmtRegion(storeName) : String(storeName || '')) || t('nc_global');
@@ -8376,7 +8399,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function renderIdConfirmedCard(name, gameName, geo, serverLabel) {
             const statusEl = document.getElementById('detail-id-status');
             statusEl.innerHTML = '';
-            let regionText = pcRegionLabel(geo && geo.region, selectedGameServerName);
+            let regionText = pcRegionLabel(geo && geo.region, selectedGameServerName, gameKeyOf({ g2bulkCode: selectedGameG2BulkCode, g2bulkIdCheckCode: selectedGameG2BulkIdCheckCode, name: selectedGameName }), serverLabel);
             if (geo && geo.country) regionText += ' · ' + geo.country;
             statusEl.appendChild(buildPlayerCard(name, regionText, serverLabel));
             statusEl.style.display = 'block';
@@ -9054,7 +9077,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (!cur || (matches && !cur.matches)) byName.set(k, { g, r, matches });
             });
             byName.forEach(({ g, r }) => {
-                let region = pcRegionLabel(r.geo && r.geo.region, g.serverName);
+                let region = pcRegionLabel(r.geo && r.geo.region, g.serverName, gameKeyOf(g), serverId);
                 if (r.geo && r.geo.country) region += ' \u00b7 ' + r.geo.country;
                 const card = buildPlayerDetailCard(r.name, region, (serverLabel && g.serverIdRequired !== false) ? serverLabel : '', playerId);
                 box.appendChild(card);
@@ -10328,6 +10351,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const file = e.target.files[0];
             if (!file) return;
             editingReceiptFile = file;
+            warmReceiptPrep(file);
             receiptAnalysis = null; // clear any previous file's analysis until this one's OCR finishes
             const reader = new FileReader();
             reader.onload = (ev) => {
@@ -11346,12 +11370,25 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // decode) to a JPEG before upload, so the Worker's 10MB limit and its
         // jpeg/png/webp/gif/avif allow-list are not hit by raw phone photos.
         // Falls back to the original file if anything fails.
-        async function prepareImageForUpload(file) {
+        // Compression is cached per File (WeakMap) so it can start the moment the customer picks the slip
+        // (warmReceiptPrep below) and is already finished when they tap Confirm - the upload then only sends a small file.
+        const _prepCache = new WeakMap();
+        function prepareImageForUpload(file) {
+            if (!file || typeof file === 'string') return Promise.resolve(file);
+            let p = _prepCache.get(file);
+            if (!p) { p = _prepareImageForUploadImpl(file); _prepCache.set(file, p); }
+            return p;
+        }
+        function warmReceiptPrep(file) { try { prepareImageForUpload(file); } catch (e) { /* best effort */ } }
+        window.warmReceiptPrep = warmReceiptPrep;
+        async function _prepareImageForUploadImpl(file) {
             try {
                 if (!file || typeof file === 'string') return file;
                 const okType = /^image\/(jpeg|png|webp)$/.test(file.type || '');
-                if (okType && file.size <= 1.5 * 1024 * 1024) return file;
-                const MAX_DIM = 1600;
+                // Already small (<= 300 KB): upload as is. Anything bigger is shrunk - the old 1.5 MB threshold let
+                // 1-1.5 MB screenshots go up untouched.
+                if (okType && file.size <= 300 * 1024) return file;
+                const MAX_DIM = 1280; // plenty to read a bank slip
                 let src, w, h;
                 if (window.createImageBitmap) {
                     src = await createImageBitmap(file);
@@ -11377,7 +11414,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(src, 0, 0, canvas.width, canvas.height);
                 if (src.close) src.close();
-                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.78));
                 if (!blob) return file;
                 if (okType && blob.size >= file.size) return file;
                 const base = String(file.name || 'photo').replace(/\.[^.]+$/, '');
@@ -12340,6 +12377,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const file = e.target.files[0];
             if (!file) return;
             editingWalletReceiptFile = file;
+            warmReceiptPrep(file);
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const img = document.getElementById('wallet-receipt-preview');
@@ -14358,7 +14396,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             } catch (e) {}
         }
 
-        async function loadProfileStats() {
+        const USER_STATS_TTL_MS = 30 * 60 * 1000;
+        let _profileStatsInflight = null;
+        async function loadProfileStats(force) {
             const guestId = window.getGuestId ? window.getGuestId() : '';
             if (!guestId) return;
 
@@ -14383,12 +14423,25 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
             const cached = getCachedUserStats(guestId);
             if (cached) renderProfileStatsUI(cached.total, cached.count, cached.games);
-
-            const { total, count, games } = await computeUserStats(guestId);
-            renderProfileStatsUI(total, count, games);
-            setCachedUserStats(guestId, total, count, games);
+            // computeUserStats() reads EVERY Success order + Completed top-up this customer ever
+            // made, and loadProfileStats() fires on boot, on auth change, on every Profile tab
+            // open and on every tier-settings snapshot - i.e. the same full scan 3-4x per app
+            // open. That was the main source of runaway Firestore reads. A fresh cache (or a
+            // scan already in flight) is now reused; the cache is dropped the moment one of
+            // the customer's orders turns Success, so numbers still update right away.
+            if (cached && !force && (Date.now() - (cached.ts || 0)) < USER_STATS_TTL_MS) return;
+            if (_profileStatsInflight) return _profileStatsInflight;
+            _profileStatsInflight = (async () => {
+                try {
+                    const { total, count, games } = await computeUserStats(guestId);
+                    renderProfileStatsUI(total, count, games);
+                    setCachedUserStats(guestId, total, count, games);
+                } finally { _profileStatsInflight = null; }
+            })();
+            return _profileStatsInflight;
         }
         window.loadProfileStats = loadProfileStats;
+        window.invalidateUserStatsCache = function () { try { localStorage.removeItem('gz_stats_cache'); } catch (e) {} };
 
 
         // Ranks customers by lifetime spend from the small pre-aggregated
@@ -14903,7 +14956,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Admin status now comes from the Worker's edge-cached /admin-status route instead of a live
         // Firestore listener on settings/presence - a listener bills one read per admin heartbeat per open
         // storefront; this costs no Firestore reads on the storefront side.
-        async function fetchAdminStatus() {
+        let _adminStatusLastFetch = 0;
+        async function fetchAdminStatus(force) {
+            // Each call makes the Worker read Firestore, so never fire more than once per 2 min per tab.
+            if (!force && Date.now() - _adminStatusLastFetch < 120000) { renderAdminStatus(); return; }
+            _adminStatusLastFetch = Date.now();
             try {
                 const res = await fetch(`${(typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev')}/admin-status`, { cache: 'no-store' });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -14918,7 +14975,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         }
         deferInit(() => {
             fetchAdminStatus();
-            setInterval(() => { if (!document.hidden) fetchAdminStatus(); }, 120000); // refresh every 2 min while visible
+            setInterval(() => { if (!document.hidden) fetchAdminStatus(); }, 300000); // every 5 min while visible (admin heartbeat is 5 min, Online threshold 12 min)
             document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchAdminStatus(); });
             setInterval(renderAdminStatus, 20000); // re-check the threshold between fetches
         });
@@ -15551,7 +15608,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function listenAnnouncements() {
             if (announcementsListenerAttached) return;
             announcementsListenerAttached = true;
-            const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(30));
+            const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(15));
             announcementsUnsub = onSnapshot(q, (snap) => {
                 // Fetched newest-first (so limit() keeps the most recent ones),
                 // then reversed back to oldest-first for the ticker's scroll order.
@@ -15602,7 +15659,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function listenWalletTopupToasts() {
             if (walletToastListenerAttached) return;
             walletToastListenerAttached = true;
-            const q = query(collection(db, "walletTopups"), where("status", "==", "Completed"), orderBy("timestamp", "desc"), limit(15));
+            const q = query(collection(db, "walletTopups"), where("status", "==", "Completed"), orderBy("timestamp", "desc"), limit(8));
             onSnapshot(q, (snap) => {
                 walletToastQueue = snap.docs.map(docSnap => {
                     const d = docSnap.data();
@@ -15663,7 +15720,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // (orders: userId Ascending, timestamp Descending) — Firestore
             // will log a "requires an index" error with a direct create-it
             // link the first time this runs if it isn't there yet.
-            const q = query(collection(db, "orders"), where("userId", "==", guestId), orderBy("timestamp", "desc"), limit(50));
+            const q = query(collection(db, "orders"), where("userId", "==", guestId), orderBy("timestamp", "desc"), limit(20));
             onSnapshot(q, (snap) => {
                 snap.docChanges().forEach((change) => {
                     const data = change.doc.data();
@@ -15684,6 +15741,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             orderStatusNotified.add(orderId + ':success');
                             showOrderSuccessModal(label);
                             creditLeaderboardStats(orderId, guestId);
+                            if (window.invalidateUserStatsCache) window.invalidateUserStatsCache();
+                            if (window.loadProfileStats) window.loadProfileStats(true);
                         } else if (data.status === 'Fail' && !orderStatusNotified.has(orderId + ':fail')) {
                             orderStatusNotified.add(orderId + ':fail');
                             window.showToast(`Order Failed ${label ? '(' + label + ')' : ''}`.trim(), 'fail');
@@ -17229,7 +17288,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             HISTORY_SERVER_SEEN = false;
             container.innerHTML = loadingStateHTML('bars');
 
-            const q = query(collection(db, "orders"), where("userId", "==", guestId));
+            const q = query(collection(db, "orders"), where("userId", "==", guestId), orderBy("timestamp", "desc"), limit(100));
             historyUnsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
                 // Firestore delivers an EMPTY snapshot straight from the local cache before
                 // the server answers (slow networks especially) - treating that as "no data"
@@ -18858,7 +18917,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function listenNotifications() {
             if (notifListenerAttached) return;
             notifListenerAttached = true;
-            const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"), limit(50));
+            const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"), limit(20));
             let initialLoad = true;
             onSnapshot(q, (snap) => {
                 // Broadcasts (no targetUserId) show for everyone; a targeted
@@ -18931,10 +18990,16 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const n = item.raw;
             const dateStr = n.timestamp ? n.timestamp.toDate().toLocaleString() : 'Just now';
             const preview = n.intro || n.message || '';
+            const sheetBtns = n.sheetCsv ? `
+                    <div style="display:flex;gap:8px;margin:8px 0 4px;">
+                        <button type="button" onclick="event.stopPropagation();openNotificationDetail('${item.id}')" style="flex:1;padding:8px 0;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:600;font-size:12px;cursor:pointer;">View</button>
+                        <button type="button" onclick="event.stopPropagation();downloadNotifSheet('${item.id}')" style="flex:1;padding:8px 0;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:600;font-size:12px;cursor:pointer;">Download</button>
+                    </div>` : '';
             return `
                 <div class="notif-item${unreadCls}" onclick="onNotifCardClick('${item.id}')" style="cursor:pointer;">
                     <h5>${n.title || ''}</h5>
                     <p>${preview}</p>
+                    ${sheetBtns}
                     <span>${dateStr}</span>
                 </div>
             `;
@@ -19012,8 +19077,51 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             document.getElementById('notif-detail-body').textContent = n.details || n.message || n.intro || '';
             document.getElementById('notif-detail-text-wrap').style.display = '';
             document.getElementById('notif-detail-order').style.display = 'none';
+            const sheetEl = document.getElementById('notif-detail-sheet');
+            if (sheetEl) {
+                if (n.sheetCsv) { sheetEl.innerHTML = notifSheetHTML(n); sheetEl.style.display = ''; }
+                else { sheetEl.innerHTML = ''; sheetEl.style.display = 'none'; }
+            }
             showPage('notif-detail');
         }
+
+        // ---------- Sheet notifications (history trimmed -> View / Download) ----------
+        function parseCsv(text) {
+            const rows = []; let row = [], cell = '', q = false;
+            text = String(text || '').replace(/^\uFEFF/, '');
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                if (q) {
+                    if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+                    else cell += c;
+                } else if (c === '"') q = true;
+                else if (c === ',') { row.push(cell); cell = ''; }
+                else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+                else cell += c;
+            }
+            if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+            return rows;
+        }
+        function notifSheetHTML(n) {
+            const rows = parseCsv(n.sheetCsv);
+            if (!rows.length) return '';
+            const th = 'padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border,#e5e7eb);font-size:11px;';
+            const head = '<tr>' + rows[0].map(h => `<th style="${th}">${escapeHtml(h)}</th>`).join('') + '</tr>';
+            const body = rows.slice(1).map(r => '<tr>' + r.map(v => `<td style="${th}font-weight:400;">${escapeHtml(v)}</td>`).join('') + '</tr>').join('');
+            return `<div style="overflow-x:auto;margin-top:10px;"><table style="border-collapse:collapse;width:100%;">${head}${body}</table></div>
+                <button type="button" onclick="downloadNotifSheet('${n.id}')" style="width:100%;margin-top:12px;padding:10px 0;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;">Download sheet (CSV)</button>`;
+        }
+        function downloadNotifSheet(id) {
+            const n = NOTIFICATIONS.find(x => x.id === id);
+            if (!n || !n.sheetCsv) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([n.sheetCsv], { type: 'text/csv;charset=utf-8' }));
+            a.download = n.sheetName || 'history-sheet.csv';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+        }
+        window.downloadNotifSheet = downloadNotifSheet;
+        window.openNotificationDetail = openNotificationDetail;
 
         // Full order details for an order-update notification (same fields as
         // the History "Order Details" sheet, minus voucher codes and the
@@ -21442,7 +21550,7 @@ window.TELEGRAM_BOT_ID = window.TELEGRAM_BOT_ID || '';   // e.g. '123456789'
    edge, keep the same finger-drag scrolling the parent instead of "sticking": the surrounding popup body
    if the box sits in one, otherwise the whole page. */
 (function(){
-  var SEL = '.package-grid-scroll, .order-list-scroll, .wallet-amount-presets';
+  var SEL = '.order-list-scroll, .wallet-amount-presets';
   var box = null, target = null, lastY = 0;
   function scrollableParent(el){
     for (var p = el.parentElement; p && p !== document.body && p !== document.documentElement; p = p.parentElement) {
