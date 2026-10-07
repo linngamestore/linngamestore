@@ -9540,12 +9540,24 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // the price. Costs live in the private gameCosts/{gameId} doc (same order as the game's
         // packages array), so they are fetched only for admin accounts, per opened game.
         window.currentGameCosts = null;
+        // Admin-tagged accounts only: say WHY the cost line is missing instead of failing silently.
+        const _adminCostNoted = new Set();
+        window.__adminCostNote = function (gameId, why) {
+            if (_adminCostNoted.has(gameId)) return;
+            _adminCostNoted.add(gameId);
+            const msg = why === 'missing'
+                ? 'Admin: ဒီဂိမ်းအတွက် Cost data မရှိသေးပါ — Admin Panel > Settings > "Move Costs to Private" နှိပ်ပါ'
+                : (why === 'permission-denied'
+                    ? 'Admin: Cost ဖတ်ခွင့်မရှိပါ — firestore.rules ထဲက gameCosts read rule ကို စစ်ပါ'
+                    : 'Admin: Cost မဖတ်နိုင်ပါ (' + why + ')');
+            try { if (window.showToast) window.showToast(msg, 'info'); } catch (e) { /* ignore */ }
+        };
         async function loadAdminCostsForGame(gameId) {
             window.currentGameCosts = null;
             if (!window.isStoreAdmin || !gameId) return;
             try {
                 const snap = await window.getDoc(window.doc(window.db, 'gameCosts', gameId));
-                if (!snap.exists()) return;
+                if (!snap.exists()) { window.__adminCostNote(gameId, 'missing'); return; }
                 const raw = Array.isArray(snap.data().costs) ? snap.data().costs : [];
                 const game = window.GAMES ? window.GAMES[gameId] : null;
                 const allPkgs = (game && Array.isArray(game.packages)) ? game.packages : [];
@@ -9557,6 +9569,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (document.getElementById('detail-package-list') && window.currentStorePage === 'game-detail') renderDetailPackageList();
             } catch (e) {
                 console.error('Admin cost load error (check firestore.rules for gameCosts):', e);
+                window.__adminCostNote(gameId, (e && e.code) || 'error');
             }
         }
         window.loadAdminCostsForGame = loadAdminCostsForGame;
