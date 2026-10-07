@@ -8300,10 +8300,12 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // player name comes from an external API and shouldn't be trusted as HTML.
         // "Global (Myanmar)": the store's own server/region name first, the region
         // G2Bulk reports (if any and different) in brackets after it.
+        // Single region only: the region G2Bulk reports wins; otherwise the store's own
+        // server/region name, otherwise "Global". (No more "Singapore (Myanmar)" combos.)
         function pcRegionLabel(apiRegion, storeName) {
             const api = (typeof fmtRegion === 'function') ? fmtRegion(apiRegion) : String(apiRegion || '');
-            const base = ((typeof fmtRegion === 'function') ? fmtRegion(storeName) : String(storeName || '')) || t('nc_global');
-            return (api && api.toLowerCase() !== base.toLowerCase()) ? `${base} (${api})` : base;
+            if (api) return api;
+            return ((typeof fmtRegion === 'function') ? fmtRegion(storeName) : String(storeName || '')) || t('nc_global');
         }
         function buildPlayerCard(name, regionText, serverLabel) {
             const card = document.createElement('div');
@@ -8993,7 +8995,16 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // Deterministic ranking: the plain/"Global" entry (no serverName) first, then by admin order.
             // Result order must NOT depend on which provider call happens to answer first.
             const rank = (g) => (g.serverName ? 1 : 0) * 1e6 + (typeof g.order === 'number' ? g.order : 9999);
-            const ranked = entries.slice().sort((a, b) => rank(a) - rank(b));
+            const rankedAll = entries.slice().sort((a, b) => rank(a) - rank(b));
+            // Stage 1: check only the best-ranked (Global) entry. If it recognises the ID, that is
+            // the answer - the other region entries are not checked at all. Only when it can't
+            // confirm the ID do we fall back to checking every entry (old behaviour).
+            let ranked = rankedAll;
+            try {
+                const first = await ncCheckEntry(rankedAll[0], playerId, serverId);
+                if (first && first.outcome === 'valid' && first.name) ranked = [rankedAll[0]];
+            } catch (e) { /* fall back to all entries */ }
+            if (myRun !== ncRunId) return;
             const settled = [];
             await new Promise(resolve => {
                 let pending = ranked.length, firstValidAt = 0, timer = null, done = false;
