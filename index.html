@@ -22393,5 +22393,26 @@ html .popular-card.card-pop{animation:bubbleRise 1.05s cubic-bezier(.3,.8,.35,1)
   window.sealSecurity = sealSecurity;
 })();
 </script>
+
+<style id="perf-overrides">
+/* ===== PERF FIX (smoothness) =====
+   1) Every game card animated a custom property (--linn-a) at 60fps -> each visible card repainted two
+      conic-gradient borders on the main thread every frame. On mobile it now steps at ~12fps (same look,
+      ~5x less repaint work). Desktop is unchanged. Weak phones (html.perf-low) already turn it off.
+   2) Many elements still used a hard-coded backdrop-filter blur on phones (only var(--blur) was disabled).
+      Drop them all on narrow screens; the translucent backgrounds remain.
+   3) Pause more always-running decorative loops while the page is scrolling. */
+@media (max-width: 600px) {
+  @keyframes linnSpin { 0.0%{--linn-a:0.0deg;animation-timing-function:steps(1,jump-end)}2.083%{--linn-a:7.5deg;animation-timing-function:steps(1,jump-end)}4.167%{--linn-a:15.0deg;animation-timing-function:steps(1,jump-end)}6.25%{--linn-a:22.5deg;animation-timing-function:steps(1,jump-end)}8.333%{--linn-a:30.0deg;animation-timing-function:steps(1,jump-end)}10.417%{--linn-a:37.5deg;animation-timing-function:steps(1,jump-end)}12.5%{--linn-a:45.0deg;animation-timing-function:steps(1,jump-end)}14.583%{--linn-a:52.5deg;animation-timing-function:steps(1,jump-end)}16.667%{--linn-a:60.0deg;animation-timing-function:steps(1,jump-end)}18.75%{--linn-a:67.5deg;animation-timing-function:steps(1,jump-end)}20.833%{--linn-a:75.0deg;animation-timing-function:steps(1,jump-end)}22.917%{--linn-a:82.5deg;animation-timing-function:steps(1,jump-end)}25.0%{--linn-a:90.0deg;animation-timing-function:steps(1,jump-end)}27.083%{--linn-a:97.5deg;animation-timing-function:steps(1,jump-end)}29.167%{--linn-a:105.0deg;animation-timing-function:steps(1,jump-end)}31.25%{--linn-a:112.5deg;animation-timing-function:steps(1,jump-end)}33.333%{--linn-a:120.0deg;animation-timing-function:steps(1,jump-end)}35.417%{--linn-a:127.5deg;animation-timing-function:steps(1,jump-end)}37.5%{--linn-a:135.0deg;animation-timing-function:steps(1,jump-end)}39.583%{--linn-a:142.5deg;animation-timing-function:steps(1,jump-end)}41.667%{--linn-a:150.0deg;animation-timing-function:steps(1,jump-end)}43.75%{--linn-a:157.5deg;animation-timing-function:steps(1,jump-end)}45.833%{--linn-a:165.0deg;animation-timing-function:steps(1,jump-end)}47.917%{--linn-a:172.5deg;animation-timing-function:steps(1,jump-end)}50.0%{--linn-a:180.0deg;animation-timing-function:steps(1,jump-end)}52.083%{--linn-a:187.5deg;animation-timing-function:steps(1,jump-end)}54.167%{--linn-a:195.0deg;animation-timing-function:steps(1,jump-end)}56.25%{--linn-a:202.5deg;animation-timing-function:steps(1,jump-end)}58.333%{--linn-a:210.0deg;animation-timing-function:steps(1,jump-end)}60.417%{--linn-a:217.5deg;animation-timing-function:steps(1,jump-end)}62.5%{--linn-a:225.0deg;animation-timing-function:steps(1,jump-end)}64.583%{--linn-a:232.5deg;animation-timing-function:steps(1,jump-end)}66.667%{--linn-a:240.0deg;animation-timing-function:steps(1,jump-end)}68.75%{--linn-a:247.5deg;animation-timing-function:steps(1,jump-end)}70.833%{--linn-a:255.0deg;animation-timing-function:steps(1,jump-end)}72.917%{--linn-a:262.5deg;animation-timing-function:steps(1,jump-end)}75.0%{--linn-a:270.0deg;animation-timing-function:steps(1,jump-end)}77.083%{--linn-a:277.5deg;animation-timing-function:steps(1,jump-end)}79.167%{--linn-a:285.0deg;animation-timing-function:steps(1,jump-end)}81.25%{--linn-a:292.5deg;animation-timing-function:steps(1,jump-end)}83.333%{--linn-a:300.0deg;animation-timing-function:steps(1,jump-end)}85.417%{--linn-a:307.5deg;animation-timing-function:steps(1,jump-end)}87.5%{--linn-a:315.0deg;animation-timing-function:steps(1,jump-end)}89.583%{--linn-a:322.5deg;animation-timing-function:steps(1,jump-end)}91.667%{--linn-a:330.0deg;animation-timing-function:steps(1,jump-end)}93.75%{--linn-a:337.5deg;animation-timing-function:steps(1,jump-end)}95.833%{--linn-a:345.0deg;animation-timing-function:steps(1,jump-end)}97.917%{--linn-a:352.5deg;animation-timing-function:steps(1,jump-end)}100%{--linn-a:360deg} }
+  *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+html.is-scrolling .avatar-tier-frame, html.is-scrolling .avatar-tier-frame::before, html.is-scrolling .avatar-tier-frame::after,
+html.is-scrolling .tier-badge, html.is-scrolling .tier-badge::before,
+html.is-scrolling .rank1-spark, html.is-scrolling .rank1-shield,
+html.is-scrolling .profile-card.rank1-aura::before, html.is-scrolling .profile-card.rank1-aura::after,
+html.is-scrolling .lb-strip::before, html.is-scrolling .wallet-balance-card::after,
+html.is-scrolling .pay-hot, html.is-scrolling .pay-hot::after, html.is-scrolling .bot-glow,
+html.is-scrolling .bot-cube-in, html.is-scrolling .pc-meteor, html.is-scrolling .pc-star { animation-play-state: paused !important; }
+</style>
 </body>
 </html>
