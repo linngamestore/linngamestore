@@ -20749,6 +20749,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // An exact game id skips the picker and opens that variant directly.
         function openBannerGame(ref) {
             ref = String(ref || '').trim();
+            // Custom link (any URL): open it instead of a game page
+            if (/^(https?:\/\/|tg:\/\/|mailto:)/i.test(ref)) { window.open(ref, '_blank', 'noopener'); return; }
+            if (/^\/(?!\/)/.test(ref)) { window.location.href = ref; return; }
             const G = window.GAMES || {};
             if (!ref || !Object.keys(G).length) return;
             const nameOf = (id) => String((G[id] || {}).name || '').trim().toLowerCase();
