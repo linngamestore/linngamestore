@@ -5795,21 +5795,12 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
              then flash-sale banner, wallet/order summary, popular games and
              the 4-step "how it works" guide, all live here. -->
         <div id="dashboard" class="page-section active">
-            <!-- HOME NAME CHECK: pick a game, enter the Player ID (+ Server ID only when that game needs one)
-                 and the store looks up the in-game name plus its region (replaces the old banner carousel). -->
-            <div id="name-check">
-            <h2 class="title-header section-title-spaced"><span>Linn Game Store</span></h2>
-        <div class="detail-form-card" id="name-check-card">
-            <label style="margin-top:0;">In-Game Server Check</label>
-            <select id="nc-game" onchange="ncOnGameChange()"><option value="">Select game</option></select>
-            <div id="nc-fields" style="display:none;">
-                <input type="text" id="nc-player-id" placeholder="Player ID" data-i18n-ph="nc_player_id_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
-                <div id="nc-server-wrap" style="display:none;">
-                    <input type="text" id="nc-server-id" placeholder="Server ID" data-i18n-ph="nc_server_ph" autocomplete="off" oninput="sanitizeIdDigitsInput(this); ncOnFieldChange()">
+            <!-- HOME BANNER CAROUSEL (admin-uploaded slides from settings/homeBanners are loaded into the track by loadHomeBanners) -->
+            <div class="home-banner-carousel" id="home-banner-carousel">
+                <div class="home-banner-track" id="home-banner-track">
+                    <div class="home-banner-slide"></div>
                 </div>
-            </div>
-            <div id="nc-result" style="display:none;"></div>
-        </div>
+                <div class="home-banner-dots" id="home-banner-dots"></div>
             </div>
 
             <div id="popular-games-section">
@@ -8731,6 +8722,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Country only shows if a provider's reply actually includes one -
         // G2Bulk's checkPlayerId itself only returns { valid, name, openid }.
         let ncGroups = {};      // lower-cased game name -> [game entries]
+        const ncDropdownKeys = new Set(); // games whose Server is a dropdown (hidden from the home check)
+        const ncProbed = new Set();
         let ncOptionsSig = '';  // avoids rebuilding the dropdown (and losing the selection) on every catalogue snapshot
         let ncTimer = null;
         let ncRunId = 0;
@@ -8742,6 +8735,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (g.playerIdRequired === false) return false;
             if (g.serverIdRequired === false) return false; // ID-only games (no Server ID) are not listed
             if (/heartopia/i.test(g.name || '')) return false; // Heartopia needs no Server ID -> not in home check
+            // Server picked from a dropdown = the player already knows the server/region -> nothing to check
+            const hasOpts = (m, o) => m === 'select' && Array.isArray(o) && o.length;
+            if (hasOpts(g.fazercardServerMode, g.fazercardServerOptions) || hasOpts(g.g2bulkServerMode, g.g2bulkServerOptions)) return false;
             return !!(g.g2bulkCode || g.fazercardCategoryId);
         }
 
@@ -8755,6 +8751,25 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const key = (g.name || '').trim().toLowerCase();
                 if (!key) return;
                 (groups[key] = groups[key] || []).push(g);
+            });
+            // G2Bulk games that come with a live server dropdown are not listed either.
+            Object.keys(groups).forEach(k => {
+                if (ncDropdownKeys.has(k)) { delete groups[k]; return; }
+                if (ncProbed.has(k)) return;
+                const entries = groups[k];
+                if (!entries.some(g => g.serverIdRequired !== false)) return;
+                const src = entries.find(g => g.g2bulkIdCheckCode || g2bulkCodeOf(g));
+                const code = src && (src.g2bulkIdCheckCode || src.g2bulkCode);
+                if (!code) return;
+                ncProbed.add(k);
+                g2bulkFetchServers(code).then(list => {
+                    if (!list || !list.length) return;
+                    ncDropdownKeys.add(k);
+                    ncOptionsSig = '';
+                    ncRenderGameOptions();
+                    const sel = document.getElementById('nc-game');
+                    if (sel && sel.value === k) { sel.value = ''; ncOnGameChange(); }
+                });
             });
             ncGroups = groups;
             const orderOf = (k) => Math.min(...groups[k].map(g => typeof g.order === 'number' ? g.order : Infinity));
@@ -8779,7 +8794,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // idea as renderServerIdField() on the checkout page.
         function ncRenderServerField(entries) {
             const old = document.getElementById('nc-server-id');
-            const opts = null; // home check: Server ID is always a plain text box (no dropdown)
+            const opts = entries.map(g =>
+                (g.fazercardServerMode === 'select' && g.fazercardServerOptions) ||
+                (g.g2bulkServerMode === 'select' && g.g2bulkServerOptions)
+            ).find(o => Array.isArray(o) && o.length);
             const mkSelect = (list) => {
                 const el = document.createElement('select');
                 el.innerHTML = `<option value="">${ncEsc(t('nc_select_server'))}</option>`
@@ -8805,7 +8823,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // No saved options: use G2Bulk's live server list.
             const src = entries.find(g => g.g2bulkIdCheckCode || g2bulkCodeOf(g));
             const code = src && (src.g2bulkIdCheckCode || src.g2bulkCode);
-            if (false && !opts && code && entries.some(g => g.serverIdRequired !== false)) { // dropdown upgrade disabled
+            if (!opts && code && entries.some(g => g.serverIdRequired !== false)) {
                 const gameKey = document.getElementById('nc-game').value;
                 g2bulkFetchServers(code).then(list => {
                     if (!list.length || document.getElementById('nc-game').value !== gameKey) return;
@@ -20704,15 +20722,61 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         async function loadHomeBanners() {
             const track = document.getElementById('home-banner-track');
             if (!track) return;
+            const hideCarousel = () => { const c = document.getElementById('home-banner-carousel'); if (c) c.style.display = 'none'; };
             try {
                 const snap = await getDoc(doc(db, "settings", "homeBanners"));
-                const images = snap.exists() && Array.isArray(snap.data().images) ? snap.data().images.filter(Boolean) : [];
-                if (!images.length) return; // keep the default /banners/*.jpg slides already in the DOM
-                track.innerHTML = images.map((url, i) => `<div class="home-banner-slide skel"><img src="${url}" alt="" loading="${i === 0 ? 'eager' : 'lazy'}" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()"></div>`).join('');
+                const data = snap.exists() ? snap.data() : {};
+                const raw = Array.isArray(data.images) ? data.images : [];
+                const links = Array.isArray(data.links) ? data.links : [];
+                // Each banner is either a plain image URL, or an object { url, game } where
+                // `game` = game name (e.g. "Mobile Legends") or a game id. A parallel `links`
+                // array ([ "Mobile Legends", "", "Genshin Impact" ]) works too.
+                const items = raw.map((x, i) => (x && typeof x === 'object')
+                    ? { url: x.url || x.image || x.src || '', game: x.game || x.gameId || x.gameName || x.link || '' }
+                    : { url: x, game: links[i] || '' }
+                ).filter(x => x.url);
+                if (!items.length) { hideCarousel(); return; } // no banners uploaded -> hide the empty skeleton
+                const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+                track.innerHTML = items.map((it, i) => `<div class="home-banner-slide skel"${it.game ? ` data-game="${esc(it.game)}" style="cursor:pointer;"` : ''}><img src="${esc(it.url)}" alt="" loading="${i === 0 ? 'eager' : 'lazy'}" onload="this.parentElement.classList.add('img-ready')" onerror="this.remove()"></div>`).join('');
             } catch (error) {
                 console.error("Load home banners error:", error);
-                // Leave the default slides in place on failure.
+                hideCarousel();
             }
+        }
+
+        // Tap a banner that has a game attached -> that game's Player ID + diamond/package page.
+        // Games sold under several servers (same name) open the server-card picker first.
+        // An exact game id skips the picker and opens that variant directly.
+        function openBannerGame(ref) {
+            ref = String(ref || '').trim();
+            const G = window.GAMES || {};
+            if (!ref || !Object.keys(G).length) return;
+            const nameOf = (id) => String((G[id] || {}).name || '').trim().toLowerCase();
+            const ids = Object.keys(G);
+            const lower = ref.toLowerCase();
+            gameDetailReturnPage = 'dashboard';
+            if (G[ref]) { openGameDetail(ref); return; }
+            const same = ids.filter(id => nameOf(id) === lower);
+            if (!same.length) return;
+            if (same.length === 1) { openGameDetail(same[0]); return; }
+            const groups = groupGamesByName(same);
+            openServerSelect(0, groups);
+        }
+        window.openBannerGame = openBannerGame;
+
+        function initHomeBannerLinks() {
+            const track = document.getElementById('home-banner-track');
+            if (!track || track.__linkBound) return;
+            track.__linkBound = true;
+            let sx = 0, sy = 0;
+            const down = (x, y) => { sx = x; sy = y; };
+            track.addEventListener('touchstart', (e) => down(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            track.addEventListener('mousedown', (e) => down(e.clientX, e.clientY));
+            track.addEventListener('click', (e) => {
+                if (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10) return; // it was a swipe, not a tap
+                const slide = e.target.closest('.home-banner-slide[data-game]');
+                if (slide) openBannerGame(slide.getAttribute('data-game'));
+            });
         }
 
         function initHomeBannerCarousel() {
@@ -20818,7 +20882,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
         initSocialFab();
         initPackageCardLongPressCopy();
-        loadHomeBanners().finally(initHomeBannerCarousel);
+        loadHomeBanners().finally(() => { initHomeBannerCarousel(); initHomeBannerLinks(); });
         applyI18n();
     </script>
     <!-- Shown only when Chrome fires 'beforeinstallprompt' (site meets PWA
