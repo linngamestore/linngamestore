@@ -4774,6 +4774,43 @@ html.perf-low .popular-card .game-card-img-wrap.img-ready { animation: none; wil
     html .popular-card.card-pop { animation: none; }
     html .popular-card .game-card-img-wrap.img-ready { animation: none; will-change: auto; }
 }
+/* ===== Security (Security Code + Authenticator): compact glass ===== */
+#security-card{padding:7px 12px;border-radius:14px;margin-top:8px !important;gap:0}
+#security-card>.collapsible-header .prefs-row-icon{width:24px;height:24px;border-radius:8px}
+#security-card>.collapsible-header .prefs-row-icon svg{width:14px !important;height:14px !important}
+#security-card>.collapsible-header .prefs-row-label{gap:8px;font-size:12.5px}
+#security-card>.collapsible-header label{font-size:12.5px;margin:0 !important;line-height:1.2;align-self:center !important}
+#security-card>.collapsible-header .collapsible-chevron{width:12px !important;height:12px !important}
+.sec-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--border);font-size:12.5px}
+.sec-row:first-child{border-top:0;margin-top:4px}
+.sec-meta{min-width:0}.sec-meta b{font-weight:600}
+.sec-meta small{display:block;color:var(--text-muted);font-size:11px;margin-top:1px}
+.sec-chip{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:6px;background:var(--surface-alt);color:var(--text-muted);vertical-align:1px}
+.sec-chip.on{background:rgba(34,170,90,.16);color:#1e9e58}
+.sec-btns{display:flex;gap:6px;flex-shrink:0}
+.sec-btn{border:1px solid var(--glass-border);background:var(--glass-bg-strong);color:var(--text);border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.sec-btn.pri{background:var(--accent);color:var(--on-color);border-color:transparent}
+.sec-btn.danger{color:#d93025}
+#sec-overlay{display:none;position:fixed;inset:0;z-index:2147483000;align-items:center;justify-content:center;background:rgba(5,10,25,.38);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:16px}
+#sec-overlay.show{display:flex}
+.sec-sheet{width:100%;max-width:300px;background:color-mix(in srgb,var(--surface) 78%,transparent);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);border-radius:18px;padding:14px;color:var(--text)}
+.sec-sheet h4{margin:0 0 2px;font-size:14px;font-weight:700}
+.sec-sheet p{margin:0 0 8px;font-size:11.5px;color:var(--text-secondary)}
+.sec-lab{display:block;font-size:11px;color:var(--text-muted);margin:6px 2px 2px}
+.sec-in{width:100%;box-sizing:border-box;text-align:center;font-size:18px;letter-spacing:8px;padding:8px;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg-strong);color:var(--text);outline:none;font-family:inherit}
+.sec-in:focus{border-color:var(--accent)}
+.skp{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.skp-dots{display:flex;gap:14px;justify-content:center;margin:8px 0 12px}
+.skp-dots i{width:15px;height:15px;border-radius:50%;border:2px solid var(--glass-border);box-sizing:border-box;font-style:normal;font-size:12px;line-height:11px;text-align:center;color:var(--text)}
+.skp-dots i.on{background:linear-gradient(135deg,#ff2f8f,#8f5bff);border-color:transparent}
+.skp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 auto}
+.skp-key{height:44px;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg-strong);color:var(--text);font-size:20px;font-weight:600;font-family:inherit;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.skp-key:active{transform:scale(.94)}
+.skp-fn{font-size:16px;opacity:.8}
+.sec-err{min-height:15px;font-size:11.5px;color:#d93025;margin:6px 0;text-align:center}
+.sec-actions{display:flex;gap:8px}.sec-actions .sec-btn{flex:1;padding:8px}
+.sec-key{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all;text-align:center;padding:8px;border-radius:12px;background:var(--glass-bg-strong);border:1px dashed var(--glass-border);margin-bottom:6px;user-select:all;-webkit-user-select:all}
+.sec-link{display:block;text-align:center;font-size:11.5px;color:var(--accent);margin:2px 0 4px;font-weight:600}
 /* Profile page menu tabs (Preferences, Account, Tier Designs, Follow Us, Support, Terms): much more compact.
    Only the tab headers shrink - the rows inside the opened sections keep their normal size. */
 #profile-prefs-card, #account-card, #tier-preview-card, #social-links-card, #support-entry-card, #terms-entry-card {
@@ -6244,6 +6281,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             <p style="font-size:12.5px;color:var(--text-secondary);margin-top:14px;">
                 Support ကို ဆက်သွယ်ပါ — Contact support if you believe this is a mistake.
             </p>
+            <div style="width:100%;max-width:300px;margin-top:16px;">
+                <textarea id="ban-appeal-text" maxlength="600" rows="3" placeholder="မှားယွင်းပိတ်ခံရတယ်လို့ ထင်ရင် အကြောင်းရင်း ရေးပါ (Appeal)" style="width:100%;box-sizing:border-box;padding:10px;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg-strong);color:var(--text);font-family:inherit;font-size:13px;resize:none;outline:none;"></textarea>
+                <button id="ban-appeal-btn" type="button" onclick="submitBanAppeal()" style="width:100%;margin-top:8px;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff2f8f,#8f5bff);color:#fff;font-weight:600;font-size:14px;font-family:inherit;">Appeal ပို့မယ်</button>
+                <div id="ban-appeal-status" style="font-size:12px;color:var(--text-secondary);margin-top:8px;min-height:16px;"></div>
+            </div>
         </div>
 
         <!-- WALLET TOP UP MODAL: amount + payment method + receipt upload -->
@@ -6594,6 +6636,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     </p>
                 </div>
                 </div>
+            </div>
+
+            <!-- Security: optional Security Code (4-digit PIN) + Authenticator. Verified by the Worker, not the browser. -->
+            <div class="detail-form-card profile-card-anim" id="security-card" style="margin-top:14px;animation-delay:80ms;">
+                <div class="collapsible-header" onclick="toggleCollapsible('security-body','security-chevron');secRefresh()" role="button" aria-label="Show security">
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-lock"></use></svg></span><label>Security</label></span>
+                    <svg class="ui-icon collapsible-chevron" id="security-chevron"><use href="#icon-chevron-right"></use></svg>
+                </div>
+                <div class="collapsible-body" id="security-body"><div id="sec-rows"></div></div>
             </div>
 
             <!-- Google account: optional. Signing in just auto-fills the name/photo
@@ -9951,7 +10002,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             } catch (e) { return null; }
         }
         function writeSharedG2BulkCache(categoryId, data) {
-            setDoc(doc(db, 'g2bulk_cache', 'cat_' + categoryId), { data, fetchedAt: Date.now() }).catch(() => {});
+            /* shared g2bulk_cache is admin/Worker-write only now (firestore.rules) - browser write removed */
         }
 
         async function fetchG2BulkCategoryLive(categoryId) {
@@ -11379,7 +11430,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
     <!-- FIREBASE CODE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where, orderBy, limit, getDocs, getCountFromServer, onSnapshot, increment, runTransaction, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where, orderBy, limit, getDocs, getCountFromServer, getAggregateFromServer, sum as aggSum, count as aggCount, onSnapshot, increment, runTransaction, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithRedirect, signInWithCredential, signInWithCustomToken, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
         import { getMessaging, getToken, onMessage, isSupported as isMessagingSupported } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging.js";
 
@@ -11656,11 +11707,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 }
 
                 const payload = {
-                    guestId: gid,
                     name: profile.name || '',
                     phone: profile.phone || '',
-                    photo: profile.photo || '',
-                    lastSeen: serverTimestamp()
+                    photo: profile.photo || ''
                 };
                 // Only ever write googleEmail/facebookEmail while signed in - blanking
                 // it while signed out would erase which account this guest ID belongs
@@ -11672,10 +11721,16 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     if (signedInProviderId === 'facebook.com') payload.facebookEmail = auth.currentUser.email;
                     else if (signedInProviderId === 'google.com') payload.googleEmail = auth.currentUser.email;
                 }
-                if (!existing.exists() || !existing.data().createdAt) {
-                    payload.createdAt = serverTimestamp();
-                }
-                await setDoc(userRef, payload, { merge: true });
+                // Profile fields + lastSeen/createdAt are written by the Worker (needs a signed-in session).
+                if (!auth.currentUser) return;
+                const emailPatch = {};
+                if (payload.googleEmail) { emailPatch.googleEmail = payload.googleEmail; delete payload.googleEmail; }
+                if (payload.facebookEmail) { emailPatch.facebookEmail = payload.facebookEmail; delete payload.facebookEmail; }
+                await window.workerProfile({ op: 'sync', userId: gid, name: payload.name, phone: payload.phone, photo: payload.photo });
+                // googleEmail / facebookEmail are identity claims: still written by the browser and checked by firestore.rules.
+                const known = existing.exists() ? existing.data() : {};
+                const needEmail = Object.keys(emailPatch).some(k => String(known[k] || '').toLowerCase() !== String(emailPatch[k]).toLowerCase());
+                if (needEmail) await setDoc(userRef, emailPatch, { merge: true });
             } catch (error) {
                 console.error("User sync error:", error);
             }
@@ -11917,9 +11972,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             }
             if (btn) btn.classList.toggle('active', !isFav);
             try {
-                await setDoc(doc(db, "users", gid), {
-                    favoriteGames: isFav ? arrayRemove(selectedGameId) : arrayUnion(selectedGameId)
-                }, { merge: true });
+                await window.workerProfile({ op: 'favorite', userId: gid, gameId: selectedGameId, on: !isFav });
                 if (window.showToast) window.showToast(isFav ? 'Removed from favorites' : 'Added to favorites', 'success');
             } catch (error) {
                 console.error('toggleFavoriteGame error:', error);
@@ -11960,9 +12013,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             renderFavoriteGamesRow();
             if (navigator.vibrate) { try { navigator.vibrate(35); } catch (e) { /* ignore */ } }
             try {
-                await setDoc(doc(db, "users", gid), {
-                    favoriteGames: isFav ? arrayRemove(gameId) : arrayUnion(gameId)
-                }, { merge: true });
+                await window.workerProfile({ op: 'favorite', userId: gid, gameId, on: !isFav });
                 if (window.showToast) window.showToast(isFav ? 'Unpinned' : 'Pinned to favorites', 'success');
             } catch (error) {
                 console.error('toggleFavoriteGameById error:', error);
@@ -12066,6 +12117,53 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             return false;
         }
         window.isCustomerAuthenticated = isCustomerAuthenticated;
+
+        // ALL orders (bank transfer + wallet) are created by the Worker (POST /orders/create):
+        // it needs a login, verifies wallet owner / payment method / receipt and sends the Telegram card.
+        // The browser can no longer write the `orders` collection.
+        // Profile / favorites / push-token writes go through the Worker (POST /profile): the browser can
+        // no longer write those users/{id} fields itself (firestore.rules). Needs a signed-in session.
+        window.workerProfile = async function (payload) {
+            const u = auth.currentUser;
+            if (!u) throw new Error('NOT_SIGNED_IN');
+            const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+            const userId = payload.userId || (window.getGuestId ? window.getGuestId() : '');
+            const res = await fetch(`${base}/profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await u.getIdToken() },
+                body: JSON.stringify({ ...payload, userId })
+            });
+            const j = await res.json().catch(() => ({}));
+            if (!res.ok || !j.ok) throw new Error((j && j.error) || ('profile ' + res.status));
+            return j;
+        };
+        window.workerCreateOrder = async function (payload) {
+            const u = auth.currentUser;
+            if (!u) throw new Error('NEEDS_GOOGLE_SIGNIN');
+            const token = await u.getIdToken();
+            const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+            const body = { ...payload }; delete body.timestamp; // server sets the time
+            let res, j;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                // Whole order is encrypted for the Worker only (fresh nonce every try). Falls back to plain
+                // only if the Worker has no key configured yet.
+                let sendBody = body;
+                try { sendBody = { sealed: await window.sealSecurity(base, '/orders/create', u.uid, body) }; } catch (e) { sendBody = body; }
+                res = await fetch(`${base}/orders/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (attempt ? await u.getIdToken() : token), 'X-Dev': await window.devId() },
+                    body: JSON.stringify(sendBody)
+                });
+                j = await res.json().catch(() => ({}));
+                if (j && j.securityRequired && attempt < 2) { await window.secUnlock(j); continue; }
+                break;
+            }
+            if (!res.ok || !j.ok) {
+                if (j && j.loginRequired) throw new Error('NEEDS_GOOGLE_SIGNIN');
+                throw new Error((j && j.error) || 'Order failed. Please try again.');
+            }
+            return j;
+        };
         // Paying an order FROM the wallet needs a real Firebase session
         // (Google / Telegram) - firestore.rules + Worker check authUid.
         window.canPayWithWallet = function () { return !!auth.currentUser; };
@@ -12139,6 +12237,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         window.openWalletTopupModal = openWalletTopupModal;
 
         function closeWalletGoogleGate() {
+            if (window.__loginWall && !(auth && auth.currentUser)) return; // login is mandatory - the form cannot be dismissed
             walletGatePending = false;
             document.getElementById('wallet-google-gate-overlay').classList.remove('show');
         }
@@ -12600,18 +12699,31 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         if (linked) topupTelegramId = String(linked);
                     } catch (e) { /* can't read - submit without it */ }
                 }
-                const topupRef = await addDoc(collection(db, "walletTopups"), {
-                    amount: amount,
-                    paymentMethod: selectedWalletPaymentMethod.name,
-                    receiptUrl: receiptUrl,
-                    status: "Pending",
-                    timestamp: serverTimestamp(),
-                    userId: guestId,
-                    userName: (savedProfile.name && savedProfile.name.trim()) ? savedProfile.name.trim() : guestId,
-                    userPhone: (savedProfile.phone && savedProfile.phone.trim()) ? savedProfile.phone.trim() : '',
-                    ...(topupTelegramId ? { telegramId: topupTelegramId } : {})
-                });
-                pingWorker('topup', topupRef.id);
+                // Top-up requests are created by the Worker (verifies sign-in + wallet
+                // ownership + payment method); the browser can no longer write walletTopups.
+                const topupUser = auth.currentUser;
+                if (!topupUser) throw new Error('Please sign in to top up your wallet.');
+                const topupIdToken = await topupUser.getIdToken();
+                let topupRes, topupData;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    const topupPlain = {
+                        amount: amount,
+                        paymentMethod: selectedWalletPaymentMethod.name,
+                        receiptUrl: receiptUrl,
+                        userId: guestId
+                    };
+                    let topupSend = topupPlain;
+                    try { topupSend = { sealed: await window.sealSecurity(TELEGRAM_BOT_WORKER_URL, '/topup/create', topupUser.uid, topupPlain) }; } catch (e) { topupSend = topupPlain; }
+                    topupRes = await fetch(`${TELEGRAM_BOT_WORKER_URL}/topup/create`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (attempt ? await topupUser.getIdToken() : topupIdToken), 'X-Dev': await window.devId() },
+                        body: JSON.stringify(topupSend)
+                    });
+                    topupData = await topupRes.json().catch(() => ({}));
+                    if (topupData && topupData.securityRequired && attempt < 2) { await window.secUnlock(topupData); continue; }
+                    break;
+                }
+                if (!topupRes.ok || !topupData.ok) throw new Error(topupData.error || 'Failed to submit top up request.');
                 window.showToast('Top up request sent! We will confirm it shortly.');
                 closeWalletTopupModal();
             } catch (error) {
@@ -12739,6 +12851,44 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         window.listenWalletTopups = listenWalletTopups;
         window.stopListenWalletTopups = stopListenWalletTopups;
 
+        // ---------- ONE shared live listener for this customer's orders ----------
+        // Order status toasts / notifications, Order History and the wallet Transaction History used
+        // to open THREE separate Firestore listeners on the same `orders` query (3x the reads on every
+        // change, 3x the open connections). They now all subscribe to this single listener
+        // (userId == me, newest 100). A late subscriber is replayed the latest snapshot at once.
+        let ordersHubUnsub = null, ordersHubGuest = null, ordersHubLast = null;
+        const ordersHubSubs = new Map(); // key -> { onSnap, onErr }
+        function ordersHubStop() {
+            if (ordersHubUnsub) { try { ordersHubUnsub(); } catch (e) {} }
+            ordersHubUnsub = null; ordersHubGuest = null; ordersHubLast = null;
+        }
+        function ordersHubStart(gid) {
+            ordersHubStop();
+            ordersHubGuest = gid;
+            const q = query(collection(db, "orders"), where("userId", "==", gid), orderBy("timestamp", "desc"), limit(100));
+            ordersHubUnsub = onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
+                ordersHubLast = snap;
+                ordersHubSubs.forEach((s) => { try { s.onSnap(snap); } catch (e) { console.error('orders hub subscriber error:', e); } });
+            }, (err) => {
+                console.error('Orders hub listener error:', err);
+                ordersHubLast = null;
+                ordersHubSubs.forEach((s) => { try { if (s.onErr) s.onErr(err); } catch (e) {} });
+            });
+        }
+        // Returns false when there is no guest id yet (nothing subscribed).
+        function subscribeOrders(key, onSnap, onErr) {
+            const gid = window.getGuestId ? window.getGuestId() : '';
+            if (!gid) return false;
+            ordersHubSubs.set(key, { onSnap, onErr });
+            if (!ordersHubUnsub || ordersHubGuest !== gid) ordersHubStart(gid);
+            else if (ordersHubLast) { try { onSnap(ordersHubLast); } catch (e) { console.error('orders hub replay error:', e); } }
+            return true;
+        }
+        function unsubscribeOrders(key) {
+            ordersHubSubs.delete(key);
+            if (!ordersHubSubs.size) ordersHubStop();
+        }
+
         // ---------- Compact Transaction History (wallet page) ----------
         // One merged, newest-first list from three live sources, all this user's own docs:
         //   Deposits    = Completed walletTopups  +  refunded wallet orders
@@ -12752,12 +12902,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (walletTxnUnsubs.length) return;
             const gid = window.getGuestId ? window.getGuestId() : null;
             if (!gid) return;
-            const ordersQ = query(collection(db, "orders"), where("userId", "==", gid), where("paidFromWallet", "==", true));
-            walletTxnUnsubs.push(onSnapshot(ordersQ, (snap) => {
+            // Wallet purchases come from the shared orders listener (filtered here, no 2nd listener).
+            if (subscribeOrders('walletTxns', (snap) => {
                 walletTxnOrders = [];
-                snap.forEach(d => walletTxnOrders.push({ id: d.id, ...d.data() }));
+                snap.forEach(d => { const o = d.data(); if (o.paidFromWallet === true) walletTxnOrders.push({ id: d.id, ...o }); });
                 renderWalletTxns();
-            }, (e) => console.error('Wallet txn orders listener error:', e)));
+            }, (e) => console.error('Wallet txn orders listener error:', e))) {
+                walletTxnUnsubs.push(() => unsubscribeOrders('walletTxns'));
+            }
             const adjQ = query(collection(db, "walletAdjustments"), where("userId", "==", gid));
             walletTxnUnsubs.push(onSnapshot(adjQ, (snap) => {
                 walletTxnAdjusts = [];
@@ -13919,7 +14071,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     const tSnap = await getDoc(doc(db, "users", targetGid));
                     const existingName = tSnap.exists() ? String(tSnap.data().name || '').trim() : '';
                     const finalName = existingName || typedName || p2.name || '';
-                    if (!existingName && finalName) await setDoc(doc(db, "users", targetGid), { name: finalName }, { merge: true });
+                    if (!existingName && finalName) await window.workerProfile({ op: 'sync', userId: targetGid, name: finalName });
                     localStorage.setItem('gz_profile', JSON.stringify({ ...p2, name: finalName, email: pendingLoginEmail }));
                     if (window.renderProfileFields) window.renderProfileFields();
                 } catch (e) {
@@ -14193,8 +14345,28 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (window.currentStorePage === 'history' && window.loadHistory) window.loadHistory();
         }
         setTimeout(markAuthResolved, 5000);
+        // LOGIN WALL: a visitor who is not signed in only ever sees the Login form (Google / Facebook /
+        // Telegram / Email). It cannot be closed; it disappears the moment sign-in succeeds.
+        function applyLoginWall(user) {
+            const ov = document.getElementById('wallet-google-gate-overlay');
+            if (!ov) return;
+            const backs = ov.querySelectorAll('.lg-back');
+            if (!user) {
+                window.__loginWall = true;
+                ov.classList.add('show');
+                backs.forEach(b => { b.style.display = 'none'; });
+                try { lgSyncLogo(); } catch (e) {}
+                try { if (window.renderGisButtons) window.renderGisButtons(); renderTelegramWidgetInto('wallet-gate-telegram-widget'); } catch (e) {}
+            } else if (window.__loginWall) {
+                window.__loginWall = false;
+                backs.forEach(b => { b.style.display = ''; });
+                ov.classList.remove('show');
+            }
+        }
+        window.applyLoginWall = applyLoginWall;
         onAuthStateChanged(auth, async (user) => {
             markAuthResolved();
+            try { applyLoginWall(user); } catch (e) { console.error('login wall error', e); }
             try { listenWalletBalance(); } catch (e) { console.error('listenWalletBalance re-attach failed:', e); }
             // Catches a persisted Google session (returning device) whose
             // linked guest account was banned after the last time they
@@ -14393,7 +14565,31 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Firestore (not cached), so tier/rank are always accurate. Also
         // includes completed wallet top-ups, so VIP progress reflects money
         // the user has put in, not just what's been spent on orders.
+        // READ-COST FIX: totals now come from server-side aggregation (sum + count) = ~1 read per
+        // 1000 matching docs instead of 1 read PER order / top-up. The per-game distinct count was
+        // never displayed anywhere (only stored), so it is returned as 0. If the aggregate query is
+        // refused (missing composite index / rules) it falls back to the old full scan below.
         async function computeUserStats(guestId) {
+            if (!guestId) return { total: 0, count: 0, games: 0 };
+            try {
+                const oAgg = await getAggregateFromServer(
+                    query(collection(db, "orders"), where("userId", "==", guestId), where("status", "==", "Success")),
+                    { t: aggSum('price'), c: aggCount() });
+                let total = Number(oAgg.data().t) || 0;
+                const count = Number(oAgg.data().c) || 0;
+                try {
+                    const tAgg = await getAggregateFromServer(
+                        query(collection(db, "walletTopups"), where("userId", "==", guestId), where("status", "==", "Completed")),
+                        { t: aggSum('amount') });
+                    total += Number(tAgg.data().t) || 0;
+                } catch (e) { console.error("computeUserStats topup aggregate error:", e); }
+                return { total, count, games: 0 };
+            } catch (aggErr) {
+                console.warn("computeUserStats: aggregate failed, using full scan", aggErr && aggErr.code);
+                return computeUserStatsFull(guestId);
+            }
+        }
+        async function computeUserStatsFull(guestId) {
             if (!guestId) return { total: 0, count: 0, games: 0 };
             try {
                 const q = query(collection(db, "orders"), where("userId", "==", guestId), where("status", "==", "Success"));
@@ -14519,10 +14715,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (Date.now() - profileCrownCheckedAt < 15000) return;
             profileCrownCheckedAt = Date.now();
             try {
-                const higherCountSnap = await getCountFromServer(
-                    query(collection(db, "userStats"), where("totalSpent", ">", total))
-                );
-                const isRank1 = higherCountSnap.data().count === 0;
+                const lb = await lbFetch();
+                const isRank1 = !!(lb.me && lb.me.rank === 1);
                 crownEl.style.display = isRank1 ? 'block' : 'none';
                 if (cardEl) cardEl.classList.toggle('rank1-aura', isRank1);
             } catch (e) {
@@ -14610,8 +14804,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Leaderboard is LIVE: while the tab is open it listens to the top 20 spenders, so a new
         // purchase moves the rankings without a refresh. The listener is stopped when the user
         // leaves the tab or the app goes to the background, to keep Firestore reads low.
-        let lbUnsub = null;
-        let lbYouCheckedAt = 0;
+        // Leaderboard data now comes from the Worker (POST /leaderboard): userStats is private in
+        // firestore.rules (its doc ids are guestIds). Refreshed every 30 s while the tab is open.
+        let lbTimer = null;
+        let lbLast = null;
 
         function setLbLive(state) {
             const badge = document.getElementById('lb-live-badge');
@@ -14621,10 +14817,24 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         }
 
         function stopLeaderboardLive() {
-            if (lbUnsub) { try { lbUnsub(); } catch (e) {} lbUnsub = null; }
+            if (lbTimer) { clearInterval(lbTimer); lbTimer = null; }
             setLbLive('connecting');
         }
         window.stopLeaderboardLive = stopLeaderboardLive;
+
+        async function lbFetch() {
+            const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+            const headers = { 'Content-Type': 'application/json' };
+            let userId = '';
+            try {
+                const u = auth.currentUser;
+                if (u) { headers['Authorization'] = 'Bearer ' + await u.getIdToken(); userId = (window.getGuestId ? window.getGuestId() : '') || ''; }
+            } catch (e) { /* anonymous view */ }
+            const res = await fetch(`${base}/leaderboard`, { method: 'POST', headers, body: JSON.stringify({ userId }) });
+            const j = await res.json().catch(() => null);
+            if (!res.ok || !j || !j.ok) throw new Error((j && j.error) || ('leaderboard ' + res.status));
+            return j;
+        }
 
         function renderLeaderboardList(top, guestId) {
             const listEl = document.getElementById('leaderboard-list');
@@ -14644,7 +14854,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         const initial = (r.name || '?').trim().charAt(0).toUpperCase() || '?';
                         const firstName = (r.name || '?').trim().split(/\s+/)[0];
                         return `
-                            <div class="lb-st${rank <= 6 ? ' rank-' + rank : ''}${r.uid === guestId ? ' you' : ''}" style="--i:${i}" onclick="lbFocusRow(${rank})">
+                            <div class="lb-st${rank <= 6 ? ' rank-' + rank : ''}${r.you ? ' you' : ''}" style="--i:${i}" onclick="lbFocusRow(${rank})">
                                 ${rank === 1 ? '<svg class="ui-icon lb-crown"><use href="#icon-crown"></use></svg>' : ''}
                                 <span class="lb-st-badge">${rank}</span>
                                 <div class="lb-st-av">${escapeHtml(initial)}</div>
@@ -14658,7 +14868,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 ${top.map((r, i) => {
                     const rank = i + 1;
                     const tier = tierForSpend(r.total) || VIP_TIERS[VIP_TIERS.length - 1];
-                    const isYou = r.uid === guestId;
+                    const isYou = r.you;
                     return `
                         <div class="lb-row${isYou ? ' lb-row-you' : ''}" id="lb-row-${rank}">
                             <div class="lb-rank-wrap">
@@ -14681,26 +14891,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
         // "You" row for people outside the top 20 (rank = 1 + customers who out-spend you).
         // Throttled - the live listener can fire often and this costs a few extra reads.
-        async function updateLeaderboardYou(top, guestId) {
+        function updateLeaderboardYou(top, me) {
             const youEl = document.getElementById('leaderboard-you');
             if (!youEl) return;
-            if (!guestId || top.some(r => r.uid === guestId)) { youEl.innerHTML = ''; return; }
-            if (youEl.innerHTML && Date.now() - lbYouCheckedAt < 15000) return;
-            lbYouCheckedAt = Date.now();
-            const myStatsSnap = await getDoc(doc(db, "userStats", guestId));
-            if (!myStatsSnap.exists()) { youEl.innerHTML = ''; return; }
-            const me = myStatsSnap.data();
-            const myTotal = Number(me.totalSpent) || 0;
-            const myName = me.name || guestId;
-            const higherCountSnap = await getCountFromServer(
-                query(collection(db, "userStats"), where("totalSpent", ">", myTotal))
-            );
-            const myRank = higherCountSnap.data().count + 1;
+            if (!me || top.some(r => r.you)) { youEl.innerHTML = ''; return; }
+            const myTotal = Number(me.total) || 0;
+            const myName = me.name || 'You';
             const tier = tierForSpend(myTotal);
             youEl.innerHTML = `
                 <div class="lb-you-row">
                     <div class="lb-row" style="border:none;padding:0;">
-                        <div class="lb-rank">#${myRank}</div>
+                        <div class="lb-rank">#${me.rank}</div>
                         <div class="lb-avatar">${escapeHtml((myName || '?').trim().charAt(0).toUpperCase())}</div>
                         <div class="lb-info">
                             <div class="lb-name">${escapeHtml(myName)} (You)</div>
@@ -14718,55 +14919,28 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             stopLeaderboardLive();
             // Keep whatever was shown last time (no loader flash); only show a loader on the very first open.
             if (!listEl.querySelector('.lb-row')) listEl.innerHTML = loadingStateHTML('ripple');
-            let first = true;
-            let fallbackTimer = null;
-            const mapDocs = (snap) => snap.docs.map(docSnap => {
-                const d = docSnap.data();
-                return { uid: docSnap.id, name: String(d.name || docSnap.id), total: Number(d.totalSpent) || 0, count: Number(d.orderCount) || 0 };
-            });
             const showError = (error) => {
                 console.error("Leaderboard load error:", error);
                 setLbLive('error');
                 if (!listEl.querySelector('.lb-row')) {
-                    const code = error && (error.code || error.message) ? ' (' + (error.code || error.message) + ')' : '';
-                    listEl.innerHTML = '<p class="empty-msg" style="color:red;">Could not load leaderboard.' + escapeHtml(code) + '</p>';
+                    listEl.innerHTML = '<p class="empty-msg" style="color:red;">Could not load leaderboard.</p>';
                 }
             };
-            const draw = (top) => {
+            const refresh = async () => {
                 try {
-                    const guestId = window.getGuestId ? window.getGuestId() : '';
-                    renderLeaderboardList(top, guestId);
-                    updateLeaderboardYou(top, guestId).catch(e => console.error("Leaderboard you-row error:", e));
+                    const j = await lbFetch();
+                    lbLast = j;
+                    setLbLive('live');
+                    const draw = () => {
+                        try { renderLeaderboardList(j.top || [], ''); updateLeaderboardYou(j.top || [], j.me || null); }
+                        catch (e) { showError(e); }
+                    };
+                    if (listEl.querySelector('.lb-row') && window.whenUiIdle) window.whenUiIdle('lb-render', draw);
+                    else draw();
                 } catch (e) { showError(e); }
             };
-            // One-time fetch used when the live listener is slow / blocked, so the list still appears.
-            const fetchOnce = async () => {
-                try {
-                    const snap = await getDocs(query(collection(db, "userStats"), orderBy("totalSpent", "desc"), limit(20)));
-                    if (!first) return;
-                    first = false;
-                    clearTimeout(fallbackTimer);
-                    draw(mapDocs(snap));
-                } catch (e) { if (first) showError(e); }
-            };
-            try {
-                const q = query(collection(db, "userStats"), orderBy("totalSpent", "desc"), limit(20));
-                fallbackTimer = setTimeout(() => { if (first) fetchOnce(); }, 6000);
-                lbUnsub = onSnapshot(q, (snap) => {
-                    if (snap.empty && snap.metadata.fromCache) return; // cache had nothing yet: wait for the server
-                    const top = mapDocs(snap);
-                    setLbLive('live');
-                    // First data draws immediately; later live updates wait until the finger/scroll is idle.
-                    if (first) { first = false; clearTimeout(fallbackTimer); draw(top); }
-                    else if (window.whenUiIdle) window.whenUiIdle('lb-render', () => draw(top));
-                    else draw(top);
-                }, (error) => {
-                    setLbLive('error');
-                    if (first) fetchOnce(); else showError(error);
-                });
-            } catch (error) {
-                showError(error);
-            }
+            await refresh();
+            lbTimer = setInterval(() => { if (!document.hidden) refresh(); }, 30000);
         }
         window.loadLeaderboard = loadLeaderboard;
 
@@ -15360,6 +15534,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             });
         }
 
+        // Not logged in -> send the customer to the Login form (Telegram / Google / Email).
+        function sendToLoginForm(btnElement, originalText) {
+            try { window.showToast('Order တင်ရန် Telegram နဲ့ Login အရင်ဝင်ပါ။', 'fail'); } catch (e) {}
+            if (btnElement) { btnElement.innerText = originalText; btnElement.disabled = false; }
+            if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
+            if (window.openWalletAuthGate) window.openWalletAuthGate();
+        }
+
         async function submitOrder(orderData, btnElement) {
             if (window.__MAINT_CLOSED) { window.showToast('ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
                         const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
@@ -15367,6 +15549,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
             btnElement.disabled = true;
+
+            if (!auth.currentUser) { sendToLoginForm(btnElement, originalText); return; }
 
             try {
                 const guestId = window.getGuestId ? window.getGuestId() : '';
@@ -15423,7 +15607,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 // permission prompt or geolocation just isn't available.
                 const location = await getOrderLocation();
 
-                const orderRef = doc(db, "orders", await generateShortNumericId("orders"));
+                const orderRef = { id: '' }; // id is assigned by the Worker
 
                 const receiptOrderPayload = {
                     playerId: inGameId,
@@ -15485,8 +15669,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     // as fazercardCategoryId above.
                     ...(fazercardGiftCategoryId && fazercardGiftCardId ? { fazercardGiftCategoryId, fazercardGiftCardId } : {})
                 };
-                await setDoc(orderRef, receiptOrderPayload);
-                pingWorker('order', orderRef.id);
+                orderRef.id = (await window.workerCreateOrder(receiptOrderPayload)).id;
 
                 saveContact(inGameId, selectedGameId, serverId);
                 btnElement.innerText = "Order Sent";
@@ -15496,6 +15679,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 window.openSuccessOverlay(orderRef.id, { status: 'Pending', timestamp: { toDate: () => new Date() } });
             } catch (error) {
                 console.error("Firebase Error: ", error);
+                if (error && error.message === 'NEEDS_GOOGLE_SIGNIN') { sendToLoginForm(btnElement, originalText); return; }
                 window.showToast(error.message || "Failed to place order! Check Connection.", 'fail');
                 btnElement.innerText = originalText;
                 btnElement.disabled = false;
@@ -15517,6 +15701,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
             btnElement.disabled = true;
+
+            if (!auth.currentUser) { sendToLoginForm(btnElement, originalText); return; }
 
             try {
                 const guestId = window.getGuestId ? window.getGuestId() : '';
@@ -15558,7 +15744,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
                 const location = await getOrderLocation();
 
-                const orderRef = doc(db, "orders", await generateShortNumericId("orders"));
+                const orderRef = { id: '' }; // id is assigned by the Worker
 
                 const userRef = doc(db, "users", guestId);
 
@@ -15606,8 +15792,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (!walletUser) throw new Error('NEEDS_GOOGLE_SIGNIN');
                 orderPayload.walletFlow = 2;
                 orderPayload.authUid = walletUser.uid;
-                await setDoc(orderRef, orderPayload);
-                pingWorker('order', orderRef.id);
+                orderRef.id = (await window.workerCreateOrder(orderPayload)).id;
 
                 saveContact(inGameId, selectedGameId, serverId);
                 btnElement.innerText = "Order Sent";
@@ -15615,6 +15800,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 window.openSuccessOverlay(orderRef.id, { status: 'Pending', timestamp: { toDate: () => new Date() } });
             } catch (error) {
                 console.error("Wallet order error: ", error);
+                if (error && error.message === 'NEEDS_GOOGLE_SIGNIN') { sendToLoginForm(btnElement, originalText); return; }
                 const msg = error.message === 'ORDER_ID_TAKEN'
                     ? 'Something went wrong creating your order. You were not charged - please try again.'
                     : error.message === 'INVALID_PRICE'
@@ -15836,35 +16022,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Runs globally from app start, independent of which page is open, and
         // needs no refresh/reload. Initial load ("added") is recorded silently so
         // only real transitions after that (Pending/Processing -> Success/Fail) fire.
-        // Credits one Success order's spend onto userStats/{guestId} exactly
-        // once (guarded by the order doc's own statsCounted flag inside the
-        // same transaction), instead of the Leaderboard re-scanning every
-        // order ever placed on every view. Runs from this listener because
-        // it's already watching for the Pending/Processing -> Success
-        // transition on the customer's own orders.
-        async function creditLeaderboardStats(orderId, guestId) {
-            try {
-                const orderRef = doc(db, "orders", orderId);
-                const statsRef = doc(db, "userStats", guestId);
-                await runTransaction(db, async (tx) => {
-                    const orderSnap = await tx.get(orderRef);
-                    if (!orderSnap.exists()) return;
-                    const od = orderSnap.data();
-                    if (od.statsCounted) return; // already credited (e.g. by another open tab)
-                    if (od.status !== 'Success') return;
-                    const price = Number(od.price) || 0;
-                    tx.set(statsRef, {
-                        name: od.userName || guestId,
-                        totalSpent: increment(price),
-                        orderCount: increment(1),
-                        updatedAt: serverTimestamp()
-                    }, { merge: true });
-                    tx.update(orderRef, { statsCounted: true });
-                });
-            } catch (e) {
-                console.error("Leaderboard stats credit error:", e);
-            }
-        }
+        // NOTE: leaderboard / VIP totals (userStats) are now computed by the Worker the moment an
+        // order turns Success (creditUserStats in worker.js). The browser no longer writes them.
 
         let orderStatusKnown = {};
         let orderStatusNotified = new Set();
@@ -15877,11 +16036,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // (orders: userId Ascending, timestamp Descending) — Firestore
             // will log a "requires an index" error with a direct create-it
             // link the first time this runs if it isn't there yet.
-            const q = query(collection(db, "orders"), where("userId", "==", guestId), orderBy("timestamp", "desc"), limit(20));
-            onSnapshot(q, (snap) => {
+            // Uses the shared orders listener; only the 20 newest orders drive notifications, as before.
+            subscribeOrders('status', (snap) => {
+                const recentIds = new Set(snap.docs.slice(0, 20).map(d => d.id));
                 snap.docChanges().forEach((change) => {
                     const data = change.doc.data();
                     const orderId = change.doc.id;
+                    if (change.type !== 'removed' && !recentIds.has(orderId)) return;
                     // Feed the Notifications page (order details + unread count).
                     if (change.type === 'removed') {
                         delete ORDER_NOTIF_SRC[orderId];
@@ -15897,7 +16058,6 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         if (data.status === 'Success' && !orderStatusNotified.has(orderId + ':success')) {
                             orderStatusNotified.add(orderId + ':success');
                             showOrderSuccessModal(label);
-                            creditLeaderboardStats(orderId, guestId);
                             if (window.invalidateUserStatsCache) window.invalidateUserStatsCache();
                             if (window.loadProfileStats) window.loadProfileStats(true);
                         } else if (data.status === 'Fail' && !orderStatusNotified.has(orderId + ':fail')) {
@@ -17445,8 +17605,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             HISTORY_SERVER_SEEN = false;
             container.innerHTML = loadingStateHTML('bars');
 
-            const q = query(collection(db, "orders"), where("userId", "==", guestId), orderBy("timestamp", "desc"), limit(100));
-            historyUnsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
+            subscribeOrders('history', (snap) => {
                 // Firestore delivers an EMPTY snapshot straight from the local cache before
                 // the server answers (slow networks especially) - treating that as "no data"
                 // flashed the empty-state. Ignore it; includeMetadataChanges brings the
@@ -17490,6 +17649,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 console.error("History fetch error: ", error);
                 container.innerHTML = emptyStateHTML('icon-refresh', 'Could not load history', 'Check your connection and try again.');
             });
+            historyUnsubscribe = () => unsubscribeOrders('history');
         }
         // Called from showPage() on every navigation away from the History
         // tab. Leaves historyListenerGuestId set to null so the very next
@@ -18851,7 +19011,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 try {
                     const gid = window.getGuestId ? window.getGuestId() : null;
                     if (!gid || !token || !token.value) return;
-                    await setDoc(doc(db, "users", gid), { fcmToken: token.value }, { merge: true });
+                    await window.workerProfile({ op: 'push', userId: gid, token: token.value });
                     try { localStorage.setItem('gz_fcm_token_registered', '1'); } catch (e) {}
                     renderPushToggleUI();
                 } catch (e) { console.error('Native push token save error:', e); }
@@ -18916,7 +19076,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
                 const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: registration });
                 if (!token) return;
-                await setDoc(doc(db, "users", gid), { fcmToken: token }, { merge: true });
+                await window.workerProfile({ op: 'push', userId: gid, token });
                 try { localStorage.setItem('gz_fcm_token_registered', '1'); } catch (e) {}
             } catch (error) { console.error("FCM token registration error:", error); }
         }
@@ -18934,7 +19094,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             try {
                 const gid = window.getGuestId ? window.getGuestId() : null;
                 if (!gid) return;
-                await updateDoc(doc(db, "users", gid), { fcmToken: deleteField() });
+                await window.workerProfile({ op: 'push', userId: gid, token: '' });
                 try { localStorage.removeItem('gz_fcm_token_registered'); } catch (e) {}
             } catch (error) { /* not fatal */ }
         }
@@ -19437,6 +19597,271 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (chevron) chevron.style.transform = opening ? 'rotate(90deg)' : 'rotate(0deg)';
         }
         window.toggleCollapsible = toggleCollapsible;
+
+        // ===================== Security Code (PIN) + Authenticator =====================
+        // Optional. The Worker stores/verifies everything (/security/*) and refuses orders and
+        // top-ups for a protected wallet until the code has been entered (10 min unlock).
+        // Keep the newest ID token + guest id: the app signs a banned customer OUT before showing the
+        // ban board, and the appeal form still needs a valid token to prove who is writing.
+        auth.onIdTokenChanged(async (u) => {
+            if (!u) return;
+            try {
+                const r = await u.getIdTokenResult();
+                window.__authSnap = { t: r.token, exp: new Date(r.expirationTime).getTime(), gid: (window.getGuestId && window.getGuestId()) || '' };
+            } catch (e) { /* ignore */ }
+        });
+
+        // The Worker answers 401 + sessionRevoked when this sign-in was ended (PIN lock-out, ban, "log out all
+        // devices"). Sign out here too, so the app never sits half-logged-in with a dead token.
+        if (!window.__sessFetchWrapped) {
+            window.__sessFetchWrapped = true;
+            const _fetch = window.fetch.bind(window);
+            window.fetch = async function (input, init) {
+                const res = await _fetch(input, init);
+                try {
+                    const u = typeof input === 'string' ? input : ((input && input.url) || '');
+                    if (res.status === 401 && u.startsWith(TELEGRAM_BOT_WORKER_URL)) {
+                        res.clone().json().then(async (j) => {
+                            if (j && j.sessionRevoked) { try { await signOut(auth); } catch (e) { /* ignore */ } location.reload(); }
+                        }).catch(() => {});
+                    }
+                } catch (e) { /* ignore */ }
+                return res;
+            };
+        }
+
+        window.submitBanAppeal = async function () {
+            const ta = document.getElementById('ban-appeal-text'), st = document.getElementById('ban-appeal-status'), btn = document.getElementById('ban-appeal-btn');
+            if (!ta || !st || !btn) return;
+            const msg = (ta.value || '').trim();
+            if (msg.length < 10) { st.textContent = 'အနည်းဆုံး စာလုံး ၁၀ လုံး ရေးပေးပါ။'; return; }
+            let token = '';
+            try { if (auth.currentUser) token = await auth.currentUser.getIdToken(); } catch (e) { /* use snapshot */ }
+            const snap = window.__authSnap;
+            if (!token && snap && Date.now() < snap.exp - 30000) token = snap.t;
+            if (!token) { st.textContent = 'Sign-in ကုန်သွားပါပြီ။ Page ကို refresh လုပ်ပြီး ပြန်ထပ်ကြိုးစားပါ။'; return; }
+            btn.disabled = true; st.textContent = '...';
+            try {
+                const res = await fetch(TELEGRAM_BOT_WORKER_URL + '/appeal/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ userId: (snap && snap.gid) || '', message: msg })
+                });
+                const j = await res.json().catch(() => ({}));
+                if (j.ok) { st.textContent = 'ပို့ပြီးပါပြီ။ Admin က စစ်ဆေးပါမယ်။'; ta.value = ''; ta.disabled = true; }
+                else { st.textContent = j.error || 'မအောင်မြင်ပါ။'; btn.disabled = false; }
+            } catch (e) { st.textContent = 'Network error'; btn.disabled = false; }
+        };
+
+        async function secCall(path, extra) {
+            const u = auth.currentUser;
+            if (!u) throw new Error('Please login first.');
+            const token = await u.getIdToken();
+            // PIN / authenticator digits never travel in plain JSON: they are sealed for the Worker only.
+            const body = { userId: window.getGuestId() }, secret = {};
+            for (const k in (extra || {})) (['pin', 'code', 'curPin', 'curCode'].includes(k) ? secret : body)[k] = extra[k];
+            if (Object.keys(secret).length) {
+                try { body.sealed = await window.sealSecurity(TELEGRAM_BOT_WORKER_URL, path, u.uid, secret); }
+                catch (e) { Object.assign(body, secret); } // Worker refuses plain bodies once SEC_REQUIRE_SEALED=on
+            }
+            const res = await fetch(TELEGRAM_BOT_WORKER_URL + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'X-Dev': await window.devId() },
+                body: JSON.stringify(body)
+            });
+            return await res.json().catch(() => ({ ok: false, error: 'Network error' }));
+        }
+        let secState = null;
+        function secClose() { const o = document.getElementById('sec-overlay'); if (o) o.classList.remove('show'); }
+        window.secClose = secClose;
+
+        // Generic glass prompt. fields: [{k,label,kind:'pin'|'code'}]. submit(values) -> error string, or falsy when done.
+        // Resolves true when submit succeeded, false when cancelled.
+        function secForm(o) {
+            return new Promise((resolve) => {
+                const ov = document.getElementById('sec-overlay'), sh = document.getElementById('sec-sheet');
+                sh.innerHTML = '';
+                const mk = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+                sh.appendChild(mk('h4', '', o.title));
+                if (o.sub) sh.appendChild(mk('p', '', o.sub));
+                if (o.body) o.body(sh, mk);
+                const inputs = {}, pads = [], hosts = [], labs = [], fl = o.fields || [];
+                // One keypad at a time (a sheet with two pads would not fit a small phone): PIN first, then the code.
+                const showStep = (n) => { fl.forEach((f, i) => { labs[i].style.display = hosts[i].style.display = (i === n ? '' : 'none'); }); };
+                fl.forEach((f, idx) => {
+                    labs[idx] = mk('span', 'sec-lab', f.label); sh.appendChild(labs[idx]);
+                    hosts[idx] = mk('div'); sh.appendChild(hosts[idx]);
+                    pads[idx] = window.SecureKeypad.mount(hosts[idx], {
+                        length: f.kind === 'pin' ? 4 : 6, masked: true,
+                        onFull: () => { if (idx < fl.length - 1) showStep(idx + 1); else go(); }
+                    });
+                    inputs[f.k] = pads[idx];
+                });
+                showStep(0);
+                const err = mk('div', 'sec-err'); sh.appendChild(err);
+                const row = mk('div', 'sec-actions');
+                const cancel = mk('button', 'sec-btn', 'Cancel'); cancel.type = 'button';
+                const ok = mk('button', 'sec-btn pri', o.ok || 'Confirm'); ok.type = 'button';
+                row.appendChild(cancel); row.appendChild(ok); sh.appendChild(row);
+                const done = (v) => { pads.forEach(p => p.destroy()); secClose(); resolve(v); };
+                cancel.onclick = () => done(false);
+                ov.onclick = (e) => { if (e.target === ov) done(false); };
+                let busy = false;
+                const go = async () => {
+                    if (busy) return;
+                    const vals = {}; for (const k in inputs) vals[k] = inputs[k].get();
+                    busy = true; ok.disabled = true; err.textContent = '';
+                    let m = null;
+                    try { m = await o.submit(vals); } catch (e) { m = (e && e.message) || 'Failed'; }
+                    busy = false; ok.disabled = false;
+                    if (m) { err.textContent = m; pads.forEach(p => p.clear()); showStep(0); return; }
+                    done(true);
+                };
+                ok.onclick = go;
+                ov.classList.add('show');
+            });
+        }
+
+        // Called by the order / top-up requests when the Worker answers "securityRequired".
+        window.secUnlock = async function (info) {
+            info = info || {};
+            const amt = Number(info.amount) || 0;
+            const amtTxt = amt > 0 ? amt.toLocaleString() + ' MMK' : '';
+            // Large wallet payment but no Security Code yet: it must be set first (and it unlocks after a cooling-off period).
+            if (info.pinSetupRequired) {
+                const go = await secForm({
+                    title: 'Security Code needed', sub: 'Payments of ' + (amtTxt || 'this size') + ' need a Security Code. Set one now - it can approve large payments after a short safety period. Bank transfer works meanwhile.',
+                    fields: [], ok: 'Set Security Code', submit: async () => null
+                });
+                if (go) await window.secSetPin();
+                throw new Error('Large payments need a Security Code. Please try again after it is active.');
+            }
+            if (info.cooldown) throw new Error(info.error || 'Your new Security Code can approve large payments later.');
+            const fields = [];
+            if (info.pin) fields.push({ k: 'pin', label: 'Security Code', kind: 'pin' });
+            if (info.totp) fields.push({ k: 'code', label: 'Authenticator code', kind: 'code' });
+            const stepUp = !!info.stepUp && amt > 0 && (info.kind === 'order' || info.kind === 'topup');
+            const done = await secForm({
+                title: stepUp ? 'Confirm large payment' : 'Security check',
+                sub: stepUp ? ('Enter your Security Code to confirm ' + amtTxt + (info.kind === 'topup' ? ' top up.' : ' payment.')) : 'Enter your code to continue.',
+                fields, ok: 'Confirm',
+                submit: async (v) => {
+                    const extra = { pin: v.pin, code: v.code };
+                    if (stepUp) { extra.purpose = 'stepup'; extra.kind = info.kind; extra.amount = amt; }   // one-time ticket for exactly this amount
+                    const j = await secCall('/security/verify', extra);
+                    return j.ok ? null : (j.error || 'Wrong code');
+                }
+            });
+            if (!done) throw new Error('Security check cancelled.');
+        };
+
+        function secNeed(st, label) {
+            const f = [];
+            if (st.pin) f.push({ k: 'pin', label: 'Security Code', kind: 'pin' });
+            if (st.totp) f.push({ k: 'code', label: 'Authenticator code', kind: 'code' });
+            return f;
+        }
+        async function secDone(msg) { window.showToast(msg); await secRefresh(); }
+
+        window.secSetPin = async function () {
+            const st = secState || {};
+            const cur = [];
+            if (st.pin) cur.push({ k: 'curPin', label: 'Current Security Code', kind: 'pin' });
+            if (st.totp) cur.push({ k: 'curCode', label: 'Authenticator code', kind: 'code' });
+            const ok = await secForm({
+                title: st.pin ? 'Change Security Code' : 'Set Security Code', sub: '4 digits. Asked before orders and top-ups.',
+                fields: [...cur, { k: 'pin', label: 'New code', kind: 'pin' }, { k: 'pin2', label: 'Confirm new code', kind: 'pin' }], ok: 'Save',
+                submit: async (v) => {
+                    if (!/^\d{4}$/.test(v.pin)) return 'Enter 4 digits.';
+                    if (v.pin !== v.pin2) return 'Codes do not match.';
+                    const j = await secCall('/security/pin/set', { pin: v.pin, curPin: v.curPin, curCode: v.curCode });
+                    return j.ok ? null : (j.error || 'Failed');
+                }
+            });
+            if (ok) secDone('Security Code saved');
+        };
+        window.secPinOff = async function () {
+            const st = secState || {};
+            const ok = await secForm({
+                title: 'Turn off Security Code', sub: 'Enter your code to confirm.', fields: secNeed(st), ok: 'Turn off',
+                submit: async (v) => { const j = await secCall('/security/pin/off', { pin: v.pin, code: v.code }); return j.ok ? null : (j.error || 'Failed'); }
+            });
+            if (ok) secDone('Security Code off');
+        };
+        window.secTotpOn = async function () {
+            const st = secState || {};
+            let begin = null;
+            const start = async (curPin) => { const j = await secCall('/security/totp/begin', { curPin }); if (!j.ok) return j.error || 'Failed'; begin = j; return null; };
+            if (st.pin) {
+                const ok1 = await secForm({
+                    title: 'Set up Authenticator', sub: 'Enter your Security Code first.', fields: [{ k: 'pin', label: 'Security Code', kind: 'pin' }], ok: 'Next',
+                    submit: (v) => start(v.pin)
+                });
+                if (!ok1) return;
+            } else {
+                const m = await start(); if (m) { window.showToast(m, 'fail'); return; }
+            }
+            const ok = await secForm({
+                title: 'Authenticator', sub: 'Add this key in Google Authenticator (or similar), then enter the 6-digit code.',
+                body: (sh, mk) => {
+                    sh.appendChild(mk('div', 'sec-key', begin.secret));
+                    const a = mk('a', 'sec-link', 'Open in Authenticator app'); a.href = begin.uri; sh.appendChild(a);
+                    const c = mk('a', 'sec-link', 'Copy key'); c.href = '#';
+                    c.onclick = (e) => { e.preventDefault(); try { navigator.clipboard.writeText(begin.secret); window.showToast('Copied'); } catch (x) {} };
+                    sh.appendChild(c);
+                },
+                fields: [{ k: 'code', label: '6-digit code', kind: 'code' }], ok: 'Turn on',
+                submit: async (v) => { const j = await secCall('/security/totp/confirm', { code: v.code }); return j.ok ? null : (j.error || 'Failed'); }
+            });
+            if (ok) secDone('Authenticator on');
+        };
+        window.secTotpOff = async function () {
+            const st = secState || {};
+            const ok = await secForm({
+                title: 'Turn off Authenticator', sub: 'Enter your codes to confirm.', fields: secNeed(st), ok: 'Turn off',
+                submit: async (v) => { const j = await secCall('/security/totp/off', { pin: v.pin, code: v.code }); return j.ok ? null : (j.error || 'Failed'); }
+            });
+            if (ok) secDone('Authenticator off');
+        };
+
+        window.secLogoutAll = async function () {
+            const ok = await secForm({
+                title: 'Log out all devices', sub: 'You will be signed out on every phone, including this one.', fields: [], ok: 'Log out',
+                submit: async () => { const j = await secCall('/security/logout-all'); return j.ok ? null : (j.error || 'Failed'); }
+            });
+            if (ok) { try { await signOut(auth); } catch (e) { /* ignore */ } location.reload(); }
+        };
+
+        async function secRefresh() {
+            const box = document.getElementById('sec-rows');
+            if (!box) return;
+            const note = (t) => { box.innerHTML = ''; const d = document.createElement('div'); d.className = 'sec-row'; d.style.color = 'var(--text-muted)'; d.textContent = t; box.appendChild(d); };
+            if (!auth.currentUser) { note('Login to use Security Code and Authenticator.'); return; }
+            note('Loading...');
+            let j = null;
+            try { j = await secCall('/security/status'); } catch (e) { j = null; }
+            if (!j || !j.ok) { note((j && j.error) || 'Could not load. Close and open again.'); return; }
+            secState = j;
+            box.innerHTML = '';
+            const row = (title, sub, on, btns) => {
+                const r = document.createElement('div'); r.className = 'sec-row';
+                const m = document.createElement('div'); m.className = 'sec-meta';
+                const b = document.createElement('b'); b.textContent = title;
+                const chip = document.createElement('span'); chip.className = 'sec-chip' + (on ? ' on' : ''); chip.textContent = on ? 'On' : 'Off';
+                const s = document.createElement('small'); s.textContent = sub;
+                if (on !== null) b.appendChild(chip);
+                m.appendChild(b); m.appendChild(s);
+                const bs = document.createElement('div'); bs.className = 'sec-btns';
+                btns.forEach(([t, fn, cls]) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'sec-btn ' + (cls || ''); x.textContent = t; x.onclick = fn; bs.appendChild(x); });
+                r.appendChild(m); r.appendChild(bs); box.appendChild(r);
+            };
+            row('Security Code', '4-digit code before orders & top-ups', j.pin,
+                j.pin ? [['Change', window.secSetPin], ['Off', window.secPinOff, 'danger']] : [['Set up', window.secSetPin, 'pri']]);
+            row('Authenticator', '6-digit code from your Authenticator app', j.totp,
+                j.totp ? [['Off', window.secTotpOff, 'danger']] : [['Set up', window.secTotpOn, 'pri']]);
+            row('Log out all devices', 'Sign out everywhere, including this phone', null, [['Log out', window.secLogoutAll, 'danger']]);
+        }
+        window.secRefresh = secRefresh;
 
         // The circular "ripple reveal" that used to grow a disc from the
         // toggle button was removed - it could leave the screen stuck blank
@@ -20791,17 +21216,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             btnEl.disabled = true;
             try {
                 const guestId = window.getGuestId ? window.getGuestId() : '';
-                const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
-                const ticketId = await generateShortNumericId("supportTickets");
-                await setDoc(doc(db, "supportTickets", ticketId), {
-                    userId: guestId,
-                    userName: (savedProfile.name && savedProfile.name.trim()) ? savedProfile.name.trim() : guestId,
-                    userPhone: (savedProfile.phone && savedProfile.phone.trim()) ? savedProfile.phone.trim() : '',
-                    title,
-                    message: text,
-                    status: 'Open',
-                    timestamp: serverTimestamp()
+                // The Worker checks the login + account ownership and fills in name / phone itself.
+                const cu = auth.currentUser;
+                if (!cu) throw new Error('Please sign in first.');
+                const sbase = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+                const sres = await fetch(`${sbase}/support/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await cu.getIdToken() },
+                    body: JSON.stringify({ userId: guestId, title, message: text })
                 });
+                const sj = await sres.json().catch(() => ({}));
+                if (!sres.ok || !sj.ok) throw new Error((sj && sj.error) || 'ပို့၍မရပါ');
                 titleEl.value = '';
                 textEl.value = '';
                 window.showToast('တိုင်ကြားစာ ပို့ပြီးပါပြီ', 'success');
@@ -21825,6 +22250,147 @@ html .popular-card.card-pop{animation:bubbleRise 1.05s cubic-bezier(.3,.8,.35,1)
             }, true);
         } else arm();
     } catch (e) {}
+})();
+</script>
+<div id="sec-overlay"><div class="sec-sheet" id="sec-sheet"></div></div>
+<script>
+// Secure keypad + device id + sealed PIN envelope (see guard docs)
+(function () {
+  const enc = s => new TextEncoder().encode(s);
+  const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+
+  // ---------- 1. keypad ----------
+  function shuffled() {
+    const a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // SecureKeypad.mount(el, { length: 4|6, masked: true, onFull(value) })
+  // -> { get(), clear(), destroy() }
+  function mount(el, opts) {
+    const o = Object.assign({ length: 4, masked: true, onFull: null }, opts || {});
+    let digits = [];
+    el.innerHTML = '';
+    el.classList.add('skp');
+    el.setAttribute('role', 'group');
+    el.setAttribute('aria-label', 'Secure keypad');
+    el.addEventListener('contextmenu', e => e.preventDefault());
+
+    const dots = document.createElement('div');
+    dots.className = 'skp-dots';
+    for (let i = 0; i < o.length; i++) dots.appendChild(document.createElement('i'));
+    el.appendChild(dots);
+
+    const grid = document.createElement('div');
+    grid.className = 'skp-grid';
+    el.appendChild(grid);
+
+    const paint = () => {
+      [...dots.children].forEach((d, i) => {
+        d.className = i < digits.length ? 'on' : '';
+        d.textContent = (!o.masked && i < digits.length) ? digits[i] : '';
+      });
+    };
+
+    const press = (d) => {
+      if (digits.length >= o.length) return;
+      digits.push(String(d)); paint();
+      if (navigator.vibrate) try { navigator.vibrate(8); } catch (e) { /* ignore */ }
+      if (digits.length === o.length && o.onFull) o.onFull(digits.join(''));
+    };
+    const back = () => { digits.pop(); paint(); };
+    const clear = () => { digits.length = 0; paint(); };
+
+    const order = shuffled();
+    const cells = [order[0], order[1], order[2], order[3], order[4], order[5], order[6], order[7], order[8], 'clr', order[9], 'del'];
+    cells.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'skp-key' + (typeof c === 'string' ? ' skp-fn' : '');
+      b.textContent = c === 'clr' ? 'C' : (c === 'del' ? '⌫' : String(c));
+      b.setAttribute('aria-label', c === 'clr' ? 'Clear' : (c === 'del' ? 'Delete' : 'Digit ' + c));
+      // pointerdown + preventDefault: no focus, no text selection, no ghost click
+      b.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        if (c === 'clr') clear(); else if (c === 'del') back(); else press(c);
+      });
+      b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (c === 'clr') clear(); else if (c === 'del') back(); else press(c); } });
+      grid.appendChild(b);
+    });
+    paint();
+
+    return {
+      get: () => digits.join(''),
+      clear,
+      destroy: () => { digits.fill(''); digits.length = 0; el.innerHTML = ''; },
+    };
+  }
+
+  // ---------- 2. device id ----------
+  const DEV_KEY = 'gz_dev';
+  function idbGet() {
+    return new Promise(res => {
+      try {
+        const r = indexedDB.open('gz_dev', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('k');
+        r.onsuccess = () => { const g = r.result.transaction('k').objectStore('k').get('id'); g.onsuccess = () => res(g.result || ''); g.onerror = () => res(''); };
+        r.onerror = () => res('');
+      } catch (e) { res(''); }
+    });
+  }
+  function idbSet(v) {
+    try {
+      const r = indexedDB.open('gz_dev', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('k');
+      r.onsuccess = () => { r.result.transaction('k', 'readwrite').objectStore('k').put(v, 'id'); };
+    } catch (e) { /* ignore */ }
+  }
+  let _dev = '';
+  async function devId() {
+    if (_dev) return _dev;
+    let id = ''; try { id = localStorage.getItem(DEV_KEY) || ''; } catch (e) { /* private mode */ }
+    if (!id) id = await idbGet();
+    if (!id) id = b64(crypto.getRandomValues(new Uint8Array(24))).replace(/[^A-Za-z0-9]/g, '');
+    try { localStorage.setItem(DEV_KEY, id); } catch (e) { /* ignore */ }
+    idbSet(id);
+    // Coarse, stable signals so a wiped storage on the SAME phone still maps to a similar hash on the server side review.
+    const sig = [screen.width + 'x' + screen.height, screen.colorDepth, navigator.hardwareConcurrency || 0,
+      Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.language].join('|');
+    const h = await crypto.subtle.digest('SHA-256', enc(id + '|' + sig));
+    _dev = b64(h).replace(/[^A-Za-z0-9]/g, '');
+    return _dev;
+  }
+
+  // ---------- 3. sealed envelope ----------
+  let _pub = null;
+  async function serverKey(base) {
+    if (_pub) return _pub;
+    const r = await fetch(base + '/security/key');
+    const j = await r.json();
+    if (!j.ok) throw new Error('key');
+    _pub = await crypto.subtle.importKey('jwk', j.jwk, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
+    return _pub;
+  }
+  // path = '/security/verify' etc.  data = { pin, code, curPin, curCode }
+  async function sealSecurity(base, path, uid, data) {
+    const srv = await serverKey(base);
+    const eph = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'ECDH', public: srv }, eph.privateKey, 256);
+    const hk = await crypto.subtle.importKey('raw', bits, 'HKDF', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(0), info: enc('linn-sec-v1') }, hk, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const n = b64(crypto.getRandomValues(new Uint8Array(16))).replace(/[^A-Za-z0-9]/g, '');
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc(path + '|' + uid) }, key, enc(JSON.stringify({ ...data, n, t: Date.now() })));
+    return { epk: b64(await crypto.subtle.exportKey('raw', eph.publicKey)), iv: b64(iv), ct: b64(ct) };
+  }
+
+  window.SecureKeypad = { mount };
+  window.devId = devId;
+  window.sealSecurity = sealSecurity;
 })();
 </script>
 </body>
