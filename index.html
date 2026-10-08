@@ -4557,6 +4557,42 @@ html[data-theme="dark"] .onboarding-overlay.lg-onb { background: linear-gradient
 html[data-theme="dark"] .lg-foot { color: #8294bd; }
 body:has(#wallet-google-gate-overlay.show) .bottom-nav { display: none; }
 </style>
+<style id="linn-title-glass-grid">
+/* "Linn Game Store" home title: compact full-glass plate (no grid lines) + colour-flowing text */
+#name-check > h2.title-header { font-size: 15px; border-bottom: none; padding-bottom: 0; margin-bottom: 12px; }
+#name-check > h2.title-header > span {
+    position: relative; display: inline-block; padding: 6px 14px; border-radius: 14px;
+    font-weight: 600; letter-spacing: .2px; overflow: hidden;
+    color: transparent; -webkit-text-fill-color: transparent;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.65), rgba(255,255,255,.2) 55%, rgba(255,255,255,.45));
+    border: 1px solid rgba(255,255,255,.85);
+    box-shadow: 0 6px 18px rgba(99,102,241,.2), inset 0 1px 1px rgba(255,255,255,1), inset 0 -6px 12px rgba(120,140,255,.08);
+}
+/* glossy highlight across the top half */
+#name-check > h2.title-header > span::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 48%;
+    background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0));
+    border-radius: 14px 14px 40% 40%; pointer-events: none;
+}
+#name-check > h2.title-header > span::before {
+    content: 'Linn Game Store'; position: absolute; left: 14px; top: 6px; white-space: nowrap; z-index: 1;
+    background: linear-gradient(90deg,#f08ab8,#f2b27a,#ecd98a,#8fd9ae,#8cc6ec,#b3a0ea,#f08ab8);
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: linnTitleFlow 6s linear infinite; will-change: background-position; transform: translateZ(0);
+}
+@keyframes linnTitleFlow { from { background-position: 0 0; } to { background-position: 200% 0; } }
+html[data-theme="dark"] #name-check > h2.title-header > span {
+    background:
+        linear-gradient(135deg, rgba(60,90,170,.45), rgba(20,35,68,.4));
+    border-color: rgba(255,255,255,.22);
+    box-shadow: 0 6px 18px rgba(0,0,10,.45), inset 0 1px 1px rgba(255,255,255,.18);
+}
+html[data-theme="dark"] #name-check > h2.title-header > span::after { background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)); }
+@media (prefers-reduced-motion: reduce) { #name-check > h2.title-header > span::before { animation: none; } }
+</style>
 <style id="glass-home-override">
 /* ===== Glass design: Top-Up steps + live stat cards (blue only, matches page bg) ===== */
 .dash-guide-step, .home-live-stat {
@@ -8705,6 +8741,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (isVoucherGame(g)) return false;
             if (g.playerIdRequired === false) return false;
             if (g.serverIdRequired === false) return false; // ID-only games (no Server ID) are not listed
+            if (/heartopia/i.test(g.name || '')) return false; // Heartopia needs no Server ID -> not in home check
             return !!(g.g2bulkCode || g.fazercardCategoryId);
         }
 
@@ -8742,10 +8779,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // idea as renderServerIdField() on the checkout page.
         function ncRenderServerField(entries) {
             const old = document.getElementById('nc-server-id');
-            const opts = entries.map(g =>
-                (g.fazercardServerMode === 'select' && g.fazercardServerOptions) ||
-                (g.g2bulkServerMode === 'select' && g.g2bulkServerOptions)
-            ).find(o => Array.isArray(o) && o.length);
+            const opts = null; // home check: Server ID is always a plain text box (no dropdown)
             const mkSelect = (list) => {
                 const el = document.createElement('select');
                 el.innerHTML = `<option value="">${ncEsc(t('nc_select_server'))}</option>`
@@ -8771,7 +8805,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // No saved options: use G2Bulk's live server list.
             const src = entries.find(g => g.g2bulkIdCheckCode || g2bulkCodeOf(g));
             const code = src && (src.g2bulkIdCheckCode || src.g2bulkCode);
-            if (!opts && code && entries.some(g => g.serverIdRequired !== false)) {
+            if (false && !opts && code && entries.some(g => g.serverIdRequired !== false)) { // dropdown upgrade disabled
                 const gameKey = document.getElementById('nc-game').value;
                 g2bulkFetchServers(code).then(list => {
                     if (!list.length || document.getElementById('nc-game').value !== gameKey) return;
