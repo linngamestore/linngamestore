@@ -106,7 +106,12 @@
                 var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency, c = navigator.connection || {};
                 var weak = (mem && mem <= 2) || (cores && cores <= 4 && mem && mem <= 3) ||
                            c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '');
-                if (saved === 'low' || (saved !== 'ok' && weak)) { root.classList.add('perf-low'); }
+                // Telegram Mini App on Android runs inside Telegram's own WebView, which is much slower than
+                // Chrome at blur / always-running animations - the idle frame probe below never catches that
+                // (the lag only shows while tapping and switching tabs), so force the light mode there.
+                var tgAndroid = false;
+                try { var tw = window.Telegram && window.Telegram.WebApp; tgAndroid = !!(tw && /^android/i.test(String(tw.platform || ''))) || (/Android/i.test(navigator.userAgent) && /Telegram/i.test(navigator.userAgent)); } catch (e2) {}
+                if (saved === 'low' || (saved !== 'ok' && weak) || (tgAndroid && q !== 'high')) { root.classList.add('perf-low'); }
                 if (q || saved === 'low') return; // decided; no probing
                 function probe() {
                     if (document.hidden) {
@@ -337,6 +342,12 @@
         /* Shimmering skeletons repaint big gradients every frame; a still placeholder is enough. */
         html.perf-low .skel, html.perf-low .home-banner-slide { animation: none !important; }
         html.perf-low .bot-glow { filter: none !important; }
+        /* Backdrop blur is the single most expensive effect on weak GPUs / Telegram's WebView: every glass
+           panel (header, bottom nav, cards, modals) re-blurs the page behind it on every frame. */
+        html.perf-low *, html.perf-low *::before, html.perf-low *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+        /* Large blurred shadows + filters on the wallet card and floating bot are repainted on every tab switch. */
+        html.perf-low .wallet-balance-card { box-shadow: 0 6px 16px -8px rgba(60,40,140,0.45) !important; }
+        html.perf-low .tab-enter * { animation-duration: 0.28s !important; }
         /* Long history lists: skip rendering rows that are off-screen (all devices, no visual change). */
         .history-card { content-visibility: auto; contain-intrinsic-size: auto 92px; }
         /* While the theme swap's background-color transition is running, every
@@ -4811,31 +4822,31 @@ html.perf-low .popular-card .game-card-img-wrap.img-ready { animation: none; wil
 .sec-actions{display:flex;gap:8px}.sec-actions .sec-btn{flex:1;padding:8px}
 .sec-key{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all;text-align:center;padding:8px;border-radius:12px;background:var(--glass-bg-strong);border:1px dashed var(--glass-border);margin-bottom:6px;user-select:all;-webkit-user-select:all}
 .sec-link{display:block;text-align:center;font-size:11.5px;color:var(--accent);margin:2px 0 4px;font-weight:600}
-/* Profile page menu tabs (Preferences, Account, Tier Designs, Follow Us, Support, Terms): much more compact.
+/* Profile page menu tabs (Preferences, Account, Tier Designs, Follow Us, Support, Terms): slightly larger again.
    Only the tab headers shrink - the rows inside the opened sections keep their normal size. */
 #profile-prefs-card, #account-card, #tier-preview-card, #social-links-card, #support-entry-card, #terms-entry-card {
-    padding: 7px 12px; border-radius: 14px; margin-top: 8px !important; gap: 0;
+    padding: 11px 14px; border-radius: 16px; margin-top: 8px !important; gap: 0;
 }
 #profile-prefs-card > .collapsible-header .prefs-row-icon, #account-card > .collapsible-header .prefs-row-icon,
 #tier-preview-card > .collapsible-header .prefs-row-icon, #social-links-card > .collapsible-header .prefs-row-icon,
 #support-entry-card .prefs-row-icon, #terms-entry-card .prefs-row-icon {
-    width: 24px; height: 24px; border-radius: 8px;
+    width: 32px; height: 32px; border-radius: 10px;
 }
 #profile-prefs-card > .collapsible-header .prefs-row-icon svg, #account-card > .collapsible-header .prefs-row-icon svg,
 #tier-preview-card > .collapsible-header .prefs-row-icon svg, #social-links-card > .collapsible-header .prefs-row-icon svg,
 #support-entry-card .prefs-row-icon svg, #terms-entry-card .prefs-row-icon svg {
-    width: 14px !important; height: 14px !important;
+    width: 18px !important; height: 18px !important;
 }
 #profile-prefs-card > .collapsible-header .prefs-row-label, #account-card > .collapsible-header .prefs-row-label,
 #tier-preview-card > .collapsible-header .prefs-row-label, #social-links-card > .collapsible-header .prefs-row-label,
-#support-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label { gap: 8px; font-size: 12.5px; }
+#support-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label { gap: 10px; font-size: 15px; }
 #profile-prefs-card > .collapsible-header label, #account-card > .collapsible-header label,
 #tier-preview-card > .collapsible-header label, #social-links-card > .collapsible-header label {
-    font-size: 12.5px; align-self: center !important; margin: 0 !important; line-height: 1.2;
+    font-size: 15px; align-self: center !important; margin: 0 !important; line-height: 1.2;
 }
 #profile-prefs-card > .collapsible-header .collapsible-chevron, #account-card > .collapsible-header .collapsible-chevron,
 #tier-preview-card > .collapsible-header .collapsible-chevron, #social-links-card > .collapsible-header .collapsible-chevron,
-#support-entry-card > div > .ui-icon, #terms-entry-card > div > .ui-icon { width: 12px !important; height: 12px !important; }
+#support-entry-card > div > .ui-icon, #terms-entry-card > div > .ui-icon { width: 14px !important; height: 14px !important; }
 /* The two floating glass docks re-blur everything moving under them on every frame of a swipe
    (that is what makes a fling die early). Drop the blur only while scrolling, slightly more opaque
    so the change is barely visible - same trick as html.theme-switching. */
@@ -7907,6 +7918,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (pageId === 'dashboard' && window.ncRenderGameOptions) window.ncRenderGameOptions();
             if (pageId === 'dashboard' && window.ncResetScrollBaseline) window.ncResetScrollBaseline();
             if (pageId === 'profile' && window.renderProfileFields) window.renderProfileFields();
+            if (pageId === 'profile' && window.playProfileIdReveal) window.playProfileIdReveal();
             if (pageId === 'profile' && window.loadProfileStats) window.loadProfileStats();
             if (pageId === 'profile' && window.renderTierPreviewGrid) window.renderTierPreviewGrid();
             if (pageId === 'profile' && window.renderPushToggleUI) window.renderPushToggleUI();
@@ -9833,7 +9845,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // player account, so the admin can turn off the In-Game ID prompt
             // entirely for them (missing field defaults to "required", so
             // existing games keep behaving exactly as before).
-            const needsPlayerId = game.playerIdRequired !== false;
+            const needsPlayerId = (game.playerIdRequired === undefined || game.playerIdRequired === null)
+                ? !isVoucherGame(game)
+                : game.playerIdRequired !== false;
             selectedGameNeedsPlayerId = needsPlayerId;
             document.getElementById('account-info-section').style.display = needsPlayerId ? '' : 'none';
             if (!needsPlayerId) document.getElementById('detail-ingame-id').value = '';
@@ -10529,6 +10543,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             let result = 'None';
             let amountDetected = null;
             let hash = null;
+            let ocrTextKept = '';
             try {
                 const [hashResult, ocrResult] = await Promise.all([
                     sha256Hex(file),
@@ -10538,6 +10553,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const text = ocrResult.data.text;
                 result = extractTransactionId(text) || 'None';
                 amountDetected = extractAmount(text);
+                ocrTextKept = String(text || '').slice(0, 1800);
             } catch (err) {
                 console.error('Transaction ID OCR error:', err);
                 result = 'None';
@@ -10549,7 +10565,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     ? 'Transaction ID not found on the receipt — set to "None".'
                     : `Transaction ID detected: ${result}`;
             }
-            receiptAnalysis = { hash, transactionId: result, amountDetected };
+            receiptAnalysis = { hash, transactionId: result, amountDetected, ocrText: ocrTextKept };
             return result;
         }
 
@@ -11356,8 +11372,38 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const heroName = document.getElementById('profile-hero-name');
             const heroId = document.getElementById('profile-hero-id');
             if (heroName) heroName.innerText = displayName;
-            if (heroId) heroId.innerText = 'ID: ' + gid;
+            if (heroId && !heroId.dataset.revealing) heroId.innerText = 'ID: ' + gid;
         }
+
+        // ---- New-account ID reveal: right after a brand-new account is created, the ID in the Profile card
+        // "rolls" in one character at a time (each slot counts through random symbols, then locks onto the
+        // real character before the next slot starts). Plays once per new account, then the flag is cleared.
+        const ID_REVEAL_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+        window.playProfileIdReveal = function () {
+            const el = document.getElementById('profile-hero-id');
+            let flag = '', gid = '';
+            try { flag = localStorage.getItem('gz_id_reveal') || ''; gid = localStorage.getItem('gz_guest_id') || ''; } catch (e) { return; }
+            if (!el || !flag || flag !== gid) return;
+            try { localStorage.removeItem('gz_id_reveal'); } catch (e) { /* ignore */ }
+            const calm = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || document.documentElement.classList.contains('perf-low');
+            if (calm) { el.innerText = 'ID: ' + gid; return; }
+            el.dataset.revealing = '1';
+            el.innerHTML = 'ID: ' + Array.from(gid).map(() => '<span class="idc" style="display:inline-block;min-width:.64em;text-align:center;opacity:.35;font-variant-numeric:tabular-nums;">·</span>').join('');
+            const slots = el.querySelectorAll('.idc');
+            let i = 0;
+            const lockNext = () => {
+                if (i >= slots.length) { el.innerText = 'ID: ' + gid; delete el.dataset.revealing; return; }
+                const slot = slots[i], target = gid[i];
+                let tick = 0; const ticks = 6;
+                slot.style.opacity = '1';
+                const timer = setInterval(() => {
+                    tick++;
+                    if (tick >= ticks) { clearInterval(timer); slot.textContent = target; i++; setTimeout(lockNext, 45); return; }
+                    slot.textContent = ID_REVEAL_CHARS[Math.floor(Math.random() * ID_REVEAL_CHARS.length)];
+                }, 42);
+            };
+            setTimeout(lockNext, 250);
+        };
 
         // Tapping "Edit Profile" now pops up a modal (Name/Phone in a small
         // grid box) instead of expanding a card inline below the button.
@@ -11430,7 +11476,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
     <!-- FIREBASE CODE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where, orderBy, limit, getDocs, getCountFromServer, getAggregateFromServer, sum as aggSum, count as aggCount, onSnapshot, increment, runTransaction, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where, orderBy, limit, getDocs, getDocsFromCache, getCountFromServer, getAggregateFromServer, sum as aggSum, count as aggCount, onSnapshot, increment, runTransaction, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithRedirect, signInWithCredential, signInWithCustomToken, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
         import { getMessaging, getToken, onMessage, isSupported as isMessagingSupported } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging.js";
 
@@ -11474,6 +11520,42 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         window.db = db;
         window.doc = doc;
         window.onSnapshot = onSnapshot;
+
+        // ---- READ-SAVER: cache-first "poll" instead of a live listener ----------------------------
+        // For data that rarely changes (games, payment methods, announcements) a live onSnapshot
+        // re-bills the whole collection on every cold start (>30 min closed) and on every page
+        // re-subscribe. This helper paints from the local persistent cache for 0 reads, and only
+        // asks the server again when the last fetch is older than ttlMs (and the tab is visible).
+        // Returns an unsubscribe fn, same shape as onSnapshot.
+        function pollSnapshot(key, target, ttlMs, onNext, onErr) {
+            let stopped = false, busy = false;
+            const stampKey = 'fsTtl:' + key;
+            const lastAt = () => { try { return Number(localStorage.getItem(stampKey) || 0); } catch (e) { return 0; } };
+            const fetchServer = async () => {
+                if (stopped || busy) return;
+                busy = true;
+                try {
+                    const snap = await getDocs(target);
+                    if (stopped) return;
+                    try { localStorage.setItem(stampKey, String(Date.now())); } catch (e) {}
+                    onNext(snap);
+                } catch (e) { if (onErr) onErr(e); }
+                finally { busy = false; }
+            };
+            (async () => {
+                let cached = null;
+                try { cached = await getDocsFromCache(target); } catch (e) { cached = null; }
+                if (stopped) return;
+                const haveCache = !!(cached && !cached.empty);
+                if (haveCache) onNext(cached);
+                if (!haveCache || Date.now() - lastAt() >= ttlMs) await fetchServer();
+            })();
+            const onVis = () => { if (!document.hidden && Date.now() - lastAt() >= ttlMs) fetchServer(); };
+            document.addEventListener('visibilitychange', onVis);
+            return () => { stopped = true; document.removeEventListener('visibilitychange', onVis); };
+        }
+        window.pollSnapshot = pollSnapshot;
+        window.forceRefetch = function (key) { try { localStorage.removeItem('fsTtl:' + key); } catch (e) {} };
         // Also needed by the non-module <script> above for the Game Package
         // Link 8-digit code lookup/save (tryOpenPendingPackageLinkCode /
         // buildPackageShareLink).
@@ -12143,6 +12225,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const token = await u.getIdToken();
             const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
             const body = { ...payload }; delete body.timestamp; // server sets the time
+            // Package code = SHA-256 fingerprint of this exact game + server + package + unit price. The Worker
+            // recomputes it from the admin's catalogue: any game / package / price mismatch = auto reject.
+            try {
+                const q = Math.max(1, Number(body.quantity) || 1);
+                const unit = Math.round((Number(body.price) || 0) / q);
+                const raw = [body.game, body.serverRegion || '', body.itemAmount, unit].map(v => String(v === undefined || v === null ? '' : v)).join('|');
+                const dig = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+                body.orderCode = Array.from(new Uint8Array(dig)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+            } catch (e) { /* Worker decides whether a missing code is allowed */ }
             let res, j;
             for (let attempt = 0; attempt < 3; attempt++) {
                 // Whole order is encrypted for the Worker only (fresh nonce every try). Falls back to plain
@@ -12160,6 +12251,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             }
             if (!res.ok || !j.ok) {
                 if (j && j.loginRequired) throw new Error('NEEDS_GOOGLE_SIGNIN');
+                // Price/item changed on the server -> our cached catalogue is old: re-read it once now.
+                if (j && /price of this item has changed|no longer available|package code/i.test(String(j.error || ''))) { try { window.refreshGamesNow && window.refreshGamesNow(); } catch (e) {} }
                 throw new Error((j && j.error) || 'Order failed. Please try again.');
             }
             return j;
@@ -12862,15 +12955,20 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (ordersHubUnsub) { try { ordersHubUnsub(); } catch (e) {} }
             ordersHubUnsub = null; ordersHubGuest = null; ordersHubLast = null;
         }
-        function ordersHubStart(gid) {
+        function ordersHubStart(gid, unordered) {
             ordersHubStop();
             ordersHubGuest = gid;
-            const q = query(collection(db, "orders"), where("userId", "==", gid), orderBy("timestamp", "desc"), limit(100));
+            // `orderBy` silently drops any order without a Timestamp `timestamp` and needs a composite
+            // index. If that query is refused we retry once without it (History sorts client-side anyway).
+            const q = unordered
+                ? query(collection(db, "orders"), where("userId", "==", gid), limit(60))
+                : query(collection(db, "orders"), where("userId", "==", gid), orderBy("timestamp", "desc"), limit(40));
             ordersHubUnsub = onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
                 ordersHubLast = snap;
                 ordersHubSubs.forEach((s) => { try { s.onSnap(snap); } catch (e) { console.error('orders hub subscriber error:', e); } });
             }, (err) => {
                 console.error('Orders hub listener error:', err);
+                if (!unordered && err && (err.code === 'failed-precondition' || err.code === 'invalid-argument')) { ordersHubStart(gid, true); return; }
                 ordersHubLast = null;
                 ordersHubSubs.forEach((s) => { try { if (s.onErr) s.onErr(err); } catch (e) {} });
             });
@@ -13353,6 +13451,43 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             return make();
         }
 
+        // ---- Account IDs are created by the Worker ONLY (POST /account/create) ----
+        // The browser no longer invents a users/{id} document. The Worker makes a random LINN-XXXXXXXX id,
+        // writes the account + its login link docs, and returns the id.
+        async function workerNewAccountId(kind, profile) {
+            const u = auth.currentUser;
+            if (!u) throw new Error('Please sign in first.');
+            const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+            const res = await fetch(`${base}/account/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await u.getIdToken() },
+                body: JSON.stringify({ kind, name: (profile && profile.name) || '', photo: (profile && profile.photo) || '', telegramUsername: (profile && profile.telegramUsername) || '' })
+            });
+            const j = await res.json().catch(() => ({}));
+            if (!res.ok || !j.ok || !j.id) throw new Error((j && j.error) || 'Could not create the account.');
+            return j.id;
+        }
+        // The id this device remembers may have no users/{id} document yet (it was only ever a local placeholder).
+        // In that case ask the Worker for a real account and switch this device to it.
+        async function ensureAccountDoc(kind, gid, profile) {
+            try {
+                if (gid) { const snap = await getDoc(doc(db, "users", gid)); if (snap.exists()) return { gid, created: false }; }
+            } catch (e) { return { gid, created: false }; }   // can't tell (offline / rules) -> keep the old behaviour
+            return { gid: await workerNewAccountId(kind, profile), created: true };
+        }
+        function switchDeviceToNewAccount(gid, profile, ownerKey, ownerUid) {
+            resetLocalAccountState();
+            try {
+                localStorage.setItem('gz_guest_id', gid);
+                localStorage.setItem('gz_id_reveal', gid);
+                localStorage.setItem('gz_member_since', String(Date.now()));
+                localStorage.setItem(ownerKey, ownerUid);
+                localStorage.setItem('gz_profile', JSON.stringify(profile));
+            } catch (e) { /* private browsing */ }
+            if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
+            setTimeout(() => location.reload(), 900);
+        }
+
         // True when this device's current guest ID already belongs to a
         // DIFFERENT Google account (remembered locally at link time, or - for
         // devices from before that - recorded on the users doc as googleEmail).
@@ -13446,17 +13581,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     // signed in with another account), this Gmail must NOT inherit that
                     // ID/data - start a separate, brand-new account instead.
                     if (await guestIdBelongsToOtherGoogle(myGid, user)) {
-                        const newGid = await generateFreshGuestId();
                         const newProfile = { name: user.displayName || '', phone: '', photo: user.photoURL || '' };
-                        await setDoc(doc(db, "users", newGid), {
-                            guestId: newGid, name: newProfile.name, phone: '', photo: newProfile.photo,
-                            googleEmail: user.email || '', createdAt: serverTimestamp(), lastSeen: serverTimestamp()
-                        }, { merge: true });
-                        await setDoc(linkRef, { guestId: newGid, email: user.email || '' }, { merge: true });
-                        if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: newGid }, { merge: true });
+                        // The Worker makes the id and writes the account + link docs.
+                        const newGid = await workerNewAccountId('google', newProfile);
                         resetLocalAccountState();
                         try {
                             localStorage.setItem('gz_guest_id', newGid);
+                            localStorage.setItem('gz_id_reveal', newGid);
                             localStorage.setItem('gz_member_since', String(Date.now()));
                             localStorage.setItem('gz_gid_owner_uid', user.uid);
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
@@ -13464,6 +13595,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
                         setTimeout(() => location.reload(), 900);
                         return;
+                    }
+                    {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
+                        const acct = await ensureAccountDoc('google', myGid, { name: user.displayName || '', photo: user.photoURL || '' });
+                        if (acct.created) { switchDeviceToNewAccount(acct.gid, { name: user.displayName || '', phone: '', photo: user.photoURL || '' }, 'gz_gid_owner_uid', user.uid); return; }
                     }
                     await setDoc(linkRef, { guestId: myGid, email: user.email || '' }, { merge: true });
                     if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: myGid }, { merge: true });
@@ -13576,17 +13711,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         return;
                     }
                     if (await guestIdBelongsToOtherFacebook(myGid, user)) {
-                        const newGid = await generateFreshGuestId();
                         const newProfile = { name: user.displayName || '', phone: '', photo: user.photoURL || '' };
-                        await setDoc(doc(db, "users", newGid), {
-                            guestId: newGid, name: newProfile.name, phone: '', photo: newProfile.photo,
-                            facebookEmail: user.email || '', createdAt: serverTimestamp(), lastSeen: serverTimestamp()
-                        }, { merge: true });
-                        await setDoc(linkRef, { guestId: newGid, email: user.email || '' }, { merge: true });
-                        if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: newGid }, { merge: true });
+                        // The Worker makes the id and writes the account + link docs.
+                        const newGid = await workerNewAccountId('facebook', newProfile);
                         resetLocalAccountState();
                         try {
                             localStorage.setItem('gz_guest_id', newGid);
+                            localStorage.setItem('gz_id_reveal', newGid);
                             localStorage.setItem('gz_member_since', String(Date.now()));
                             localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
@@ -13594,6 +13725,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
                         setTimeout(() => location.reload(), 900);
                         return;
+                    }
+                    {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
+                        const acct = await ensureAccountDoc('facebook', myGid, { name: user.displayName || '', photo: user.photoURL || '' });
+                        if (acct.created) { switchDeviceToNewAccount(acct.gid, { name: user.displayName || '', phone: '', photo: user.photoURL || '' }, 'gz_gid_owner_uid_fb', user.uid); return; }
                     }
                     await setDoc(linkRef, { guestId: myGid, email: user.email || '' }, { merge: true });
                     if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: myGid }, { merge: true });
@@ -13722,16 +13857,12 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 }
                 if (!linkSnap || !linkSnap.exists()) {
                     if (await guestIdBelongsToOtherTelegram(myGid, user, targetUserSnap)) {
-                        const newGid = await generateFreshGuestId();
                         const newProfile = { name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' '), phone: '', photo: tgUser.photo_url || '' };
-                        await setDoc(doc(db, "users", newGid), {
-                            guestId: newGid, name: newProfile.name, phone: '', photo: newProfile.photo,
-                            telegramId: String(tgUser.id), telegramUsername: tgUser.username || '', authUid: user.uid, createdAt: serverTimestamp(), lastSeen: serverTimestamp()
-                        }, { merge: true });
-                        await setDoc(linkRef, { guestId: newGid, telegramId: String(tgUser.id) }, { merge: true });
+                        const newGid = await workerNewAccountId('telegram', { ...newProfile, telegramUsername: tgUser.username || '' });
                         resetLocalAccountState();
                         try {
                             localStorage.setItem('gz_guest_id', newGid);
+                            localStorage.setItem('gz_id_reveal', newGid);
                             localStorage.setItem('gz_member_since', String(Date.now()));
                             localStorage.setItem('gz_gid_owner_uid_tg', user.uid);
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
@@ -13740,6 +13871,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         notifyTelegramConnected(tgUser.id, newGid, newProfile.name, 0);
                         setTimeout(() => location.reload(), 900);
                         return;
+                    }
+                    {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
+                        const tgProfile = { name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' '), phone: '', photo: tgUser.photo_url || '' };
+                        const acct = await ensureAccountDoc('telegram', myGid, { ...tgProfile, telegramUsername: tgUser.username || '' });
+                        if (acct.created) { notifyTelegramConnected(tgUser.id, acct.gid, tgProfile.name, 0); switchDeviceToNewAccount(acct.gid, tgProfile, 'gz_gid_owner_uid_tg', user.uid); return; }
                     }
                     await setDoc(linkRef, { guestId: myGid, telegramId: String(tgUser.id) }, { merge: true });
                     // Record telegramId on the shared users/{guestId} doc too, so a
@@ -15633,6 +15769,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     // receiptHash across orders to catch a reused slip image.
                     ...(receiptHash ? { receiptHash } : {}),
                     ...(ocrAmountDetected != null ? { ocrAmountDetected } : {}),
+                    ...(receiptAnalysis && receiptAnalysis.ocrText ? { ocrText: receiptAnalysis.ocrText } : {}),
                     riskFlags,
                     riskLevel,
                     status: "Pending",
@@ -15827,7 +15964,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         let paymentMethodsUnsub = null;
         function listenPaymentMethods() {
             if (paymentMethodsUnsub) return;
-            paymentMethodsUnsub = onSnapshot(collection(db, "paymentMethods"), (snap) => {
+            paymentMethodsUnsub = pollSnapshot('paymentMethods', collection(db, "paymentMethods"), 30 * 60 * 1000, (snap) => {
                 const methods = {};
                 snap.forEach(docSnap => { methods[docSnap.id] = docSnap.data(); });
                 window.PAYMENT_METHODS = methods;
@@ -15952,7 +16089,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (announcementsListenerAttached) return;
             announcementsListenerAttached = true;
             const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(15));
-            announcementsUnsub = onSnapshot(q, (snap) => {
+            announcementsUnsub = pollSnapshot('announcements', q, 15 * 60 * 1000, (snap) => {
                 // Fetched newest-first (so limit() keeps the most recent ones),
                 // then reversed back to oldest-first for the ticker's scroll order.
                 latestAnnouncements = snap.docs.map(docSnap => docSnap.data()).reverse();
@@ -16310,7 +16447,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         }
 
         function historyOrderCardHTML(data, index, pos = 0) {
-            const dateStr = data.timestamp ? historyDateTimeFmt.format(data.timestamp.toDate()) : 'Just now';
+            const dateStr = histTsDate(data.timestamp) ? historyDateTimeFmt.format(histTsDate(data.timestamp)) : 'Just now';
             const badgeClass = historyBadgeClassFor(data.status);
             const gameImg = findGameImage(data.game, data.serverRegion);
             return `
@@ -16378,6 +16515,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             attempt();
         }
 
+        // Safe timestamp readers: an order whose `timestamp` is missing, a plain number, or
+        // not yet resolved must never throw (one bad order used to leave History stuck loading).
+        function histTsMs(t) { try { if (t && typeof t.toMillis === 'function') return t.toMillis(); if (typeof t === 'number') return t; if (t && typeof t.seconds === 'number') return t.seconds * 1000; } catch (e) {} return 0; }
+        function histTsDate(t) { const m = histTsMs(t); return m ? new Date(m) : null; }
         function renderHistoryOrders(orders) {
             const container = document.getElementById('history-container');
             HISTORY_ORDERS = orders;
@@ -16386,13 +16527,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 return;
             }
             // Sort newest first (done client-side so no Firestore index is required)
-            orders.sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
+            orders.sort((a, b) => histTsMs(b.timestamp) - histTsMs(a.timestamp));
 
             // Keep each order's real index into HISTORY_ORDERS (sorted, unfiltered)
             // so openOrderDetail(index) still resolves correctly after filtering.
             let entries = orders.map((data, i) => ({ index: i, data }));
             if (HISTORY_FILTER_DATE) {
-                entries = entries.filter(e => yangonDateKey(e.data.timestamp?.toMillis() || Date.now()) === HISTORY_FILTER_DATE);
+                entries = entries.filter(e => yangonDateKey(histTsMs(e.data.timestamp) || Date.now()) === HISTORY_FILTER_DATE);
             }
 
             if (HISTORY_FILTER_STATUS !== 'all') {
@@ -16412,7 +16553,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             let lastKey = null;
             let pos = 0;
             entries.forEach(({ index, data }) => {
-                const key = yangonDateKey(data.timestamp?.toMillis() || Date.now());
+                const key = yangonDateKey(histTsMs(data.timestamp) || Date.now());
                 if (key !== lastKey) {
                     listHTML += `<div class="history-date-header">${yangonDateLabel(key)}</div>`;
                     lastKey = key;
@@ -16426,17 +16567,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function openOrderDetail(index) {
             const data = HISTORY_ORDERS[index];
             if (!data) return;
-            const dateStr = data.timestamp ? historyDateTimeFmt.format(data.timestamp.toDate()) : 'Just now';
+            const dateStr = histTsDate(data.timestamp) ? historyDateTimeFmt.format(histTsDate(data.timestamp)) : 'Just now';
             const badgeClass = historyBadgeClassFor(data.status);
             const gameImg = findGameImage(data.game, data.serverRegion);
             const durationRow = (data.status === 'Success' && data.confirmedAt && data.timestamp)
-                ? `<div class="od-row"><span>${t('od_confirmed_in')}</span><b>${formatDuration(data.confirmedAt.toMillis() - data.timestamp.toMillis())}</b></div>`
+                ? `<div class="od-row"><span>${t('od_confirmed_in')}</span><b>${formatDuration(histTsMs(data.confirmedAt) - histTsMs(data.timestamp))}</b></div>`
                 : '';
             const orderedAtRow = data.timestamp
-                ? `<div class="od-row"><span>${t('od_ordered_at')}</span><b>${historyDateTimeFmt.format(data.timestamp.toDate())}</b></div>`
+                ? `<div class="od-row"><span>${t('od_ordered_at')}</span><b>${historyDateTimeFmt.format(histTsDate(data.timestamp))}</b></div>`
                 : '';
             const completedAtRow = (data.status === 'Success' && data.confirmedAt)
-                ? `<div class="od-row"><span>${t('od_success_at')}</span><b style="color:#1E8E4F;">${historyDateTimeFmt.format(data.confirmedAt.toDate())}</b></div>`
+                ? `<div class="od-row"><span>${t('od_success_at')}</span><b style="color:#1E8E4F;">${historyDateTimeFmt.format(histTsDate(data.confirmedAt) || new Date())}</b></div>`
                 : '';
             // Same rule as the history card: the real provider Order ID only
             // shows up once the order is actually Success — never before.
@@ -17604,6 +17745,13 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             HISTORY_PREV_STATUS = null;
             HISTORY_SERVER_SEEN = false;
             container.innerHTML = loadingStateHTML('bars');
+            // No server answer after 12s (slow / dropped connection): replace the endless loader with a retry state.
+            clearTimeout(window.__historyLoadTimer);
+            window.__historyLoadTimer = setTimeout(() => {
+                if (historyLoadedOnce) return;
+                container.innerHTML = emptyStateHTML('icon-refresh', 'Could not load history', 'Check your connection, then open History again.');
+                if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; historyListenerGuestId = null; }
+            }, 12000);
 
             subscribeOrders('history', (snap) => {
                 // Firestore delivers an EMPTY snapshot straight from the local cache before
@@ -17641,9 +17789,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         }, 2000);
                     }
                 }
+                clearTimeout(window.__historyLoadTimer);
                 runWhenNotTouching(document.querySelector('#history-container .order-list-scroll') || container, () => {
-                    renderHistoryOrders(orders);
-                    if (jumpTo) historyCenterActiveTab();
+                    try {
+                        renderHistoryOrders(orders);
+                        if (jumpTo) historyCenterActiveTab();
+                    } catch (renderErr) {
+                        console.error('History render error:', renderErr);
+                        container.innerHTML = emptyStateHTML('icon-refresh', 'Could not show history', 'Please reload the page and try again.');
+                    }
                 });
             }, (error) => {
                 console.error("History fetch error: ", error);
@@ -18303,9 +18457,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // only while the user is searching (search results are the focus
             // at that point) or if there are no games at all.
             const manuallyPopular = gameSearchQuery ? [] : indexedGroups.filter(gr => gr.ids.some(id => GAMES[id].popular));
-            const popularGroups = manuallyPopular.length > 0
-                ? manuallyPopular
-                : (gameSearchQuery ? [] : indexedGroups.slice(0, POPULAR_INITIAL_BATCH));
+            // Only games the admin really flagged "popular". The old fallback re-listed the first
+            // games of the catalogue, so the same cards showed twice (Popular row + All Games grid).
+            const popularGroups = manuallyPopular;
             if (popularGroups.length > 0) {
                 popularSection.style.display = 'block';
                 renderPopularGamesRow(popularGroups);
@@ -18455,9 +18609,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // so this row is never just empty. Hidden entirely while a search
             // is active, same as Home's popular row.
             const manuallyPopularVouchers = voucherSearchQuery ? [] : indexedGroups.filter(gr => gr.ids.some(id => GAMES[id].popular));
-            const popularGroups = manuallyPopularVouchers.length > 0
-                ? manuallyPopularVouchers
-                : (voucherSearchQuery ? [] : indexedGroups.slice(0, POPULAR_INITIAL_BATCH));
+            // Only vouchers the admin really flagged "popular" - no fallback, so the same cards
+            // are not repeated in the Popular row and again in the grid right below it.
+            const popularGroups = manuallyPopularVouchers;
             if (popularSection && popularScroll) {
                 if (popularGroups.length > 0) {
                     popularSection.style.display = 'block';
@@ -18593,7 +18747,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         let gamesInitialRenderTimer = null;
         function listenGames() {
             if (gamesUnsub) return; // already subscribed
-            gamesUnsub = onSnapshot(collection(db, "games"), { includeMetadataChanges: true }, (snap) => {
+            gamesUnsub = pollSnapshot('games', collection(db, "games"), 10 * 60 * 1000, (snap) => {
                 // Firestore delivers an EMPTY snapshot straight from the local cache before
                 // the server answers (slow networks especially) - treating that as "no data"
                 // flashed the empty-state. Ignore it; includeMetadataChanges brings the
@@ -18646,6 +18800,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (gamesUnsub) { gamesUnsub(); gamesUnsub = null; }
         }
         window.listenGames = listenGames;
+        // Called when the Worker says "price changed": drop the TTL stamp and re-read the catalogue now.
+        window.refreshGamesNow = function () { window.forceRefetch('games'); stopListenGames(); listenGames(); };
         window.stopListenGames = stopListenGames;
 
         listenGames();
@@ -19234,7 +19390,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function listenNotifications() {
             if (notifListenerAttached) return;
             notifListenerAttached = true;
-            const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"), limit(20));
+            const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"), limit(10));
             let initialLoad = true;
             onSnapshot(q, (snap) => {
                 // Broadcasts (no targetUserId) show for everyone; a targeted
