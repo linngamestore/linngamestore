@@ -149,6 +149,19 @@
         // tab in a frozen state (Firebase listeners/timers suspended, nothing
         // re-rendering) — this shows as a totally blank page until the user
         // manually reloads. Force a fresh load instead of leaving it blank.
+        // Reload used after an account switch. If the page has already been reloaded 3+ times in the last
+        // 25s (login <-> home bounce), stop reloading so the app can't flicker forever.
+        window.__safeReload = function () {
+            try {
+                var now = Date.now(), a = JSON.parse(sessionStorage.getItem('linn_rl') || '[]').filter(function (t) { return now - t < 25000; });
+                if (a.length >= 3) {
+                    if (window.showToast) window.showToast('Page ထပ်ခါထပ်ခါ reload ဖြစ်နေလို့ ရပ်ထားပါတယ်။ Page ကို ကိုယ်တိုင် refresh လုပ်ပါ။', 'fail');
+                    return;
+                }
+                a.push(now); sessionStorage.setItem('linn_rl', JSON.stringify(a));
+            } catch (e) { /* storage blocked - just reload */ }
+            location.reload();
+        };
         (function () {
             // Pages restored from the back/forward cache (bfcache) come back
             // with all JS state frozen mid-way — force a fresh navigation.
@@ -5447,6 +5460,18 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 @keyframes mtDrift2{to{transform:translate(-60px,-50px) scale(1.12)}}
 @media (prefers-reduced-motion:reduce){#maint-overlay *{animation:none!important}#maint-overlay .mt-status span:first-child{opacity:1}}
 </style>
+<style id="profile-no-bold">
+/* Profile page: titles use normal weight instead of bold (buttons and the small On/Off chips are unchanged) */
+#profile-prefs-card .prefs-row-label, #profile-prefs-card .prefs-row-label *,
+#security-card .prefs-row-label, #security-card .prefs-row-label *, #security-card .sec-meta b,
+#account-card .prefs-row-label, #account-card .prefs-row-label *,
+#vip-card .prefs-row-label, #vip-card .prefs-row-label *,
+#tier-preview-card .prefs-row-label, #tier-preview-card .prefs-row-label *,
+#social-links-card .prefs-row-label, #social-links-card .prefs-row-label *,
+#support-entry-card .prefs-row-label, #support-entry-card .prefs-row-label *,
+#terms-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label * { font-weight: 400 !important; }
+#security-card .sec-meta b .sec-chip { font-weight: 600 !important; }
+</style>
 </head>
 <body>
 <div id="maint-banner" role="status" aria-live="polite"><span style="display:inline-flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span id="maint-banner-text"></span></div>
@@ -5795,6 +5820,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 <div class="support-guide-item" id="guide-item-9">
                     <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_otherfeatures">What else can I do in the app?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
                     <div class="support-guide-a" data-i18n="guide_a_otherfeatures">"Voucher" tab - buy gift cards and top-up vouchers instantly. "Name Check" in the Drawer - check whether a game ID is valid before placing an order. "Leaderboard" - see the top spenders. Your "Profile" shows your VIP tier and total spend. Theme (Dark/Light Mode) and language can also be changed from the Drawer.</div>
+                </div>
+                <div class="support-guide-item" id="guide-item-10">
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_admin">How do I contact the admin?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a"><span data-i18n="guide_a_admin">Tap the button below (or the "Telegram" tab) to chat with the admin on Telegram. For an order problem, first send a Complaint so it is logged as a ticket, then message the admin with your Order ID from the History page. The admin will never ask for your password or login code.</span><button type="button" class="btn btn-primary" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;" onclick="window.openAdminTelegram()"><svg class="ui-icon" style="width:16px;"><use href="#icon-telegram"></use></svg><span data-i18n="guide_btn_admin">Message Admin</span></button></div>
+                </div>
+                <div class="support-guide-item" id="guide-item-11">
+                    <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_bot">Which Telegram bot should I use?</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
+                    <div class="support-guide-a"><span data-i18n="guide_a_bot">Our official customer bot is @linngamestorebot. Open it and tap Start (/start) once - without this the bot cannot message you. You then get a menu with your Wallet, Top Up, My Orders and Help Center, and the bot sends your order updates. To talk to a person, use "Message Admin" above. Never send money, passwords or codes to any other bot or account.</span><a class="btn btn-primary" href="https://t.me/linngamestorebot" target="_blank" rel="noopener" style="width:100%;box-sizing:border-box;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;"><svg class="ui-icon" style="width:16px;"><use href="#icon-telegram"></use></svg><span>Open @linngamestorebot</span></a></div>
                 </div>
             </div>
 
@@ -7512,6 +7545,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 greeting_evening: 'Good Evening', greeting_night: 'Good Night',
                 drawer_footer: 'Linn Game Store',
                 support_title: 'Help', support_title_account: 'Account Support', btn_account_chat: 'Support', tab_guide: 'Guide', tab_complaint: 'Complaint', tab_chat: 'Telegram', guide_card_close: 'Close',
+                guide_q_admin: 'How do I contact the admin?',
+                guide_a_admin: 'Tap the button below (or the "Telegram" tab) to chat with the admin on Telegram. For an order problem, first send a Complaint so it is logged as a ticket, then message the admin with your Order ID from the History page. The admin will never ask for your password or login code.',
+                guide_btn_admin: 'Message Admin',
+                guide_q_bot: 'Which Telegram bot should I use?',
+                guide_a_bot: 'Our official customer bot is @linngamestorebot. Open it and tap Start (/start) once - without this the bot cannot message you. You then get a menu with your Wallet, Top Up, My Orders and Help Center, and the bot sends your order updates. To talk to a person, use "Message Admin" above. Never send money, passwords or codes to any other bot or account.',
                 guide_q_about: 'What is Linn Game Store?',
                 guide_a_about: 'Linn Game Store has been Myanmar\'s fast, safe and reliable platform for game top-ups and in-game currency (Diamonds, UC, and more) since 2026. It comes with a Wallet, VIP tiers, and a direct Telegram line to the admin.',
                 guide_q_order: 'How do I place an order?',
@@ -7667,6 +7705,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 greeting_evening: 'မင်္ဂလာညနေခင်းပါ', greeting_night: 'မင်္ဂလာညချမ်းပါ',
                 drawer_footer: 'Linn Game Store',
                 support_title: 'အကူအညီ', support_title_account: 'အကောင့်ဆိုင်ရာ အကူအညီ', btn_account_chat: 'အကူအညီ', tab_guide: 'လမ်းညွှန်', tab_complaint: 'တိုင်ကြားရန်', tab_chat: 'Telegram', guide_card_close: 'ပိတ်ရန်',
+                guide_q_admin: 'Admin ကို ဘယ်လို ဆက်သွယ်ရမလဲ?',
+                guide_a_admin: 'အောက်က ခလုတ်ကို (သို့) "Telegram" tab ကို နှိပ်ပြီး Admin နဲ့ Telegram မှာ တိုက်ရိုက် ပြောနိုင်ပါတယ်။ Order ပြဿနာဆိုရင် Complaint အရင်ပို့ပါ (Ticket အဖြစ် မှတ်တမ်းတင်ပါမယ်)၊ ပြီးရင် History page က Order ID နဲ့အတူ Admin ကို စာပို့ပါ။ Admin က သင့် Password ဒါမှမဟုတ် Login code ကို ဘယ်တော့မှ မတောင်းပါဘူး။',
+                guide_btn_admin: 'Admin ကို စာပို့မယ်',
+                guide_q_bot: 'ဘယ် Telegram Bot ကို သုံးရမလဲ?',
+                guide_a_bot: 'ကျွန်တော်တို့ရဲ့ တရားဝင် Customer Bot က @linngamestorebot ဖြစ်ပါတယ်။ ဖွင့်ပြီး Start (/start) ကို တစ်ခါနှိပ်ပါ - မနှိပ်ရင် Bot က စာပို့လို့ မရပါဘူး။ ပြီးရင် Wallet၊ Top Up၊ My Orders၊ Help Center ပါတဲ့ Menu ပေါ်လာပြီး Order အခြေအနေကိုလည်း Bot က ပို့ပေးပါမယ်။ လူနဲ့ ပြောချင်ရင် အပေါ်က "Admin ကို စာပို့မယ်" ကို သုံးပါ။ တခြား Bot / Account တွေဆီ ငွေ၊ Password၊ Code မပို့ပါနဲ့။',
                 guide_q_about: 'Linn Game Store ဆိုတာ ဘာလဲ',
                 guide_a_about: 'Linn Game Store သည် ၂၀၂၆ ခုနှစ်မှစတင်၍ မြန်မာနိုင်ငံရှိ ဂိမ်းသမားများအတွက် Diamond၊ UC စသည့် In-Game Currency နှင့် Top Up ဝန်ဆောင်မှုများကို လျင်မြန်၊ ဘေးကင်း၊ စိတ်ချရစွာ ရရှိနိုင်သော ပလက်ဖောင်းတစ်ခု ဖြစ်ပါသည်။ Wallet၊ VIP အဆင့်များ နှင့် Admin ထံ တိုက်ရိုက် Telegram ဆက်သွယ်ခွင့် တို့ကို ပါဝင်ပေးထားပါသည်။',
                 guide_q_order: 'အော်ဒါ ဘယ်လိုတင်ရမလဲ',
@@ -13466,7 +13509,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 localStorage.setItem('gz_profile', JSON.stringify(profile));
             } catch (e) { /* private browsing */ }
             if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
-            setTimeout(() => location.reload(), 900);
+            setTimeout(() => window.__safeReload(), 900);
         }
 
         // True when this device's current guest ID already belongs to a
@@ -13515,7 +13558,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
                         if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: linkedGid }, { merge: true });
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                        setTimeout(() => location.reload(), 900);
+                        setTimeout(() => window.__safeReload(), 900);
                     } catch (e) {
                         console.error('Google account switch failed:', e);
                         if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -13550,7 +13593,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             await setDoc(linkRef, { guestId: emailLinkedGid, email: user.email || '' }, { merge: true });
                             await setDoc(doc(db, "users", emailLinkedGid), { googleEmail: user.email || '' }, { merge: true });
                             if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                            setTimeout(() => location.reload(), 900);
+                            setTimeout(() => window.__safeReload(), 900);
                         } catch (e) {
                             console.error('Google-email reconnect failed:', e);
                             if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -13574,7 +13617,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
-                        setTimeout(() => location.reload(), 900);
+                        setTimeout(() => window.__safeReload(), 900);
                         return;
                     }
                     {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
@@ -13653,7 +13696,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
                         if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: linkedGid }, { merge: true });
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                        setTimeout(() => location.reload(), 900);
+                        setTimeout(() => window.__safeReload(), 900);
                     } catch (e) {
                         console.error('Facebook account switch failed:', e);
                         if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -13684,7 +13727,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             await setDoc(linkRef, { guestId: emailLinkedGid, email: user.email || '' }, { merge: true });
                             await setDoc(doc(db, "users", emailLinkedGid), { facebookEmail: user.email || '' }, { merge: true });
                             if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                            setTimeout(() => location.reload(), 900);
+                            setTimeout(() => window.__safeReload(), 900);
                         } catch (e) {
                             console.error('Facebook-email reconnect failed:', e);
                             if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -13704,7 +13747,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
-                        setTimeout(() => location.reload(), 900);
+                        setTimeout(() => window.__safeReload(), 900);
                         return;
                     }
                     {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
@@ -13829,7 +13872,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         localStorage.setItem('gz_gid_owner_uid_tg', user.uid);
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                        setTimeout(() => location.reload(), 900);
+                        setTimeout(() => window.__safeReload(), 900);
                     } catch (e) {
                         console.error('Telegram account switch failed:', e);
                         if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -13850,7 +13893,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                         } catch (e) { /* private browsing */ }
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
                         notifyTelegramConnected(tgUser.id, newGid, newProfile.name, 0);
-                        setTimeout(() => location.reload(), 900);
+                        setTimeout(() => window.__safeReload(), 900);
                         return;
                     }
                     {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
@@ -13902,7 +13945,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
         // Shared by both the widget callback and mini-app auto-login: exchange
         // a verified Telegram payload for a Firebase custom token and sign in.
+        let __tgSignInBusy = false;
         async function completeTelegramSignIn(endpoint, body) {
+            // The Telegram widget script and our own #tgAuthResult handler can both deliver the same login;
+            // running it twice created extra accounts/IDs. Allow one run at a time and ignore a repeated payload.
+            const __tgKey = body && body.hash ? String(body.hash) : '';
+            if (__tgSignInBusy) return;
+            try { if (__tgKey && sessionStorage.getItem('linn_tg_done') === __tgKey) return; } catch (e) { /* ignore */ }
+            __tgSignInBusy = true;
+            try { if (__tgKey) sessionStorage.setItem('linn_tg_done', __tgKey); } catch (e) { /* ignore */ }
             try {
                 // Tell the Worker which guest account this device uses so it can link
                 // it to the (verified) Telegram id - needed for accounts that already hold a balance.
@@ -13950,7 +14001,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 await applyTelegramProfile(result.user, data.user);
             } catch (e) {
                 console.error('Telegram sign-in error:', e);
+                try { sessionStorage.removeItem('linn_tg_done'); } catch (x) { /* ignore */ }   // allow a retry
                 if (window.showToast) window.showToast('Telegram sign-in failed (' + ((e && e.message) ? e.message : 'unknown error') + '). Please try again.', 'fail');
+            } finally {
+                __tgSignInBusy = false;
             }
         }
 
