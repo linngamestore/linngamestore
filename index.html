@@ -8499,13 +8499,12 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Keyed by game ('mlbb'); each row is a numeric Server ID range. Add rows as you confirm them.
         const SERVER_REGION_MAP = {
             mlbb: [
-                { from: 13678, to: 13678, region: 'Myanmar' }   // confirmed: ID 1159045022 / server 13678
-                // , { from: 13000, to: 13999, region: 'Myanmar' }   <- example of a range
+                // { from: 13000, to: 13999, region: 'Myanmar' }   <- example: add confirmed server ID ranges here
             ]
         };
         function gameKeyOf(g) {
-            if (!g) return '';
-            const code = String(g.g2bulkCode || g.g2bulkIdCheckCode || '').toLowerCase();
+            if (!g || !g.g2bulkCode) return '';   // SERVER_REGION_MAP is G2Bulk-only
+            const code = String(g.g2bulkCode).toLowerCase();
             if (code === 'mlbb') return 'mlbb';
             return /mobile\s*legends|mlbb/i.test(String(g.name || '')) ? 'mlbb' : '';
         }
@@ -8592,7 +8591,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         function renderIdConfirmedCard(name, gameName, geo, serverLabel) {
             const statusEl = document.getElementById('detail-id-status');
             statusEl.innerHTML = '';
-            let regionText = pcRegionLabel(geo && geo.region, selectedGameServerName, gameKeyOf({ g2bulkCode: selectedGameG2BulkCode, g2bulkIdCheckCode: selectedGameG2BulkIdCheckCode, name: selectedGameName }), serverLabel);
+            let regionText = pcRegionLabel(geo && geo.region, selectedGameServerName, gameKeyOf({ g2bulkCode: selectedGameG2BulkCode, name: selectedGameName }), serverLabel);
             if (geo && geo.country) regionText += ' · ' + geo.country;
             statusEl.appendChild(buildPlayerCard(name, regionText, serverLabel));
             statusEl.style.display = 'block';
@@ -8790,25 +8789,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     if (!res.ok || !data.ok) outcome = 'unknown';
                     else if (data.valid === true) { outcome = 'valid'; resolvedName = data.playerName || null; }
                     else outcome = 'invalid';
-                    checkResult = { outcome, reason: outcome === 'invalid' ? 'id' : 'unavailable' };
+                    checkResult = { outcome, reason: outcome === 'invalid' ? 'id' : 'unavailable', data };
 
-                    // Fallback: same game, checked via G2Bulk's public
-                    // checkPlayerId instead — only kicks in when the FazerCards
-                    // check itself couldn't run (Worker down, category not
-                    // supported, etc.), not when it ran and said "not found".
-                    // Set up per-game in the admin panel (Game editor →
-                    // G2Bulk ID-Check Code). This is purely informational —
-                    // the order still gets placed with FazerCards regardless
-                    // of which provider resolved the name.
-                    if (outcome === 'unknown' && selectedGameG2BulkIdCheckCode) {
-                        try {
-                            const fb = await g2bulkCheckPlayer(selectedGameG2BulkIdCheckCode, playerId, serverId);
-                            if (fb.outcome === 'valid') { outcome = 'valid'; resolvedName = fb.name || null; checkResult = fb; }
-                        } catch (fbError) {
-                            console.error("G2Bulk fallback checkPlayerId error:", fbError);
-                            // stays 'unknown' — handled the same as below
-                        }
-                    }
+                    // No cross-provider fallback: FazerCards answers for itself only.
                 }
 
                 if (outcome === 'valid') {
@@ -8924,8 +8907,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (ncProbed.has(k)) return;
                 const entries = groups[k];
                 if (!entries.some(g => g.serverIdRequired !== false)) return;
-                const src = entries.find(g => g.g2bulkIdCheckCode || g2bulkCodeOf(g));
-                const code = src && (src.g2bulkIdCheckCode || src.g2bulkCode);
+                const src = entries.find(g => g2bulkCodeOf(g));
+                const code = src && src.g2bulkCode;
                 if (!code) return;
                 ncProbed.add(k);
                 g2bulkFetchServers(code).then(list => {
@@ -8987,8 +8970,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             old.replaceWith(el);
 
             // No saved options: use G2Bulk's live server list.
-            const src = entries.find(g => g.g2bulkIdCheckCode || g2bulkCodeOf(g));
-            const code = src && (src.g2bulkIdCheckCode || src.g2bulkCode);
+            const src = entries.find(g => g2bulkCodeOf(g));
+            const code = src && src.g2bulkCode;
             if (!opts && code && entries.some(g => g.serverIdRequired !== false)) {
                 const gameKey = document.getElementById('nc-game').value;
                 g2bulkFetchServers(code).then(list => {
@@ -9109,16 +9092,6 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (!res.ok || !data.ok) outcome = 'unknown';
                 else if (data.valid === true) { outcome = 'valid'; name = data.playerName || null; geo = ncGeo(data); }
                 else { outcome = 'invalid'; reason = 'id'; }
-                if (outcome === 'unknown' && g.g2bulkIdCheckCode) {
-                    try {
-                        const fb = await fetch('https://api.g2bulk.com/v1/games/checkPlayerId', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ game: g.g2bulkIdCheckCode, user_id: playerId, server_id: sid || undefined })
-                        });
-                        const fbData = await fb.json();
-                        if (fb.ok && fbData.valid === 'valid') { outcome = 'valid'; name = fbData.name || null; geo = ncGeo(fbData); }
-                    } catch (e) { /* stays unknown */ }
-                }
             }
             return { outcome, name, geo, reason };
         }
@@ -9568,7 +9541,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             old.replaceWith(el);
 
             // No saved options: try G2Bulk's live server list for this game.
-            const code = game && (game.g2bulkIdCheckCode || game.g2bulkCode);
+            const code = game && game.g2bulkCode;
             const needsServer = game && game.playerIdRequired !== false && game.serverIdRequired !== false;
             if (!useSelect && code && needsServer) {
                 const gameIdAtRequest = selectedGameId;
@@ -22283,7 +22256,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 /* Telegram login tile.
    Put your bot's numeric id (the number BEFORE the ":" in the BotFather token) here for the most reliable login:
    with it the tile opens Telegram's login popup directly on tap (no hidden-iframe trick). */
-window.TELEGRAM_BOT_ID = window.TELEGRAM_BOT_ID || '';   // e.g. '123456789'
+window.TELEGRAM_BOT_ID = window.TELEGRAM_BOT_ID || '8823905559';   // linngamestorebot id (public, NOT the token)
+// Make sure Telegram's login script (Telegram.Login.auth) is already loaded before the first tap, so the popup opens straight from the tap.
+if (window.TELEGRAM_BOT_ID && !(window.Telegram && window.Telegram.Login)) { var _tgs = document.createElement('script'); _tgs.async = true; _tgs.src = 'https://telegram.org/js/telegram-widget.js?22'; document.head.appendChild(_tgs); }
 (function(){
   function slotOf(tile){ return tile.querySelector('.lg-tg-ov'); }
   function widgetOk(slot){ var f = slot && slot.querySelector('iframe'); return !!(f && f.offsetWidth > 0); }
