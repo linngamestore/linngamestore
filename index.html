@@ -4567,6 +4567,9 @@ html[data-theme="dark"] .onboarding-overlay.lg-onb { background: linear-gradient
 .lg-foot { margin: 34px 0 0; font-size: 11px; letter-spacing: .3em; color: #6b7794; }
 html[data-theme="dark"] .lg-foot { color: #8294bd; }
 body:has(#wallet-google-gate-overlay.show) .bottom-nav { display: none; }
+/* Login page is full-screen: hide the app header while it (or onboarding login) is open */
+body:has(#wallet-google-gate-overlay.show) .header,
+body:has(#onboarding-overlay:not([style*="display: none"]):not([style*="display:none"])) .header { display: none !important; }
 </style>
 <style id="linn-title-glass-grid">
 /* "Linn Game Store" home title: compact full-glass plate (no grid lines) + colour-flowing text */
@@ -13132,6 +13135,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             google.accounts.id.initialize({
                 client_id: GIS_CLIENT_ID,
                 callback: handleGisCredentialResponse,
+                ux_mode: 'popup',
                 auto_select: false
             });
             renderGisButtons();
@@ -14289,18 +14293,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // is hosted off Firebase (e.g. on Vercel).
             const isInAppBrowser = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|; ?wv\)/i.test(navigator.userAgent);
             try {
-                if (isInAppBrowser) {
-                    await signInWithRedirect(auth, googleProvider);
-                    return; // page navigates away; getRedirectResult() below picks it up on return
-                }
+                // Popup only: the page itself never navigates away.
                 const result = await signInWithPopup(auth, googleProvider);
                 applyGoogleProfile(result.user);
             } catch (error) {
                 console.error('Google sign-in error:', error);
                 if (error.code === 'auth/popup-blocked' || error.code === 'auth/operation-not-supported-in-this-environment') {
-                    // Mobile/in-app browsers often block popups - fall back to a
-                    // full-page redirect, which getRedirectResult() picks up below.
-                    await signInWithRedirect(auth, googleProvider);
+                    // No page redirect (by request): ask the user to allow the popup and retry.
+                    if (window.showToast) window.showToast('Popup ပိတ်ထားပါတယ် - Browser မှာ popup ကို Allow လုပ်ပြီး ထပ်နှိပ်ပါ' + (isInAppBrowser ? ' (သို့) Chrome/Safari နဲ့ ဖွင့်ပါ' : ''), 'fail');
                     return;
                 }
                 if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
@@ -22285,6 +22285,17 @@ if (window.TELEGRAM_BOT_ID && !(window.Telegram && window.Telegram.Login)) { var
     if (tg && tg.initData && typeof window.completeTelegramSignIn === 'function') {
       e.preventDefault(); e.stopPropagation();
       window.completeTelegramSignIn('/auth/miniapp', { initData: tg.initData });
+      return;
+    }
+    // 2a) Phones: full-page redirect instead of a popup. The popup hands the result back to this tab,
+    //     but while the user is in the Telegram app to tap Confirm the browser can suspend this tab,
+    //     so the login hangs on "Please confirm access via Telegram". A redirect returns to this page
+    //     with #tgAuthResult=..., which is already handled further up (completeTelegramSignIn).
+    if (window.TELEGRAM_BOT_ID && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      e.preventDefault(); e.stopPropagation();
+      var back = location.href.split('#')[0];
+      location.href = 'https://oauth.telegram.org/auth?bot_id=' + encodeURIComponent(window.TELEGRAM_BOT_ID) +
+        '&origin=' + encodeURIComponent(location.origin) + '&embed=0&request_access=write&return_to=' + encodeURIComponent(back);
       return;
     }
     // 2) Bot id known: open Telegram's login popup directly (works in Chrome / Safari)
