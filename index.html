@@ -13136,6 +13136,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 client_id: GIS_CLIENT_ID,
                 callback: handleGisCredentialResponse,
                 ux_mode: 'popup',
+                // Chrome/Android: use the browser's built-in in-page account chooser (FedCM) so no
+                // popup/new tab is opened at all. Browsers without FedCM (e.g. Firefox) fall back to popup.
+                use_fedcm_for_button: true,
+                use_fedcm_for_prompt: true,
                 auto_select: false
             });
             renderGisButtons();
