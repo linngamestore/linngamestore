@@ -784,33 +784,44 @@
         .notif-badge.show { display: block; animation: notifPulse 1.8s ease-in-out infinite; }
         .header-icon .notif-badge { top: -5px; right: -5px; }
         .drawer-nav-item .notif-badge { top: 0; left: 20px; min-width: 16px; height: 16px; padding: 0 3px; font-size: 11px; line-height: 12px; overflow: visible; text-overflow: clip; }
-        /* Order Success flash modal: green grid card, centered, auto-closes after 1s */
+        /* Order Success modal: glass card, check wipes in bottom -> top, chime at the end, stays ~3s (tap to dismiss) */
         .order-ok-overlay {
             position: fixed; inset: 0; z-index: 950; display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.32); opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+            background: rgba(10,20,15,0.38);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
         }
-        .order-ok-overlay.show { opacity: 1; }
+        .order-ok-overlay.show { opacity: 1; pointer-events: auto; }
         .order-ok-box {
-            position: relative; width: 78%; max-width: 280px; padding: 30px 22px 26px; border-radius: 22px;
+            position: relative; width: 78%; max-width: 290px; padding: 32px 22px 28px; border-radius: 28px;
             text-align: center; color: #fff; overflow: hidden;
-            background:
-                linear-gradient(rgba(255,255,255,0.14) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px),
-                linear-gradient(150deg, #34D27B 0%, #16A34A 100%);
-            background-size: 16px 16px, 16px 16px, 100% 100%;
-            box-shadow: 0 18px 50px rgba(22,163,74,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
-            transform: scale(0.8); transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(155deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 55%, rgba(52,210,123,0.18) 100%);
+            border: 1px solid rgba(255,255,255,0.45);
+            -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.30), 0 0 40px rgba(52,210,123,0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+            text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+            transform: scale(0.85) translateY(14px); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .order-ok-overlay.show .order-ok-box { transform: scale(1); }
+        .order-ok-box::before {
+            content: ''; position: absolute; top: -40%; left: -30%; width: 90%; height: 80%; pointer-events: none;
+            background: radial-gradient(closest-side, rgba(255,255,255,0.35), transparent);
+        }
+        .order-ok-overlay.show .order-ok-box { transform: scale(1) translateY(0); }
         .order-ok-check {
-            width: 68px; height: 68px; margin: 0 auto 14px; border-radius: 50%; background: #fff; color: #16A34A;
-            display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 8px rgba(255,255,255,0.22);
+            position: relative; width: 78px; height: 78px; margin: 0 auto 16px; border-radius: 50%;
+            background: linear-gradient(150deg, #4ADE80, #16A34A);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 7px rgba(255,255,255,0.22), 0 8px 24px rgba(22,163,74,0.5), inset 0 1px 0 rgba(255,255,255,0.5);
         }
-        .order-ok-check .ui-icon { width: 34px; height: 34px; stroke-width: 3; }
-        .order-ok-overlay.show .order-ok-check { animation: orderOkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both; }
+        .order-ok-check svg { width: 42px; height: 42px; fill: none; stroke: #fff; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; clip-path: inset(100% 0 0 0); }
+        .order-ok-overlay.show .order-ok-check { animation: orderOkPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both; }
+        /* the tick is revealed from the bottom edge upward */
+        .order-ok-overlay.show .order-ok-check svg { animation: orderOkRise 0.7s cubic-bezier(0.45, 0, 0.2, 1) 0.45s forwards; }
         @keyframes orderOkPop { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes orderOkRise { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
         .order-ok-title { font-size: 20px; font-weight: 600; letter-spacing: 0.2px; }
-        .order-ok-sub { margin-top: 6px; font-size: 13px; opacity: 0.92; word-break: break-word; }
+        .order-ok-sub { margin-top: 6px; font-size: 13px; opacity: 0.95; word-break: break-word; }
+        @media (prefers-reduced-motion: reduce) { .order-ok-check svg { clip-path: none !important; animation: none !important; } }
         /* Favorite (star) toggle on the game detail page header - filled gold
            when this game is in the customer's favorites, outline otherwise. */
         .favorite-game-btn svg { transition: transform 0.15s ease; }
@@ -6179,19 +6190,19 @@ body{line-height:1.65}
             </div>
             <h2 class="title-header section-title-spaced" data-i18n="title_guide">Top-Up in 4 Steps</h2>
             <div class="dash-guide-steps">
-                <div class="dash-guide-step">
+                <div class="dash-guide-step go-tab" role="button" tabindex="0" onclick="showPage('home')" data-go="home">
                     <div class="dash-guide-num">1</div>
                     <div class="dash-guide-text" data-i18n="dash_step1">Choose your game and package</div>
                 </div>
-                <div class="dash-guide-step">
+                <div class="dash-guide-step go-tab" role="button" tabindex="0" onclick="showPage('home')" data-go="home">
                     <div class="dash-guide-num">2</div>
                     <div class="dash-guide-text" data-i18n="dash_step2">Enter your In-Game ID</div>
                 </div>
-                <div class="dash-guide-step">
+                <div class="dash-guide-step go-tab" role="button" tabindex="0" onclick="showPage('wallet')" data-go="wallet">
                     <div class="dash-guide-num">3</div>
                     <div class="dash-guide-text" data-i18n="dash_step3">Pay from Wallet or upload a receipt</div>
                 </div>
-                <div class="dash-guide-step">
+                <div class="dash-guide-step go-tab" role="button" tabindex="0" onclick="showPage('history')" data-go="history">
                     <div class="dash-guide-num">4</div>
                     <div class="dash-guide-text" data-i18n="dash_step4">Get your order delivered instantly</div>
                 </div>
@@ -6204,32 +6215,32 @@ body{line-height:1.65}
                  Home tab. -->
             <div class="home-live-stats-wrap">
                 <div class="home-live-stats-grid">
-                    <div class="home-live-stat">
+                    <div class="home-live-stat go-tab" role="button" tabindex="0" onclick="showPage('home')" data-go="home">
                         <span class="home-live-stat-label" data-i18n="stat_direct">Direct Top Up</span>
                         <div class="home-live-stat-value"><span id="hls-direct">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_direct_desc">Games available</span>
                     </div>
-                    <div class="home-live-stat">
+                    <div class="home-live-stat go-tab" role="button" tabindex="0" onclick="showPage('voucher')" data-go="voucher">
                         <span class="home-live-stat-label" data-i18n="stat_vouchers">Gift Cards &amp; Vouchers</span>
                         <div class="home-live-stat-value"><span id="hls-vouchers">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_vouchers_desc">Ready to redeem</span>
                     </div>
-                    <div class="home-live-stat">
+                    <div class="home-live-stat go-tab" role="button" tabindex="0" onclick="showPage('leaderboard')" data-go="leaderboard">
                         <span class="home-live-stat-label" data-i18n="stat_users">Community</span>
                         <div class="home-live-stat-value"><span id="hls-users">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_users_desc">Players onboard</span>
                     </div>
-                    <div class="home-live-stat">
+                    <div class="home-live-stat go-tab" role="button" tabindex="0" onclick="showPage('home')" data-go="home">
                         <span class="home-live-stat-label" data-i18n="stat_products">Catalog</span>
                         <div class="home-live-stat-value"><span id="hls-products">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_products_desc">Top-up packages</span>
                     </div>
-                    <div class="home-live-stat">
+                    <div class="home-live-stat go-tab" role="button" tabindex="0" onclick="showPage('history')" data-go="history">
                         <span class="home-live-stat-label" data-i18n="stat_sales">Orders Done</span>
                         <div class="home-live-stat-value"><span id="hls-sales">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_sales_desc">Completed all-time</span>
                     </div>
-                    <div class="home-live-stat">
+                    <div class="home-live-stat go-tab" role="button" tabindex="0" onclick="showPage('wallet')" data-go="wallet">
                         <span class="home-live-stat-label" data-i18n="stat_delivered">Top-ups Sent</span>
                         <div class="home-live-stat-value"><span id="hls-delivered">0</span></div>
                         <span class="home-live-stat-desc" data-i18n="stat_delivered_desc">Straight to wallet</span>
@@ -7323,9 +7334,14 @@ body{line-height:1.65}
             </div>
             </div>
 
+            <div id="pkg-flow" class="pkg-flow">
+            <div class="pkg-lock" id="pkg-lock"><div class="pkg-lock-in"><div class="pkg-lock-card"><svg class="ui-icon"><use href="#icon-lock"></use></svg><span id="pkg-lock-text">Enter your Player ID to unlock packages</span></div></div></div>
+            <div class="pkg-reveal" id="pkg-reveal"><div class="pkg-reveal-in">
             <h3 class="detail-section-title" data-i18n="sec_select_currency_pkg">Select Currency Package</h3>
             <div class="pkg-type-tabs" id="pkg-type-tabs" style="display:none;"></div>
             <div class="package-grid-scroll"><div id="detail-package-list" class="package-grid"></div></div>
+            </div></div>
+            </div>
 
 
             <div class="vq-box" id="voucher-qty-box" style="display:none;">
@@ -7509,10 +7525,10 @@ body{line-height:1.65}
     </div>
 
     <!-- Order Success flash modal: green grid card in the middle of the screen, closes itself after 1 second -->
-    <div class="order-ok-overlay" id="order-ok-overlay" aria-live="polite">
+    <div class="order-ok-overlay" id="order-ok-overlay" aria-live="polite" onclick="window.hideOrderSuccessModal && window.hideOrderSuccessModal()">
         <div class="order-ok-box">
             <div class="order-ok-check">
-                <svg class="ui-icon"><use href="#icon-check"></use></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.5 4.5L18.5 7.5"/></svg>
             </div>
             <div class="order-ok-title" id="order-ok-title">Order Success</div>
             <div class="order-ok-sub" id="order-ok-sub" style="display:none;"></div>
@@ -16638,10 +16654,69 @@ body{line-height:1.65}
         // on slow connections. See the deferInit note near its definition.
         deferInit(listenOwnOrderStatus);
 
-        // Green grid "Order Success" modal: pops in the middle of the screen
-        // the moment one of this customer's orders flips to Success and
-        // closes itself after 1 second. Never blocks taps (pointer-events: none).
-        let orderOkTimer = null;
+        // Synthesised sounds (no audio files). Browsers only allow audio after a first tap, so
+        // a sound requested earlier waits and plays on the first touch/click/key.
+        (function () {
+            let ctx = null, pending = null;
+            function getCtx() {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                return ctx || (ctx = window._walletAudioCtx || (window._walletAudioCtx = new AC()));
+            }
+            function tones(list, vol) {
+                const c = getCtx(); if (!c) return;
+                const t0 = c.currentTime;
+                list.forEach(([f, d, len]) => {
+                    const o = c.createOscillator(), g = c.createGain();
+                    o.type = 'sine'; o.frequency.value = f;
+                    g.gain.setValueAtTime(0.0001, t0 + d);
+                    g.gain.exponentialRampToValueAtTime(vol, t0 + d + 0.015);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + len);
+                    o.connect(g); g.connect(c.destination);
+                    o.start(t0 + d); o.stop(t0 + d + len + 0.05);
+                });
+            }
+            const SOUNDS = {
+                // order success: bright rising arpeggio that ends on a held high note
+                success: () => tones([[784, 0, 0.35], [1046.5, 0.11, 0.35], [1318.5, 0.22, 0.4], [1568, 0.34, 0.9]], 0.32),
+                // site opened + data arrived: one soft ding
+                ready: () => tones([[1318.5, 0, 0.6]], 0.22)
+            };
+            function run(kind) {
+                const c = getCtx(); if (!c || !SOUNDS[kind]) return;
+                if (c.state === 'suspended') {
+                    c.resume().then(() => { if (c.state === 'running') SOUNDS[kind](); pending = null; }).catch(() => { pending = kind; });
+                    if (c.state === 'suspended') pending = kind;
+                } else { SOUNDS[kind](); }
+            }
+            window.linnSound = function (kind) { try { run(kind); } catch (e) {} };
+            function unlock() {
+                try {
+                    const c = getCtx();
+                    if (c && c.state === 'suspended') c.resume();
+                    if (pending) { const k = pending; pending = null; setTimeout(() => window.linnSound(k), 60); }
+                } catch (e) {}
+            }
+            ['touchstart', 'pointerdown', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, unlock, { passive: true }));
+        })();
+        // Fires once, the first time the store data (games) has arrived after opening the site.
+        window.onSiteDataReady = function () {
+            if (window._siteReadySounded) return;
+            window._siteReadySounded = true;
+            if (window.linnSound) window.linnSound('ready');
+        };
+
+        // Order Success glass modal: shows when one of this customer's orders flips to Success.
+        // Check wipes in bottom -> top, a chime plays as it finishes, the card stays ~3s
+        // (tap anywhere to close it sooner).
+        let orderOkTimer = null, orderOkSoundTimer = null;
+        const ORDER_OK_SHOW_MS = 3000;
+        function hideOrderSuccessModal() {
+            const ov = document.getElementById('order-ok-overlay');
+            clearTimeout(orderOkTimer); clearTimeout(orderOkSoundTimer);
+            if (ov) ov.classList.remove('show');
+        }
+        window.hideOrderSuccessModal = hideOrderSuccessModal;
         function showOrderSuccessModal(label) {
             botEvt('order-ok');
             const ov = document.getElementById('order-ok-overlay');
@@ -16650,12 +16725,14 @@ body{line-height:1.65}
             const sub = document.getElementById('order-ok-sub');
             sub.textContent = label || '';
             sub.style.display = label ? '' : 'none';
-            // Restart the pop-in if a second order lands while it's still up.
+            // Restart the animation if a second order lands while it's still up.
+            clearTimeout(orderOkTimer); clearTimeout(orderOkSoundTimer);
             ov.classList.remove('show');
             void ov.offsetWidth;
             ov.classList.add('show');
-            clearTimeout(orderOkTimer);
-            orderOkTimer = setTimeout(() => ov.classList.remove('show'), 1000);
+            // chime right as the tick finishes drawing (0.45s delay + 0.7s wipe)
+            orderOkSoundTimer = setTimeout(() => { if (window.linnSound) window.linnSound('success'); }, 1100);
+            orderOkTimer = setTimeout(() => ov.classList.remove('show'), ORDER_OK_SHOW_MS);
         }
 
         // Four possible order states: Pending, Processing, Success, Fail
@@ -19066,7 +19143,11 @@ body{line-height:1.65}
             const manuallyPopular = gameSearchQuery ? [] : indexedGroups.filter(gr => gr.ids.some(id => GAMES[id].popular));
             // Only games the admin really flagged "popular". The old fallback re-listed the first
             // games of the catalogue, so the same cards showed twice (Popular row + All Games grid).
-            const popularGroups = manuallyPopular;
+            // Nobody flagged "popular" yet -> fall back to the first games of the catalogue
+            // so the Popular Games row is never missing from Home.
+            const popularGroups = (manuallyPopular.length > 0 || gameSearchQuery)
+                ? manuallyPopular
+                : indexedGroups.slice(0, 10);
             if (popularGroups.length > 0) {
                 popularSection.style.display = 'block';
                 renderPopularGamesRow(popularGroups);
@@ -19403,6 +19484,7 @@ body{line-height:1.65}
                             if (gamesLoadedOnce) return;
                             gamesLoadedOnce = true;
                             rerenderAll();
+                            if (window.onSiteDataReady) window.onSiteDataReady();
                         }, 350);
                         return;
                     }
@@ -19412,6 +19494,7 @@ body{line-height:1.65}
                     clearTimeout(gamesInitialRenderTimer);
                     gamesLoadedOnce = true;
                     rerenderAll();
+                    if (window.onSiteDataReady) window.onSiteDataReady();
                 } else {
                     // Live update: wait until the user's finger/scroll is idle.
                     window.whenUiIdle('games-rerender', rerenderAll);
@@ -23488,6 +23571,93 @@ body:has(.header.header-hidden) .ord-steps{top:calc(env(safe-area-inset-top,0px)
 .vq-foot{grid-area:foot;display:flex;justify-content:space-between;align-items:baseline;padding-top:8px;border-top:1px dashed var(--border);font-size:12px;color:var(--text-muted)}
 .vq-foot b{font-size:15px;color:var(--accent)}
 </style>
+<style id="linn-login-compact">
+/* ===== 1) Login / onboarding page: smaller logo, inputs, buttons, tiles ===== */
+.lg-scroll { padding: calc(60px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); overscroll-behavior: contain; transform: translateZ(0); }
+.lg-onb .lg-scroll { padding-top: calc(28px + env(safe-area-inset-top, 0px)); }
+.lg-inner { max-width: 340px; }
+.lg-logo { width: 78px; height: 78px; margin: 0 auto 16px; border-radius: 24px; }
+.lg-logo img { width: 66%; height: 66%; }
+.lg-logo > svg { width: 34px !important; height: 34px !important; }
+.lg-title { font-size: 24px; }
+.lg-sub { margin: 6px 0 2px; font-size: 12px; letter-spacing: .18em; }
+.lg-sub-mm { margin: 0 0 18px; font-size: 12px; }
+.lg-field { margin-bottom: 10px; }
+.lg-field-icon { left: 16px; width: 18px; height: 18px; }
+.lg-field input { height: 48px; padding: 0 14px 0 46px; border-radius: 16px; font-size: 15px;
+    -webkit-backdrop-filter: none; backdrop-filter: none; }
+.lg-primary { height: 48px; border-radius: 18px; font-size: 15.5px; margin-top: 2px; transition: transform .15s ease; }
+.lg-arrow { right: 9px; width: 30px; height: 30px; }
+.lg-arrow svg { width: 14px !important; height: 14px !important; }
+.lg-divider { margin: 20px 4px 14px; font-size: 10.5px; }
+.lg-social { gap: 12px; }
+.lg-social-btn, .lg-gis, .lg-tg-tile { width: 52px; height: 52px; border-radius: 18px; }
+.lg-tg-tile > svg { width: 24px; height: 24px; }
+.lg-foot { margin-top: 22px; }
+.lg-blob { box-shadow: none; }
+
+/* ===== 2) Google icon: dark-mode `background:` shorthand was wiping the G image ===== */
+html[data-theme="dark"] .lg-gis,
+html .lg-gis {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><path fill='%23FFC107' d='M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z'/><path fill='%23FF3D00' d='M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.2 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z'/><path fill='%234CAF50' d='M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z'/><path fill='%231976D2' d='M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C40.9 36.2 44 30.6 44 24c0-1.3-.1-2.7-.4-3.5z'/></svg>");
+    background-repeat: no-repeat; background-position: center; background-size: 22px 22px;
+}
+
+/* ===== 3) Smoothness: no full-screen blur / heavy live effects on phones ===== */
+@media (max-width: 600px) {
+    .drawer-overlay { -webkit-backdrop-filter: none; backdrop-filter: none; transition-duration: .35s; }
+    .side-drawer { transition-duration: .4s; }
+}
+.lg-page, .onboarding-overlay.lg-onb { contain: layout paint; }
+.lg-page .lg-scroll, .lg-onb .lg-scroll { -webkit-overflow-scrolling: touch; }
+
+/* ===== 4) Sidebar tabs: real glass look (gradient + bright rim + top sheen, no live blur needed) ===== */
+.side-drawer {
+    background: linear-gradient(170deg, rgba(232,241,255,.88) 0%, rgba(214,229,255,.80) 55%, rgba(226,236,255,.86) 100%);
+}
+html[data-theme="dark"] .side-drawer {
+    background: linear-gradient(170deg, rgba(18,34,68,.92) 0%, rgba(10,20,46,.94) 55%, rgba(14,26,56,.92) 100%);
+}
+.side-drawer .drawer-nav-item:not(.active),
+.side-drawer.drawer-sliding .drawer-nav-item:not(.active),
+.side-drawer .drawer-profile-card,
+.side-drawer.drawer-sliding .drawer-profile-card {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.60) 0%, rgba(255,255,255,0) 52%),
+        linear-gradient(145deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,.30) 55%, rgba(255,255,255,.20) 100%);
+    border: 1px solid rgba(255,255,255,.95);
+    box-shadow: 0 5px 14px rgba(40,70,140,.12),
+                inset 0 1.5px 1px #fff,
+                inset 0 -7px 12px rgba(120,150,230,.10);
+    color: var(--text);
+}
+.side-drawer .drawer-nav-item:not(.active) svg { color: var(--accent); }
+.side-drawer .drawer-nav-item:not(.active):active { background-color: rgba(var(--accent-rgb), .10); }
+.side-drawer .drawer-nav-item.active,
+.side-drawer.drawer-sliding .drawer-nav-item.active {
+    color: #fff;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.42) 0%, rgba(255,255,255,0) 52%),
+        linear-gradient(120deg, #3DB8FF 0%, #1877F2 50%, #3B4FE0 100%);
+    border: 1px solid rgba(255,255,255,.65);
+    box-shadow: 0 8px 18px rgba(24,119,242,.38), inset 0 1.5px 1px rgba(255,255,255,.65), inset 0 -7px 12px rgba(255,255,255,.10);
+}
+.side-drawer .drawer-nav-item.active svg { color: #fff; }
+html[data-theme="dark"] .side-drawer .drawer-nav-item:not(.active),
+html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-nav-item:not(.active),
+html[data-theme="dark"] .side-drawer .drawer-profile-card,
+html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-profile-card {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 52%),
+        linear-gradient(145deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.05) 55%, rgba(255,255,255,.03) 100%);
+    border: 1px solid rgba(255,255,255,.20);
+    box-shadow: 0 5px 14px rgba(0,0,10,.40), inset 0 1.5px 1px rgba(255,255,255,.26), inset 0 -7px 12px rgba(255,255,255,.03);
+    color: var(--text-secondary);
+}
+html[data-theme="dark"] .side-drawer .drawer-nav-item:not(.active) svg { color: #7DB4FF; }
+html[data-theme="dark"] .side-drawer .drawer-nav-item.active,
+html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-nav-item.active { color: #fff; border-color: rgba(255,255,255,.40); }
+</style>
 <script id="ui-polish-js">
 (function(){
   var last='';
@@ -23667,6 +23837,161 @@ body:has(.header.header-hidden) .ord-steps{top:calc(env(safe-area-inset-top,0px)
     bind('vq-minus',-1); bind('vq-plus',1);
   })();
 })();
+</script>
+<style id="flow-redesign-css">
+/* ===== Order flow redesign: morphing step bar + numbered sections + auto-reveal price cards ===== */
+#game-detail .ord-steps{display:flex;align-items:center;gap:4px;padding:5px;margin:0 0 14px;border-radius:22px;border:1px solid var(--border);background:var(--glass-bg-strong,var(--surface));box-shadow:0 8px 24px rgba(0,0,0,.10);overflow:hidden}
+#game-detail .ord-steps::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--ord-p,0) * 100%);border-radius:0 3px 3px 0;background:linear-gradient(90deg,#1877F2,#34D27B);transition:width .7s cubic-bezier(.22,1,.36,1)}
+#game-detail .ord-step+.ord-step::before,#game-detail .ord-step+.ord-step::after{display:none}
+#game-detail .ord-step{flex:1 1 0;min-width:0;flex-direction:row;justify-content:center;gap:0;padding:6px 4px;border-radius:17px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:flex-grow .5s cubic-bezier(.22,1,.36,1),gap .35s ease,background .35s ease,box-shadow .35s ease}
+#game-detail .ord-step.active{flex-grow:2.6;gap:7px;background:linear-gradient(135deg,rgba(var(--accent-rgb),.20),rgba(var(--accent-rgb),.07));box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.38)}
+#game-detail .ord-dot{width:26px;height:26px;font-size:12px;background:var(--border);color:var(--text-muted)}
+#game-detail .ord-dot svg{width:13px;height:13px}
+#game-detail .ord-lbl{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;margin:0;font-size:12px;font-weight:700;color:var(--text);transition:max-width .5s cubic-bezier(.22,1,.36,1),opacity .3s ease .08s}
+#game-detail .ord-step.active .ord-lbl{max-width:96px;opacity:1}
+@media (max-width:360px){#game-detail .ord-lbl{display:inline}}
+
+/* numbered section titles, turn green once their step is done */
+#game-detail .detail-section-title{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:var(--text)}
+#account-info-section .detail-section-title::before,#pkg-reveal .detail-section-title::before,#detail-payment-section .detail-section-title::before{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(145deg,var(--accent),rgba(var(--accent-rgb),.72));box-shadow:0 4px 10px rgba(var(--accent-rgb),.35);transition:background .35s ease,transform .4s cubic-bezier(.34,1.56,.64,1)}
+#account-info-section .detail-section-title::before{content:"1"}
+#pkg-reveal .detail-section-title::before{content:"2"}
+#detail-payment-section .detail-section-title::before{content:"3"}
+.sec-done .detail-section-title::before{content:"\2713" !important;background:linear-gradient(145deg,#2BB26A,#1E8E4F) !important;box-shadow:0 4px 10px rgba(30,142,79,.35) !important;transform:scale(1.08)}
+
+/* locked hint + slide-down reveal (only active once JS adds html.pkg-gate) */
+html:not(.pkg-gate) .pkg-lock{display:none}
+.pkg-lock{display:grid;grid-template-rows:1fr;opacity:1;transition:grid-template-rows .5s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+.pkg-lock-in{min-height:0;overflow:hidden}
+.pkg-lock-card{display:flex;align-items:center;gap:10px;margin-top:18px;padding:14px;border-radius:16px;border:1.5px dashed var(--border);background:var(--g-selected,rgba(127,127,127,.08));color:var(--text-secondary);font-size:13px;line-height:1.5}
+.pkg-lock-card svg{width:18px;height:18px;flex:0 0 auto;color:var(--accent);animation:pkgLockBob 2.2s ease-in-out infinite}
+@keyframes pkgLockBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.pkg-flow.open .pkg-lock{grid-template-rows:0fr;opacity:0}
+html.pkg-gate .pkg-reveal{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .8s cubic-bezier(.22,1,.36,1),visibility 0s linear .8s}
+html.pkg-gate .pkg-reveal-in{min-height:0;overflow:hidden;opacity:0;transform:translateY(-22px);transition:opacity .5s ease .12s,transform .8s cubic-bezier(.22,1,.36,1)}
+html.pkg-gate .pkg-flow.open .pkg-reveal{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .8s cubic-bezier(.22,1,.36,1),visibility 0s}
+html.pkg-gate .pkg-flow.open .pkg-reveal-in{opacity:1;transform:none}
+html.pkg-gate .pkg-flow.open.settled .pkg-reveal-in{overflow:visible}
+html.pkg-gate .pkg-flow.instant .pkg-reveal,html.pkg-gate .pkg-flow.instant .pkg-reveal-in,html.pkg-gate .pkg-flow.instant .pkg-lock{transition:none}
+.pkg-flow.revealing .package-card.card-zoom{animation-delay:calc(var(--i,0) * 70ms + 220ms)}
+#account-info-section,#pkg-flow,#detail-payment-section,#buy-bar{scroll-margin-top:110px}
+@media (prefers-reduced-motion:reduce){
+  #game-detail .ord-step,#game-detail .ord-lbl,#game-detail .ord-steps::after,.pkg-lock,html.pkg-gate .pkg-reveal,html.pkg-gate .pkg-reveal-in{transition:none !important}
+  .pkg-lock-card svg{animation:none}
+}
+</style>
+<script id="flow-redesign-js">
+(function(){
+  try{ document.documentElement.classList.add('pkg-gate'); }catch(e){}
+  var $=function(id){return document.getElementById(id);};
+  var st={gid:null,open:false,typed:false,val:'',changed:0,settleT:0,revealT:0};
+
+  function en(){ try{ return typeof currentLang!=='undefined' && currentLang==='en'; }catch(e){ return false; } }
+  function needsId(){ try{ return typeof selectedGameNeedsPlayerId==='undefined' ? true : !!selectedGameNeedsPlayerId; }catch(e){ return true; } }
+  function canCheck(){ try{ return !!((typeof selectedGameG2BulkCode!=='undefined' && selectedGameG2BulkCode) || (typeof selectedGameFazerCardCategory!=='undefined' && selectedGameFazerCardCategory)); }catch(e){ return false; } }
+  function hasPkg(){ try{ return typeof selectedPackage!=='undefined' && !!selectedPackage; }catch(e){ return false; } }
+  function verified(){ try{ return typeof playerIdVerified==='undefined' ? null : playerIdVerified; }catch(e){ return null; } }
+
+  function wantOpen(){
+    if(!needsId()) return true;
+    if(hasPkg()) return true;
+    var idEl=$('detail-ingame-id'); var v=idEl?idEl.value.trim():'';
+    if(!v) return false;
+    var ok=verified();
+    if(ok===true) return true;
+    if(ok===false) return false;
+    if(st.open) return true;                      // keep open while re-typing
+    if(!canCheck()) return Date.now()-st.changed>700;   // game has no ID checker: open once typing settles
+    var s=$('detail-id-status'), b=$('confirm-id-btn');   // checker finished with "couldn't check" -> order isn't blocked
+    return !!(s && s.style.display==='block' && !(b && b.classList.contains('checking')));
+  }
+
+  function replayCards(){
+    var f=$('pkg-flow'); if(!f) return;
+    f.classList.add('revealing'); clearTimeout(st.revealT);
+    st.revealT=setTimeout(function(){ f.classList.remove('revealing'); },1800);
+    document.querySelectorAll('#detail-package-list .package-card').forEach(function(c){
+      c.classList.remove('card-zoom'); void c.offsetWidth; c.classList.add('card-zoom');
+    });
+  }
+
+  function apply(o,instant){
+    var f=$('pkg-flow'); if(!f) return;
+    clearTimeout(st.settleT);
+    f.classList.toggle('instant',!!instant);
+    if(o){
+      f.classList.add('open');
+      if(instant){ f.classList.add('settled'); }
+      else{
+        replayCards();
+        st.settleT=setTimeout(function(){ f.classList.add('settled'); },850);
+        if(st.typed){
+          setTimeout(function(){
+            var r=f.getBoundingClientRect(), vh=window.innerHeight||document.documentElement.clientHeight;
+            if(r.top>vh*0.42) f.scrollIntoView({behavior:'smooth',block:'start'});
+          },260);
+        }
+      }
+    }else{
+      f.classList.remove('settled'); f.classList.remove('open');
+    }
+    st.open=o;
+    if(instant) setTimeout(function(){ f.classList.remove('instant'); },60);
+  }
+
+  function tick(){
+    var gd=$('game-detail');
+    if(!gd||!gd.classList.contains('active')){
+      if(st.gid!==null){ st.gid=null; st.typed=false; apply(false,true); }
+      return;
+    }
+    var gid; try{ gid=selectedGameId; }catch(e){ gid=null; }
+    if(gid!==st.gid){ st.gid=gid; st.typed=false; apply(false,true); }
+    var idEl=$('detail-ingame-id'), v=idEl?idEl.value:'';
+    if(v!==st.val){ st.val=v; st.changed=Date.now(); }
+    var w=wantOpen();
+    if(w!==st.open) apply(w,false);
+    var t=$('pkg-lock-text');
+    if(t){ var txt=en()?'Enter your Player ID to unlock packages':'Package ရွေးရန် Player ID အရင်ထည့်ပါ'; if(t.textContent!==txt) t.textContent=txt; }
+  }
+  setInterval(tick,150);
+  ['detail-ingame-id','detail-server-id'].forEach(function(id){
+    var el=$(id); if(el) el.addEventListener('input',function(){ st.typed=true; st.changed=Date.now(); },true);
+  });
+
+  /* step bar: progress fill + section badges + tap-to-jump */
+  function sync(){
+    var bar=$('ord-steps'); if(!bar) return;
+    var steps=bar.querySelectorAll('.ord-step'), cur=0, done=[];
+    steps.forEach(function(el,i){ if(el.classList.contains('active')) cur=i; done[i]=el.classList.contains('done'); });
+    bar.style.setProperty('--ord-p',((cur+1)/steps.length).toFixed(3));
+    var map=[['account-info-section',0],['pkg-flow',1],['detail-payment-section',2]];
+    map.forEach(function(m){ var el=$(m[0]); if(el) el.classList.toggle('sec-done',!!done[m[1]]); });
+  }
+  function boot(){
+    var bar=$('ord-steps'); if(!bar) return;
+    new MutationObserver(sync).observe(bar,{attributes:true,subtree:true,attributeFilter:['class']});
+    sync();
+    bar.addEventListener('click',function(e){
+      var step=e.target.closest&&e.target.closest('.ord-step'); if(!step) return;
+      var ids={account:'account-info-section',package:'pkg-flow',payment:'detail-payment-section',confirm:'buy-bar'};
+      var el=$(ids[step.getAttribute('data-step')]);
+      if(el && el.offsetHeight>0) el.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
+<style id="home-go-tab-css">
+.go-tab{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s ease,box-shadow .2s ease}
+.go-tab:active{transform:scale(.96)}
+</style>
+<script id="home-go-tab-js">
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  var el=e.target.closest&&e.target.closest('.go-tab'); if(!el)return;
+  e.preventDefault(); if(window.showPage) showPage(el.getAttribute('data-go'));
+});
 </script>
 </body>
 </html>
