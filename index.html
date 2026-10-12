@@ -261,8 +261,8 @@
             --glass-shadow-sm: 0 6px 18px rgba(31,45,90,0.11), inset 0 1px 1px rgba(255,255,255,0.8);
             --text: #050505;
             --text-secondary: #65676B;
-            --text-muted: #9C9EA1;
-            --text-faint: #BCC0C4;
+            --text-muted: #686C71;
+            --text-faint: #8B9096;
             --on-color: #ffffff;
             --border: #E4E6EB;
             --accent: #1877F2;
@@ -439,7 +439,7 @@
             transition: transform 0.2s ease, background-color 0.2s ease;
         }
         .header-lang-toggle-thumb-text {
-            font-size: 9px; font-weight: 700; letter-spacing: 0.3px; color: #1877F2;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.3px; color: #1877F2;
             transition: color 0.2s ease;
         }
         /* Myanmar (switched) look: juicy, saturated red tinted track. */
@@ -591,7 +591,7 @@
             width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
             background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; color: #fff;
         }
-        .onboarding-card .onboarding-divider { text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; font-size: 10.5px; }
+        .onboarding-card .onboarding-divider { text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; font-size: 11px; }
         .onboarding-social-btn {
             width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; cursor: pointer;
             background: var(--glass-bg); border: 1px solid var(--glass-border);
@@ -779,11 +779,11 @@
         .notif-badge {
             position: absolute; display: none; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box;
             border-radius: 9px; background: #E53935; color: #fff; border: 2px solid var(--surface);
-            font-size: 10px; font-weight: 600; line-height: 14px; text-align: center; pointer-events: none;
+            font-size: 11px; font-weight: 600; line-height: 14px; text-align: center; pointer-events: none;
         }
         .notif-badge.show { display: block; animation: notifPulse 1.8s ease-in-out infinite; }
         .header-icon .notif-badge { top: -5px; right: -5px; }
-        .drawer-nav-item .notif-badge { top: 0; left: 20px; min-width: 16px; height: 16px; padding: 0 3px; font-size: 9.5px; line-height: 12px; overflow: visible; text-overflow: clip; }
+        .drawer-nav-item .notif-badge { top: 0; left: 20px; min-width: 16px; height: 16px; padding: 0 3px; font-size: 11px; line-height: 12px; overflow: visible; text-overflow: clip; }
         /* Order Success flash modal: green grid card, centered, auto-closes after 1s */
         .order-ok-overlay {
             position: fixed; inset: 0; z-index: 950; display: flex; align-items: center; justify-content: center;
@@ -896,7 +896,7 @@
         .drawer-profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .drawer-profile-info { flex: 1; min-width: 0; }
         .drawer-profile-info span { display: block; font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .drawer-profile-info .tier-badge { display: inline-flex; margin-top: 4px; padding: 3px 9px 3px 7px; font-size: 10px; }
+        .drawer-profile-info .tier-badge { display: inline-flex; margin-top: 4px; padding: 3px 9px 3px 7px; font-size: 11px; }
         .drawer-profile-info .tier-badge svg { width: 14px; height: 14px; }
         .drawer-close {
             width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
@@ -955,13 +955,13 @@
         }
         /* Compact language chip: small flag + short label, sized to its
            content instead of stretching across the full grid row. */
-        .drawer-lang-chip { justify-self: start; max-width: 100%; gap: 5px; padding: 4px 8px 4px 5px; font-size: 10px; border-radius: 999px; }
+        .drawer-lang-chip { justify-self: start; max-width: 100%; gap: 5px; padding: 4px 8px 4px 5px; font-size: 11px; border-radius: 999px; }
         .drawer-lang-chip .lang-toggle-btn { width: 22px; height: 22px; box-shadow: none; }
         .drawer-lang-chip .lang-toggle-flag { width: 100%; height: 100%; }
         .drawer-divider { grid-column: 1 / -1; height: 1px; background: var(--border); margin: 8px 10px 0; }
         .drawer-footer {
             margin-top: auto; padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
-            border-top: 1px solid var(--border); font-size: 10px; color: var(--text-faint);
+            border-top: 1px solid var(--border); font-size: 11px; color: var(--text-faint);
             flex-shrink: 0;
         }
         /* While the drawer's slide/fade transition runs, suppress its own
@@ -980,7 +980,7 @@
         .admin-status-dot.offline { background: var(--text-muted); }
         .admin-status-bar.online-text #admin-status-text { color: #31A24C; }
         /* Compact badge: sized to its content (not a full-width bar); green when Admin is online. */
-        .admin-status-bar { width: fit-content; padding: 3px 10px; font-size: 10.5px; font-weight: 600; gap: 5px; }
+        .admin-status-bar { width: fit-content; padding: 3px 10px; font-size: 11px; font-weight: 600; gap: 5px; }
         .admin-status-bar.online-text { background: rgba(49,162,76,0.12); border-color: rgba(49,162,76,0.35); }
         .admin-status-bar .admin-status-dot { width: 6px; height: 6px; }
         /* Dark mode: the muted #31A24C green reads too dim against the deep-blue
@@ -1064,7 +1064,7 @@
             gap: 4px;
             background: #1877F2;
             color: #fff;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.3px;
             padding: 4px 8px;
@@ -1289,7 +1289,7 @@
         .game-cat-badge { position: absolute; top: 5px; left: 5px; display: flex; align-items: center; gap: 2px; padding: 2px 6px 2px 5px; border-radius: 7px; font-size: 8px; font-weight: 600; color: var(--on-color); box-shadow: 0 1px 3px rgba(0,0,0,0.22); }
         .game-cat-badge svg { width: 8px; height: 8px; }
         /* Server / region count pill, top-right corner of a game card (only for games with 2+ servers) */
-        .game-server-badge { position: absolute; top: 5px; right: 5px; z-index: 1; display: flex; align-items: center; gap: 2px; padding: 2px 6px 2px 5px; border-radius: 7px; font-size: 9px; font-weight: 600; line-height: 1.2; color: #fff; background: rgba(0,0,0,0.58); box-shadow: 0 1px 3px rgba(0,0,0,0.22); }
+        .game-server-badge { position: absolute; top: 5px; right: 5px; z-index: 1; display: flex; align-items: center; gap: 2px; padding: 2px 6px 2px 5px; border-radius: 7px; font-size: 11px; font-weight: 600; line-height: 1.2; color: #fff; background: rgba(0,0,0,0.58); box-shadow: 0 1px 3px rgba(0,0,0,0.22); }
         .game-server-badge svg { width: 9px; height: 9px; }
 
         /* Category filter chips row, above the All Games grid */
@@ -1378,11 +1378,11 @@
         .popular-scroll-wrap::-webkit-scrollbar { display: none; }
         .popular-card { flex: 0 0 88px; }
         .popular-card .game-card-img-wrap { width: 100%; height: auto; aspect-ratio: 1 / 1; }
-        .popular-card .game-card-name { font-size: 10.5px; padding: 4px 3px; }
+        .popular-card .game-card-name { font-size: 11px; padding: 4px 3px; }
         /* Same horizontal-scroll "Popular" row, sized for the gift-card
            style voucher tiles instead of the square game-card tiles. */
         .popular-voucher-card { flex: 0 0 92px; aspect-ratio: 1 / 1.32; padding: 10px 7px 7px; }
-        .popular-voucher-card .voucher-card-name { font-size: 10px; padding: 3px 6px; }
+        .popular-voucher-card .voucher-card-name { font-size: 11px; padding: 3px 6px; }
         .popular-voucher-card .voucher-card-tag { font-size: 7.5px; padding: 2px 6px; }
 
         /* Voucher tab cards — styled like a purple "gift card" promo tile
@@ -1459,9 +1459,9 @@
         .list-info { min-width: 0; }
         .list-info h5 { font-size: 13.5px; color: var(--text); margin-bottom: 2px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .list-info p { font-size: 11.5px; color: var(--text-secondary); }
-        .hc-success-time { display: flex; align-items: center; gap: 3px; font-size: 10.5px !important; color: #1E8E4F !important; font-weight: 500; margin-top: 1px; }
+        .hc-success-time { display: flex; align-items: center; gap: 3px; font-size: 11px !important; color: #1E8E4F !important; font-weight: 500; margin-top: 1px; }
         .hc-success-time svg { width: 10px; height: 10px; stroke: #1E8E4F; }
-        .hc-order-id { font-size: 10px !important; color: var(--text-muted) !important; font-family: monospace; margin-top: 1px; }
+        .hc-order-id { font-size: 11px !important; color: var(--text-muted) !important; font-family: monospace; margin-top: 1px; }
         .list-amount { text-align: right; }
         .list-amount h5 { font-size: 13.5px; color: var(--text); margin-bottom: 2px; font-weight: 500; }
         
@@ -1476,7 +1476,7 @@
         .history-status-tabs::-webkit-scrollbar { display: none; }
         .history-status-tab { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 10px; border: none; background: transparent; border-radius: 9px; font-size: 12.5px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; cursor: pointer; transition: 0.15s; }
         .history-status-tab.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-        .history-status-count { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--border); color: var(--text-secondary); font-size: 10px; font-weight: 600; line-height: 16px; text-align: center; }
+        .history-status-count { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--border); color: var(--text-secondary); font-size: 11px; font-weight: 600; line-height: 16px; text-align: center; }
         .history-status-tab.active .history-status-count { background: var(--accent-soft); color: var(--accent); }
         .history-date-header { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 16px 2px 8px; }
         .history-date-header:first-of-type { margin-top: 2px; }
@@ -1520,7 +1520,7 @@
         .ot-step:first-child .ot-line { display: none; }
         .ot-label { font-size: 10.5px; font-weight: 500; color: var(--text-muted); margin-top: 6px; }
         .ot-label.done, .ot-label.active, .ot-label.fail { color: var(--text); }
-        .ot-time { font-size: 9px; color: var(--text-faint); margin-top: 1px; }
+        .ot-time { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
 
         /* Compact version: same steps but tiny dots-and-lines only, no labels,
            sitting under the game name on each History list card. */
@@ -1637,7 +1637,7 @@
         .lb-podium-name { font-size: 13px; font-weight: 600; color: var(--text); text-align: center; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
         .lb-podium-amount { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); }
         .lb-title { display: flex; align-items: center; gap: 10px; }
-        .live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; letter-spacing: 0.6px; padding: 3px 8px; border-radius: 7px; background: rgba(239,68,68,0.12); color: #DC2626; }
+        .live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; padding: 3px 8px; border-radius: 7px; background: rgba(239,68,68,0.12); color: #DC2626; }
         .live-badge i { width: 6px; height: 6px; border-radius: 50%; background: #EF4444; animation: liveDotPulse 1.4s ease-in-out infinite; }
         .live-badge.off { background: var(--surface-alt); color: var(--text-muted); }
         .live-badge.off i { background: var(--text-muted); animation: none; }
@@ -1832,7 +1832,7 @@
         .nav-item.active { color: var(--accent); }
         .nav-icon-wrap { width: 31px; height: 31px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
         .nav-icon-wrap .ui-icon { width: 18px; height: 18px; }
-        .nav-label { font-size: 10px; }
+        .nav-label { font-size: 11px; }
         .nav-item.active .ui-icon { stroke: var(--accent); }
         
         /* Toast — pastel status card: icon circle, message, dismiss ×.
@@ -2072,8 +2072,8 @@
             display: block;
         }
         .package-card.type-topup .pc-label.pc-label-md { font-size: 11.5px; }
-        .package-card.type-topup .pc-label.pc-label-long { font-size: 10.5px; }
-        .package-card.type-topup .pc-label.pc-label-xlong { font-size: 9.5px; line-height: 1.15; }
+        .package-card.type-topup .pc-label.pc-label-long { font-size: 11px; }
+        .package-card.type-topup .pc-label.pc-label-xlong { font-size: 11px; line-height: 1.15; }
         .package-card.type-topup.selected .pc-label { color: var(--accent); }
         .package-card.type-topup .pc-price-bar { margin-top: 0; padding: 6px 6px; background: var(--surface-alt); border-top: 1px solid var(--border); text-align: center; }
         .package-card.type-topup .pc-price { font-size: 12px; font-weight: 500; color: var(--accent); }
@@ -2156,9 +2156,9 @@
             background: #fff;
             box-shadow: none;
         }
-        .pc-cost { margin-top: 2px; font-size: 10px; font-weight: 600; color: #b45309; background: rgba(245,158,11,.14); border-radius: 6px; padding: 1px 6px; display: inline-block; letter-spacing: .2px; }
+        .pc-cost { margin-top: 2px; font-size: 11px; font-weight: 600; color: #b45309; background: rgba(245,158,11,.14); border-radius: 6px; padding: 1px 6px; display: inline-block; letter-spacing: .2px; }
         .package-card.type-currency .pc-cost { color: #fff; background: rgba(0,0,0,.28); }
-        .pc-price .pc-cur { font-size: 9px; font-weight: 600; opacity: 0.92; letter-spacing: 0.2px; }
+        .pc-price .pc-cur { font-size: 11px; font-weight: 600; opacity: 0.92; letter-spacing: 0.2px; }
         .package-card.type-topup .pc-price-bar, .package-card.type-currency .pc-price-bar { padding-top: 5px; padding-bottom: 5px; }
 
         /* Software packages — flat single-column "row" list instead of the
@@ -2421,7 +2421,7 @@
         .pay-hot {
             position: relative; isolation: isolate; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
             height: 20px; padding: 0 9px 0 7px; border-radius: 6px;
-            font-size: 10px; font-weight: 800; letter-spacing: 1.2px; line-height: 1; color: #fff; text-shadow: 0 1px 2px rgba(110,15,0,0.55);
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px; line-height: 1; color: #fff; text-shadow: 0 1px 2px rgba(110,15,0,0.55);
             background:
                 linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.55) 50%, transparent 62%) -150% 0 / 60% 100% no-repeat,
                 linear-gradient(115deg, #FF2E63 0%, #FF6A00 58%, #FFC21A 100%);
@@ -2457,7 +2457,7 @@
         .pm-qr-info-row .pm-qr-img { width: 92px; height: 92px; flex-shrink: 0; margin: 0; }
         .pm-qr-info-row .pm-info-grid { flex: 1; min-width: 0; justify-content: center; }
         .pm-info-box { min-width: 0; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 9px; padding: 6px 8px; }
-        .pm-info-box-label { display: block; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 2px; }
+        .pm-info-box-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 2px; }
         .pm-info-box-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
         .pm-name-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
         .pm-name-verified { width: 16px; height: 16px; flex-shrink: 0; color: #22C55E; }
@@ -2627,7 +2627,7 @@
 
         /* Minimum top-up notice: always visible under the presets, turns red when the typed amount is below the minimum */
         .wallet-min-note { margin: 10px 2px 0; font-size: 12px; line-height: 1.4; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-        .wallet-min-note::before { content: 'i'; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+        .wallet-min-note::before { content: 'i'; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
         .wallet-min-note.warn { color: #FF6B6B; font-weight: 600; }
         .wallet-min-hint { margin: 10px 0 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.6); position: relative; z-index: 2; }
         /* Modal open: drop the floating bottom nav underneath the sheet so it never covers the slide-to-submit button
@@ -2679,7 +2679,7 @@
         .wtx-ico.buy { background: #EEF1FD; color: #405DE6; }
         .wtx-body { flex: 1; min-width: 0; }
         .wtx-title { font-size: 12.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .wtx-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wtx-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .wtx-amt { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
         .wtx-amt.in { color: #1E8E4F; }
         .wtx-amt.out { color: #C0392B; }
@@ -3155,7 +3155,7 @@
         .tgi { display: inline-block; flex-shrink: 0; }
         .tier-preview-god { margin-top: -2px; line-height: 0; }
         .tier-preview-god svg { width: 30px; height: 30px; display: block; }
-        .tier-preview-lv { font-size: 9.5px; font-weight: 600; color: var(--text-muted, #8a8a99); margin-top: -4px; letter-spacing: .3px; }
+        .tier-preview-lv { font-size: 11px; font-weight: 600; color: var(--text-muted, #8a8a99); margin-top: -4px; letter-spacing: .3px; }
         .tgi-anim .tg-fb { transform-box: fill-box; transform-origin: center; }
         .tgi-anim .tg-glow { animation: tgkGlow 3s ease-in-out infinite; }
         .tgi-anim .tg-shine { animation: tgkShine 3.6s ease-in-out infinite; }
@@ -3217,7 +3217,7 @@
             display: flex; align-items: center; justify-content: center; border: 4px solid var(--surface); z-index: 2;
         }
         .tier-preview-photo svg { width: 34px; height: 34px; }
-        .tier-preview-label { font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-align: center; }
+        .tier-preview-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-align: center; }
 
         /* Order Detail modal: clean 2-column info grid instead of stacked rows */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
@@ -3233,8 +3233,8 @@
         .mini-profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .mini-profile-info { flex: 1; min-width: 0; }
         .mini-profile-info span { display: block; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mini-profile-info small { font-size: 10px; color: var(--text-muted); }
-        .mini-profile-info .tier-badge { display: inline-flex; margin-top: 2px; padding: 3px 9px 3px 7px; font-size: 10px; } /* was inheriting display:block from `.mini-profile-info span`, stretching the badge to full width */
+        .mini-profile-info small { font-size: 11px; color: var(--text-muted); }
+        .mini-profile-info .tier-badge { display: inline-flex; margin-top: 2px; padding: 3px 9px 3px 7px; font-size: 11px; } /* was inheriting display:block from `.mini-profile-info span`, stretching the badge to full width */
         .mini-profile-info .tier-badge svg { width: 14px; height: 14px; }
 
         /* Social links (Facebook / Telegram / TikTok) on the Profile page - 3 separate grid cards */
@@ -3530,12 +3530,12 @@
         /* ---- Notifications list + detail pages: compact ---- */
         #notif-page .pkg-type-tabs { padding: 3px; gap: 3px; margin-bottom: 8px; border-radius: 12px; }
         #notif-page .pkg-type-tab { min-height: 28px; padding: 5px 4px; font-size: 12px; border-radius: 9px; }
-        #notif-page .notif-tab-count { min-width: 15px; height: 15px; font-size: 9px; padding: 0 4px; line-height: 15px; }
+        #notif-page .notif-tab-count { min-width: 15px; height: 15px; font-size: 11px; padding: 0 4px; line-height: 15px; }
         #notif-page .notif-markall { font-size: 11px; padding: 4px 2px; }
         #notif-page .notif-item, #notif-detail .notif-item { padding: 9px 10px; border-radius: 12px; margin-bottom: 7px; }
         #notif-page .notif-item h5, #notif-detail .notif-item h5 { font-size: 12.5px; margin-bottom: 2px; }
         #notif-page .notif-item p, #notif-detail .notif-item p { font-size: 11px; margin-bottom: 3px; }
-        #notif-page .notif-item span, #notif-detail .notif-item span { font-size: 9.5px; }
+        #notif-page .notif-item span, #notif-detail .notif-item span { font-size: 11px; }
         #notif-page .notif-item.unread::before { top: 10px; right: 10px; width: 7px; height: 7px; box-shadow: 0 0 0 2px rgba(229,57,53,0.15); }
         #notif-page .notif-item.unread h5 { padding-right: 14px; }
         #notif-page .notif-order-head { gap: 8px; margin-bottom: 6px; }
@@ -3543,11 +3543,11 @@
         #notif-page .notif-order-ic svg { width: 14px; height: 14px; }
         #notif-page .notif-kv-wrap { padding-top: 3px; margin-bottom: 4px; }
         #notif-page .notif-item .notif-kv { padding: 2px 0; gap: 8px; }
-        #notif-page .notif-item .notif-kv .k, #notif-page .notif-item .notif-kv .v { font-size: 10.5px; }
+        #notif-page .notif-item .notif-kv .k, #notif-page .notif-item .notif-kv .v { font-size: 11px; }
         #notif-detail .detail-form-card { padding: 8px 10px; border-radius: 12px; }
         #notif-detail .od-row { padding: 5px 0; font-size: 11px; gap: 8px; }
         #notif-detail .detail-section-title { font-size: 11.5px; }
-        #notif-detail .badge { font-size: 10px; padding: 3px 8px; }
+        #notif-detail .badge { font-size: 11px; padding: 3px 8px; }
         #notif-detail .status-verified-badge { width: 12px; height: 12px; margin-left: 4px; }
         #notif-detail .btn-primary { min-height: 36px; padding: 7px 12px; font-size: 12.5px; border-radius: 11px; }
         /* Order review: small card centred on screen (not a bottom sheet) */
@@ -3562,8 +3562,8 @@
         #order-review-overlay .or-head { gap: 8px; margin-bottom: 2px; }
         #order-review-overlay .or-head .hc-thumb { width: 34px; height: 34px; border-radius: 8px; }
         #order-review-overlay .or-game { font-size: 13px; }
-        #order-review-overlay .or-sub { font-size: 10.5px; margin-top: 1px; }
-        #order-review-overlay .or-note { font-size: 10.5px; line-height: 1.35; padding: 7px 9px; border-radius: 9px; margin: 6px 0 2px; }
+        #order-review-overlay .or-sub { font-size: 11px; margin-top: 1px; }
+        #order-review-overlay .or-note { font-size: 11px; line-height: 1.35; padding: 7px 9px; border-radius: 9px; margin: 6px 0 2px; }
         #order-review-overlay .od-row { padding: 5px 0; font-size: 11.5px; }
         #order-review-overlay .od-total span { font-size: 11px; }
         #order-review-overlay .od-total b { font-size: 15px; }
@@ -3573,6 +3573,82 @@
         #order-review-overlay .or-actions .or-btn-edit { background: transparent; color: #D93025; border: 1.5px solid #D93025; }
         #order-review-overlay .or-actions .or-btn-edit:active { background: rgba(217,48,37,0.10); }
         html[data-theme="dark"] #order-review-overlay .or-actions .or-btn-edit { color: #FF8A8A; border-color: #FF8A8A; }
+
+        /* ===== GLASS DESIGN TOKENS (one place for the whole store's glass look) =====
+   Radius: sm 12 / md 16 / lg 20 / xl 28.  Surfaces: --g-surface (pill/chip), --g-track (bar behind pills),
+   --g-card (modal/sheet), --g-panel (inset panel inside a card).  Highlight + shadow are shared so every glass
+   piece catches light the same way.  No backdrop-filter in the tokens on purpose (see the blur budget below). */
+:root {
+    --g-r-sm: 12px; --g-r-md: 16px; --g-r-lg: 20px; --g-r-xl: 28px;
+    --g-surface: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.44));
+    --g-surface-press: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.60));
+    --g-track: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+    --g-card: linear-gradient(160deg, rgba(255,255,255,.97) 0%, rgba(244,248,255,.94) 100%);
+    --g-panel: rgba(255,255,255,.78);
+    --g-border: rgba(255,255,255,.85);
+    --g-line: rgba(var(--accent-rgb), .10);
+    --g-sheen: rgba(255,255,255,.75);
+    --g-hi: inset 0 1px 0 rgba(255,255,255,.95);
+    --g-shadow: 0 8px 22px rgba(30,50,110,.10);
+    --g-shadow-pop: 0 26px 64px rgba(15,30,70,.30);
+    --g-active-sheen: linear-gradient(180deg, rgba(255,255,255,.42) 0%, rgba(255,255,255,0) 55%);
+    --g-active-edge: rgba(255,255,255,.60);
+}
+html[data-theme="dark"] {
+    --g-surface: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+    --g-surface-press: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.09));
+    --g-track: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+    --g-card: linear-gradient(160deg, rgba(26,44,86,.97) 0%, rgba(13,24,48,.96) 100%);
+    --g-panel: rgba(255,255,255,.06);
+    --g-border: rgba(255,255,255,.14);
+    --g-line: rgba(255,255,255,.09);
+    --g-sheen: rgba(255,255,255,.08);
+    --g-hi: inset 0 1px 0 rgba(255,255,255,.16);
+    --g-shadow: 0 8px 22px rgba(0,0,0,.35);
+    --g-shadow-pop: 0 26px 64px rgba(0,0,0,.55);
+    --g-active-edge: rgba(255,255,255,.45);
+}
+
+/* ===== Order review: white glass card - solid enough to read over any page / receipt ===== */
+#order-review-overlay { background: rgba(10,18,40,0.40); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); }
+html[data-theme="dark"] #order-review-overlay { background: rgba(0,4,14,0.58); }
+#order-review-overlay .modal-box {
+    max-width: 340px; padding: 18px 16px 16px; border-radius: var(--g-r-xl); position: relative;
+    background: var(--g-card); border: 1px solid var(--g-border);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6); backdrop-filter: blur(28px) saturate(1.6);
+    box-shadow: var(--g-shadow-pop), var(--g-hi), 0 0 0 1px rgba(var(--accent-rgb),0.07);
+}
+#order-review-overlay .modal-box::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 96px; border-radius: inherit; pointer-events: none; background: linear-gradient(180deg, var(--g-sheen), rgba(255,255,255,0)); }
+#order-review-overlay .modal-header, #order-review-overlay .modal-body { position: relative; }
+#order-review-overlay .modal-header { border-bottom: 1px solid var(--g-line); padding-bottom: 10px; margin-bottom: 10px; }
+#order-review-overlay .modal-header h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; color: var(--text); }
+#order-review-overlay .modal-close { width: 30px; height: 30px; border-radius: 11px; background: var(--g-surface); border: 1px solid var(--g-border); box-shadow: 0 2px 8px rgba(15,30,70,0.10); }
+#order-review-overlay .modal-body { gap: 10px; overflow-y: auto; }
+#order-review-overlay .or-head { gap: 11px; margin: 0; padding: 10px; border-radius: 18px; background: rgba(var(--accent-rgb),0.07); border: 1px solid rgba(var(--accent-rgb),0.12); }
+#order-review-overlay .or-head .hc-thumb { width: 46px; height: 46px; border-radius: 13px; border: 2px solid #fff; box-shadow: 0 4px 12px rgba(15,30,70,0.18); overflow: hidden; flex-shrink: 0; }
+html[data-theme="dark"] #order-review-overlay .or-head .hc-thumb { border-color: rgba(255,255,255,0.85); }
+#order-review-overlay .or-game { font-size: 14.5px; font-weight: 700; color: var(--text); }
+#order-review-overlay .or-sub { font-size: 11px; color: var(--text-secondary); }
+#order-review-overlay .or-note { margin: 0; padding: 9px 11px; border-radius: 14px; font-size: 11px; line-height: 1.4; font-weight: 500; border: 1px solid var(--g-line); }
+#order-review-overlay .or-note.ok { background: rgba(34,197,94,0.14); color: #137A3E; border-color: rgba(34,197,94,0.30); }
+#order-review-overlay .or-note.warn { background: rgba(250,204,21,0.20); color: #7A5200; border-color: rgba(250,204,21,0.40); }
+html[data-theme="dark"] #order-review-overlay .or-note.ok { color: #4ADE80; background: rgba(34,197,94,0.16); }
+html[data-theme="dark"] #order-review-overlay .or-note.warn { color: #FACC15; background: rgba(250,204,21,0.16); }
+#order-review-overlay .od-rows { margin: 0; padding: 2px 13px; border-radius: 18px; background: var(--g-panel); border: 1px solid var(--g-line); box-shadow: var(--g-hi); }
+#order-review-overlay .od-row { padding: 9px 0; font-size: 12px; border-bottom: 1px solid var(--g-line); }
+#order-review-overlay .od-row span { color: var(--text-secondary); font-weight: 500; }
+#order-review-overlay .od-row b { color: var(--text); font-weight: 700; }
+#order-review-overlay .od-divider { display: none; }
+#order-review-overlay .od-total { padding: 11px 14px; border-radius: 18px; background: linear-gradient(135deg, rgba(var(--accent-rgb),0.16), rgba(var(--accent-rgb),0.06)); border: 1px solid rgba(var(--accent-rgb),0.22); }
+html[data-theme="dark"] #order-review-overlay .od-total { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.26), rgba(var(--accent-rgb),0.10)); border-color: rgba(var(--accent-rgb),0.40); }
+#order-review-overlay .od-total span { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+#order-review-overlay .od-total b { font-size: 19px; font-weight: 800; color: var(--accent); }
+#order-review-overlay .or-actions { gap: 10px; margin-top: 2px; }
+#order-review-overlay .or-actions .btn { height: 44px; min-height: 44px; border-radius: 15px; font-size: 13.5px; font-weight: 700; }
+#order-review-overlay .or-actions .or-btn-edit { background: var(--g-surface); color: #C62828; border: 1.5px solid rgba(198,40,40,0.65); }
+html[data-theme="dark"] #order-review-overlay .or-actions .or-btn-edit { background: rgba(255,138,138,0.08); color: #FF9A9A; border-color: rgba(255,138,138,0.7); }
+
+
         .or-id-val { font-family: monospace; font-size: 14px; letter-spacing: 0.3px; }
         .od-total b { font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
         .payment-option, .history-date-chip, .cat-filter-chip { border-radius: 18px; }
@@ -4351,7 +4427,7 @@
     font-size: 10.5px; font-weight: 400; line-height: 1.3; text-align: center;
     white-space: nowrap; overflow: hidden; text-overflow: clip; /* one line only; JS shrinks the font to fit */
 }
-.popular-card .game-card-name { padding: 7px 2px 0; font-size: 10px; }
+.popular-card .game-card-name { padding: 7px 2px 0; font-size: 11px; }
 @media (min-width: 1024px) { .game-card-name { font-size: 12px; } }
 /* Skeleton cards - one look for every card skeleton: padded rounded card, inset rounded image block,
    short pill for the name. (Logo skeletons keep their own logo-shaped placeholder.) */
@@ -4479,7 +4555,7 @@ html[data-theme="dark"] .package-card.type-software .pc-row-price {
     color: #00B94A;
 }
 .package-card.type-topup .pc-price .pc-cur,
-.package-card.type-currency .pc-price .pc-cur { font-size: 8px; font-weight: 400; margin-left: 2px; opacity: 1; }
+.package-card.type-currency .pc-price .pc-cur { font-size: 11px; font-weight: 400; margin-left: 2px; opacity: 1; }
 html[data-theme="dark"] .package-card.type-topup .pc-price,
 html[data-theme="dark"] .package-card.type-currency .pc-price,
 html[data-theme="dark"] .package-card.type-software .pc-row-price {
@@ -4860,7 +4936,7 @@ html.perf-low .popular-card .game-card-img-wrap.img-ready { animation: none; wil
 .sec-row:first-child{border-top:0;margin-top:4px}
 .sec-meta{min-width:0}.sec-meta b{font-weight:600}
 .sec-meta small{display:block;color:var(--text-muted);font-size:11px;margin-top:1px}
-.sec-chip{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:6px;background:var(--surface-alt);color:var(--text-muted);vertical-align:1px}
+.sec-chip{display:inline-block;font-size: 11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:6px;background:var(--surface-alt);color:var(--text-muted);vertical-align:1px}
 .sec-chip.on{background:rgba(34,170,90,.16);color:#1e9e58}
 .sec-btns{display:flex;gap:6px;flex-shrink:0}
 .sec-btn{border:1px solid var(--glass-border);background:var(--glass-bg-strong);color:var(--text);border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
@@ -5046,7 +5122,7 @@ html.perf-low .pc-star { box-shadow: none; }
         .wp-ic svg { width: 17px; height: 17px; }
         .wp-lbl { font-size: 11px; }
         .wp-bal { font-size: 17px; }
-        .wp-chip { font-size: 10px; padding: 3px 8px; }
+        .wp-chip { font-size: 11px; padding: 3px 8px; }
         .wp-rows { gap: 4px; }
         .wp-rows > div { font-size: 12px; }
         .wp-res > span { font-size: 12.5px; }
@@ -5180,10 +5256,10 @@ html.perf-low .pc-star { box-shadow: none; }
     
         /* ===== Smoothness pass: no stacked backdrop-filters (they made scrolling / tapping stutter) =====
            Glass look is kept with translucent fills + highlights instead of live blur on every small element. */
-        .wallet-amount-presets .wallet-preset-chip { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(255,255,255,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.75); transition: transform .12s ease, background .15s ease; }
-        .wallet-amount-presets { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(255,255,255,0.34); contain: layout paint; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; transform: translateZ(0); }
-        .wallet-topup-amount-input { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(255,255,255,0.45); transition: border-color .2s, box-shadow .2s; }
-        .pkg-type-tabs, .history-status-tabs, .game-subtab-bar, #notif-page .pkg-type-tabs, #guide-page .pkg-type-tabs { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+        .wallet-amount-presets .wallet-preset-chip { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255,255,255,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.75); transition: transform .12s ease, background .15s ease; }
+        .wallet-amount-presets { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255,255,255,0.34); contain: layout paint; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; transform: translateZ(0); }
+        .wallet-topup-amount-input { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255,255,255,0.45); transition: border-color .2s, box-shadow .2s; }
+        .pkg-type-tabs, .history-status-tabs, .game-subtab-bar, #notif-page .pkg-type-tabs, #guide-page .pkg-type-tabs { -webkit-backdrop-filter: none; backdrop-filter: none; }
         .pkg-type-tab, .history-status-tab, .game-subtab-btn { transition: background .2s ease, color .15s ease, transform .12s ease; }
         .game-search-wrap.expanded { box-shadow: none; }
         html[data-theme="dark"] .wallet-amount-presets .wallet-preset-chip { background: rgba(255,255,255,0.1); }
@@ -5272,7 +5348,7 @@ html[data-theme="dark"] .side-drawer .drawer-nav-item.active {
     background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 55%), linear-gradient(135deg, #FF8A3D 0%, #FF2D55 100%);
 }
 /* software rows have a small 56px image: shrink the tag to fit */
-.package-card.type-software .pc-img-wrap .pc-tag { left: 3px; bottom: 3px; padding: 2px 5px 2px 4px; font-size: 8px; gap: 2px; letter-spacing: .3px; }
+.package-card.type-software .pc-img-wrap .pc-tag { left: 3px; bottom: 3px; padding: 2px 5px 2px 4px; font-size: 11px; gap: 2px; letter-spacing: .3px; }
 .package-card.type-software .pc-img-wrap .pc-tag-icon { width: 9px; height: 9px; }
 </style>
 <style id="tg-iab-css">.in-app-browser .lg-tg-ov { pointer-events: none !important; }</style>
@@ -5519,6 +5595,44 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 #support-entry-card .prefs-row-label, #support-entry-card .prefs-row-label *,
 #terms-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label * { font-weight: 400 !important; }
 #security-card .sec-meta b .sec-chip { font-weight: 600 !important; }
+</style>
+<style id="ui-polish-css">
+/* ===== UI polish: selected token, stepper, contrast, typography ===== */
+:root{--g-selected:rgba(var(--accent-rgb),.12);--g-selected-line:var(--accent);--text-faint:#6B7078}
+html[data-theme="dark"]{--text-faint:#8293B5;--g-selected:rgba(var(--accent-rgb),.18)}
+body{line-height:1.65}
+.pc-price,.pc-row-price,.pc-cur,.od-total b,.hc-price{font-variant-numeric:tabular-nums}
+/* Order steps (Account > Package > Payment > Confirm) */
+.ord-steps{display:flex;align-items:flex-start;margin:2px 0 14px}
+.ord-step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+.ord-step+.ord-step::before{content:"";position:absolute;top:12px;left:-50%;width:100%;height:2px;background:var(--border);z-index:0;transition:background .25s}
+.ord-step.done+.ord-step::before,.ord-step.done.active+.ord-step::before{background:#1E8E4F}
+.ord-dot{position:relative;z-index:1;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--border);color:var(--text-secondary);border:2px solid var(--bg);font-size:12px;font-weight:600;transition:background .25s,color .25s,transform .25s}
+.ord-dot i{font-style:normal;line-height:1}
+.ord-dot svg{display:none;width:13px;height:13px}
+.ord-step.active .ord-dot{background:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--g-selected)}
+.ord-step.done .ord-dot{background:#1E8E4F;color:#fff}
+.ord-step.done .ord-dot i{display:none}
+.ord-step.done .ord-dot svg{display:block}
+.ord-lbl{font-size:11px;font-weight:500;color:var(--text-muted);margin-top:6px;line-height:1.3}
+.ord-step.active .ord-lbl,.ord-step.done .ord-lbl{color:var(--text)}
+@media (prefers-reduced-motion:reduce){.ord-dot,.ord-step::before{transition:none}}
+.eta-hint{font-size:12.5px;color:var(--text-secondary);text-align:center;padding:8px 12px;border-radius:12px;background:var(--g-selected)}
+.tap44{position:relative}
+.tap44::after{content:"";position:absolute;left:var(--t44x,0);right:var(--t44x,0);top:var(--t44y,0);bottom:var(--t44y,0)}
+.topup-short{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--g-selected);font-size:13px;color:var(--text);line-height:1.5}
+.topup-short .btn{width:auto;flex:0 0 auto;min-height:44px;padding:0 14px;font-size:13px;white-space:nowrap}
+.buy-bar{position:sticky;bottom:0;z-index:20;display:flex;flex-direction:column;gap:8px;margin-top:20px;padding:14px 0 calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 72%,color-mix(in srgb,var(--bg) 0%,transparent))}
+.vq-box{margin-top:16px;padding:14px;border-radius:var(--g-r-md,16px);background:var(--surface);border:1px solid var(--border)}
+.vq-head{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--text-secondary)}
+.vq-each{font-variant-numeric:tabular-nums}
+.vq-row{display:flex;gap:10px;align-items:center;margin:10px 0}
+.vq-btn{width:48px;height:48px;border-radius:14px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);font-size:22px;font-weight:600;line-height:1;cursor:pointer}
+.vq-btn:disabled{opacity:.4;cursor:not-allowed}
+.vq-btn:active:not(:disabled){background:var(--g-selected)}
+.vq-input{flex:1;min-width:0;height:48px;border-radius:14px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);text-align:center;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;-webkit-user-select:text;user-select:text}
+.vq-foot{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--text-muted)}
+.vq-foot b{font-size:16px;color:var(--accent);font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -6211,7 +6325,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         <!-- HISTORY PAGE (Live Firebase Orders) -->
         <div id="history" class="page-section">
             <h2 class="title-header" data-i18n="title_history">Transaction History</h2>
-            <div id="history-container"></div>
+            <div id="history-container"><div class="sk-list" aria-hidden="true"><div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div></div></div>
         </div>
 
         <!-- LEADERBOARD PAGE — ranks real customers by lifetime successful top-up
@@ -7161,7 +7275,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             </div>
             <div class="detail-main-col">
 
-            <div id="account-info-section">
+            <div class="ord-steps" id="ord-steps" role="list" aria-label="Order steps"><div class="ord-step" data-step="account"><span class="ord-dot"><i>1</i><svg class="ui-icon"><use href="#icon-check"></use></svg></span><span class="ord-lbl" data-i18n="st_account">Account</span></div><div class="ord-step" data-step="package"><span class="ord-dot"><i>2</i><svg class="ui-icon"><use href="#icon-check"></use></svg></span><span class="ord-lbl" data-i18n="st_package">Package</span></div><div class="ord-step" data-step="payment"><span class="ord-dot"><i>3</i><svg class="ui-icon"><use href="#icon-check"></use></svg></span><span class="ord-lbl" data-i18n="st_payment">Payment</span></div><div class="ord-step" data-step="confirm"><span class="ord-dot"><i>4</i><svg class="ui-icon"><use href="#icon-check"></use></svg></span><span class="ord-lbl" data-i18n="st_confirm">Confirm</span></div></div>
+<div id="account-info-section">
             <h3 class="detail-section-title" data-i18n="sec_account_info">Account Info</h3>
             <div class="detail-form-card idg-card">
                 <!-- Joined glass grid: Player ID + Server in one frame. data-state drives the look:
@@ -7197,6 +7312,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             <div class="package-grid-scroll"><div id="detail-package-list" class="package-grid"></div></div>
 
 
+            <div class="vq-box" id="voucher-qty-box" style="display:none;">
+                <div class="vq-head"><span id="vq-label">Quantity</span><span class="vq-each" id="vq-each"></span></div>
+                <div class="vq-row">
+                    <button type="button" class="vq-btn" id="vq-minus" aria-label="Decrease" onclick="vqStep(-1)">&minus;</button>
+                    <input type="text" inputmode="numeric" class="vq-input" id="vq-input" value="1" autocomplete="off" aria-label="Quantity" oninput="vqTyping(this)" onblur="vqCommit(this)">
+                    <button type="button" class="vq-btn" id="vq-plus" aria-label="Increase" onclick="vqStep(1)">+</button>
+                </div>
+                <div class="vq-foot"><span id="vq-max"></span><b id="vq-total"></b></div>
+            </div>
             <div id="detail-payment-section" style="display:none;">
                 <h3 class="detail-section-title" data-i18n="sec_how_pay">How do you want to pay?</h3>
                 <div class="pay-type-tabs" id="detail-pay-type-tabs">
@@ -7268,7 +7392,10 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             </div>
             </div>
 
-            <div class="slide-confirm-wrap" id="detail-confirm-wrap" style="margin-top:20px;">
+            <div class="buy-bar" id="buy-bar">
+            <div class="topup-short" id="detail-topup-short" style="display:none;"><span id="detail-topup-short-text"></span><button type="button" class="btn btn-primary" id="detail-topup-short-btn" onclick="topupShortfall()"></button></div>
+            <div class="eta-hint" id="detail-eta-hint" style="display:none;"></div>
+            <div class="slide-confirm-wrap" id="detail-confirm-wrap">
                 <button type="button" class="btn btn-primary" id="detail-confirm-btn" disabled data-i18n="btn_select_package">Select a Package</button>
                 <div class="slide-confirm-fill" id="detail-confirm-fill" aria-hidden="true"></div>
                 <div class="slide-confirm-hint" id="detail-confirm-hint" aria-hidden="true">
@@ -7279,6 +7406,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 <div class="slide-confirm-thumb" id="detail-confirm-thumb" aria-hidden="true">
                     <svg class="ui-icon"><use href="#icon-chevron-right"></use></svg>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -7347,7 +7475,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         <div class="success-box">
             <div id="success-voucher-code-block"></div>
             <div class="success-check" id="success-check-icon">
-                <svg class="ui-icon" style="width:36px;height:36px;color:#28a745;"><use href="#icon-check"></use></svg>
+                <svg class="sc-draw ok" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg>
             </div>
             <h3 style="font-size:18px;font-weight: 600;color:var(--text);margin-bottom:8px;" id="success-title">Order Confirmed</h3>
             <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;" id="success-subtext">We've received your order and receipt. Our team will confirm it shortly.</p>
@@ -7572,7 +7700,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 status_pending: 'Pending', status_processing: 'Processing', status_success: 'Completed', status_fail: 'Failed',
                 od_package: 'Package', od_payment_method: 'Payment Method', od_transaction_id: 'Transaction ID', od_ingame_id: 'In-Game ID',
                 od_ingame_name: 'In-Game Name', od_server_id: 'Server ID', od_server: 'Server', od_ordered_at: 'Ordered At',
-                od_success_at: 'Success At', od_order_id: 'Order ID', od_confirmed_in: 'Confirmed In', od_amount_paid: 'Amount Paid',
+                od_success_at: 'Success At', od_order_id: 'Order ID', od_confirmed_in: 'Confirmed In', st_account: 'Account', st_package: 'Package', st_payment: 'Payment', st_confirm: 'Confirm', ot_avg: 'Usually delivered in', ot_waiting: 'Waiting in queue', ot_inprogress: 'Being delivered', ot_elapsed: 'for', ot_done_hint: 'Delivered successfully', ot_fail_hint: 'Order could not be completed', ot_placed: 'Order Placed', ot_processing: 'Processing', ot_success: 'Success', ot_failed: 'Failed', od_amount_paid: 'Amount Paid',
                 od_payment_receipt: 'Payment Receipt', od_reason: 'Reason', od_note: 'Note', od_download_receipt: 'Download Receipt', vr_button: 'Verified Receipt (QR)', vr_title: 'Verified Receipt', vr_dark: 'Dark', vr_light: 'Light', vr_save: 'Save Image', vr_verify_title: 'Receipt Verification', vr_ok_title: 'Genuine order', vr_ok_sub: 'This receipt matches a completed order in our system.', vr_bad_title: 'Could not verify', vr_bad_sub: 'We could not find a completed order for this receipt.',
                 title_wallet: 'My Wallet', title_profile: 'My Profile',
                 sec_account_info: 'Account Info', lbl_rank: 'Rank', lbl_server: 'Server', sec_description: 'Description',
@@ -7732,7 +7860,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 status_pending: 'စောင့်ဆိုင်းနေဆဲ', status_processing: 'လုပ်ဆောင်နေဆဲ', status_success: 'ပြီးမြောက်ပြီ', status_fail: 'မအောင်မြင်ပါ',
                 od_package: 'ပက်ကေ့ခ်ျ', od_payment_method: 'ငွေပေးချေမှုနည်း', od_transaction_id: 'ငွေလွှဲ ID', od_ingame_id: 'ဂိမ်း ID',
                 od_ingame_name: 'ဂိမ်းထဲက အမည်', od_server_id: 'ဆာဗာ ID', od_server: 'ဆာဗာ', od_ordered_at: 'အော်ဒါတင်ချိန်',
-                od_success_at: 'ပြီးမြောက်ချိန်', od_order_id: 'အော်ဒါ ID', od_confirmed_in: 'ပြီးမြောက်ရန်ကြာချိန်', od_amount_paid: 'ပေးချေငွေပမာဏ',
+                od_success_at: 'ပြီးမြောက်ချိန်', od_order_id: 'အော်ဒါ ID', od_confirmed_in: 'ပြီးမြောက်ရန်ကြာချိန်', st_account: 'အကောင့်', st_package: 'Package', st_payment: 'ငွေပေးချေ', st_confirm: 'အတည်ပြု', ot_avg: 'ပျှမ်းမျှ', ot_waiting: 'တန်းစီစောင့်နေသည်', ot_inprogress: 'ပို့ဆောင်နေသည်', ot_elapsed: 'ကြာပြီ', ot_done_hint: 'အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ', ot_fail_hint: 'အော်ဒါ မအောင်မြင်ပါ', ot_placed: 'အော်ဒါတင်ပြီး', ot_processing: 'လုပ်ဆောင်နေ', ot_success: 'အောင်မြင်', ot_failed: 'မအောင်မြင်', od_amount_paid: 'ပေးချေငွေပမာဏ',
                 od_payment_receipt: 'ငွေလွှဲပြေစာ', od_reason: 'အကြောင်းရင်း', od_note: 'မှတ်ချက်', od_download_receipt: 'ပြေစာ ဒေါင်းလုဒ်ဆွဲမည်', vr_button: 'အတည်ပြုပြေစာ (QR)', vr_title: 'အတည်ပြုပြေစာ', vr_dark: 'Dark', vr_light: 'Light', vr_save: 'ပုံသိမ်းမည်', vr_verify_title: 'ပြေစာ စစ်ဆေးခြင်း', vr_ok_title: 'Order အစစ်ဖြစ်ပါသည်', vr_ok_sub: 'ဒီပြေစာဟာ ကျွန်ုပ်တို့စနစ်ထဲက ပြီးစီးထားတဲ့ order နဲ့ ကိုက်ညီပါတယ်။', vr_bad_title: 'စစ်ဆေး၍ မရပါ', vr_bad_sub: 'ဒီပြေစာနဲ့ ကိုက်ညီတဲ့ ပြီးစီးထားသော order ကို ရှာမတွေ့ပါ။',
                 title_wallet: 'ကျွန်ုပ်၏ပိုက်ဆံအိတ်', title_profile: 'ကျွန်ုပ်၏ပရိုဖိုင်',
                 sec_account_info: 'အကောင့်အချက်အလက်', lbl_rank: 'အဆင့်', lbl_server: 'ဆာဗာ', sec_description: 'ဖော်ပြချက်',
@@ -8765,7 +8893,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const tt = document.createElement('div'); tt.className = 'idc-t'; tt.textContent = title;
             wrap.appendChild(tt);
             if (body) { const bb = document.createElement('div'); bb.className = 'idc-b'; bb.textContent = body; wrap.appendChild(bb); }
-            if (apiNote) { const nn = document.createElement('div'); nn.className = 'idc-b'; nn.style.cssText = 'font-family:ui-monospace,Menlo,monospace;font-size:10.5px;opacity:0.75;'; nn.textContent = apiNote; wrap.appendChild(nn); }
+            if (apiNote) { const nn = document.createElement('div'); nn.className = 'idc-b'; nn.style.cssText = 'font-family:ui-monospace,Menlo,monospace;font-size: 11px;opacity:0.75;'; nn.textContent = apiNote; wrap.appendChild(nn); }
             card.appendChild(ic); card.appendChild(wrap);
             return card;
         }
@@ -10256,6 +10384,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // stripped out for out-of-stock cards - see renderDetailPackageList).
             if (pkgToSelect && pkgToSelect.voucherId && voucherStockMap[String(pkgToSelect.voucherId)] === 0) return;
             selectedPackage = pkgToSelect;
+            window.voucherQty = 1;
             document.querySelectorAll('#detail-package-list .package-card').forEach(el => el.classList.remove('selected'));
             document.querySelector(`#detail-package-list .package-card[data-index="${index}"]`).classList.add('selected');
 
@@ -10347,8 +10476,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             list.addEventListener('dragstart', (e) => e.preventDefault());
         }
 
+        // Voucher packages (G2Bulk /products/:id/purchase) can be bought in bulk; everything else is always 1.
+        function orderQty() {
+            if (!selectedPackage || !window.currentGameIsVoucher || !selectedPackage.voucherId) return 1;
+            return Math.max(1, Math.floor(Number(window.voucherQty) || 1));
+        }
+        window.orderQty = orderQty;
         function getOrderSubtotal() {
-            return selectedPackage ? selectedPackage.price : 0;
+            return selectedPackage ? selectedPackage.price * orderQty() : 0;
         }
         function getOrderTotal() {
             return getOrderSubtotal();
@@ -10443,11 +10578,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const enough = currentWalletBalance >= total;
                 confirmBtn.disabled = !enough;
                 confirmBtn.innerText = enough
-                    ? `Buy ${selectedPackage.amount} - ${total.toLocaleString()} MMK (Wallet)`
+                    ? `Buy ${selectedPackage.amount}${orderQty() > 1 ? ' \u00d7' + orderQty() : ''} - ${total.toLocaleString()} MMK (Wallet)`
                     : 'Insufficient Wallet Balance';
             } else if (selectedPaymentType === 'payment') {
                 confirmBtn.disabled = false;
-                confirmBtn.innerText = `Buy ${selectedPackage.amount} - ${total.toLocaleString()} MMK`;
+                confirmBtn.innerText = `Buy ${selectedPackage.amount}${orderQty() > 1 ? ' \u00d7' + orderQty() : ''} - ${total.toLocaleString()} MMK`;
             }
         }
 
@@ -10688,9 +10823,11 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
             const onCopied = () => {
                 window.showToast('Copied!');
+                if (window.haptic) window.haptic('success');
                 const original = btnEl.innerHTML;
                 btnEl.innerHTML = '<svg class="ui-icon"><use href="#icon-check"></use></svg>';
-                setTimeout(() => { btnEl.innerHTML = original; }, 1200);
+                btnEl.classList.add('copied');
+                setTimeout(() => { btnEl.innerHTML = original; btnEl.classList.remove('copied'); }, 1200);
             };
             const onFailed = () => {
                 if (legacyCopyText(text)) onCopied();
@@ -10905,17 +11042,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 title.innerText = t('success_completed_title');
                 subtext.innerText = t('success_completed_sub');
                 iconWrap.style.background = '#E7F8EE';
-                iconWrap.innerHTML = '<svg class="ui-icon" style="width:36px;height:36px;color:#28a745;"><use href="#icon-check"></use></svg>';
+                iconWrap.innerHTML = '<svg class="sc-draw ok" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg>';
             } else if (status === 'Fail') {
                 title.innerText = t('success_failed_title');
                 subtext.innerText = t('success_failed_sub');
                 iconWrap.style.background = '#FCE8E6';
-                iconWrap.innerHTML = '<svg class="ui-icon" style="width:36px;height:36px;color:#D93025;"><use href="#icon-close"></use></svg>';
+                iconWrap.innerHTML = '<svg class="sc-draw bad" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M6 6l12 12" pathLength="1"/><path d="M18 6L6 18" pathLength="1"/></svg>';
             } else {
                 title.innerText = t('success_confirmed_title');
                 subtext.innerText = "We've received your order and receipt. Our team will confirm it shortly.";
                 iconWrap.style.background = '#E7F8EE';
-                iconWrap.innerHTML = '<svg class="ui-icon" style="width:36px;height:36px;color:#28a745;"><use href="#icon-check"></use></svg>';
+                iconWrap.innerHTML = '<svg class="sc-draw ok" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg>';
             }
         }
 
@@ -10977,6 +11114,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const img = window.findGameImage ? window.findGameImage(selectedGameName, selectedGameServerName) : '';
 
             const rows = [['Package', esc(selectedPackage.amount)]];
+            if (orderQty() > 1) rows.push(['Quantity', '\u00d7 ' + orderQty()]);
             let note = '';
             if (selectedGameNeedsPlayerId) {
                 rows.push(['In-Game ID', `<span class="or-id-val">${esc(inGameId)}${serverId ? ' (' + esc(serverId) + ')' : ''}</span>`]);
@@ -11232,7 +11370,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 serverRegion: selectedGameServerName,
                 amount: selectedPackage.amount,
                 price: getOrderTotal(),
-                quantity: 1,
+                quantity: orderQty(),
                 inGameId,
                 serverId,
                 // Only trust this when the ID that got verified is the exact
@@ -11264,7 +11402,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 serverRegion: selectedGameServerName,
                 amount: selectedPackage.amount,
                 price: getOrderTotal(),
-                quantity: 1,
+                quantity: orderQty(),
                 inGameId,
                 serverId,
                 inGameName: playerIdVerified === true ? verifiedPlayerName : null,
@@ -16663,6 +16801,25 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // literally Processing; the final step becomes a green check on Success
         // or a red X on Fail. No dedicated "started processing" timestamp is
         // stored, so only the first and last steps ever show a clock time.
+        // Typical delivery time, from the user's own completed orders (median of confirmedAt - timestamp).
+        // Per game when it has 3+ samples, else across all games; null when there isn't enough data (nothing is invented).
+        function etaText(gameName) {
+            try {
+                const all = [], per = [];
+                (HISTORY_ORDERS || []).forEach(o => {
+                    if (!o || o.status !== 'Success' || !o.confirmedAt || !o.timestamp) return;
+                    const d = histTsMs(o.confirmedAt) - histTsMs(o.timestamp);
+                    if (!(d > 0) || d > 86400000) return;
+                    all.push(d); if (gameName && o.game === gameName) per.push(d);
+                });
+                const arr = per.length >= 3 ? per : all;
+                if (arr.length < 3) return null;
+                arr.sort((x, y) => x - y);
+                const med = arr[Math.floor(arr.length / 2)];
+                return t('ot_avg') + ' ~' + formatDuration(med);
+            } catch (e) { return null; }
+        }
+        window.etaText = etaText;
         const ORDER_STATUS_RANK = { Pending: 0, Processing: 1, Success: 2, Fail: 2 };
         function orderTimelineHTML(data) {
             const status = data.status || 'Pending';
@@ -16670,41 +16827,44 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const isFail = status === 'Fail';
             const placedTime = data.timestamp ? historyTimeFmt.format(data.timestamp.toDate()) : '';
             const doneTime = (rank === 2 && data.confirmedAt) ? historyTimeFmt.format(data.confirmedAt.toDate()) : '';
-
-            const dot1 = rank > 1
-                ? `<div class="ot-dot done"><svg class="ui-icon"><use href="#icon-check"></use></svg></div>`
-                : rank === 1
-                    ? `<div class="ot-dot active"></div>`
-                    : `<div class="ot-dot"></div>`;
-            const dot2 = status === 'Success'
-                ? `<div class="ot-dot done"><svg class="ui-icon"><use href="#icon-check"></use></svg></div>`
-                : isFail
-                    ? `<div class="ot-dot fail"><svg class="ui-icon"><use href="#icon-close"></use></svg></div>`
-                    : `<div class="ot-dot"></div>`;
+            const chk = '<svg class="ui-icon"><use href="#icon-check"></use></svg>';
+            const dot1 = rank > 1 ? `<div class="ot-dot done">${chk}</div>` : rank === 1 ? `<div class="ot-dot active"></div>` : `<div class="ot-dot"></div>`;
+            const dot2 = status === 'Success' ? `<div class="ot-dot done">${chk}</div>`
+                : isFail ? `<div class="ot-dot fail"><svg class="ui-icon"><use href="#icon-close"></use></svg></div>` : `<div class="ot-dot"></div>`;
             const line1Class = rank >= 1 ? 'done' : '';
             const line2Class = status === 'Success' ? 'done' : (isFail ? 'fail' : '');
             const label1Class = rank > 1 ? 'done' : (rank === 1 ? 'active' : '');
             const label2Class = status === 'Success' ? 'done' : (isFail ? 'fail' : '');
-
+            // One-line hint under the stepper: where the order is now, and for open orders how long it has been waiting.
+            let hint = '', hintCls = '';
+            if (status === 'Success') { hint = t('ot_done_hint'); hintCls = 'ok'; }
+            else if (isFail) { hint = t('ot_fail_hint'); hintCls = 'bad'; }
+            else {
+                let ago = '';
+                try { const ms = Date.now() - histTsMs(data.timestamp); if (ms > 0) ago = ' · ' + formatDuration(ms) + ' ' + t('ot_elapsed'); } catch (e) {}
+                hint = (rank === 1 ? t('ot_inprogress') : t('ot_waiting')) + ago;
+                try { const eta = etaText(data.game); if (eta) hint += ' · ' + eta; } catch (e) {}
+            }
             return `
                 <div class="order-timeline">
                     <div class="ot-step">
-                        <div class="ot-dot done"><svg class="ui-icon"><use href="#icon-check"></use></svg></div>
-                        <span class="ot-label done">Order Placed</span>
+                        <div class="ot-dot done">${chk}</div>
+                        <span class="ot-label done">${t('ot_placed')}</span>
                         ${placedTime ? `<span class="ot-time">${placedTime}</span>` : ''}
                     </div>
                     <div class="ot-step">
                         <div class="ot-line ${line1Class}"></div>
                         ${dot1}
-                        <span class="ot-label ${label1Class}">Processing</span>
+                        <span class="ot-label ${label1Class}">${t('ot_processing')}</span>
                     </div>
                     <div class="ot-step">
                         <div class="ot-line ${line2Class}"></div>
                         ${dot2}
-                        <span class="ot-label ${label2Class}">${isFail ? 'Failed' : 'Success'}</span>
+                        <span class="ot-label ${label2Class}">${isFail ? t('ot_failed') : t('ot_success')}</span>
                         ${doneTime ? `<span class="ot-time">${doneTime}</span>` : ''}
                     </div>
                 </div>
+                <div class="ot-hint ${hintCls}">${hint}</div>
             `;
         }
         window.orderTimelineHTML = orderTimelineHTML;
@@ -20013,7 +20173,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     <div class="hc-thumb" style="width:34px;height:34px;">${gameImg ? `<img loading="lazy" decoding="async" src="${gameImg}" alt="" onerror="this.style.display='none'">` : ''}</div>
                     <div style="flex:1;min-width:0;">
                         <h4 style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.game || '')}</h4>
-                        <p style="font-size:10px;color:var(--text-muted);margin-top:1px;">${historyDateTimeFmt.format(new Date(item.ts))}</p>
+                        <p style="font-size: 11px;color:var(--text-muted);margin-top:1px;">${historyDateTimeFmt.format(new Date(item.ts))}</p>
                     </div>
                     <span class="badge ${historyBadgeClassFor(item.status)}">${historyStatusInnerHTML(item.status)}</span>
                 </div>
@@ -22784,7 +22944,7 @@ html .game-card.card-pop{animation:cardPop .5s var(--ease-spring) backwards;anim
 html .game-card.card-wave{animation:cardWave 1s var(--ease-out) backwards;animation-delay:min(calc((var(--r,0) + var(--c,0)) * 170ms),1400ms)}
 html .popular-card.card-pop{animation:bubbleRise 1.05s cubic-bezier(.3,.8,.35,1) backwards;animation-delay:calc(var(--i,0)*95ms)}
 .games-grid-scroll{-webkit-backdrop-filter:none;backdrop-filter:none}
-.badge,.badge.badge-success,.badge.badge-warning,.badge.badge-processing,.badge.badge-danger{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.badge,.badge.badge-success,.badge.badge-warning,.badge.badge-processing,.badge.badge-danger{-webkit-backdrop-filter: none;backdrop-filter: none}
 .modal-overlay:not(.show),.success-overlay:not(.show),.drawer-overlay:not(.show){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 </style>
 <script>
@@ -23030,6 +23190,49 @@ html[data-theme="dark"] .history-status-tab:not(.active) { color: rgb(var(--tab-
 .hst-ind.on { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .hst-ind { transition: background-color .2s ease; } }
 
+/* ---- History status tabs: glass pills (tokens; no backdrop-filter so low-end phones stay smooth) ---- */
+#history-container .history-status-tabs { padding: 4px !important; border-radius: var(--g-r-lg) !important; background: var(--g-track) !important; border: 1px solid var(--g-border); box-shadow: var(--g-shadow), var(--g-hi), inset 0 -1px 0 rgba(120,140,190,.16) !important; }
+#history-container .history-status-tab { border-radius: var(--g-r-md) !important; }
+#history-container .history-status-tab:not(.active) {
+    background: var(--g-surface) !important;
+    box-shadow: 0 3px 10px rgba(var(--tab-rgb), .14), var(--g-hi), inset 0 0 0 1px rgba(var(--tab-rgb), .12) !important;
+    color: rgb(var(--tab-rgb)); color: color-mix(in srgb, rgb(var(--tab-rgb)) 80%, #000);
+}
+html[data-theme="dark"] #history-container .history-status-tab:not(.active) { filter: none; box-shadow: var(--g-hi), inset 0 0 0 1px rgba(var(--tab-rgb), .22) !important; color: rgb(var(--tab-rgb)); color: color-mix(in srgb, rgb(var(--tab-rgb)) 70%, #fff); }
+#history-container .history-status-tab:not(.active):active { background: var(--g-surface-press) !important; }
+#history-container .history-status-tabs.hst-motion .history-status-tab.active { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.22); }
+#history-container .hst-ind {
+    border-radius: var(--g-r-md); border: 1px solid var(--g-active-edge);
+    background: var(--g-active-sheen), linear-gradient(135deg, rgba(var(--ind-rgb, 24,119,242), .96), rgba(var(--ind-rgb, 24,119,242), .70));
+    box-shadow: 0 8px 20px rgba(var(--ind-rgb, 24,119,242), .40), inset 0 1px 0 rgba(255,255,255,.75), inset 0 -3px 8px rgba(255,255,255,.10);
+}
+#history-container .history-status-count { min-width: 18px; height: 18px; line-height: 18px; border-radius: 9px; font-weight: 700; }
+#history-container .history-status-tab:not(.active) .history-status-count { background: rgba(var(--tab-rgb), .16); box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+html[data-theme="dark"] #history-container .history-status-tab:not(.active) .history-status-count { background: rgba(var(--tab-rgb), .26); box-shadow: none; }
+#history-container .history-status-tab.active .history-status-count { background: rgba(255,255,255,.30); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.55); }
+
+/* ---- Order status timeline (Order Detail): glass stepper with a live pulse + hint line ---- */
+.od-receipt .order-timeline { margin: 2px 0 6px; padding: 12px 6px 10px; border-radius: var(--g-r-lg); background: var(--g-panel); border: 1px solid var(--g-line); box-shadow: var(--g-hi); }
+.od-receipt .ot-dot { width: 26px; height: 26px; border: 2px solid rgba(255,255,255,.9); box-shadow: 0 3px 8px rgba(30,50,110,.18); }
+.od-receipt .ot-dot svg { width: 13px; height: 13px; }
+.od-receipt .ot-line { top: 12px; height: 3px; border-radius: 3px; }
+.od-receipt .ot-label { font-size: 11px; font-weight: 600; margin-top: 6px; }
+.od-receipt .ot-time { font-size: 11px; margin-top: 2px; }
+.ot-dot.done { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 3px 9px rgba(5,150,105,.40); }
+.ot-dot.fail { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: 0 3px 9px rgba(225,29,72,.40); }
+.ot-dot.active { background: linear-gradient(135deg, #818cf8, #4f46e5); box-shadow: 0 0 0 0 rgba(99,102,241,.55); animation: otPulse 1.8s ease-out infinite; }
+.ot-line.done { background: linear-gradient(90deg, #34d399, #059669); }
+.ot-line.fail { background: linear-gradient(90deg, #fb7185, #e11d48); }
+@keyframes otPulse { 0% { box-shadow: 0 0 0 0 rgba(99,102,241,.55); } 70% { box-shadow: 0 0 0 9px rgba(99,102,241,0); } 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); } }
+.ot-hint { margin: 4px 0 12px; padding: 8px 12px; border-radius: var(--g-r-sm); font-size: 11.5px; font-weight: 600; text-align: center; color: var(--text-secondary); background: rgba(99,102,241,.10); border: 1px solid rgba(99,102,241,.18); }
+.ot-hint.ok { color: #137A3E; background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.28); }
+.ot-hint.bad { color: #B3261E; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.28); }
+html[data-theme="dark"] .ot-hint { color: #C7D2FE; }
+html[data-theme="dark"] .ot-hint.ok { color: #4ADE80; }
+html[data-theme="dark"] .ot-hint.bad { color: #FCA5A5; }
+html[data-theme="dark"] .od-receipt .ot-dot { border-color: rgba(255,255,255,.35); }
+@media (prefers-reduced-motion: reduce) { .ot-dot.active { animation: none; } }
+
 /* ---- History date chips (All Days / Today / Yesterday / 8 Oct ...) ---- */
 .history-date-filter-wrap { gap: 8px !important; }
 .history-date-chip { --c: 24,119,242; border-radius: 12px !important; font-weight: 600 !important; padding: 7px 15px !important;
@@ -23046,6 +23249,21 @@ html[data-theme="dark"] .history-status-tab:not(.active) { color: rgb(var(--tab-
 .history-date-chip:nth-child(8n+8) { --c: 20,184,166; }
 html[data-theme="dark"] .history-date-chip:not(.active) { color: rgb(var(--c)) !important; filter: brightness(1.25); }
 .history-date-chip.active { background: linear-gradient(135deg, rgb(var(--c)), rgba(var(--c), .78)) !important; color: #fff !important; border-color: transparent !important; box-shadow: 0 5px 14px rgba(var(--c), .40) !important; filter: none !important; }
+
+/* ---- History date chips: glass pills (same tokens as the status tabs) ---- */
+#history-container .history-date-chip {
+    border-radius: var(--g-r-md) !important; padding: 8px 16px !important; border: 1px solid var(--g-border) !important;
+    background: var(--g-surface) !important;
+    box-shadow: 0 3px 10px rgba(var(--c), .14), var(--g-hi), inset 0 0 0 1px rgba(var(--c), .12) !important;
+    color: rgb(var(--c)) !important; color: color-mix(in srgb, rgb(var(--c)) 80%, #000) !important;
+}
+html[data-theme="dark"] #history-container .history-date-chip:not(.active) { filter: none !important; box-shadow: var(--g-hi), inset 0 0 0 1px rgba(var(--c), .22) !important; color: rgb(var(--c)) !important; color: color-mix(in srgb, rgb(var(--c)) 70%, #fff) !important; }
+#history-container .history-date-chip:not(.active):active { background: var(--g-surface-press) !important; transform: scale(.97); }
+#history-container .history-date-chip.active {
+    color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.22); border-color: var(--g-active-edge) !important;
+    background: var(--g-active-sheen), linear-gradient(135deg, rgba(var(--c), .96), rgba(var(--c), .70)) !important;
+    box-shadow: 0 8px 20px rgba(var(--c), .40), inset 0 1px 0 rgba(255,255,255,.75), inset 0 -3px 8px rgba(255,255,255,.10) !important;
+}
 
 /* ---- Order badges: brighter ---- */
 .badge.badge-success, .badge.badge-warning, .badge.badge-processing, .badge.badge-danger {
@@ -23164,5 +23382,142 @@ document.addEventListener('animationend', function (e) {
 })();
 </script>
 
+<script id="ui-polish-js">
+(function(){
+  var last='';
+  function done(){
+    try{
+      var needsId = (typeof selectedGameNeedsPlayerId==='undefined') ? true : !!selectedGameNeedsPlayerId;
+      var acc = !needsId || (typeof playerIdVerified!=='undefined' && playerIdVerified===true);
+      var pkg = (typeof selectedPackage!=='undefined') && !!selectedPackage;
+      var soft = !!window.currentGameIsSoftware;
+      var pay = pkg && (soft || (typeof selectedPaymentType!=='undefined' && (selectedPaymentType==='wallet' || (selectedPaymentType==='payment' && !!selectedPaymentMethod))));
+      return [acc,pkg,pay];
+    }catch(e){return [false,false,false];}
+  }
+  function tick(){
+    var gd=document.getElementById('game-detail');
+    if(!gd||!gd.classList.contains('active'))return;
+    var d=done(), cur=d.indexOf(false); if(cur<0)cur=3;
+    var key=d.join()+cur; if(key===last)return; last=key;
+    var steps=document.querySelectorAll('#ord-steps .ord-step');
+    steps.forEach(function(el,i){
+      el.classList.toggle('done', i<3 && d[i]);
+      el.classList.toggle('active', i===cur);
+    });
+  }
+  setInterval(tick,350);
+
+  function eta(){
+    var el=document.getElementById('detail-eta-hint'); if(!el)return;
+    var gd=document.getElementById('game-detail'); if(!gd||!gd.classList.contains('active'))return;
+    var txt=null;
+    try{ if(typeof selectedPackage!=='undefined' && selectedPackage && window.etaText) txt=window.etaText(typeof selectedGameName!=='undefined'?selectedGameName:null); }catch(e){}
+    if(txt){ if(el.textContent!==txt)el.textContent=txt; el.style.display=''; } else el.style.display='none';
+  }
+  setInterval(eta,500);
+  var T44='button,[role=button],.header-icon,.history-date-chip,.pkg-type-tab,.game-subtab-btn,.idg-clear,.pay-type-tab,.copy-btn';
+  function tap(){
+    document.querySelectorAll(T44).forEach(function(el){
+      if(el.dataset.t44)return;
+      var r=el.getBoundingClientRect(); if(!r.width||!r.height)return;
+      el.dataset.t44='1';
+      var dx=Math.max(0,(44-r.width)/2), dy=Math.max(0,(44-r.height)/2);
+      if(!dx&&!dy)return;
+      try{ var c=getComputedStyle(el,'::after').content; if(c&&c!=='none'&&c!=='normal')return; }catch(e){}
+      el.classList.add('tap44');
+      el.style.setProperty('--t44x',(-dx)+'px'); el.style.setProperty('--t44y',(-dy)+'px');
+    });
+  }
+  var tt; function sched(){clearTimeout(tt);tt=setTimeout(tap,400);}
+  if(document.readyState!=='loading')sched(); else document.addEventListener('DOMContentLoaded',sched);
+  new MutationObserver(sched).observe(document.body,{childList:true,subtree:true});
+
+  function shortAmt(){
+    try{
+      var total=getOrderTotal(), bal=Number(currentWalletBalance)||0;
+      if(!(total>bal)) return 0;
+      var need=Math.ceil((total-bal)/100)*100;
+      return {need:need, topup:Math.max(WALLET_TOPUP_MIN, need)};
+    }catch(e){return 0;}
+  }
+  window.topupShortfall=function(){
+    var a=shortAmt(); if(!a) return;
+    if(window.openWalletTopupModal) window.openWalletTopupModal();
+    var ov=document.getElementById('wallet-topup-overlay');
+    if(ov && ov.classList.contains('show')){
+      var inp=document.getElementById('wallet-topup-amount');
+      if(inp){ inp.value=a.topup.toLocaleString('en-US'); if(window.finalizeWalletTopupAmountInput) window.finalizeWalletTopupAmountInput(inp); }
+    }
+  };
+  function topupBox(){
+    var box=document.getElementById('detail-topup-short'); if(!box) return;
+    var gd=document.getElementById('game-detail'); if(!gd||!gd.classList.contains('active')) return;
+    var show=false;
+    try{ show = typeof selectedPackage!=='undefined' && !!selectedPackage && selectedPaymentType==='wallet' && !window.currentGameIsSoftware; }catch(e){}
+    var a = show ? shortAmt() : 0;
+    if(!a){ box.style.display='none'; return; }
+    var en=(typeof currentLang!=='undefined' && currentLang==='en');
+    var n=a.need.toLocaleString(), t=a.topup.toLocaleString();
+    var txt = en ? ('Wallet is short by '+n+' MMK') : ('Wallet ထဲမှာ '+n+' MMK လိုနေပါတယ်');
+    var btn = en ? ('Top up '+t+' MMK') : (t+' MMK ဖြည့်မယ်');
+    var te=document.getElementById('detail-topup-short-text'), be=document.getElementById('detail-topup-short-btn');
+    if(te.textContent!==txt) te.textContent=txt;
+    if(be.textContent!==btn) be.textContent=btn;
+    box.style.display='flex';
+  }
+  setInterval(topupBox,500);
+
+  /* ===== Voucher quantity ===== */
+  var VQ_CAP=100, lastPkg=null;
+  function vqEn(){ return (typeof currentLang!=='undefined' && currentLang==='en'); }
+  function vqActive(){
+    try{ return !!(selectedPackage && window.currentGameIsVoucher && selectedPackage.voucherId); }catch(e){ return false; }
+  }
+  function vqMax(){
+    var st; try{ st=voucherStockMap[String(selectedPackage.voucherId)]; }catch(e){}
+    if(typeof st==='number') return Math.max(0,Math.min(st,VQ_CAP));
+    return 10; // stock not loaded yet - stay conservative
+  }
+  function vqResetPayment(){
+    try{
+      if(selectedPaymentType===null || typeof selectedPaymentType==='undefined') return;
+      selectedPaymentType=null; selectedPaymentMethod=null; editingReceiptFile=null; receiptOcrPromise=null;
+      var tx=document.getElementById('detail-transaction-id'); if(tx) tx.value='';
+      document.querySelectorAll('#detail-pay-type-tabs .pay-type-tab').forEach(function(el){el.classList.remove('active');});
+      ['detail-wallet-pay-box','detail-payment-methods-wrap','detail-payment-info'].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display='none';});
+      var b=document.getElementById('detail-confirm-btn'); b.disabled=true; b.innerText='Choose How to Pay';
+      if(window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
+    }catch(e){}
+  }
+  function vqRender(){
+    var box=document.getElementById('voucher-qty-box'); if(!box) return;
+    var gd=document.getElementById('game-detail');
+    if(!gd||!gd.classList.contains('active')||!vqActive()){ box.style.display='none'; if(!selectedPackage) lastPkg=null; return; }
+    if(lastPkg!==selectedPackage){ lastPkg=selectedPackage; window.voucherQty=1; }
+    var max=vqMax(), q=Math.max(1,Number(window.voucherQty)||1);
+    if(max<1){ if(window.voucherQty!==1){ window.voucherQty=1; vqResetPayment(); } box.style.display='none'; return; }
+    if(q>max){ q=max; window.voucherQty=q; vqResetPayment(); }
+    var en=vqEn(), unit=Number(selectedPackage.price)||0;
+    document.getElementById('vq-label').textContent = en?'Quantity':'\u1021\u101b\u1031\u1021\u1010\u103d\u1000\u103a';
+    document.getElementById('vq-each').textContent = unit.toLocaleString()+' MMK / '+(en?'each':'\u1010\u1005\u103a\u1001\u102f');
+    var inp=document.getElementById('vq-input'); if(document.activeElement!==inp && inp.value!==String(q)) inp.value=q;
+    document.getElementById('vq-minus').disabled = q<=1;
+    document.getElementById('vq-plus').disabled = q>=max;
+    document.getElementById('vq-max').textContent = (en?'Max ':'\u200b\u1021\u1019\u103b\u102c\u1038\u1006\u102f\u1036\u1038 ')+max;
+    document.getElementById('vq-total').textContent = (unit*q).toLocaleString()+' MMK';
+    box.style.display='';
+  }
+  function vqSet(n){
+    var max=vqMax(); n=Math.floor(Number(n)||1); n=Math.max(1,Math.min(n,Math.max(1,max)));
+    if(n!==window.voucherQty){ window.voucherQty=n; vqResetPayment(); if(window.haptic) window.haptic('select'); }
+    vqRender();
+  }
+  window.vqStep=function(d){ vqSet((Number(window.voucherQty)||1)+d); };
+  window.vqTyping=function(el){ el.value=el.value.replace(/\D/g,'').slice(0,3); };
+  window.vqCommit=function(el){ vqSet(el.value||1); el.value=window.voucherQty; };
+  setInterval(vqRender,400);
+})();
+</script>
 </body>
 </html>
