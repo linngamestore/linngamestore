@@ -897,7 +897,7 @@
         .drawer-profile-info { flex: 1; min-width: 0; }
         .drawer-profile-info span { display: block; font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .drawer-profile-info .tier-badge { display: inline-flex; margin-top: 4px; padding: 3px 9px 3px 7px; font-size: 10px; }
-        .drawer-profile-info .tier-badge svg { width: 10px; height: 10px; }
+        .drawer-profile-info .tier-badge svg { width: 14px; height: 14px; }
         .drawer-close {
             width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -1583,7 +1583,7 @@
         /* VIP tier badges — colors are set per-tier via inline style from JS,
            this class just supplies the shared chip shape. */
         .tier-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-        .tier-badge svg { width: 12px; height: 12px; }
+        .tier-badge svg { width: 16px; height: 16px; }
         .mini-profile-info .tier-badge { margin-top: 3px; }
 
         /* Profile page: VIP status card (avatar ring, tier, spend stats, progress) */
@@ -3150,6 +3150,54 @@
            .avatar-tier-frame markup/animations as the real avatar, just scaled down and
            re-centered (the live version anchors to top:0 of the profile cover; here each
            cell anchors to its own center instead). Purely visual, no live data. */
+        /* ===== Glass-tile tier icons (Japanese deity set): motion only runs when the svg has
+           .tgi-anim (big placements). Badges stay static. perf-low / reduced-motion switch it off. ===== */
+        .tgi { display: inline-block; flex-shrink: 0; }
+        .tier-preview-god { margin-top: -2px; line-height: 0; }
+        .tier-preview-god svg { width: 30px; height: 30px; display: block; }
+        .tier-preview-lv { font-size: 9.5px; font-weight: 600; color: var(--text-muted, #8a8a99); margin-top: -4px; letter-spacing: .3px; }
+        .tgi-anim .tg-fb { transform-box: fill-box; transform-origin: center; }
+        .tgi-anim .tg-glow { animation: tgkGlow 3s ease-in-out infinite; }
+        .tgi-anim .tg-shine { animation: tgkShine 3.6s ease-in-out infinite; }
+        .tgi-anim .tg-coin { animation: tgkCoin 2.4s ease-out infinite; }
+        .tgi-anim .tg-door { animation: tgkDoor 2.8s ease-in-out infinite; }
+        .tgi-anim .tg-hito { animation: tgkHito 2.6s ease-in-out infinite; }
+        .tgi-anim .tg-flow { stroke-dasharray: 16 9; animation: tgkFlow 1.8s linear infinite; }
+        .tgi-anim .tg-flow2 { stroke-dasharray: 16 9; animation: tgkFlow 1.2s linear infinite; }
+        .tgi-anim .tg-leaf { animation: tgkLeaf 3.4s linear infinite; }
+        .tgi-anim .tg-spin { animation: tgkSpin 8s linear infinite; }
+        .tgi-anim .tg-spin2 { animation: tgkSpin 16s linear infinite; }
+        .tgi-anim .tg-rev { animation: tgkSpin 10s linear infinite reverse; }
+        .tgi-anim .tg-zap { animation: tgkZap 2.8s infinite; }
+        .tgi-anim .tg-spark { animation: tgkSpark 2.8s infinite; }
+        .tgi-anim .tg-phase { animation: tgkPhase 7s ease-in-out infinite; }
+        .tgi-anim .tg-twk { animation: tgkTwk 2s ease-in-out infinite; }
+        .tgi-anim .tg-arrow { animation: tgkArrow 3s infinite; }
+        .tgi-anim .tg-wave { animation: tgkWave 1.6s linear infinite; }
+        .tgi-anim .tg-wave2 { animation: tgkWave 2.4s linear infinite reverse; }
+        .tgi-anim .tg-bob { animation: tgkBob 2.4s ease-in-out infinite; }
+        .tgi-anim .tg-glint { animation: tgkGlint 2.4s ease-in-out infinite; }
+        .tgi-anim .tg-pulse { animation: tgkPulse 2.2s ease-in-out infinite; }
+        @keyframes tgkGlow { 0%,100% { transform: scale(.92); opacity: .7; } 50% { transform: scale(1.1); opacity: 1; } }
+        @keyframes tgkShine { 0%,55% { transform: translateX(-48px); } 100% { transform: translateX(60px); } }
+        @keyframes tgkCoin { 0% { transform: translateY(6px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-9px); opacity: 0; } }
+        @keyframes tgkDoor { 0%,100% { opacity: .25; } 50% { opacity: .8; } }
+        @keyframes tgkHito { 0%,100% { transform: translateY(2px); opacity: .35; } 50% { transform: translateY(-3px); opacity: 1; } }
+        @keyframes tgkFlow { to { stroke-dashoffset: -50; } }
+        @keyframes tgkLeaf { 0% { transform: translate(-24px,6px) rotate(0); opacity: 0; } 15%,85% { opacity: 1; } 100% { transform: translate(24px,-8px) rotate(220deg); opacity: 0; } }
+        @keyframes tgkSpin { to { transform: rotate(360deg); } }
+        @keyframes tgkZap { 0%,100% { opacity: 1; transform: scale(1); } 6% { opacity: .25; } 12% { opacity: 1; transform: scale(1.1); } 18% { opacity: .4; } 24% { opacity: 1; transform: scale(1); } }
+        @keyframes tgkSpark { 0%,4%,30%,100% { opacity: 0; } 8%,20% { opacity: 1; } }
+        @keyframes tgkPhase { 0%,100% { transform: translateX(2px); } 50% { transform: translateX(-11px); } }
+        @keyframes tgkTwk { 0%,100% { transform: scale(.6); opacity: .4; } 50% { transform: scale(1.15); opacity: 1; } }
+        @keyframes tgkArrow { 0%,35% { transform: translateX(0); opacity: 1; } 55%,62% { transform: translateX(-8px); } 72% { transform: translateX(22px); opacity: 1; } 82% { transform: translateX(34px); opacity: 0; } 83% { transform: translateX(0); opacity: 0; } 92%,100% { transform: translateX(0); opacity: 1; } }
+        @keyframes tgkWave { to { transform: translateX(-9.5px); } }
+        @keyframes tgkBob { 0%,100% { transform: translateY(1.5px); } 50% { transform: translateY(-2px); } }
+        @keyframes tgkGlint { 0%,40% { transform: translateY(8px); opacity: 0; } 50% { opacity: 1; } 75%,100% { transform: translateY(-16px); opacity: 0; } }
+        @keyframes tgkPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+        html.perf-low .tgi-anim * { animation: none !important; }
+        @media (prefers-reduced-motion: reduce) { .tgi-anim * { animation: none !important; } }
+
         .tier-preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 6px; margin-top: 16px; }
         /* Generic collapsible section (Account / VIP Status / Follow Us / Tier
            Designs) - closed by default, header row toggles a body that slides
@@ -3187,7 +3235,7 @@
         .mini-profile-info span { display: block; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-profile-info small { font-size: 10px; color: var(--text-muted); }
         .mini-profile-info .tier-badge { display: inline-flex; margin-top: 2px; padding: 3px 9px 3px 7px; font-size: 10px; } /* was inheriting display:block from `.mini-profile-info span`, stretching the badge to full width */
-        .mini-profile-info .tier-badge svg { width: 10px; height: 10px; }
+        .mini-profile-info .tier-badge svg { width: 14px; height: 14px; }
 
         /* Social links (Facebook / Telegram / TikTok) on the Profile page - 3 separate grid cards */
         .social-links-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
@@ -7972,8 +8020,8 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (['wallet', 'history', 'leaderboard'].includes(pageId)) playTabEnter(pageId);
             if (pageId === 'leaderboard' && window.loadLeaderboard) window.loadLeaderboard();
             if (pageId !== 'leaderboard' && window.stopLeaderboardLive) window.stopLeaderboardLive();
-            if (pageId === 'voucher' && window.renderVoucherGames) window.renderVoucherGames();
-            if (pageId === 'software' && window.renderSoftwareGames) window.renderSoftwareGames();
+            if (pageId === 'voucher' && window.renderVoucherGames) (window.renderVoucherGamesCached || window.renderVoucherGames)();
+            if (pageId === 'software' && window.renderSoftwareGames) (window.renderSoftwareGamesCached || window.renderSoftwareGames)();
             // Game catalogue listener: only needed on the pages that read
             // window.GAMES - Home (grid + favorites row + flash-sale banner),
             // Voucher (grid), and game-detail (package/app-link/success-screen
@@ -9985,10 +10033,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         }
 
         function switchPackageTab(tabId) {
+            if (tabId === activePackageTab) return;
             activePackageTab = tabId;
-            pkgZoomDone = false;
+            // pkgZoomDone stays true: replaying the staggered zoom on every card at each tab tap was the stutter.
             document.querySelectorAll('.pkg-type-tab').forEach(el => el.classList.toggle('active', el.dataset.type === tabId));
-            renderDetailPackageList();
+            // let the tab highlight paint first, then swap the cards (one cheap fade, no per-card animation)
+            requestAnimationFrame(() => {
+                if (activePackageTab !== tabId) return;
+                renderDetailPackageList();
+                const list = document.getElementById('detail-package-list');
+                if (list) { list.classList.remove('pkg-swap'); void list.offsetWidth; list.classList.add('pkg-swap'); }
+            });
         }
         window.switchPackageTab = switchPackageTab;
 
@@ -10145,7 +10200,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 const costVal = (window.isStoreAdmin && Array.isArray(window.currentGameCosts)) ? window.currentGameCosts[i] : undefined;
                 const costHtml = costVal !== undefined ? `<div class="pc-cost">Cost ${Number(costVal).toLocaleString()} MMK</div>` : '';
                 const img = pkg.image || DEFAULT_PACKAGE_ICON;
-                const imgTag = `<img class="pc-img" src="${img}" alt="" loading="lazy" onerror="this.src='${DEFAULT_PACKAGE_ICON}'">`;
+                const imgTag = `<img class="pc-img" src="${img}" alt="" loading="lazy" decoding="async" onerror="this.src='${DEFAULT_PACKAGE_ICON}'">`;
                 // Small corner stock badge, live from G2Bulk stock - only
                 // shown for voucher packages we actually have a stock number
                 // for (voucherStockMap is empty for non-voucher games).
@@ -11741,17 +11796,28 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             statusEl.style.display = 'block';
             statusEl.innerText = 'Uploading receipt...';
 
+            try {
+                const url = await _imgHostUpload(file, 'receipt');
+                statusEl.innerText = 'Receipt uploaded ✓';
+                return url;
+            } catch (e) {
+                statusEl.innerText = 'Receipt upload failed - please try again.';
+                throw e;
+            }
+        }
+
+        // One shared uploader: network failures, non-JSON replies (413 / 5xx pages) and a missing url all become a
+        // readable error instead of "Unexpected token <" / "Failed to fetch" / "Cannot read properties of undefined".
+        async function _imgHostUpload(file, label) {
             const form = new FormData();
             form.append('image', await prepareImageForUpload(file));
-
-            const res = await fetch(IMGBB_UPLOAD_URL, {
-                method: 'POST',
-                body: form
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error?.message || 'Receipt upload failed');
-
-            statusEl.innerText = 'Receipt uploaded ✓';
+            let res, data = null;
+            try { res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form }); }
+            catch (e) { throw new Error('Network error while uploading your ' + label + '. Please check your connection and try again.'); }
+            try { data = await res.json(); } catch (e) { data = null; }
+            if (!res.ok || !data || !data.success || !data.data || !data.data.url) {
+                throw new Error((data && data.error && data.error.message) || ('Could not upload your ' + label + ' (' + res.status + '). Please try again.'));
+            }
             return data.data.url;
         }
 
@@ -11761,18 +11827,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             statusEl.style.display = 'block';
             statusEl.innerText = 'Uploading photo...';
 
-            const form = new FormData();
-            form.append('image', await prepareImageForUpload(file));
-
-            const res = await fetch(IMGBB_UPLOAD_URL, {
-                method: 'POST',
-                body: form
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error?.message || 'Photo upload failed');
-
-            statusEl.innerText = 'Photo uploaded ✓';
-            return data.data.url;
+            try {
+                const url = await _imgHostUpload(file, 'photo');
+                statusEl.innerText = 'Photo uploaded ✓';
+                return url;
+            } catch (e) {
+                statusEl.innerText = 'Photo upload failed - please try again.';
+                throw e;
+            }
         }
         window.uploadProfilePhotoToImgBB = uploadProfilePhotoToImgBB;
 
@@ -11855,13 +11917,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const statusEl = document.getElementById('wallet-receipt-upload-status');
             statusEl.style.display = 'block';
             statusEl.innerText = 'Uploading receipt...';
-            const form = new FormData();
-            form.append('image', await prepareImageForUpload(file));
-            const res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error?.message || 'Receipt upload failed');
-            statusEl.innerText = 'Receipt uploaded ✓';
-            return data.data.url;
+            try {
+                const url = await _imgHostUpload(file, 'receipt');
+                statusEl.innerText = 'Receipt uploaded ✓';
+                return url;
+            } catch (e) {
+                statusEl.innerText = 'Receipt upload failed - please try again.';
+                throw e;
+            }
         }
 
         function walletStatusBadgeClass(status) {
@@ -14575,14 +14638,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // highest-to-lowest so tierForSpend() can just find the first
         // threshold a spend qualifies for.
         const TIER_META = [
-            { name: 'Immortal',  color: '#FFD700', bg: '#0D0B14' },
-            { name: 'Mythical',  color: '#FF4318', bg: '#FFE9E2' },
-            { name: 'Conqueror', color: '#C41F7D', bg: '#FDE8F3' },
-            { name: 'Legend',    color: '#6A3FD1', bg: '#F0EAFC' },
-            { name: 'Diamond',   color: '#00A8C9', bg: '#E5FAFD' },
-            { name: 'Platinum',  color: '#4A6FA5', bg: '#EAF0FB' },
-            { name: 'Gold',      color: '#A87400', bg: '#FFF6DF' },
-            { name: 'Bronze',    color: '#7A4A22', bg: '#FBEEE6' },
+            { name: 'Immortal', label: 'Amaterasu',  color: '#FFD700', bg: '#0D0B14' },
+            { name: 'Mythical', label: 'Susanoo',  color: '#FF4318', bg: '#FFE9E2' },
+            { name: 'Conqueror', label: 'Hachiman', color: '#C41F7D', bg: '#FDE8F3' },
+            { name: 'Legend', label: 'Tsukuyomi',    color: '#6A3FD1', bg: '#F0EAFC' },
+            { name: 'Diamond', label: 'Raijin',   color: '#00A8C9', bg: '#E5FAFD' },
+            { name: 'Platinum', label: 'Fujin',  color: '#4A6FA5', bg: '#EAF0FB' },
+            { name: 'Gold', label: 'Inari',      color: '#A87400', bg: '#FFF6DF' },
+            { name: 'Bronze', label: 'Daikokuten',    color: '#7A4A22', bg: '#FBEEE6' },
         ];
         const DEFAULT_TIER_MINS = {
             Bronze: 0, Gold: 100000, Platinum: 300000, Diamond: 700000,
@@ -14655,32 +14718,157 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             return i === -1 ? 0 : i;
         }
 
-        function tierIconSVG(tier) {
-            const def = TIER_ICON_PATHS[tier.name] || TIER_ICON_PATHS.Bronze;
-            const useGradient = TIER_GRADIENT_TIERS.has(tier.name);
-            const gid = `tg-${tierBadgeUid++}`;
-            const fill = useGradient ? `url(#${gid})` : tier.color;
-            const defs = useGradient
-                ? `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
-                       <stop offset="0%" stop-color="${tier.color}"/>
-                       <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.9"/>
-                   </linearGradient></defs>`
-                : '';
-            let body;
-            if (def.shape === 'path') {
-                body = `<path d="${def.d}" fill="${fill}"/>`;
-            } else if (def.shape === 'polygon') {
-                body = `<polygon points="${def.points}" fill="${fill}"/>`;
-            } else if (def.shape === 'medal') {
-                body = `<circle cx="12" cy="9" r="6" fill="${fill}"/><polygon points="8,14 4,22 9,19" fill="${fill}"/><polygon points="16,14 20,22 15,19" fill="${fill}"/>`;
-            } else if (def.shape === 'sunburst') {
-                // Immortal: an 8-point starburst (radiant/eternal light) with a
-                // bright white core gem — distinct from every lower tier's
-                // crown/medal/gem shapes, since Immortal sits above them all.
-                body = `<polygon points="${def.points}" fill="${fill}"/><circle cx="12" cy="12" r="2.4" fill="#FFFFFF"/>`;
+        // ---- Glass-tile tier icons: Japanese deity set ----
+        // Internal tier keys (Bronze ... Immortal) are intentionally unchanged because
+        // settings/tiers in Firestore (admin-edited minimums), data-tier CSS and the
+        // receipt palettes are all keyed by them. Only the displayed name (`label`) is new:
+        // Bronze=Daikokuten, Gold=Inari, Platinum=Fujin, Diamond=Raijin, Legend=Tsukuyomi,
+        // Conqueror=Hachiman, Mythical=Susanoo, Immortal=Amaterasu.
+        // Every icon is a pure-SVG glass tile (no emoji). Pass animate=true for the
+        // moving version (big placements only); badges use the static version.
+        const TIER_GOD_COLORS = {
+            Bronze: ['#D98445', '#7A3A12'], Gold: ['#FF6B3D', '#B02A0A'],
+            Platinum: ['#9CC8FF', '#3F6FB5'], Diamond: ['#3EE0D0', '#0A7F8F'],
+            Legend: ['#A47BFF', '#4B25B0'], Conqueror: ['#FF5CB0', '#9E1466'],
+            Mythical: ['#FF5A4A', '#A3140A'], Immortal: ['#FFE14D', '#1A1208']
+        };
+        const TIER_GOD_ART = {
+            // Lv.1 Daikokuten - lucky mallet (uchide no kozuchi) with coins popping out
+            Bronze: (p, a) => `
+                <g transform="translate(-2,1)"><g transform="rotate(-24 0 18)">${a ? '<animateTransform attributeName="transform" type="rotate" values="-36 0 18;-12 0 18;-36 0 18" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="2.4s" repeatCount="indefinite"/>' : ''}
+                    <rect x="-2.3" y="4" width="4.6" height="17" rx="2.2" fill="url(#${p}w)" stroke="#fff" stroke-width=".8"/>
+                    <path d="M-2.3 9 l4.6 2 M-2.3 13 l4.6 2 M-2.3 17 l4.6 2" stroke="#7A3A12" stroke-opacity=".45" stroke-width=".9"/>
+                    <rect x="-14" y="-14" width="28" height="19" rx="7" fill="url(#${p}g)" stroke="#fff" stroke-width="1.1"/>
+                    <path d="M-8 -13 V4 M8 -13 V4" stroke="#B8420A" stroke-opacity=".45" stroke-width="1.2"/>
+                    <path d="M-11 -10 H11" stroke="#fff" stroke-opacity=".9" stroke-width="1.4" stroke-linecap="round"/>
+                    <circle cx="0" cy="-4.5" r="2.4" fill="#fff" fill-opacity=".6"/>
+                </g></g>
+                <g class="tg-fb tg-coin"><ellipse cx="17" cy="-15" rx="3.6" ry="4.4" fill="url(#${p}k)" stroke="#fff" stroke-width=".8"/><path d="M15.4 -15 H18.6" stroke="#9A5A00" stroke-opacity=".6" stroke-width=".8"/></g>
+                <g class="tg-fb tg-coin" style="animation-delay:1.2s"><ellipse cx="23" cy="-3" rx="3" ry="3.8" fill="url(#${p}k)" stroke="#fff" stroke-width=".8"/><path d="M21.7 -3 H24.3" stroke="#9A5A00" stroke-opacity=".6" stroke-width=".8"/></g>`,
+            // Lv.2 Inari - torii gate with glowing doorway and fox-fire
+            Gold: (p, a) => `
+                <rect class="tg-door" x="-9.4" y="-3" width="18.8" height="22" fill="url(#${p}d)"/>
+                <rect x="-14" y="-3" width="4.6" height="24" rx="1" fill="url(#${p}w)" stroke="#fff" stroke-width=".9"/>
+                <rect x="9.4" y="-3" width="4.6" height="24" rx="1" fill="url(#${p}w)" stroke="#fff" stroke-width=".9"/>
+                <rect x="-11.6" y="-3" width="1.5" height="24" fill="#B8420A" fill-opacity=".3"/>
+                <rect x="11.8" y="-3" width="1.5" height="24" fill="#B8420A" fill-opacity=".3"/>
+                <rect x="-17" y="3" width="34" height="3.4" rx="1" fill="url(#${p}w)" stroke="#fff" stroke-width=".9"/>
+                <rect x="-2.2" y="-3" width="4.4" height="6" rx=".8" fill="url(#${p}g)" stroke="#fff" stroke-width=".7"/>
+                <rect x="-19" y="-7" width="38" height="3.4" rx="1" fill="url(#${p}w)" stroke="#fff" stroke-width=".9"/>
+                <path d="M-23 -17 C-14 -10 14 -10 23 -17 L21.5 -11.2 C12 -6.5 -12 -6.5 -21.5 -11.2 Z" fill="url(#${p}w)" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/>
+                <path d="M-20 -13 C-10 -8.5 10 -8.5 20 -13" fill="none" stroke="#B8420A" stroke-opacity=".35" stroke-width="1"/>
+                <circle class="tg-hito" cx="-23" cy="8" r="2.4" fill="#FFE1A8"/>
+                <circle class="tg-hito" style="animation-delay:1.2s" cx="23" cy="10" r="2.4" fill="#FFE1A8"/>
+                <path class="tg-fb tg-twk" d="M0 -26 V-21 M-2.5 -23.5 H2.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>`,
+            // Lv.3 Fujin - wind ribbons with drifting leaves
+            Platinum: (p, a) => `
+                <g fill="none" stroke-linecap="round">
+                    <path d="M-19 -8 H6 a5.5 5.5 0 1 0 -5.5 -5.5 a2.4 2.4 0 1 1 2.4 2.4" stroke="#fff" stroke-opacity=".28" stroke-width="5"/>
+                    <path class="tg-flow" d="M-19 -8 H6 a5.5 5.5 0 1 0 -5.5 -5.5 a2.4 2.4 0 1 1 2.4 2.4" stroke="#fff" stroke-width="2.2"/>
+                    <path d="M-19 1 H14 a5.5 5.5 0 1 1 -5.5 5.5 a2.4 2.4 0 1 0 2.4 -2.4" stroke="#fff" stroke-opacity=".28" stroke-width="5"/>
+                    <path class="tg-flow2" d="M-19 1 H14 a5.5 5.5 0 1 1 -5.5 5.5 a2.4 2.4 0 1 0 2.4 -2.4" stroke="#fff" stroke-width="2.2"/>
+                    <path d="M-19 10 H-1 a3.5 3.5 0 1 1 -3.5 3.5" stroke="#fff" stroke-opacity=".28" stroke-width="5"/>
+                    <path class="tg-flow" style="animation-delay:-.6s" d="M-19 10 H-1 a3.5 3.5 0 1 1 -3.5 3.5" stroke="#fff" stroke-width="2.2"/>
+                </g>
+                ${a ? `<g clip-path="url(#${p}c)"><path class="tg-fb tg-leaf" d="M0 0 Q3.5 -4 7 0 Q3.5 4 0 0 Z" fill="#CFF5D0" stroke="#CFF5D0" stroke-width=".8"/>
+                <path class="tg-fb tg-leaf" style="animation-delay:1.7s" d="M-4 12 Q-1 8 2 12 Q-1 16 -4 12 Z" fill="#CFF5D0"/></g>` : ''}`,
+            // Lv.4 Raijin - lightning bolt inside a ring of thunder drums
+            Diamond: (p, a) => `
+                <circle r="20" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width=".8"/>
+                <circle r="13.5" fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".3" stroke-width=".8"/>
+                <g class="tg-fb tg-spin" fill="url(#${p}w)" stroke="#fff" stroke-width=".8">
+                    <circle cx="20" cy="0" r="2.6"/><circle cx="10" cy="17.3" r="2.6"/><circle cx="-10" cy="17.3" r="2.6"/><circle cx="-20" cy="0" r="2.6"/><circle cx="-10" cy="-17.3" r="2.6"/><circle cx="10" cy="-17.3" r="2.6"/>
+                </g>
+                <path class="tg-fb tg-zap" d="M4 -17 L-9 2 H-2 L-5 18 L11 -4 H3 Z" fill="url(#${p}b)" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M3 -12 L-4 0" stroke="#fff" stroke-opacity=".9" stroke-width="1" stroke-linecap="round"/>
+                <path class="tg-spark" d="M-16 -9 l-4 -2 M16 9 l4 2 M-15 11 l-4 3 M15 -11 l4 -3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>`,
+            // Lv.5 Tsukuyomi - cratered moon changing phase
+            Legend: (p, a) => `
+                <circle r="19" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width=".8"/>
+                <circle r="14" fill="url(#${p}m)"/>
+                <circle cx="-4" cy="-5" r="3.2" fill="#9D8BDB" fill-opacity=".5"/><circle cx="5" cy="2" r="2.4" fill="#9D8BDB" fill-opacity=".5"/><circle cx="-3" cy="7" r="1.9" fill="#9D8BDB" fill-opacity=".5"/><circle cx="6" cy="-8" r="1.4" fill="#9D8BDB" fill-opacity=".5"/>
+                <circle class="tg-phase" cx="7" cy="-2" r="13.6" fill="#3A2490"/>
+                <circle r="14" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1"/>
+                <path class="tg-fb tg-twk" d="M-21 -15 V-9 M-24 -12 H-18" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+                <path class="tg-fb tg-twk" style="animation-delay:.9s" d="M20 14 V20 M17 17 H23" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+                <circle class="tg-fb tg-twk" style="animation-delay:.5s" cx="19" cy="-17" r="1.3" fill="#fff"/>`,
+            // Lv.6 Hachiman - yumi bow, string draws back and the arrow flies
+            Conqueror: (p, a) => `
+                <path d="M-9 -21 C8 -12 8 12 -9 21" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5.5" stroke-linecap="round"/>
+                <path d="M-9 -21 C8 -12 8 12 -9 21" fill="none" stroke="url(#${p}w)" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M-7 -17 C5 -10 5 -4 4 -2" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".9" stroke-linecap="round"/>
+                <rect x="1.5" y="-5" width="4.5" height="10" rx="2" fill="url(#${p}g)" stroke="#fff" stroke-width=".8"/>
+                <path d="M1.5 -2 H6 M1.5 1 H6" stroke="#B8420A" stroke-opacity=".5" stroke-width=".8"/>
+                <path d="M-9 -21 L-9 0 L-9 21" fill="none" stroke="#fff" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">${a ? '<animate attributeName="d" dur="3s" repeatCount="indefinite" keyTimes="0;.35;.55;.62;.64;.7;1" values="M-9 -21 L-9 0 L-9 21;M-9 -21 L-9 0 L-9 21;M-9 -21 L-17 0 L-9 21;M-9 -21 L-17 0 L-9 21;M-9 -21 L-9 0 L-9 21;M-9 -21 L-9 0 L-9 21;M-9 -21 L-9 0 L-9 21"/>' : ''}</path>
+                <g class="tg-arrow">
+                    <path d="M-9 0 H19" stroke="url(#${p}w)" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M13 -4.5 L20 0 L13 4.5 Z" fill="url(#${p}g)" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/>
+                    <path d="M-8 0 L-13 -3.4 M-8 0 L-13 3.4 M-5 0 L-9.5 -3.4 M-5 0 L-9.5 3.4" stroke="#FFD0E8" stroke-width="1.3" stroke-linecap="round"/>
+                </g>`,
+            // Lv.7 Susanoo - Kusanagi sword over rolling waves
+            Mythical: (p, a) => `
+                <g class="tg-bob">
+                    <path d="M0 -23 L3.8 -15 V3 H-3.8 V-15 Z" fill="url(#${p}s)" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>
+                    <path d="M0 -18 V1" stroke="#5F78AE" stroke-opacity=".55" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M1.8 -14 V2" stroke="#fff" stroke-opacity=".9" stroke-width=".8"/>
+                    <path class="tg-glint" d="M-1.5 4 L0 -2 L1.5 4 Z" fill="#fff"/>
+                    <path d="M-9.5 3 Q0 7 9.5 3 L8.5 6.5 Q0 10 -8.5 6.5 Z" fill="url(#${p}g)" stroke="#fff" stroke-width=".9" stroke-linejoin="round"/>
+                    <rect x="-2.2" y="7.5" width="4.4" height="8" rx="1.6" fill="#7A2A1A" stroke="#fff" stroke-width=".8"/>
+                    <path d="M-2.2 9.5 l4.4 2 M-2.2 12.5 l4.4 2" stroke="#FFD0C8" stroke-width=".9"/>
+                    <circle cx="0" cy="17.5" r="2.2" fill="url(#${p}g)" stroke="#fff" stroke-width=".7"/>
+                </g>
+                <g clip-path="url(#${p}c)">
+                    <path class="tg-wave2" d="M-28.5 22.5 q4.75 -4 9.5 0 t9.5 0 t9.5 0 t9.5 0 t9.5 0 t9.5 0 t9.5 0" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>
+                    <path class="tg-wave" d="M-28.5 26 q4.75 -5 9.5 0 t9.5 0 t9.5 0 t9.5 0 t9.5 0 t9.5 0 t9.5 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+                </g>`,
+            // Lv.8 Amaterasu - sun goddess: 12 rays around the Yata mirror
+            Immortal: (p, a) => `
+                <g class="tg-fb tg-spin2" fill="url(#${p}g)">${[0, 60, 120, 180, 240, 300].map(d => `<path d="M-2.8 -13 L0 -22.5 L2.8 -13 Z" transform="rotate(${d})"/>`).join('')}${[30, 90, 150, 210, 270, 330].map(d => `<path d="M-2.2 -13 L0 -18.5 L2.2 -13 Z" transform="rotate(${d})"/>`).join('')}</g>
+                <circle r="11.5" fill="none" stroke="#FFE98A" stroke-opacity=".7" stroke-width=".8"/>
+                <circle class="tg-fb tg-rev" r="10" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="1.5 3.4" stroke-linecap="round"/>
+                <g class="tg-fb tg-pulse"><circle r="8" fill="url(#${p}m)" stroke="#fff" stroke-width=".9"/><circle r="5.4" fill="none" stroke="#FFC400" stroke-width=".9"/><circle r="2.6" fill="#FFC400"/><path d="M-5 -3 A6 6 0 0 1 0 -6" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></g>`
+        };
+        function tierIconSVG(tier, size = 14, animate = false) {
+            const key = TIER_GOD_ART[tier.name] ? tier.name : 'Bronze';
+            if (animate) {
+                const lowPower = document.documentElement.classList.contains('perf-low')
+                    || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                if (lowPower) animate = false;
             }
-            return `<svg width="14" height="14" viewBox="0 0 24 24">${defs}${body}</svg>`;
+            const p = `tg${tierBadgeUid++}-`;
+            const [c1, c2] = TIER_GOD_COLORS[key];
+            const tileStops = key === 'Immortal'
+                ? '<stop offset="0" stop-color="#FFE14D" stop-opacity=".9"/><stop offset=".55" stop-color="#7A5200" stop-opacity=".85"/><stop offset="1" stop-color="#1A1208"/>'
+                : `<stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}" stop-opacity=".9"/>`;
+            const defs = `
+                <clipPath id="${p}c"><rect x="-30" y="-30" width="60" height="60" rx="18"/></clipPath>
+                <linearGradient id="${p}t" x1="0" y1="0" x2="1" y2="1">${tileStops}</linearGradient>
+                <linearGradient id="${p}r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".5" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".5"/></linearGradient>
+                <linearGradient id="${p}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+                <linearGradient id="${p}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#F1E6FF" stop-opacity=".78"/></linearGradient>
+                <linearGradient id="${p}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF4C2"/><stop offset="1" stop-color="#FFC247"/></linearGradient>
+                <linearGradient id="${p}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#FFE95C"/></linearGradient>
+                <linearGradient id="${p}m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#D3C4FF"/></linearGradient>
+                <linearGradient id="${p}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#DDEBFF"/><stop offset="1" stop-color="#9FB8E6"/></linearGradient>
+                <linearGradient id="${p}k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF4C2"/><stop offset="1" stop-color="#FFB93B"/></linearGradient>
+                <linearGradient id="${p}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE1A8" stop-opacity=".9"/><stop offset="1" stop-color="#FFE1A8" stop-opacity="0"/></linearGradient>`;
+            const glow = animate ? `<circle class="tg-fb tg-glow" r="33" fill="${c1}" fill-opacity=".25"/>` : '';
+            const shine = animate ? `<g clip-path="url(#${p}c)"><polygon class="tg-shine" points="0,-34 12,-34 4,34 -8,34" fill="#fff" fill-opacity=".3"/></g>` : '';
+            return `<svg class="tgi${animate ? ' tgi-anim' : ''}" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="-34 -34 68 68" aria-hidden="true" focusable="false"><defs>${defs}</defs>${glow}<rect x="-30" y="-30" width="60" height="60" rx="18" fill="url(#${p}t)" stroke="url(#${p}r)" stroke-width="1.4"/><rect x="-27" y="-28" width="54" height="30" rx="15" fill="url(#${p}h)"/>${TIER_GOD_ART[key](p, animate)}${shine}</svg>`;
         }
+        // Canvas receipts can't use inline SVG directly, so each tile is rasterised once
+        // (static version) and drawn with drawImage; drawTierGlyph falls back to the old
+        // flat glyph if an image isn't ready yet.
+        const TIER_GLYPH_IMG = {};
+        function getTierGlyphImg(key) {
+            if (TIER_GLYPH_IMG[key]) return TIER_GLYPH_IMG[key];
+            const im = new Image();
+            im.decoding = 'async';
+            im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(tierIconSVG({ name: key }, 96, false));
+            TIER_GLYPH_IMG[key] = im;
+            return im;
+        }
+        TIER_RANK_ORDER.forEach(getTierGlyphImg);
 
         function tierBadgeHTML(tier) {
             const glowClass = TIER_GRADIENT_TIERS.has(tier.name) ? ' tier-badge-glow' : '';
@@ -14692,7 +14880,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // the text stays readable over the dark background.
             const textColor = materialTier ? TIER_MATERIAL_TEXT[tier.name] : tier.color;
             return `<span class="tier-badge${glowClass}${materialClass}" style="background:${tier.bg};color:${textColor};${glowStyle}">
-                ${tierIconSVG(tier)}${escapeHtml(tier.name)}
+                ${tierIconSVG(tier)}${escapeHtml(tier.label || tier.name)}
             </span>`;
         }
 
@@ -14709,7 +14897,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             // Display lowest-to-highest (TIER_META itself is ordered highest-first
             // for tierForSpend()'s threshold lookup), so the grid reads as a
             // natural rank progression: Bronze first, Immortal last.
-            grid.innerHTML = [...TIER_META].reverse().map(tier => `
+            grid.innerHTML = [...TIER_META].reverse().map((tier, i) => `
                 <div class="tier-preview-item">
                     <div class="tier-preview-frame-outer">
                         <div class="tier-preview-frame-inner">
@@ -14721,7 +14909,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                             </div>
                         </div>
                     </div>
-                    <span class="tier-preview-label" style="color:${tier.color};">${escapeHtml(tier.name)}</span>
+                    <div class="tier-preview-god">${tierIconSVG(tier, 30, true)}</div>
+                    <span class="tier-preview-label" style="color:${tier.color};">${escapeHtml(tier.label || tier.name)}</span>
+                    <span class="tier-preview-lv">Lv.${i + 1}</span>
                 </div>
             `).join('');
             grid.dataset.rendered = '1';
@@ -14844,7 +15034,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                     const remaining = next.min - total;
                     const span = next.min - tier.min;
                     const pct = span > 0 ? Math.min(100, Math.max(0, ((total - tier.min) / span) * 100)) : 100;
-                    progressText.innerText = `${formatMMK(remaining)} more to reach ${next.name}`;
+                    progressText.innerText = `${formatMMK(remaining)} more to reach ${next.label || next.name}`;
                     progressFill.style.width = pct + '%';
                 } else {
                     progressText.innerText = 'Highest tier reached 🎉';
@@ -16338,9 +16528,54 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // key (Yangon calendar day) shows only that day's orders.
         let HISTORY_FILTER_DATE = null;
 
+        // ---- Read-saving History: only TODAY's orders are read when History opens.
+        // Older days are fetched ONCE (one query, newest 40) the first time the customer
+        // taps "All Days" / "Yesterday" / an older date. Nothing older is read otherwise.
+        let HISTORY_TODAY = [];                 // live (today only)
+        let HISTORY_OLDER = [];                 // one-time fetch, on demand
+        let HISTORY_OLDER_STATE = 'idle';       // idle | loading | done
+        let historyGen = 0;                     // bumps on every (re)subscribe, so stale fetches are ignored
+        let HISTORY_IND_PREV = null;            // last position of the sliding tab highlight
+        let HISTORY_LAST_ACTIVE = '';           // last active status+date (to know when to re-centre)
+        const HISTORY_RETURN_AUTO_MS = 3500;    // auto-jumped tab goes back to "All" after this long
+        const HISTORY_RETURN_MANUAL_MS = 10000; // same when the customer tapped a status tab by hand
+        function historyTodayKey() { return yangonDateKey(Date.now()); }
+        function historyTodayStart() { return new Date(historyTodayKey() + 'T00:00:00.000+06:30'); }
+        function historyMerged() { return HISTORY_TODAY.concat(HISTORY_OLDER); }
+
+        function historyEnsureOlder() {
+            if (HISTORY_OLDER_STATE !== 'idle') return;
+            const gid = window.getGuestId ? window.getGuestId() : '';
+            if (!gid) return;
+            HISTORY_OLDER_STATE = 'loading';
+            const gen = historyGen;
+            const start = historyTodayStart();
+            const finish = (docs) => {
+                if (gen !== historyGen) return;
+                HISTORY_OLDER = docs;
+                HISTORY_OLDER_STATE = 'done';
+                renderHistoryOrders(historyMerged());
+            };
+            const fail = () => {
+                if (gen !== historyGen) return;
+                HISTORY_OLDER_STATE = 'idle';
+                const c = document.getElementById('history-container');
+                if (c) c.insertAdjacentHTML('beforeend', emptyStateHTML('icon-refresh', 'Could not load older orders', 'Check your connection, then tap a day again.'));
+            };
+            getDocs(query(collection(db, "orders"), where("userId", "==", gid), where("timestamp", "<", start), orderBy("timestamp", "desc"), limit(40)))
+                .then(snap => finish(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+                .catch(() => {
+                    // Index missing -> plain query, filtered here
+                    getDocs(query(collection(db, "orders"), where("userId", "==", gid), limit(60)))
+                        .then(snap => finish(snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(o => histTsMs(o.timestamp) < start.getTime())))
+                        .catch(fail);
+                });
+        }
+
         function setHistoryDateFilter(key) {
             HISTORY_FILTER_DATE = key;
-            renderHistoryOrders(HISTORY_ORDERS);
+            if (key !== historyTodayKey()) historyEnsureOlder();
+            renderHistoryOrders(historyMerged());
         }
         window.setHistoryDateFilter = setHistoryDateFilter;
 
@@ -16361,14 +16596,30 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         let historyAutoTabTimer = null;
         let HISTORY_PREV_STATUS = null;   // { orderId: status } from the previous snapshot
         let HISTORY_SERVER_SEEN = false;  // true once a server-confirmed snapshot was processed
+        function historySmoothCenter(scroller, el) {
+            if (!scroller || !el) return;
+            const left = Math.max(0, el.offsetLeft - (scroller.clientWidth - el.offsetWidth) / 2);
+            try { scroller.scrollTo({ left, behavior: 'smooth' }); } catch (e) { scroller.scrollLeft = left; }
+        }
         function historyCenterActiveTab() {
-            const a = document.querySelector('#history-container .history-status-tab.active');
-            if (a && a.scrollIntoView) { try { a.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* ignore */ } }
+            historySmoothCenter(document.querySelector('#history-container .history-status-tabs'), document.querySelector('#history-container .history-status-tab.active'));
+        }
+        // Any status tab other than "All" (auto-jumped OR tapped by hand) slides back to "All"
+        // by itself after a while - it never stays parked where it was left.
+        function scheduleHistoryReturn(ms) {
+            clearTimeout(historyAutoTabTimer);
+            if (HISTORY_FILTER_STATUS === 'all') return;
+            historyAutoTabTimer = setTimeout(() => {
+                if (HISTORY_FILTER_STATUS === 'all') return;
+                HISTORY_FILTER_STATUS = 'all';
+                const c = document.getElementById('history-container');
+                runWhenNotTouching(document.querySelector('#history-container .order-list-scroll') || c, () => renderHistoryOrders(historyMerged()));
+            }, ms);
         }
         function setHistoryStatusFilter(key) {
-            clearTimeout(historyAutoTabTimer); // a manual tap cancels the pending auto-return
             HISTORY_FILTER_STATUS = key;
-            renderHistoryOrders(HISTORY_ORDERS);
+            scheduleHistoryReturn(HISTORY_RETURN_MANUAL_MS);
+            renderHistoryOrders(historyMerged());
         }
         window.setHistoryStatusFilter = setHistoryStatusFilter;
 
@@ -16383,24 +16634,26 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 counts[historyStatusGroup(o.status)]++;
             });
             const tabs = [['all', t('hist_status_all')]].concat(['Pending', 'Processing', 'Success', 'Fail'].map(k => [k, orderStatusLabel(k)]));
-            return `<div class="history-status-tabs">${tabs.map(([key, label]) =>
+            return `<div class="history-status-tabs hst-motion"><span class="hst-ind"></span>${tabs.map(([key, label]) =>
                 `<button type="button" data-k="${key}" class="history-status-tab${HISTORY_FILTER_STATUS === key ? ' active' : ''}" onclick="setHistoryStatusFilter('${key}')">${escapeHtml(label)}${counts[key] ? `<span class="history-status-count">${counts[key]}</span>` : ''}</button>`
             ).join('')}</div>`;
         }
 
         function historyDateChipsHTML(orders) {
-            // Unique Yangon day-keys present in the orders, newest first.
-            const seen = new Set();
+            // All Days, Today and Yesterday are always there (no read needed to show them);
+            // other dates appear once older orders have been loaded.
+            const todayKey = historyTodayKey();
+            const yestKey = yangonDateKey(Date.now() - 86400000);
+            const seen = new Set([todayKey, yestKey]);
             const keys = [];
             orders.forEach(o => {
-                const key = yangonDateKey(o.timestamp?.toMillis() || Date.now());
+                const key = yangonDateKey(histTsMs(o.timestamp) || Date.now());
                 if (!seen.has(key)) { seen.add(key); keys.push(key); }
             });
-            let chips = `<div class="history-date-chip ${HISTORY_FILTER_DATE === null ? 'active' : ''}" onclick="setHistoryDateFilter(null)">All Days</div>`;
-            chips += keys.map(key => {
-                const active = HISTORY_FILTER_DATE === key ? 'active' : '';
-                return `<div class="history-date-chip ${active}" onclick="setHistoryDateFilter('${key}')">${yangonChipLabel(key)}</div>`;
-            }).join('');
+            keys.sort().reverse();
+            const chip = (key, label) => `<div class="history-date-chip ${HISTORY_FILTER_DATE === key ? 'active' : ''}" onclick="setHistoryDateFilter(${key === null ? 'null' : `'${key}'`})">${label}</div>`;
+            let chips = chip(null, 'All Days') + chip(todayKey, 'Today') + chip(yestKey, 'Yesterday');
+            chips += keys.map(key => chip(key, yangonChipLabel(key))).join('');
             return `<div class="history-date-filter-wrap">${chips}</div>`;
         }
 
@@ -16550,10 +16803,51 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // not yet resolved must never throw (one bad order used to leave History stuck loading).
         function histTsMs(t) { try { if (t && typeof t.toMillis === 'function') return t.toMillis(); if (typeof t === 'number') return t; if (t && typeof t.seconds === 'number') return t.seconds * 1000; } catch (e) {} return 0; }
         function histTsDate(t) { const m = histTsMs(t); return m ? new Date(m) : null; }
+        // Wrapper: keeps the tab/chip scroll position across re-renders, then slides the
+        // coloured highlight from the old tab to the new one (motion).
+        function historyPlaceIndicator() {
+            const tabs = document.querySelector('#history-container .history-status-tabs');
+            if (!tabs) return;
+            const ind = tabs.querySelector('.hst-ind');
+            const act = tabs.querySelector('.history-status-tab.active');
+            if (!ind || !act) return;
+            const rgb = (getComputedStyle(act).getPropertyValue('--tab-rgb') || '24,119,242').trim();
+            const L = act.offsetLeft, W = act.offsetWidth;
+            if (HISTORY_IND_PREV) {
+                ind.style.transition = 'none';
+                ind.style.width = HISTORY_IND_PREV.w + 'px';
+                ind.style.transform = 'translateX(' + HISTORY_IND_PREV.l + 'px)';
+                ind.style.setProperty('--ind-rgb', HISTORY_IND_PREV.rgb);
+                void ind.offsetWidth;
+                ind.style.transition = '';
+            }
+            ind.style.width = W + 'px';
+            ind.style.transform = 'translateX(' + L + 'px)';
+            ind.style.setProperty('--ind-rgb', rgb);
+            ind.classList.add('on');
+            HISTORY_IND_PREV = { l: L, w: W, rgb };
+        }
         function renderHistoryOrders(orders) {
+            const c = document.getElementById('history-container');
+            const oldTabs = c && c.querySelector('.history-status-tabs');
+            const oldChips = c && c.querySelector('.history-date-filter-wrap');
+            const sl1 = oldTabs ? oldTabs.scrollLeft : 0, sl2 = oldChips ? oldChips.scrollLeft : 0;
+            renderHistoryOrdersInner(orders);
+            const tabs = c.querySelector('.history-status-tabs'), chips = c.querySelector('.history-date-filter-wrap');
+            if (tabs) tabs.scrollLeft = sl1;
+            if (chips) chips.scrollLeft = sl2;
+            historyPlaceIndicator();
+            const sig = HISTORY_FILTER_STATUS + '|' + HISTORY_FILTER_DATE;
+            if (sig !== HISTORY_LAST_ACTIVE) {
+                HISTORY_LAST_ACTIVE = sig;
+                if (tabs) historySmoothCenter(tabs, tabs.querySelector('.history-status-tab.active'));
+                if (chips) historySmoothCenter(chips, chips.querySelector('.history-date-chip.active'));
+            }
+        }
+        function renderHistoryOrdersInner(orders) {
             const container = document.getElementById('history-container');
             HISTORY_ORDERS = orders;
-            if (orders.length === 0) {
+            if (orders.length === 0 && HISTORY_OLDER_STATE === 'done') {
                 container.innerHTML = emptyStateHTML('icon-history', 'No orders yet', 'Your top ups and purchases will show up here once you place one.');
                 return;
             }
@@ -16573,10 +16867,18 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 
             const chipsHTML = historyStatusTabsHTML(orders) + historyDateChipsHTML(orders);
 
+            // Older days are fetched only now (first tap on All Days / Yesterday / an older date).
+            if (HISTORY_FILTER_DATE !== historyTodayKey() && HISTORY_OLDER_STATE !== 'done') {
+                container.innerHTML = chipsHTML + historySkeletonHTML(3);
+                return;
+            }
+
             if (entries.length === 0) {
                 container.innerHTML = chipsHTML + (HISTORY_FILTER_STATUS !== 'all'
                     ? emptyStateHTML('icon-history', t('hist_no_status_t').replace('{status}', orderStatusLabel(HISTORY_FILTER_STATUS)), t('hist_no_status_s'))
-                    : emptyStateHTML('icon-history', 'No orders on this day', 'Try a different date, or tap "All" to see everything.'));
+                    : (HISTORY_FILTER_DATE === historyTodayKey()
+                        ? emptyStateHTML('icon-history', 'No orders today', 'Tap "Yesterday" or "All Days" to see earlier orders.')
+                        : emptyStateHTML('icon-history', 'No orders on this day', 'Try a different date, or tap "All Days" to see everything.')));
                 return;
             }
 
@@ -16758,8 +17060,9 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         };
         function drawTierPill(ctx, x, y, tier) {
             const mat = TIER_MATERIAL_RECEIPT[tier.name];
-            if (mat) return drawPill(ctx, x, y, tier.name, mat.text, mat.bg, { border: mat.border });
-            return drawPill(ctx, x, y, tier.name, tier.color, tier.bg);
+            const nm = tier.label || tier.name;
+            if (mat) return drawPill(ctx, x, y, nm, mat.text, mat.bg, { border: mat.border });
+            return drawPill(ctx, x, y, nm, tier.color, tier.bg);
         }
         function drawGem(ctx, cx, cy, size, color) {
             ctx.save();
@@ -16800,9 +17103,15 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
         // Conqueror's crossed blades, Mythical's flame, Immortal's sunburst),
         // but on canvas, at (cx, cy) scaled to roughly `size` px tall.
         function drawTierGlyph(ctx, cx, cy, size, tierName, color) {
+            const tile = (typeof getTierGlyphImg === 'function') ? getTierGlyphImg(tierName) : null;
+            if (tile && tile.complete && tile.naturalWidth > 0) {
+                const d = size * 1.4;
+                ctx.drawImage(tile, cx - d / 2, cy - d / 2, d, d);
+                return;
+            }
             const def = TIER_ICON_PATHS[tierName];
             if (!def) return;
-            const s = size / 24; // TIER_ICON_PATHS is authored in a 24x24 box
+            const s = size / 24; // TIER_ICON_PATHS is authored in a 24x24 box (fallback flat glyph)
             ctx.save();
             ctx.translate(cx - size / 2, cy - size / 2);
             ctx.scale(s, s);
@@ -16871,7 +17180,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 ctx.fillStyle = c;
                 ctx.font = '700 11px -apple-system, Segoe UI, Roboto, sans-serif';
                 ctx.textAlign = 'center';
-                const label = `${tier.name.toUpperCase()} MEMBER`;
+                const label = `${(tier.label || tier.name).toUpperCase()} MEMBER`;
                 const labelW = ctx.measureText(label).width;
                 const ribbonY = (headerH - 14) - 8;
                 drawTierGlyph(ctx, W / 2 - labelW / 2 - 14, ribbonY - 4, 12, tier.name, c);
@@ -17770,9 +18079,17 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; }
             historyListenerGuestId = guestId;
             historyLoadedOnce = false;
-            HISTORY_FILTER_DATE = null;
+            HISTORY_FILTER_DATE = historyTodayKey();   // History always opens on Today
             HISTORY_FILTER_STATUS = 'all';
             clearTimeout(historyAutoTabTimer);
+            historyGen++;
+            HISTORY_TODAY = []; HISTORY_OLDER = []; HISTORY_OLDER_STATE = 'idle';
+            HISTORY_IND_PREV = null; HISTORY_LAST_ACTIVE = '';
+            if (!container._histTouchBound) {
+                container._histTouchBound = true;
+                // touching the list while a tab is parked gives the customer more reading time
+                container.addEventListener('touchstart', () => { if (HISTORY_FILTER_STATUS !== 'all' && historyAutoTabTimer) scheduleHistoryReturn(HISTORY_RETURN_MANUAL_MS); }, { passive: true });
+            }
             HISTORY_PREV_STATUS = null;
             HISTORY_SERVER_SEEN = false;
             container.innerHTML = loadingStateHTML('bars');
@@ -17784,7 +18101,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; historyListenerGuestId = null; }
             }, 12000);
 
-            subscribeOrders('history', (snap) => {
+            const __histOnSnap = (snap) => {
                 // Firestore delivers an EMPTY snapshot straight from the local cache before
                 // the server answers (slow networks especially) - treating that as "no data"
                 // flashed the empty-state. Ignore it; includeMetadataChanges brings the
@@ -17808,33 +18125,46 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
                 orders.forEach(o => { HISTORY_PREV_STATUS[o.id] = o.status; });
                 if (!snap.metadata.fromCache) HISTORY_SERVER_SEEN = true;
                 if (jumpTo) {
-                    clearTimeout(historyAutoTabTimer);
                     HISTORY_FILTER_STATUS = jumpTo;
-                    // Pending / Processing stay on their tab until the order moves on;
-                    // only a finished order (Completed / Failed) returns to All after 2s.
-                    if (jumpTo === 'Success' || jumpTo === 'Fail') {
-                        historyAutoTabTimer = setTimeout(() => {
-                            HISTORY_FILTER_STATUS = 'all';
-                            renderHistoryOrders(HISTORY_ORDERS);
-                            historyCenterActiveTab();
-                        }, 2000);
-                    }
+                    HISTORY_FILTER_DATE = historyTodayKey();   // the new / changed order is from today
+                    // Every tab (Pending / Processing / Completed / Failed) slides back to "All" by itself.
+                    scheduleHistoryReturn(HISTORY_RETURN_AUTO_MS);
                 }
+                HISTORY_TODAY = orders;
                 clearTimeout(window.__historyLoadTimer);
                 runWhenNotTouching(document.querySelector('#history-container .order-list-scroll') || container, () => {
                     try {
-                        renderHistoryOrders(orders);
-                        if (jumpTo) historyCenterActiveTab();
+                        renderHistoryOrders(historyMerged());
                     } catch (renderErr) {
                         console.error('History render error:', renderErr);
                         container.innerHTML = emptyStateHTML('icon-refresh', 'Could not show history', 'Please reload the page and try again.');
                     }
                 });
-            }, (error) => {
+            };
+            const __histOnErr = (error) => {
                 console.error("History fetch error: ", error);
                 container.innerHTML = emptyStateHTML('icon-refresh', 'Could not load history', 'Check your connection and try again.');
-            });
-            historyUnsubscribe = () => unsubscribeOrders('history');
+            };
+            // Own listener: ONLY today's orders (Yangon midnight -> now). Older days: see historyEnsureOlder().
+            let __histUnsubToday = null, __histHub = false;
+            const __histUseHub = () => {   // fallback if the index is missing: shared listener, everything counts as loaded
+                if (__histHub) return;
+                __histHub = true; HISTORY_OLDER_STATE = 'done';
+                subscribeOrders('history', __histOnSnap, __histOnErr);
+            };
+            try {
+                __histUnsubToday = onSnapshot(
+                    query(collection(db, "orders"), where("userId", "==", guestId), where("timestamp", ">=", historyTodayStart()), orderBy("timestamp", "desc")),
+                    { includeMetadataChanges: true }, __histOnSnap,
+                    (err) => {
+                        if (err && (err.code === 'failed-precondition' || err.code === 'invalid-argument')) __histUseHub();
+                        else __histOnErr(err);
+                    });
+            } catch (e) { __histUseHub(); }
+            historyUnsubscribe = () => {
+                if (__histUnsubToday) { try { __histUnsubToday(); } catch (e) {} }
+                if (__histHub) unsubscribeOrders('history');
+            };
         }
         // Called from showPage() on every navigation away from the History
         // tab. Leaves historyListenerGuestId set to null so the very next
@@ -18053,12 +18383,19 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const row = document.getElementById('all-games-title-row');
             const input = document.getElementById('game-search-input');
             const isExpanded = wrap.classList.contains('expanded');
-            if (isExpanded && !input.value) {
+            if (isExpanded) {
+                // One tap on the magnifier closes the bar. The typed text stays in the box
+                // (and in localStorage), but the list goes back to showing everything.
                 wrap.classList.remove('expanded');
                 row.classList.remove('search-expanded');
+                input.blur();
+                if (input.value) filterGamesBySearch('');
             } else {
                 wrap.classList.add('expanded');
                 row.classList.add('search-expanded');
+                // Reopening brings back the last text typed and filters by it again.
+                if (!input.value) { try { input.value = localStorage.getItem('linn_last_search_game') || ''; } catch (e) {} }
+                if (input.value) filterGamesBySearch(input.value);
                 // Wait for the width expand to actually finish before opening
                 // the keyboard - focusing mid-transition made the keyboard's
                 // slide-up collide with the still-animating search box.
@@ -18115,12 +18452,19 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const row = document.getElementById('voucher-title-row');
             const input = document.getElementById('voucher-search-input');
             const isExpanded = wrap.classList.contains('expanded');
-            if (isExpanded && !input.value) {
+            if (isExpanded) {
+                // One tap on the magnifier closes the bar. The typed text stays in the box
+                // (and in localStorage), but the list goes back to showing everything.
                 wrap.classList.remove('expanded');
                 row.classList.remove('search-expanded');
+                input.blur();
+                if (input.value) filterVouchersBySearch('');
             } else {
                 wrap.classList.add('expanded');
                 row.classList.add('search-expanded');
+                // Reopening brings back the last text typed and filters by it again.
+                if (!input.value) { try { input.value = localStorage.getItem('linn_last_search_voucher') || ''; } catch (e) {} }
+                if (input.value) filterVouchersBySearch(input.value);
                 const onExpandDone = (e) => {
                     if (e.target !== wrap || e.propertyName !== 'width') return;
                     wrap.removeEventListener('transitionend', onExpandDone);
@@ -18169,12 +18513,19 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             const row = document.getElementById('software-title-row');
             const input = document.getElementById('software-search-input');
             const isExpanded = wrap.classList.contains('expanded');
-            if (isExpanded && !input.value) {
+            if (isExpanded) {
+                // One tap on the magnifier closes the bar. The typed text stays in the box
+                // (and in localStorage), but the list goes back to showing everything.
                 wrap.classList.remove('expanded');
                 row.classList.remove('search-expanded');
+                input.blur();
+                if (input.value) filterSoftwareBySearch('');
             } else {
                 wrap.classList.add('expanded');
                 row.classList.add('search-expanded');
+                // Reopening brings back the last text typed and filters by it again.
+                if (!input.value) { try { input.value = localStorage.getItem('linn_last_search_software') || ''; } catch (e) {} }
+                if (input.value) filterSoftwareBySearch(input.value);
                 const onExpandDone = (e) => {
                     if (e.target !== wrap || e.propertyName !== 'width') return;
                     wrap.removeEventListener('transitionend', onExpandDone);
@@ -18687,6 +19038,16 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             revealCardsIn(grid);
         }
         window.renderVoucherGames = renderVoucherGames;
+        // Opening the Voucher tab again with an unchanged catalogue + search keeps the cards already
+        // on screen instead of rebuilding the whole grid (that rebuild + image re-decode was the stutter).
+        let __vRenderSig = null;
+        window.renderVoucherGamesCached = function () {
+            const grid = document.getElementById('voucher-games-grid');
+            const sig = [gamesLoadedOnce, voucherSearchQuery];
+            if (grid && grid.children.length && __vRenderSig && __vRenderSig[0] === window.GAMES && __vRenderSig[1] === sig[0] && __vRenderSig[2] === sig[1]) return;
+            renderVoucherGames();
+            __vRenderSig = [window.GAMES, sig[0], sig[1]];
+        };
 
         // ---------- Software tab: same square card grid as Home, pre-filtered
         // to games whose fulfillment is marked fulfillProvider === 'software'
@@ -18757,6 +19118,14 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
             revealCardsIn(grid);
         }
         window.renderSoftwareGames = renderSoftwareGames;
+        let __sRenderSig = null;
+        window.renderSoftwareGamesCached = function () {
+            const grid = document.getElementById('software-games-grid');
+            const sig = [gamesLoadedOnce, softwareSearchQuery];
+            if (grid && grid.children.length && __sRenderSig && __sRenderSig[0] === window.GAMES && __sRenderSig[1] === sig[0] && __sRenderSig[2] === sig[1]) return;
+            renderSoftwareGames();
+            __sRenderSig = [window.GAMES, sig[0], sig[1]];
+        };
 
         // Games are managed entirely from the admin panel now — nothing here ever
         // auto-recreates a game, so deleting one in admin removes it for good.
@@ -22614,5 +22983,186 @@ html.is-scrolling .lb-strip::before, html.is-scrolling .wallet-balance-card::aft
 html.is-scrolling .pay-hot, html.is-scrolling .pay-hot::after, html.is-scrolling .bot-glow,
 html.is-scrolling .bot-cube-in, html.is-scrolling .pc-meteor, html.is-scrolling .pc-star { animation-play-state: paused !important; }
 </style>
+<style id="linn-ui-v2">
+/* ================= LINN UI v2 =================
+   1) Package / History tabs + date chips: slightly rounded corners, one colour per tab
+   2) Sliding colour highlight on the History status tabs (motion)
+   3) Brighter order badges   4) New Top up button   5) Glowing / light-reflecting header logo */
+
+/* ---- Package tabs (Currency / Package / Double Diamonds ...) ---- */
+#pkg-type-tabs { border-radius: 16px !important; gap: 5px !important; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+#pkg-type-tabs::-webkit-scrollbar { display: none; }
+#pkg-type-tabs { overflow: hidden !important; }
+#pkg-type-tabs .pkg-type-tab { flex: var(--g, 1) 1 0 !important; min-width: 0 !important; border-radius: 12px !important; padding: 8px 6px !important; white-space: nowrap; overflow: hidden !important; text-overflow: ellipsis !important; font-weight: 600; font-size: 12.5px; justify-content: center; text-align: center; }
+/* price-card swap: one light fade instead of a staggered zoom per card */
+#detail-package-list.pkg-swap { animation: pkgSwap .18s ease-out; }
+@keyframes pkgSwap { from { opacity: .35; } to { opacity: 1; } }
+#pkg-type-tabs .pkg-type-tab:nth-child(6n+1) { --tab-rgb: 24,119,242; }
+#pkg-type-tabs .pkg-type-tab:nth-child(6n+2) { --tab-rgb: 139,92,246; }
+#pkg-type-tabs .pkg-type-tab:nth-child(6n+3) { --tab-rgb: 236,72,153; }
+#pkg-type-tabs .pkg-type-tab:nth-child(6n+4) { --tab-rgb: 249,115,22; }
+#pkg-type-tabs .pkg-type-tab:nth-child(6n+5) { --tab-rgb: 20,184,166; }
+#pkg-type-tabs .pkg-type-tab:nth-child(6n+6) { --tab-rgb: 234,179,8; }
+#pkg-type-tabs .pkg-type-tab:not(.active) { background: rgba(var(--tab-rgb), .12) !important; color: rgb(var(--tab-rgb)); color: color-mix(in srgb, rgb(var(--tab-rgb)) 78%, #000); box-shadow: inset 0 0 0 1px rgba(var(--tab-rgb), .30) !important; }
+#pkg-type-tabs .pkg-type-tab.active { color: #fff !important; background: linear-gradient(135deg, rgb(var(--tab-rgb)), rgba(var(--tab-rgb), .78)) !important; box-shadow: 0 6px 16px rgba(var(--tab-rgb), .38), inset 0 1px 0 rgba(255,255,255,.35) !important; }
+html[data-theme="dark"] #pkg-type-tabs .pkg-type-tab:not(.active) { color: rgb(var(--tab-rgb)); filter: brightness(1.25); }
+
+/* ---- History status tabs (All / Pending / Processing / Completed / Failed) ---- */
+.history-status-tabs { position: relative; border-radius: 16px !important; gap: 5px !important; }
+.history-status-tab { border-radius: 12px !important; position: relative; z-index: 1; font-weight: 600; }
+.history-status-tab[data-k="all"]        { --tab-rgb: 24,119,242; }
+.history-status-tab[data-k="Pending"]    { --tab-rgb: 245,158,11; }
+.history-status-tab[data-k="Processing"] { --tab-rgb: 99,102,241; }
+.history-status-tab[data-k="Success"]    { --tab-rgb: 16,185,129; }
+.history-status-tab[data-k="Fail"]       { --tab-rgb: 236,72,153; }
+.history-status-tab:not(.active) { color: rgb(var(--tab-rgb)); color: color-mix(in srgb, rgb(var(--tab-rgb)) 78%, #000); box-shadow: inset 0 0 0 1px rgba(var(--tab-rgb), .30); }
+html[data-theme="dark"] .history-status-tab:not(.active) { color: rgb(var(--tab-rgb)); filter: brightness(1.25); }
+.history-status-tab:not(.active) .history-status-count { background: rgba(var(--tab-rgb), .18); color: inherit; }
+/* motion highlight: one coloured pill that slides (and changes colour) from tab to tab */
+.history-status-tabs.hst-motion .history-status-tab.active { background: transparent !important; box-shadow: none !important; color: #fff !important; filter: none; }
+.hst-ind {
+    position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; border-radius: 12px; z-index: 0; pointer-events: none; opacity: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.30), rgba(255,255,255,0) 55%), rgb(var(--ind-rgb, 24,119,242));
+    box-shadow: 0 6px 16px rgba(var(--ind-rgb, 24,119,242), .38), inset 0 1px 0 rgba(255,255,255,.35);
+    transition: transform .55s cubic-bezier(.34,1.32,.5,1), width .55s cubic-bezier(.34,1.32,.5,1), background-color .45s ease, box-shadow .45s ease;
+    will-change: transform, width;
+}
+.hst-ind.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .hst-ind { transition: background-color .2s ease; } }
+
+/* ---- History date chips (All Days / Today / Yesterday / 8 Oct ...) ---- */
+.history-date-filter-wrap { gap: 8px !important; }
+.history-date-chip { --c: 24,119,242; border-radius: 12px !important; font-weight: 600 !important; padding: 7px 15px !important;
+    background: rgba(var(--c), .12) !important; border: 1px solid rgba(var(--c), .35) !important; box-shadow: none !important;
+    color: rgb(var(--c)) !important; color: color-mix(in srgb, rgb(var(--c)) 78%, #000) !important;
+    transition: background .25s ease, color .2s ease, box-shadow .25s ease, transform .12s ease !important; }
+.history-date-chip:nth-child(8n+1) { --c: 24,119,242; }
+.history-date-chip:nth-child(8n+2) { --c: 16,185,129; }
+.history-date-chip:nth-child(8n+3) { --c: 245,158,11; }
+.history-date-chip:nth-child(8n+4) { --c: 139,92,246; }
+.history-date-chip:nth-child(8n+5) { --c: 236,72,153; }
+.history-date-chip:nth-child(8n+6) { --c: 14,165,233; }
+.history-date-chip:nth-child(8n+7) { --c: 249,115,22; }
+.history-date-chip:nth-child(8n+8) { --c: 20,184,166; }
+html[data-theme="dark"] .history-date-chip:not(.active) { color: rgb(var(--c)) !important; filter: brightness(1.25); }
+.history-date-chip.active { background: linear-gradient(135deg, rgb(var(--c)), rgba(var(--c), .78)) !important; color: #fff !important; border-color: transparent !important; box-shadow: 0 5px 14px rgba(var(--c), .40) !important; filter: none !important; }
+
+/* ---- Order badges: brighter ---- */
+.badge.badge-success, .badge.badge-warning, .badge.badge-processing, .badge.badge-danger {
+    color: #fff !important; text-shadow: 0 1px 1px rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.38) !important;
+    background: linear-gradient(135deg, var(--b1), var(--b2)) !important;
+    box-shadow: 0 3px 10px rgba(var(--bglow), .50), inset 0 1px 0 rgba(255,255,255,.45) !important;
+}
+.badge.badge-success    { --b1: #34f0a5; --b2: #00c46f; --bglow: 0,200,110; }
+.badge.badge-warning    { --b1: #ffc42e; --b2: #ff8a00; --bglow: 255,150,0; }
+.badge.badge-processing { --b1: #8a97ff; --b2: #3d5afe; --bglow: 70,95,255; }
+.badge.badge-danger     { --b1: #ff6a9c; --b2: #f0145f; --bglow: 240,25,100; }
+
+/* ---- Top up button (profile card) ---- */
+.pc-topup-btn, #profile-card-main .pc-topup-btn {
+    position: relative; overflow: hidden; isolation: isolate; display: inline-flex; align-items: center; gap: 8px;
+    min-height: 38px; padding: 6px 15px 6px 6px !important; border-radius: 14px !important; font-size: 13.5px !important; font-weight: 700 !important; letter-spacing: .2px; color: #fff !important;
+    background: linear-gradient(120deg, #00d4ff 0%, #3b82f6 45%, #8b5cf6 75%, #00d4ff 100%) !important; background-size: 220% 100% !important;
+    border: 1px solid rgba(255,255,255,.5) !important;
+    box-shadow: 0 8px 20px -6px rgba(59,130,246,.8), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.12) !important;
+    animation: tuGrad 6s ease-in-out infinite; transition: transform .15s ease;
+}
+.pc-topup-btn:active { transform: scale(.94); }
+.pc-topup-btn svg { width: 26px !important; height: 26px !important; padding: 6px; box-sizing: border-box; border-radius: 50%; background: #fff; color: #3b6df0; stroke-width: 3; flex-shrink: 0; box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+.pc-topup-btn span { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.pc-topup-btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; z-index: 0; pointer-events: none; transform: skewX(-20deg);
+    background: linear-gradient(100deg, rgba(255,255,255,0), rgba(255,255,255,.7), rgba(255,255,255,0)); animation: tuShine 3.4s ease-in-out infinite; }
+@keyframes tuGrad { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes tuShine { 0%,55% { left: -70%; } 100% { left: 140%; } }
+html.perf-low .pc-topup-btn, html.perf-low .pc-topup-btn::after, html.is-scrolling .pc-topup-btn::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .pc-topup-btn, .pc-topup-btn::after { animation: none; } }
+
+/* ---- Header logo: glowing + light reflection sweeping across ---- */
+#header-logo .logo-icon-wrap { position: relative; overflow: visible; }
+#header-logo .logo-icon-wrap img { animation: logoGlow 3.2s ease-in-out infinite; }
+@keyframes logoGlow {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(255,255,255,.35)) drop-shadow(0 0 5px rgba(192,132,252,.55)) brightness(1) saturate(1.05); }
+    50%      { filter: drop-shadow(0 0 3px rgba(255,255,255,.85)) drop-shadow(0 0 10px rgba(125,211,252,.9)) drop-shadow(0 0 16px rgba(244,114,182,.55)) brightness(1.18) saturate(1.3); }
+}
+#header-logo .logo-icon-wrap.shine::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    -webkit-mask: var(--logo-mask) center / contain no-repeat; mask: var(--logo-mask) center / contain no-repeat;
+    background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.95) 50%, rgba(255,255,255,0) 62%); background-size: 300% 100%; background-position: 100% 0;
+    animation: logoShine 3.4s ease-in-out infinite;
+}
+@keyframes logoShine { 0%, 45% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
+html.perf-low #header-logo .logo-icon-wrap img, html.perf-low #header-logo .logo-icon-wrap.shine::after,
+html.is-scrolling #header-logo .logo-icon-wrap img, html.is-scrolling #header-logo .logo-icon-wrap.shine::after { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { #header-logo .logo-icon-wrap img, #header-logo .logo-icon-wrap.shine::after { animation: none; } }
+</style>
+<script id="linn-ui-v2-js">
+/* Search bars: remember the last typed text; tapping the magnifier must not blur the input first
+   (the blur-collapse used to race with the tap and re-open the bar). */
+(function () {
+    [['game', 'game-search-input', 'game-search-toggle-icon'], ['voucher', 'voucher-search-input', 'voucher-search-toggle-icon'], ['software', 'software-search-input', 'software-search-toggle-icon']].forEach(function (a) {
+        var inp = document.getElementById(a[1]), ico = document.getElementById(a[2]);
+        if (ico) ico.addEventListener('pointerdown', function (e) { e.preventDefault(); });
+        if (inp) inp.addEventListener('input', function () {
+            try { if (inp.value.trim()) localStorage.setItem('linn_last_search_' + a[0], inp.value); else localStorage.removeItem('linn_last_search_' + a[0]); } catch (e) {}
+        });
+    });
+})();
+/* Package tabs: every tab keeps the same shape; a long label just gets a smaller font so it never leaves the grid. */
+(function () {
+    var box = document.getElementById('pkg-type-tabs');
+    if (!box) return;
+    var raf = 0;
+    function fit() {
+        raf = 0;
+        if (!box.clientWidth) return;
+        var tabs = box.querySelectorAll('.pkg-type-tab');
+        tabs.forEach(function (b) {
+            var len = (b.textContent || '').trim().length;
+            b.style.setProperty('--g', String(Math.min(16, Math.max(7, len))));
+            b.style.fontSize = '';
+        });
+        tabs.forEach(function (b) {
+            var fs = 12.5;
+            while (b.scrollWidth > b.clientWidth + 0.5 && fs > 7) { fs -= 0.5; b.style.fontSize = fs + 'px'; }
+        });
+    }
+    function queue() { if (!raf) raf = requestAnimationFrame(fit); }
+    try { new MutationObserver(queue).observe(box, { childList: true }); } catch (e) {}
+    try { new ResizeObserver(queue).observe(box); } catch (e) { window.addEventListener('resize', queue); }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(queue);
+    queue();
+})();
+/* Cards play their pop/zoom entrance once; re-showing a tab (display:none -> block) no longer replays it. */
+document.addEventListener('animationend', function (e) {
+    var n = e.animationName;
+    if (n === 'cardPop' || n === 'cardWave' || n === 'cardZoom') e.target.classList.remove('card-pop', 'card-wave', 'card-zoom');
+}, true);
+
+/* Header logo shine: the sweep is clipped to the logo's own shape with a CSS mask.
+   Only switched on once the browser confirms it may use the image as a mask (CORS-safe);
+   otherwise the glow animation alone is shown. */
+(function () {
+    var img = document.getElementById('header-logo-img');
+    if (!img || !img.parentNode) return;
+    var wrap = img.parentNode, last = '';
+    function apply() {
+        var src = img.currentSrc || img.getAttribute('src') || '';
+        if (!src || src === last) return;
+        last = src; wrap.classList.remove('shine');
+        var t = new Image(); t.crossOrigin = 'anonymous';
+        t.onload = function () {
+            if (last !== src) return;
+            wrap.style.setProperty('--logo-mask', 'url("' + src.replace(/"/g, '%22') + '")');
+            wrap.classList.add('shine');
+        };
+        t.onerror = function () {};
+        t.src = src;
+    }
+    try { new MutationObserver(apply).observe(img, { attributes: true, attributeFilter: ['src'] }); } catch (e) {}
+    img.addEventListener('load', apply);
+    apply();
+})();
+</script>
+
 </body>
 </html>
