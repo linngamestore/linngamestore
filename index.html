@@ -5602,21 +5602,37 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 html[data-theme="dark"]{--text-faint:#8293B5;--g-selected:rgba(var(--accent-rgb),.18)}
 body{line-height:1.65}
 .pc-price,.pc-row-price,.pc-cur,.od-total b,.hc-price{font-variant-numeric:tabular-nums}
-/* Order steps (Account > Package > Payment > Confirm) */
-.ord-steps{display:flex;align-items:flex-start;margin:2px 0 14px}
-.ord-step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
-.ord-step+.ord-step::before{content:"";position:absolute;top:12px;left:-50%;width:100%;height:2px;background:var(--border);z-index:0;transition:background .25s}
-.ord-step.done+.ord-step::before,.ord-step.done.active+.ord-step::before{background:#1E8E4F}
-.ord-dot{position:relative;z-index:1;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--border);color:var(--text-secondary);border:2px solid var(--bg);font-size:12px;font-weight:600;transition:background .25s,color .25s,transform .25s}
+/* Order steps — solid card, line-fill + pop + pulse motion */
+.ord-steps{display:flex;align-items:flex-start;margin:2px 0 16px;padding:16px 8px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,.10)}
+.ord-step{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+/* connector: grey track (::before) + green fill (::after) that grows left->right when the previous step completes */
+.ord-step+.ord-step::before,.ord-step+.ord-step::after{content:"";position:absolute;top:14px;left:calc(-50% + 20px);width:calc(100% - 40px);height:3px;border-radius:2px}
+.ord-step+.ord-step::before{background:var(--border)}
+.ord-step+.ord-step::after{background:linear-gradient(90deg,#1E8E4F,#34D27B);transform:scaleX(0);transform-origin:left center;transition:transform .55s cubic-bezier(.22,1,.36,1) .12s}
+.ord-step.done+.ord-step::after{transform:scaleX(1)}
+.ord-dot{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--border);color:var(--text-muted);font-size:13px;font-weight:700;border:0;box-shadow:inset 0 0 0 2px var(--surface);transition:background .3s ease,color .3s ease,transform .35s cubic-bezier(.34,1.56,.64,1)}
 .ord-dot i{font-style:normal;line-height:1}
-.ord-dot svg{display:none;width:13px;height:13px}
-.ord-step.active .ord-dot{background:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--g-selected)}
-.ord-step.done .ord-dot{background:#1E8E4F;color:#fff}
+.ord-dot svg{display:none;width:15px;height:15px}
+.ord-step.active .ord-dot{background:var(--accent);color:#fff;transform:scale(1.12);animation:ordPulse 1.9s ease-out infinite}
+.ord-step.done .ord-dot{background:linear-gradient(145deg,#2BB26A,#1E8E4F);color:#fff;transform:scale(1)}
 .ord-step.done .ord-dot i{display:none}
-.ord-step.done .ord-dot svg{display:block}
-.ord-lbl{font-size:11px;font-weight:500;color:var(--text-muted);margin-top:6px;line-height:1.3}
-.ord-step.active .ord-lbl,.ord-step.done .ord-lbl{color:var(--text)}
-@media (prefers-reduced-motion:reduce){.ord-dot,.ord-step::before{transition:none}}
+.ord-step.done .ord-dot svg{display:block;animation:ordPop .5s cubic-bezier(.34,1.56,.64,1) both}
+.ord-lbl{font-size:11.5px;font-weight:500;color:var(--text-muted);margin-top:8px;line-height:1.3;transition:color .3s ease,transform .3s ease}
+.ord-step.active .ord-lbl{color:var(--text);font-weight:700;transform:translateY(1px)}
+.ord-step.done .ord-lbl{color:var(--text-secondary)}
+@keyframes ordPulse{0%{box-shadow:inset 0 0 0 2px var(--surface),0 0 0 0 rgba(var(--accent-rgb),.55)}70%{box-shadow:inset 0 0 0 2px var(--surface),0 0 0 10px rgba(var(--accent-rgb),0)}100%{box-shadow:inset 0 0 0 2px var(--surface),0 0 0 0 rgba(var(--accent-rgb),0)}}
+@keyframes ordPop{0%{transform:scale(.2) rotate(-25deg);opacity:0}60%{transform:scale(1.25) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes ordIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* entrance when the order screen opens, and when the helper boxes appear */
+#game-detail.active .ord-step{animation:ordIn .5s cubic-bezier(.22,1,.36,1) both}
+#game-detail.active .ord-step:nth-child(2){animation-delay:.06s}
+#game-detail.active .ord-step:nth-child(3){animation-delay:.12s}
+#game-detail.active .ord-step:nth-child(4){animation-delay:.18s}
+.vq-box,.topup-short,.eta-hint{animation:ordIn .4s cubic-bezier(.22,1,.36,1) both}
+@media (prefers-reduced-motion:reduce){
+  .ord-dot,.ord-lbl,.ord-step::after{transition:none}
+  .ord-step.active .ord-dot,.ord-step.done .ord-dot svg,#game-detail.active .ord-step,.vq-box,.topup-short,.eta-hint{animation:none}
+}
 .eta-hint{font-size:12.5px;color:var(--text-secondary);text-align:center;padding:8px 12px;border-radius:12px;background:var(--g-selected)}
 .tap44{position:relative}
 .tap44::after{content:"";position:absolute;left:var(--t44x,0);right:var(--t44x,0);top:var(--t44y,0);bottom:var(--t44y,0)}
