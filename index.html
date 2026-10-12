@@ -7329,12 +7329,16 @@ body{line-height:1.65}
 
 
             <div class="vq-box" id="voucher-qty-box" style="display:none;">
-                <div class="vq-head"><span id="vq-label">Quantity</span><span class="vq-each" id="vq-each"></span></div>
-                <div class="vq-row">
-                    <button type="button" class="vq-btn" id="vq-minus" aria-label="Decrease" onclick="vqStep(-1)">&minus;</button>
-                    <input type="text" inputmode="numeric" class="vq-input" id="vq-input" value="1" autocomplete="off" aria-label="Quantity" oninput="vqTyping(this)" onblur="vqCommit(this)">
-                    <button type="button" class="vq-btn" id="vq-plus" aria-label="Increase" onclick="vqStep(1)">+</button>
+                <div class="vq-left">
+                    <span class="vq-label" id="vq-label">Quantity</span>
+                    <span class="vq-each" id="vq-each"></span>
                 </div>
+                <div class="vq-pill">
+                    <button type="button" class="vq-btn" id="vq-minus" aria-label="Decrease" data-no-haptic>&minus;</button>
+                    <input type="text" inputmode="numeric" class="vq-input" id="vq-input" value="1" autocomplete="off" aria-label="Quantity" oninput="vqTyping(this)" onblur="vqCommit(this)">
+                    <button type="button" class="vq-btn" id="vq-plus" aria-label="Increase" data-no-haptic>+</button>
+                </div>
+                <div class="vq-get" id="vq-get-row"><span id="vq-get-label">You get</span><b id="vq-get"></b></div>
                 <div class="vq-foot"><span id="vq-max"></span><b id="vq-total"></b></div>
             </div>
             <div id="detail-payment-section" style="display:none;">
@@ -8126,6 +8130,10 @@ body{line-height:1.65}
             document.querySelectorAll('.nav-item').forEach(m => m.classList.remove('active'));
             const target = document.getElementById(pageId);
             if (swipeDir) target.classList.add(swipeDir);
+            // Switching back to a tab that was already shown once: its cards must not replay the
+            // pop/wave entrance (display:none -> block restarts every CSS animation = the stutter).
+            if (window.__pgSeen && window.__pgSeen[pageId]) target.classList.add('revisit');
+            else { window.__pgSeen = window.__pgSeen || {}; if (['home','voucher','software'].includes(pageId)) setTimeout(() => { window.__pgSeen[pageId] = true; }, 1600); }
             target.classList.add('active');
             // Top Up / Voucher / Software share one "Game" nav button, so
             // remember which of the three was last opened (used when the
@@ -10237,25 +10245,51 @@ body{line-height:1.65}
             /* shared g2bulk_cache is admin/Worker-write only now (firestore.rules) - browser write removed */
         }
 
+        // Docs: back off exponentially on 429 / 5xx. After such a failure every
+        // visitor-side call waits out a growing cool-down (30s, 60s, 120s ... max 5min).
+        let g2bulkCooldownUntil = 0, g2bulkFailStreak = 0;
+        function g2bulkNoteFailure(status) {
+            if (status === 429 || status >= 500) {
+                g2bulkFailStreak = Math.min(g2bulkFailStreak + 1, 5);
+                g2bulkCooldownUntil = Date.now() + Math.min(300000, 15000 * Math.pow(2, g2bulkFailStreak));
+            }
+        }
+        // Goes through the Worker's edge-cached /g2bulk-category/:id (one upstream call per 15s for ALL
+        // visitors). Falls back to G2Bulk's public endpoint only if the Worker route is unreachable or
+        // not deployed yet (network error / 404); 429 / 5xx are returned as-is so the back-off applies.
+        async function g2bulkCategoryRequest(categoryId) {
+            const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+            const id = encodeURIComponent(categoryId);
+            try {
+                const r = await fetch(`${base}/g2bulk-category/${id}`);
+                if (r.status !== 404) return r;
+            } catch (e) { /* Worker unreachable - fall through */ }
+            return fetch(`https://api.g2bulk.com/v1/category/${id}`);
+        }
         async function fetchG2BulkCategoryLive(categoryId) {
             const cached = g2bulkCategoryCache.get(categoryId);
             if (cached) {
                 if (cached.promise) return cached.promise;
                 if (Date.now() - cached.ts < G2BULK_CATEGORY_CACHE_TTL_MS) return cached.data;
             }
-            const promise = readSharedG2BulkCache(categoryId).then(sharedData => {
+            // Shared Firestore cache read removed: nothing refreshes that doc any more, so each
+            // stock poll was paying a Firestore read just to find it stale. Local 16s cache stays.
+            const promise = Promise.resolve(null).then(sharedData => {
                 if (sharedData) {
                     g2bulkCategoryCache.set(categoryId, { data: sharedData, ts: Date.now() });
                     return sharedData;
                 }
-                return fetch(`https://api.g2bulk.com/v1/category/${encodeURIComponent(categoryId)}`)
+                if (Date.now() < g2bulkCooldownUntil) throw new Error('G2Bulk cooling down after 429/5xx');
+                return g2bulkCategoryRequest(categoryId)
                     .then(async res => {
+                        if (!res.ok) g2bulkNoteFailure(res.status);
                         // 429 / 5xx must never be cached (or written to the shared Firestore
                         // cache every visitor reads) - docs say to back off on those.
                         const data = await res.json().catch(() => null);
                         if (!res.ok || !data || data.success === false) {
                             throw new Error('G2Bulk category ' + categoryId + ' failed: HTTP ' + res.status);
                         }
+                        g2bulkFailStreak = 0;
                         g2bulkCategoryCache.set(categoryId, { data, ts: Date.now() });
                         writeSharedG2BulkCache(categoryId, data);
                         return data;
@@ -10294,7 +10328,9 @@ body{line-height:1.65}
             }
         }
 
+        let voucherStockCategoryId = null;
         function startVoucherStockRefresh(categoryId) {
+            voucherStockCategoryId = categoryId;
             stopVoucherStockRefresh();
             fetchVoucherStock(categoryId);
             voucherStockInterval = setInterval(() => fetchVoucherStock(categoryId), VOUCHER_STOCK_REFRESH_MS);
@@ -10594,11 +10630,11 @@ body{line-height:1.65}
                 const enough = currentWalletBalance >= total;
                 confirmBtn.disabled = !enough;
                 confirmBtn.innerText = enough
-                    ? `Buy ${selectedPackage.amount}${orderQty() > 1 ? ' \u00d7' + orderQty() : ''} - ${total.toLocaleString()} MMK (Wallet)`
+                    ? `Buy ${(window.qtyAmount?window.qtyAmount(selectedPackage.amount,orderQty()):selectedPackage.amount)}${orderQty() > 1 ? ' (\u00d7' + orderQty() + ')' : ''} - ${total.toLocaleString()} MMK (Wallet)`
                     : 'Insufficient Wallet Balance';
             } else if (selectedPaymentType === 'payment') {
                 confirmBtn.disabled = false;
-                confirmBtn.innerText = `Buy ${selectedPackage.amount}${orderQty() > 1 ? ' \u00d7' + orderQty() : ''} - ${total.toLocaleString()} MMK`;
+                confirmBtn.innerText = `Buy ${(window.qtyAmount?window.qtyAmount(selectedPackage.amount,orderQty()):selectedPackage.amount)}${orderQty() > 1 ? ' (\u00d7' + orderQty() + ')' : ''} - ${total.toLocaleString()} MMK`;
             }
         }
 
@@ -11130,7 +11166,7 @@ body{line-height:1.65}
             const img = window.findGameImage ? window.findGameImage(selectedGameName, selectedGameServerName) : '';
 
             const rows = [['Package', esc(selectedPackage.amount)]];
-            if (orderQty() > 1) rows.push(['Quantity', '\u00d7 ' + orderQty()]);
+            if (orderQty() > 1) { rows.push(['Quantity', '\u00d7 ' + orderQty()]); rows.push(['You get', esc(window.qtyAmount ? window.qtyAmount(selectedPackage.amount, orderQty()) : selectedPackage.amount)]); }
             let note = '';
             if (selectedGameNeedsPlayerId) {
                 rows.push(['In-Game ID', `<span class="or-id-val">${esc(inGameId)}${serverId ? ' (' + esc(serverId) + ')' : ''}</span>`]);
@@ -11158,6 +11194,19 @@ body{line-height:1.65}
                 window.showToast('This package just sold out. Please pick another.', 'fail');
                 if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
                 return;
+            }
+
+            // Make sure the chosen quantity still fits the stock already loaded by the refresh timer.
+            if (window.currentGameIsVoucher && selectedPackage.voucherId && voucherStockCategoryId) {
+                try {
+                    // No extra fetch here: uses the stock the 15s refresh already loaded (zero added reads).
+                    const left = voucherStockMap[String(selectedPackage.voucherId)];
+                    if (left !== undefined && left < orderQty()) {
+                        window.showToast(left > 0 ? ('Only ' + left + ' left. Please lower the quantity.') : 'This package just sold out. Please pick another.', 'fail');
+                        if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
+                        return;
+                    }
+                } catch (e) { /* network/cool-down: fall through, the server re-validates stock anyway */ }
             }
 
             const inGameId = document.getElementById('detail-ingame-id').value.trim();
@@ -23398,6 +23447,47 @@ document.addEventListener('animationend', function (e) {
 })();
 </script>
 
+<style id="tab-switch-perf">
+/* Revisited tabs: no per-card entrance replay (keeps the rainbow border spin on Top Up cards). */
+.page-section.revisit .voucher-card.card-pop,
+.page-section.revisit .game-card-anim.card-pop:not(.game-card),
+.page-section.revisit .popular-card.card-pop { animation: none !important; }
+html .page-section.revisit .game-card.card-pop,
+html .page-section.revisit .game-card.card-wave { animation: linnSpin 4s linear infinite !important; }
+/* Page-level fade only on first visit; revisits switch instantly (a big subtree fading is costly). */
+.page-section.revisit.active { animation: none !important; }
+/* Skip layout/paint of off-screen cards while a long grid is shown. */
+#voucher-games-grid .voucher-card, #software-games-grid .game-card { content-visibility: auto; contain-intrinsic-size: auto 150px; }
+</style>
+<style id="redesign-qty-steps">
+/* ===== Compact sticky order steps ===== */
+.ord-steps{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--tg-top-inset,0px) + 66px);z-index:90;margin:0 0 12px;padding:6px 10px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.10);align-items:center;
+  background:var(--glass-bg-strong,var(--surface));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:top .35s cubic-bezier(.4,0,.2,1)}
+body:has(.header.header-hidden) .ord-steps{top:calc(env(safe-area-inset-top,0px) + var(--tg-top-inset,0px) + 8px)}
+.ord-step{flex-direction:row;justify-content:center;gap:6px}
+.ord-dot{width:20px;height:20px;font-size:11px;flex:0 0 auto}
+.ord-dot svg{width:11px;height:11px}
+.ord-step.active .ord-dot{transform:scale(1.08)}
+.ord-lbl{margin-top:0;font-size:11px;white-space:nowrap}
+.ord-step.active .ord-lbl{transform:none}
+.ord-step+.ord-step::before,.ord-step+.ord-step::after{top:50%;margin-top:-1px;height:2px;left:calc(-50% + 34px);width:calc(100% - 44px)}
+@media (max-width:360px){.ord-lbl{display:none}.ord-step.active .ord-lbl{display:inline}}
+
+/* ===== Quantity: compact one-row stepper ===== */
+.vq-box{display:grid;grid-template-columns:1fr auto;grid-template-areas:"left pill" "get get" "foot foot";align-items:center;gap:8px 12px;margin-top:14px;padding:12px 14px;border-radius:16px}
+.vq-left{grid-area:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.vq-label{font-size:14px;font-weight:700;color:var(--text)}
+.vq-each{font-size:12px;color:var(--text-muted)}
+.vq-pill{grid-area:pill;display:flex;align-items:center;height:40px;border-radius:999px;background:var(--surface-alt);border:1px solid var(--border);padding:3px}
+.vq-btn{width:34px;height:34px;border-radius:50%;border:0;background:var(--surface);color:var(--accent);font-size:20px;font-weight:600;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.12);touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .12s ease,background .15s ease}
+.vq-btn:active:not(:disabled){transform:scale(.88);background:var(--g-selected)}
+.vq-btn:disabled{opacity:.35;box-shadow:none}
+.vq-input{flex:0 0 auto;width:46px;height:34px;border:0;background:transparent;border-radius:0;font-size:16px;font-weight:700;color:var(--text);text-align:center;padding:0;outline:0}
+.vq-get{grid-area:get;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:var(--g-selected);font-size:12.5px;color:var(--text-secondary)}
+.vq-get b{font-size:15px;color:var(--text);text-align:right;word-break:break-word}
+.vq-foot{grid-area:foot;display:flex;justify-content:space-between;align-items:baseline;padding-top:8px;border-top:1px dashed var(--border);font-size:12px;color:var(--text-muted)}
+.vq-foot b{font-size:15px;color:var(--accent)}
+</style>
 <script id="ui-polish-js">
 (function(){
   var last='';
@@ -23506,6 +23596,18 @@ document.addEventListener('animationend', function (e) {
       if(window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
     }catch(e){}
   }
+  /* Multiply the package's game-currency amount by the quantity: "60 UC" x3 -> "180 UC", "50+5 Diamonds" x2 -> "100+10 Diamonds" */
+  window.qtyAmount=function(amount,q){
+    var str=String(amount==null?'':amount); q=Math.max(1,Math.floor(Number(q)||1));
+    if(q<=1) return str;
+    function f(n){ return (n*q).toLocaleString('en-US',{maximumFractionDigits:2}); }
+    function n(x){ return parseFloat(String(x).replace(/,/g,'')); }
+    var m=str.match(/(\d[\d,]*(?:\.\d+)?)\s*\+\s*(\d[\d,]*(?:\.\d+)?)/);
+    if(m) return str.replace(m[0], f(n(m[1]))+'+'+f(n(m[2])));
+    m=str.match(/\d[\d,]*(?:\.\d+)?/);
+    if(m) return str.replace(m[0], f(n(m[0])));
+    return str+' \u00d7 '+q;
+  };
   function vqRender(){
     var box=document.getElementById('voucher-qty-box'); if(!box) return;
     var gd=document.getElementById('game-detail');
@@ -23521,6 +23623,8 @@ document.addEventListener('animationend', function (e) {
     document.getElementById('vq-minus').disabled = q<=1;
     document.getElementById('vq-plus').disabled = q>=max;
     document.getElementById('vq-max').textContent = (en?'Max ':'\u200b\u1021\u1019\u103b\u102c\u1038\u1006\u102f\u1036\u1038 ')+max;
+    document.getElementById('vq-get-label').textContent = en?'You get':'\u101b\u1019\u100a\u1037\u103a\u1015\u1019\u102c\u100f';
+    document.getElementById('vq-get').textContent = window.qtyAmount(selectedPackage.amount,q);
     document.getElementById('vq-total').textContent = (unit*q).toLocaleString()+' MMK';
     box.style.display='';
   }
@@ -23533,6 +23637,35 @@ document.addEventListener('animationend', function (e) {
   window.vqTyping=function(el){ el.value=el.value.replace(/\D/g,'').slice(0,3); };
   window.vqCommit=function(el){ vqSet(el.value||1); el.value=window.voucherQty; };
   setInterval(vqRender,400);
+
+  /* Hold + / - to auto-count; speeds up the longer it is held. */
+  (function(){
+    function bind(id,dir){
+      var btn=document.getElementById(id); if(!btn) return;
+      var t=null, held=false, ticks=0, pid=null;
+      function stop(){ clearTimeout(t); t=null; held=false; ticks=0; }
+      function run(){
+        var before=Number(window.voucherQty)||1;
+        vqStep(dir); ticks++;
+        var after=Number(window.voucherQty)||1;
+        if(after===before){ stop(); return; }           // hit min/max
+        var delay = ticks<6 ? 140 : ticks<16 ? 80 : 45;  // accelerate
+        t=setTimeout(run,delay);
+      }
+      btn.addEventListener('pointerdown',function(e){
+        if(btn.disabled) return;
+        e.preventDefault(); pid=e.pointerId;
+        try{btn.setPointerCapture(pid);}catch(_){}
+        stop(); held=true;
+        run();                                           // immediate single step
+        if(held && t){ clearTimeout(t); t=setTimeout(run,380); } // hold delay before repeat
+      });
+      ['pointerup','pointercancel','lostpointercapture','pointerleave'].forEach(function(ev){ btn.addEventListener(ev,stop); });
+      btn.addEventListener('contextmenu',function(e){e.preventDefault();});
+      btn.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); vqStep(dir); } });
+    }
+    bind('vq-minus',-1); bind('vq-plus',1);
+  })();
 })();
 </script>
 </body>
