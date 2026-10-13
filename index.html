@@ -111,7 +111,8 @@
                 // (the lag only shows while tapping and switching tabs), so force the light mode there.
                 var tgAndroid = false;
                 try { var tw = window.Telegram && window.Telegram.WebApp; tgAndroid = !!(tw && /^android/i.test(String(tw.platform || ''))) || (/Android/i.test(navigator.userAgent) && /Telegram/i.test(navigator.userAgent)); } catch (e2) {}
-                if (saved === 'low' || (saved !== 'ok' && weak) || (tgAndroid && q !== 'high')) { root.classList.add('perf-low'); }
+                var touchDev = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+                if (saved === 'low' || (saved !== 'ok' && weak) || (tgAndroid && q !== 'high') || (touchDev && q !== 'high')) { root.classList.add('perf-low'); }
                 if (q || saved === 'low') return; // decided; no probing
                 function probe() {
                     if (document.hidden) {
@@ -3833,6 +3834,18 @@ html[data-theme="dark"] #order-review-overlay .or-actions .or-btn-edit { backgro
         .detail-form-card .idg .idg-server select { text-align: center; padding-left: 8px; padding-right: 8px; }
         .detail-form-card .idg .idg-server select { padding-right: 26px; background-position: right 8px center; background-size: 12px 12px; text-align: left; padding-left: 12px; }
         #detail-ingame-id { padding-right: 36px !important; }
+        /* X (clear) button: flex-centred, cross drawn with CSS so font metrics can't push it down */
+        .idg-clear {
+            top: 50%; margin-top: 0; transform: translateY(-50%);
+            font-size: 0; line-height: 0; padding: 0;
+        }
+        .idg-field.has-text .idg-clear { display: flex; align-items: center; justify-content: center; }
+        .idg-clear::before, .idg-clear::after {
+            content: ''; position: absolute; left: 50%; top: 50%; width: 11px; height: 2px; margin: -1px 0 0 -5.5px;
+            border-radius: 2px; background: currentColor;
+        }
+        .idg-clear::before { transform: rotate(45deg); }
+        .idg-clear::after { transform: rotate(-45deg); }
 
         /* Glass: own blur (the global --blur is "none" on phones), frosted gradient, bright rim */
         .idg {
@@ -23993,5 +24006,601 @@ document.addEventListener('keydown',function(e){
   e.preventDefault(); if(window.showPage) showPage(el.getAttribute('data-go'));
 });
 </script>
+<style id="perf-boost">
+/* Phones: blur layers are the main source of scroll/tap lag, so drop them everywhere except the order modal. */
+@media (hover: none), (max-width: 820px) {
+  *:not(.order-ok-overlay):not(.order-ok-box), *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+/* While the page is scrolling, freeze decorative infinite animations (they all repaint every frame). */
+html.is-scrolling *, html.is-scrolling *::before, html.is-scrolling *::after { animation-play-state: paused !important; }
+html.perf-low .tab-content, html.perf-low .page { will-change: auto; }
+
+/* ===== Game / Voucher / Software tab lag ===== */
+/* 1) Rainbow border: every game + popular card animated --linn-a forever (a repaint of every visible card's
+      conic-gradient border each frame), and the "revisit" rule re-enabled it with !important. Stop it for good
+      in lite mode (the colours stay, only the spinning stops). */
+html.perf-low .game-card:not(.card-pop):not(.card-wave),
+html.perf-low .game-card .game-card-name,
+html.perf-low .game-search-wrap.expanded,
+html.perf-low .bullet-chat-wrapper::before { animation: none !important; }
+html.perf-low .game-card.card-pop  { animation: cardPop .28s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 22ms) !important; }
+html.perf-low .game-card.card-wave { animation: cardPop .28s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 22ms) !important; }
+html.perf-low .popular-card.card-pop { animation: cardPop .3s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 30ms) !important; }
+html.perf-low .voucher-card.card-pop { animation: cardPop .28s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 22ms) !important; }
+html.perf-low .page-section.revisit .game-card.card-pop,
+html.perf-low .page-section.revisit .game-card.card-wave,
+html.perf-low .page-section.revisit .popular-card.card-pop,
+html.perf-low .page-section.revisit .voucher-card.card-pop { animation: none !important; }
+/* 2) Switching Top Up <-> Voucher <-> Software: sliding a whole page full of cards sideways is expensive;
+      use a short fade instead. */
+@keyframes pageQuickFade { from { opacity: 0; } to { opacity: 1; } }
+html.perf-low .page-section.swipe-left.active,
+html.perf-low .page-section.swipe-right.active { animation: pageQuickFade .16s ease-out both !important; transform: none !important; }
+/* 3) Skip layout/paint of off-screen cards on every grid. */
+html.perf-low #all-games-grid .game-card,
+html.perf-low #voucher-games-grid .voucher-card,
+html.perf-low #software-games-grid .game-card { content-visibility: auto; contain-intrinsic-size: auto 150px; }
+</style>
+<script id="perf-boost-js">
+(function () {
+  var root = document.documentElement, tm = null, on = false;
+  function stop() { on = false; root.classList.remove('is-scrolling'); }
+  function onScroll() {
+    if (!on) { on = true; root.classList.add('is-scrolling'); }
+    clearTimeout(tm); tm = setTimeout(stop, 140);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+  window.addEventListener('touchmove', onScroll, { passive: true });
+})();
+</script>
+<style id="ui-refresh">
+/* ===== UI refresh: violet theme, flat rounded cards, round nav indicator, glass popups, new type ===== */
+:root {
+  --accent: #6C4DF6; --accent-dark: #5A3DE0; --accent-soft: #F0ECFF; --accent-rgb: 108,77,246;
+  --gold: #F5B942; --r-card: 22px;
+}
+html[data-theme="dark"] {
+  --bg: #0A0714;
+  --bg-gradient: radial-gradient(circle at 15% 0%, #241552 0%, #0A0714 48%), radial-gradient(circle at 100% 25%, #1A0F3D 0%, transparent 45%);
+  --surface: #151026; --surface-alt: #1B1533;
+  --text: #F1ECFF; --text-secondary: #B8ADD9; --text-muted: #8579A8; --text-faint: #4A3F6E;
+  --border: rgba(255,255,255,0.08);
+  --accent: #A58BFF; --accent-dark: #8B6CFF; --accent-soft: rgba(165,139,255,0.16); --accent-rgb: 165,139,255;
+}
+/* Font: clean Latin + readable Myanmar, slightly looser lines */
+html body {
+  font-family: "Inter", "SF Pro Text", -apple-system, "Segoe UI", Roboto, "Noto Sans Myanmar", "Myanmar Text", "Padauk", sans-serif;
+  line-height: 1.5; letter-spacing: .005em; -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .title, .detail-section-title { font-weight: 700; letter-spacing: 0; }
+/* Cards: flat, no border, softer corners, no rainbow ring */
+html .game-card, html .voucher-card {
+  border: 0 !important; border-radius: var(--r-card) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb), .13) !important;
+}
+html .game-card .game-card-name, html[data-theme="dark"] .game-card .game-card-name {
+  border: 0 !important; background: transparent !important; box-shadow: none !important; font-weight: 600;
+}
+.game-card .game-card-img-wrap, .game-card-img-wrap img, .voucher-card-stack img { border-radius: 18px; }
+.home-banner-carousel, .home-banner-track, .home-banner-slide { border-radius: 24px; }
+/* Bottom nav: round indicator behind the active icon */
+.nav-item.active .nav-icon-wrap, .nav-item.active .nav-icon-wrap::before { border-radius: 50% !important; }
+.nav-item.active .nav-icon-wrap { background: rgba(var(--accent-rgb), .16); }
+.nav-item .nav-icon-wrap .ui-icon { width: 24px; height: 24px; }
+/* Home stat cards: compact */
+.home-live-stats-grid { gap: 8px !important; }
+.home-live-stat { padding: 10px 12px !important; border-radius: 16px !important; }
+.home-live-stat-value { font-size: 18px !important; line-height: 1.2 !important; }
+.home-live-stat-label { font-size: 11px !important; }
+.home-live-stat-desc { font-size: 10px !important; }
+/* Popups (payment, error, confirm...): same glass look as Order Success */
+.modal-overlay { background: rgba(10, 8, 24, .45); }
+.modal-box {
+  border-radius: 26px !important;
+  background: linear-gradient(155deg, rgba(255,255,255,.30), rgba(255,255,255,.10) 55%, rgba(var(--accent-rgb), .12)), var(--surface) !important;
+  border: 1px solid rgba(255,255,255,.4) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.5) !important;
+}
+html[data-theme="dark"] .modal-box {
+  background: linear-gradient(155deg, rgba(255,255,255,.08), rgba(255,255,255,.02) 55%, rgba(var(--accent-rgb), .10)), var(--surface) !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+.modal-header { border-bottom: 0 !important; }
+.modal-close { border-radius: 50% !important; }
+@media (hover: none), (max-width: 820px) { .modal-box { animation: pageQuickFade .18s ease-out both; } }
+</style>
+<script id="ui-refresh-js">
+/* Popular Games goes above the live-stat cards on Home. */
+(function () {
+  function move() {
+    try {
+      var pop = document.getElementById('popular-games-section');
+      var stats = document.getElementById('home-live-stats-wrap') || document.querySelector('.home-live-stats-wrap');
+      if (pop && stats && stats.parentNode && (stats.compareDocumentPosition(pop) & 4)) stats.parentNode.insertBefore(pop, stats);
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', move); else move();
+})();
+</script>
+<style id="search-recent-css">
+#game-search-suggest { display: none; margin: 6px 0 10px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: 0 10px 28px rgba(var(--accent-rgb), .16); overflow: hidden; }
+#game-search-suggest.show { display: block; }
+.gss-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 4px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.gss-head button { border: 0; background: none; color: var(--accent); font-size: 12px; font-weight: 600; padding: 2px 4px; cursor: pointer; }
+.gss-row { display: flex; align-items: center; gap: 10px; padding: 8px 14px; min-height: 46px; cursor: pointer; color: var(--text); font-size: 14px; }
+.gss-row:active { background: var(--accent-soft); }
+.gss-row img { width: 32px; height: 32px; border-radius: 9px; object-fit: cover; flex: 0 0 auto; background: var(--border); }
+.gss-ico { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 15px; flex: 0 0 auto; }
+.gss-row b { color: var(--accent); font-weight: 700; }
+.gss-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#recent-games-section { margin-top: 4px; }
+</style>
+<script id="search-recent-js">
+/* Live search suggestions + recent searches, and a "Recently Viewed" row on Home (all stored on this phone). */
+(function () {
+  var RS = 'linn_recent_searches', RG = 'linn_recent_games';
+  function load(k) { try { var v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function img(u) { return window.optimizedGameImg ? window.optimizedGameImg(u, 100) : u; }
+  function isTopUp(g) { return g && g.fulfillProvider !== 'software' && g.fulfillProvider !== 'g2bulk_voucher'; }
+
+  function addSearch(v) {
+    v = (v || '').trim(); if (v.length < 2) return;
+    var l = load(RS).filter(function (x) { return x.toLowerCase() !== v.toLowerCase(); });
+    l.unshift(v); save(RS, l.slice(0, 6));
+  }
+  function addGame(id) {
+    if (!id) return;
+    var l = load(RG).filter(function (x) { return x !== id; });
+    l.unshift(id); save(RG, l.slice(0, 10));
+  }
+
+  /* ---------- search dropdown ---------- */
+  var input, box;
+  function hide() { if (box) box.classList.remove('show'); }
+  function render() {
+    if (!input || !box) return;
+    var q = input.value.trim().toLowerCase(), html = '';
+    if (!q) {
+      var rs = load(RS);
+      if (!rs.length) return hide();
+      html = '<div class="gss-head"><span>Recent searches</span><button type="button" data-act="clear">Clear</button></div>' +
+        rs.map(function (r) { return '<div class="gss-row" data-val="' + esc(r) + '"><span class="gss-ico">&#8634;</span><span class="gss-name">' + esc(r) + '</span></div>'; }).join('');
+    } else {
+      var G = window.GAMES || {}, seen = {}, hits = [];
+      Object.keys(G).forEach(function (id) {
+        var g = G[id]; if (!isTopUp(g) || !g.name) return;
+        var n = String(g.name), k = n.toLowerCase();
+        if (seen[k] || k.indexOf(q) < 0) return;
+        seen[k] = 1; hits.push({ n: n, k: k, img: g.image });
+      });
+      hits.sort(function (a, b) { return (a.k.indexOf(q) === 0 ? 0 : 1) - (b.k.indexOf(q) === 0 ? 0 : 1) || a.n.length - b.n.length; });
+      hits = hits.slice(0, 6);
+      if (!hits.length) return hide();
+      html = hits.map(function (h) {
+        var i = h.k.indexOf(q), name = esc(h.n.slice(0, i)) + '<b>' + esc(h.n.slice(i, i + q.length)) + '</b>' + esc(h.n.slice(i + q.length));
+        return '<div class="gss-row" data-val="' + esc(h.n) + '">' + (h.img ? '<img src="' + esc(img(h.img)) + '" alt="" loading="lazy">' : '<span class="gss-ico">&#9906;</span>') + '<span class="gss-name">' + name + '</span></div>';
+      }).join('');
+    }
+    box.innerHTML = html; box.classList.add('show');
+  }
+  function pick(val) {
+    input.value = val; addSearch(val);
+    if (window.filterGamesBySearch) window.filterGamesBySearch(val);
+    hide();
+  }
+  function initSearch() {
+    input = document.getElementById('game-search-input');
+    var row = document.getElementById('all-games-title-row');
+    if (!input || !row || document.getElementById('game-search-suggest')) return;
+    box = document.createElement('div'); box.id = 'game-search-suggest';
+    row.parentNode.insertBefore(box, row.nextSibling);
+    input.addEventListener('focus', render);
+    input.addEventListener('input', render);
+    input.addEventListener('blur', function () { setTimeout(hide, 120); });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { addSearch(input.value); hide(); } });
+    box.addEventListener('pointerdown', function (e) { e.preventDefault(); }); // keep focus so the bar doesn't collapse
+    box.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-act="clear"]');
+      if (c) { save(RS, []); hide(); return; }
+      var r = e.target.closest('.gss-row'); if (r) pick(r.getAttribute('data-val'));
+    });
+  }
+
+  /* ---------- recently viewed row ---------- */
+  function renderRecent() {
+    var pop = document.getElementById('popular-games-section'), G = window.GAMES;
+    if (!pop || !G || !pop.parentNode) return;
+    var sec = document.getElementById('recent-games-section');
+    var ids = load(RG).filter(function (id) { return G[id]; }).slice(0, 10);
+    if (!ids.length) { if (sec) sec.style.display = 'none'; return; }
+    if (!sec) {
+      sec = document.createElement('div'); sec.id = 'recent-games-section';
+      sec.innerHTML = '<h2 class="title-header">Recently Viewed</h2><div class="popular-scroll-wrap" id="recent-games-scroll"></div>';
+      pop.parentNode.insertBefore(sec, pop.nextSibling);
+    }
+    sec.style.display = '';
+    document.getElementById('recent-games-scroll').innerHTML = ids.map(function (id) {
+      var g = G[id], u = img(g.image);
+      return '<div class="game-card popular-card" data-game-id="' + esc(id) + '" onclick="openGameDetail(\'' + esc(id) + '\')">' +
+        '<div class="game-card-img-wrap" style="--card-bg-img:url(\'' + esc(u) + '\')"><img src="' + esc(u) + '" alt="' + esc(g.name || '') + '" loading="lazy" decoding="async"></div>' +
+        '<div class="game-card-name">' + esc(g.name || '') + '</div></div>';
+    }).join('');
+  }
+
+  /* remember what the person taps: the game (for Recently Viewed) and the text they searched with */
+  document.addEventListener('click', function (e) {
+    if (window.__suppressNextCardClick) return;
+    var c = e.target.closest && e.target.closest('[data-game-id]');
+    if (!c) return;
+    addGame(c.getAttribute('data-game-id'));
+    if (input && input.value.trim().length >= 2) addSearch(input.value);
+    setTimeout(renderRecent, 400);
+  }, true);
+
+  function boot() {
+    initSearch(); renderRecent();
+    [1500, 4000].forEach(function (ms) { setTimeout(function () { initSearch(); renderRecent(); }, ms); });
+    var d = document.getElementById('dashboard');
+    if (d && window.MutationObserver) new MutationObserver(function () { if (d.classList.contains('active')) renderRecent(); }).observe(d, { attributes: true, attributeFilter: ['class'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+<style id="support-admin-css">
+#support-panel-admin .sa-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 16px; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(var(--accent-rgb), .10); }
+.sa-hero { display: flex; align-items: center; gap: 12px; }
+.sa-avatar { width: 54px; height: 54px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #fff; background: linear-gradient(145deg, var(--accent), var(--accent-dark)); box-shadow: 0 0 0 4px rgba(var(--accent-rgb), .15); position: relative; }
+.sa-avatar::after { content: ''; position: absolute; right: 1px; bottom: 1px; width: 13px; height: 13px; border-radius: 50%; background: #22C55E; border: 2.5px solid var(--surface); }
+.sa-name { font-size: 16px; font-weight: 700; color: var(--text); }
+.sa-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+.sa-title { font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 10px; }
+.sa-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-alt); color: var(--text); text-align: left; cursor: pointer; font: inherit; }
+.sa-btn:last-child { margin-bottom: 0; }
+.sa-btn:active { transform: scale(.98); }
+.sa-ico { width: 38px; height: 38px; border-radius: 12px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
+.sa-ico.tg { background: #229ED9; } .sa-ico.ms { background: #7B5CFF; } .sa-ico.bot { background: #16A34A; } .sa-ico.ch { background: #F59E0B; }
+.sa-btn b { display: block; font-size: 14px; font-weight: 600; }
+.sa-btn small { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+.sa-copy { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.sa-list { margin: 0; padding: 0; list-style: none; }
+.sa-list li { display: flex; gap: 10px; padding: 7px 0; font-size: 13.5px; color: var(--text); line-height: 1.55; }
+.sa-list li span.n { flex: 0 0 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.sa-note { font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); background: var(--accent-soft); border-radius: 14px; padding: 10px 12px; }
+.sa-row2 { display: flex; gap: 8px; }
+.sa-row2 .sa-btn { margin: 0; justify-content: center; text-align: center; font-weight: 600; font-size: 13.5px; }
+</style>
+<script id="support-admin-js">
+/* Support page: new "Admin" tab with the store admin's contact content. */
+(function () {
+  var TG = function () { return window.SUPPORT_TELEGRAM_USERNAME || 'linn270_0'; };
+  var MS = function () { return window.SUPPORT_MESSENGER_USERNAME || 'sandarlinn69'; };
+  var BOT = 'linngamestorebot', CHANNEL = 'linnlinnarea';
+  function open(u) { if (window.openExternalUrl) window.openExternalUrl(u); else window.open(u, '_blank', 'noopener'); }
+  function toast(m) { if (window.showToast) window.showToast(m, 'success'); }
+  function copy(txt) {
+    function done() { toast('Copied ' + txt); }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done, done); return; } } catch (e) {}
+    done();
+  }
+  var HTML =
+    '<div class="sa-card"><div class="sa-hero"><div class="sa-avatar">L</div><div>' +
+      '<div class="sa-name">Linn Game Store Admin</div>' +
+      '<div class="sa-sub">အကူအညီလိုရင် Admin ကို တိုက်ရိုက်ဆက်သွယ်နိုင်ပါတယ်။ ပြန်စာကို တတ်နိုင်သမျှ မြန်မြန် ပြန်ပေးပါမယ်။</div></div></div></div>' +
+    '<div class="sa-card"><p class="sa-title">Contact Admin</p>' +
+      '<button type="button" class="sa-btn" data-sa="tg"><span class="sa-ico tg">&#9992;</span><span><b>Telegram</b><small>@' + TG() + '</small></span><span class="sa-copy" data-sa-copy="@' + TG() + '">Copy</span></button>' +
+      '<button type="button" class="sa-btn" data-sa="ms"><span class="sa-ico ms">&#9993;</span><span><b>Messenger</b><small>m.me/' + MS() + '</small></span></button>' +
+      '<button type="button" class="sa-btn" data-sa="bot"><span class="sa-ico bot">&#9881;</span><span><b>Official Bot</b><small>@' + BOT + ' &middot; order updates</small></span></button>' +
+      '<button type="button" class="sa-btn" data-sa="ch"><span class="sa-ico ch">&#9733;</span><span><b>Announcement Channel</b><small>@' + CHANNEL + ' &middot; promos &amp; news</small></span></button>' +
+    '</div>' +
+    '<div class="sa-card"><p class="sa-title">မပို့ခင် ဒါတွေ ပြင်ဆင်ထားပါ</p><ul class="sa-list">' +
+      '<li><span class="n">1</span><span>Order ID (History ထဲက အော်ဒါကို နှိပ်ပြီး ကူးယူနိုင်ပါတယ်)</span></li>' +
+      '<li><span class="n">2</span><span>Player ID နဲ့ Server ID</span></li>' +
+      '<li><span class="n">3</span><span>ငွေလွှဲထားတဲ့ screenshot (ပြေစာ)</span></li>' +
+      '<li><span class="n">4</span><span>ဖြစ်နေတဲ့ ပြဿနာကို တစ်ကြောင်းနှစ်ကြောင်းနဲ့ ရှင်းပြပါ</span></li></ul></div>' +
+    '<div class="sa-card"><p class="sa-title">Quick help</p><div class="sa-row2">' +
+      '<button type="button" class="sa-btn" data-sa="complaint">Report a problem</button>' +
+      '<button type="button" class="sa-btn" data-sa="guide">Read guide</button></div></div>' +
+    '<div class="sa-note">Admin က ဘယ်တော့မှ သင့်ရဲ့ password၊ OTP ကုဒ်၊ ငွေလွှဲ PIN တွေ မမေးပါဘူး။ ဘယ်သူမေးမေး မပေးပါနဲ့။</div>';
+
+  function activate(on) {
+    var admin = document.getElementById('support-panel-admin');
+    var btn = document.getElementById('support-tab-admin');
+    if (!admin || !btn) return;
+    admin.style.display = on ? '' : 'none';
+    btn.classList.toggle('active', !!on);
+    if (on) {
+      ['guide', 'complaint'].forEach(function (t) {
+        var b = document.getElementById('support-tab-' + t), p = document.getElementById('support-panel-' + t);
+        if (b) b.classList.remove('active'); if (p) p.style.display = 'none';
+      });
+    }
+  }
+  function init() {
+    var tabs = document.getElementById('support-widget-tabs'), guide = document.getElementById('support-panel-guide');
+    if (!tabs || !guide || document.getElementById('support-panel-admin')) return;
+    var btn = document.createElement('button');
+    btn.className = 'pkg-type-tab'; btn.id = 'support-tab-admin'; btn.type = 'button'; btn.textContent = 'Admin';
+    btn.addEventListener('click', function () { activate(true); });
+    tabs.insertBefore(btn, document.getElementById('support-tab-chat'));
+    var panel = document.createElement('div');
+    panel.className = 'modal-body'; panel.id = 'support-panel-admin'; panel.style.cssText = 'display:none;overflow-y:visible;';
+    panel.innerHTML = HTML;
+    guide.parentNode.insertBefore(panel, guide);
+    panel.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-sa-copy]');
+      if (c) { e.stopPropagation(); copy(c.getAttribute('data-sa-copy')); return; }
+      var b = e.target.closest('[data-sa]'); if (!b) return;
+      var k = b.getAttribute('data-sa');
+      if (k === 'tg') open('https://t.me/' + TG());
+      else if (k === 'ms') open('https://m.me/' + MS());
+      else if (k === 'bot') open('https://t.me/' + BOT);
+      else if (k === 'ch') open('https://t.me/' + CHANNEL);
+      else if (k === 'complaint' || k === 'guide') { activate(false); if (window.switchSupportTab) window.switchSupportTab(k); }
+    });
+    // If anything else (e.g. opening the page) shows Guide/Complaint, the Admin panel steps aside.
+    if (window.MutationObserver) {
+      var obs = new MutationObserver(function () {
+        var g = document.getElementById('support-panel-guide'), c = document.getElementById('support-panel-complaint'), a = document.getElementById('support-panel-admin');
+        if (a && a.style.display !== 'none' && ((g && g.style.display !== 'none') || (c && c.style.display !== 'none'))) activate(false);
+      });
+      [guide, document.getElementById('support-panel-complaint')].forEach(function (el) { if (el) obs.observe(el, { attributes: true, attributeFilter: ['style'] }); });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<style id="srv-radar-css">
+/* ---- Wallet tap: one-shot rainbow burst ---- */
+.wal-burst { position: fixed; z-index: 999; width: 0; height: 0; pointer-events: none; }
+.wal-burst i { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; box-sizing: border-box; border: 3px solid transparent;
+  background: conic-gradient(#FBBC04, #EA4335, #A56CE8, #4285F4, #34A853, #FBBC04) border-box; -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: walRing .75s cubic-bezier(.2,.8,.3,1) forwards; }
+.wal-burst b { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; opacity: 0; animation: walDot .7s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes walRing { from { transform: scale(.4) rotate(0); opacity: 1; } to { transform: scale(2.3) rotate(140deg); opacity: 0; } }
+@keyframes walDot { 0% { transform: translate(0,0) scale(.4); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; } }
+
+/* ---- MLBB Server Check (clean card, site theme) ---- */
+#srv-check-btn { display: none; position: relative; }
+body.srv-home #srv-check-btn { display: flex; }
+#srv-check-btn svg { width: 22px; height: 22px; }
+#srv-check-btn.on { background: rgba(var(--accent-rgb), .18); }
+#home-banner-carousel.srv-shut { transition: height .6s cubic-bezier(.65,0,.35,1), opacity .5s ease, margin .6s ease; height: 0 !important; opacity: 0; margin-bottom: 0 !important; overflow: hidden; pointer-events: none; }
+#home-banner-carousel.srv-anim { transition: height .6s cubic-bezier(.65,0,.35,1), opacity .5s ease .1s, margin .6s ease; overflow: hidden; }
+.srv-panel { display: none; position: relative; margin: 0 0 12px; padding: 12px; border-radius: 20px; color: var(--text); overflow: hidden;
+  background: radial-gradient(110% 80% at 100% 0%, rgba(var(--accent-rgb), .20), transparent 62%), linear-gradient(160deg, rgba(var(--accent-rgb), .08), rgba(var(--accent-rgb), .02)), var(--glass-bg-strong);
+  border: 1px solid var(--glass-border); box-shadow: 0 8px 24px rgba(var(--accent-rgb), .14), inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(var(--accent-rgb), .08); }
+.srv-panel::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 42%; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)); }
+.srv-panel > * { position: relative; }
+html[data-theme="dark"] .srv-panel { box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10); }
+html[data-theme="dark"] .srv-panel::before { background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,0)); }
+.srv-panel.show { display: block; }
+
+/* open / close: only transform + opacity are animated (no blur, no clip-path) so it stays smooth on phones */
+.srv-panel.opening { animation: srvSlide .8s var(--ease-out) both; will-change: transform, opacity; }
+.srv-panel.closing { animation: srvSlide .5s ease reverse both; }
+.srv-panel.opening .srv-head { animation: srvBehind .8s var(--ease-out) .25s backwards; }
+.srv-panel.opening #srv-pid { animation: srvFromRight .8s var(--ease-out) .45s backwards; }
+.srv-panel.opening #srv-sid { animation: srvFromRight .8s var(--ease-out) .65s backwards; }
+.srv-panel.opening .srv-go { animation: srvFromBottom .8s var(--ease-out) .85s backwards; }
+@keyframes srvSlide { from { opacity: 0; transform: translate3d(-28px,0,0); } to { opacity: 1; transform: none; } }
+@keyframes srvBehind { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes srvFromRight { from { opacity: 0; transform: translate3d(44px,0,0); } to { opacity: 1; transform: none; } }
+@keyframes srvFromBottom { from { opacity: 0; transform: translate3d(0,18px,0); } to { opacity: 1; transform: none; } }
+
+/* header */
+.srv-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+.srv-ic { width: 34px; height: 34px; border-radius: 12px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #fff;
+  background: linear-gradient(145deg, var(--accent), var(--accent-dark)); box-shadow: 0 4px 12px rgba(var(--accent-rgb), .32), inset 0 1px 0 rgba(255,255,255,.35); }
+.srv-ic svg { width: 18px; height: 18px; }
+.srv-tt { min-width: 0; }
+.srv-tt b { display: block; font-size: 14.5px; font-weight: 700; line-height: 1.2; }
+.srv-tt small { display: block; font-size: 10.5px; line-height: 1.3; color: var(--text-secondary); margin-top: 1px; }
+.srv-tag { margin-left: auto; flex: 0 0 auto; font-size: 9.5px; font-weight: 800; letter-spacing: .07em; color: var(--accent); padding: 3px 8px; border-radius: 999px; background: rgba(var(--accent-rgb), .12); border: 1px solid rgba(var(--accent-rgb), .22); }
+.srv-x { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--glass-border); background: var(--glass-bg-strong); position: relative; cursor: pointer; font-size: 0; -webkit-tap-highlight-color: transparent; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+.srv-x::before, .srv-x::after { content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 2px; margin: -1px 0 0 -5px; background: var(--text-secondary); border-radius: 2px; transform: rotate(45deg); }
+.srv-x::after { transform: rotate(-45deg); }
+
+/* inputs: glass boxes */
+.srv-form { display: flex; gap: 8px; margin-bottom: 9px; }
+.srv-form input { min-width: 0; height: 44px; box-sizing: border-box; padding: 0 13px; border: 1px solid var(--glass-border); border-radius: 14px; color: var(--text); font: inherit; font-size: 15.5px; font-weight: 600; font-variant-numeric: tabular-nums; outline: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.28)), var(--glass-bg-strong);
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb), .08), inset 0 1px 0 rgba(255,255,255,.85); transition: border-color .15s, box-shadow .15s; }
+html[data-theme="dark"] .srv-form input { background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)), var(--glass-bg-strong); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.srv-form input::placeholder { color: var(--text-muted); font-weight: 400; }
+.srv-form input:focus { border-color: rgba(var(--accent-rgb), .7); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .16), inset 0 1px 0 rgba(255,255,255,.85); }
+.srv-form #srv-pid { flex: 1; } .srv-form #srv-sid { width: 30%; max-width: 104px; text-align: center; }
+.srv-form.shake { animation: srvShake .4s; } @keyframes srvShake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* glossy button + status */
+.srv-go { position: relative; overflow: hidden; display: block; width: 100%; height: 44px; border: 0; border-radius: 14px; font: inherit; font-size: 14.5px; font-weight: 700; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark)); box-shadow: 0 6px 16px rgba(var(--accent-rgb), .32), inset 0 1px 0 rgba(255,255,255,.35); transition: transform .15s ease, opacity .15s; }
+.srv-go::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 50%; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0)); }
+.srv-go:active { transform: scale(.98); } .srv-go:disabled { opacity: .65; }
+.srv-bar { height: 2px; border-radius: 2px; background: var(--border); margin-top: 9px; overflow: hidden; opacity: 0; transition: opacity .2s; }
+.srv-bar.on { opacity: 1; } .srv-bar i { display: block; width: 40%; height: 100%; background: var(--accent); animation: srvBar 1s ease-in-out infinite; }
+@keyframes srvBar { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+.srv-status { margin-top: 6px; font-size: 11.5px; color: var(--text-secondary); text-align: center; }
+.srv-status:empty { display: none; }
+
+/* result */
+.srv-result { margin-top: 10px; }
+.srv-result:empty { margin: 0; }
+.srv-player { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 16px; border: 1px solid var(--glass-border); background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.22)), var(--glass-bg-strong); box-shadow: 0 2px 8px rgba(var(--accent-rgb), .08), inset 0 1px 0 rgba(255,255,255,.8); animation: srvUp .55s ease both; }
+.srv-av { width: 36px; height: 36px; border-radius: 12px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; color: #fff; background: linear-gradient(145deg, var(--accent), var(--accent-dark)); box-shadow: 0 3px 8px rgba(var(--accent-rgb), .28), inset 0 1px 0 rgba(255,255,255,.35); }
+.srv-pn { font-size: 14px; font-weight: 700; word-break: break-word; } .srv-pi { font-size: 11.5px; color: var(--text-secondary); margin-top: 1px; }
+.srv-ok { margin-left: auto; width: 18px; height: 18px; border-radius: 50%; background: #22C55E; flex: 0 0 auto; position: relative; }
+.srv-ok::after { content: ''; position: absolute; left: 6px; top: 3px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.srv-tiles { display: flex; gap: 8px; margin-top: 8px; }
+.srv-tile { flex: 1; min-width: 0; padding: 8px 11px; border-radius: 14px; background: linear-gradient(180deg, rgba(var(--accent-rgb), .14), rgba(var(--accent-rgb), .06)); border: 1px solid rgba(var(--accent-rgb), .18); box-shadow: inset 0 1px 0 rgba(255,255,255,.5); animation: srvUp .55s .1s ease both; }
+.srv-tile small { display: block; font-size: 10px; color: var(--text-secondary); }
+.srv-tile b { display: block; margin-top: 1px; font-size: 15px; font-weight: 800; color: var(--accent); word-break: break-word; }
+.srv-tile.y { background: rgba(245,158,11,.12); } .srv-tile.y b { color: #D97706; font-size: 13px; }
+.srv-err { padding: 10px; border-radius: 12px; text-align: center; background: rgba(239,68,68,.10); color: #DC2626; font-weight: 700; font-size: 13px; animation: srvUp .55s ease both; }
+.srv-err.warn { background: rgba(245,158,11,.12); color: #B45309; }
+html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .srv-err.warn { color: #FCD34D; }
+.srv-btns { display: flex; gap: 8px; margin-top: 8px; animation: srvUp .55s .2s ease both; }
+.srv-btns button { flex: 1; height: 38px; border: 0; border-radius: 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.srv-again { background: var(--surface-alt); color: var(--text); } .srv-cta { background: var(--accent); color: #fff; }
+@keyframes srvUp { from { transform: translate3d(0,8px,0); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Bottom nav stays glued to the real bottom of the screen. When the keyboard squeezes the page, the nav is
+   pushed down under the keyboard (instead of riding on top of it) and slides back up when the keyboard closes. */
+.bottom-nav { transform: translate3d(0, var(--kb-shift, 0px), 0); transition: transform .5s cubic-bezier(.4,0,.2,1); }
+@media (prefers-reduced-motion: reduce) { .srv-panel.opening, .srv-panel.opening *, .srv-panel.closing, .srv-bar i { animation: none !important; } }
+</style>
+<script id="srv-radar-js">
+(function () {
+  /* ================= Wallet: rainbow burst on tap ================= */
+  var COLORS = ['#FBBC04', '#EA4335', '#A56CE8', '#4285F4', '#34A853', '#F472B6', '#22D3EE', '#F59E0B'];
+  document.addEventListener('click', function (e) {
+    var w = e.target.closest && e.target.closest('#btn-wallet'); if (!w) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var ic = w.querySelector('.nav-icon-wrap') || w, r = ic.getBoundingClientRect();
+    var el = document.createElement('div'); el.className = 'wal-burst';
+    el.style.left = (r.left + r.width / 2) + 'px'; el.style.top = (r.top + r.height / 2) + 'px';
+    var h = '<i></i>';
+    for (var k = 0; k < 8; k++) { var a = k * Math.PI / 4, d = 40; h += '<b style="background:' + COLORS[k] + ';--dx:' + Math.round(Math.cos(a) * d) + 'px;--dy:' + Math.round(Math.sin(a) * d) + 'px"></b>'; }
+    el.innerHTML = h; document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 900);
+  }, true);
+
+  /* ================= MLBB Server Check: Player ID + Server ID -> region ================= */
+  var btn, panel, banner, busy = false, openState = false, token = 0, bannerH = 0, scanning = false;
+  // Optional: confirmed Server ID ranges -> region, used only when the provider does not return a region.
+  var RANGES = [ /* { from: 13000, to: 13999, region: 'Myanmar' } */ ];
+  var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></svg>';
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function mlbbGames() {
+    var G = window.GAMES || {}, out = [];
+    Object.keys(G).forEach(function (id) { var g = G[id]; if (g && (String(g.g2bulkCode || '').toLowerCase() === 'mlbb' || /mobile\s*legends|mlbb/i.test(String(g.name || '')))) out.push({ id: id, g: g }); });
+    return out;
+  }
+  function geoOf(d) {
+    var o = { region: '', country: '' }; if (!d || typeof d !== 'object') return o;
+    var pick = function () { for (var i = 0; i < arguments.length; i++) { var v = d[arguments[i]]; if (typeof v === 'string' && v.trim()) return v.trim(); } return ''; };
+    o.region = pick('region', 'server_name', 'serverName'); o.country = pick('country', 'country_name', 'countryName'); return o;
+  }
+  function rangeRegion(sid) { var n = Number(sid); var h = RANGES.filter(function (r) { return n >= r.from && n <= r.to; })[0]; return h ? h.region : ''; }
+
+  var prevVal = { 'srv-pid': '', 'srv-sid': '' };
+  function renderDigits() {
+    var pe = document.getElementById('srv-pid'), se = document.getElementById('srv-sid'); if (!pe) return;
+    prevVal['srv-pid'] = pe.value; prevVal['srv-sid'] = se ? se.value : '';
+    var f = document.getElementById('srv-fill'); if (f) f.style.width = Math.min(100, pe.value.length / 10 * 100) + '%';
+  }
+  function typed(el) {
+    el.value = el.value.replace(/\D/g, '');
+    renderDigits();
+  }
+
+  function build() {
+    banner = document.getElementById('home-banner-carousel');
+    if (!banner || document.getElementById('srv-panel')) return;
+    panel = document.createElement('div'); panel.id = 'srv-panel'; panel.className = 'srv-panel';
+    panel.innerHTML = '<div class="srv-head"><span class="srv-ic">' + ICON + '</span><div class="srv-tt"><b>Server Check</b><small>Player ID + Server ID \u1011\u100A\u1037\u103A\u1015\u103C\u102E\u1038 Region \u1005\u1005\u103A\u1015\u102B</small></div><span class="srv-tag">MLBB</span><button type="button" class="srv-x" aria-label="Close">x</button></div>' +
+      '<div class="srv-form" id="srv-form"><input id="srv-pid" inputmode="numeric" autocomplete="off" placeholder="Player ID" maxlength="14"><input id="srv-sid" inputmode="numeric" autocomplete="off" placeholder="Server" maxlength="6"></div>' +
+      '<button type="button" class="srv-go" id="srv-go">Check Region</button>' +
+      '<div class="srv-bar" id="srv-bar"><i></i></div><div class="srv-status" id="srv-sub"></div><div class="srv-result" id="srv-result"></div>';
+    banner.parentNode.insertBefore(panel, banner.nextSibling);
+    panel.querySelector('.srv-x').addEventListener('click', function () { close(); });
+    ['srv-pid', 'srv-sid'].forEach(function (id) {
+      var el = document.getElementById(id);
+      el.addEventListener('input', function () { typed(el); });
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') scan(); });
+    });
+    document.getElementById('srv-go').addEventListener('click', scan);
+    try { var last = JSON.parse(localStorage.getItem('linn_srv_last') || 'null'); if (last) { document.getElementById('srv-pid').value = last.p || ''; document.getElementById('srv-sid').value = last.s || ''; renderDigits(); } } catch (e) {}
+  }
+
+  async function scan() {
+    if (scanning) return;
+    var pidEl = document.getElementById('srv-pid'), sidEl = document.getElementById('srv-sid'), pid = pidEl.value.trim(), sid = sidEl.value.trim();
+    var form = document.getElementById('srv-form'), sub = document.getElementById('srv-sub'), res = document.getElementById('srv-result'), bar = document.getElementById('srv-bar'), go = document.getElementById('srv-go');
+    if (pid.length < 5 || !sid) { form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); sub.textContent = 'Player ID \u1014\u1032\u1037 Server ID \u1011\u100A\u1037\u103A\u1015\u102B'; (pid.length < 5 ? pidEl : sidEl).focus(); return; }
+    try { localStorage.setItem('linn_srv_last', JSON.stringify({ p: pid, s: sid })); } catch (e) {}
+    var my = ++token; scanning = true; go.disabled = true; go.textContent = 'Checking...'; pidEl.blur(); sidEl.blur();
+    res.innerHTML = ''; bar.classList.add('on'); sub.textContent = 'Contacting MLBB...';
+    var list = mlbbGames(), ent = list.filter(function (x) { return x.g.g2bulkCode; })[0], code = ent ? String(ent.g.g2bulkCode) : 'mlbb';
+    var msgs = ['Verifying player...', 'Locating region...'], mi = 0, tm = setInterval(function () { if (mi < msgs.length) sub.textContent = msgs[mi++]; }, 650);
+    var out = await Promise.all([window.g2bulkCheckPlayer ? window.g2bulkCheckPlayer(code, pid, sid) : Promise.resolve({ outcome: 'unknown', reason: 'unavailable' }), sleep(1300)]).then(function (a) { return a[0]; });
+    clearInterval(tm); if (my !== token) return;
+    bar.classList.remove('on'); sub.textContent = ''; var html = '', ok = false;
+    if (out.outcome === 'unknown') html = '<div class="srv-err warn">' + (out.reason === 'network' ? 'No connection \u00B7 \u1021\u1004\u103A\u1010\u102C\u1014\u1000\u103A\u1019\u101B\u1018\u1030\u1038' : 'Server busy, try again \u00B7 \u1011\u1015\u103A\u1000\u103C\u102D\u102F\u1038\u1005\u1019\u103A\u1038\u1015\u102B') + '</div>';
+    else if (out.outcome === 'invalid') html = '<div class="srv-err">' + (out.reason === 'server' ? 'Server ID does not match \u00B7 Server ID \u1019\u1019\u103E\u1014\u103A\u1015\u102B' : 'Player ID not found \u00B7 ID \u1019\u1010\u103D\u1031\u1037\u1015\u102B') + '</div>';
+    else {
+      ok = true; var geo = geoOf(out.data), region = geo.region || rangeRegion(sid), nm = out.name || 'Player';
+      html = '<div class="srv-player"><div class="srv-av">' + esc(nm.charAt(0).toUpperCase()) + '</div><div style="min-width:0"><div class="srv-pn">' + esc(nm) + '</div><div class="srv-pi">ID ' + esc(pid) + ' \u00B7 Server ' + esc(sid) + '</div></div><span class="srv-ok"></span></div>' +
+        '<div class="srv-tiles">' + (region ? '<div class="srv-tile"><small>Region</small><b>' + esc(region) + '</b></div>' : '<div class="srv-tile y"><small>Region</small><b>Not reported</b></div>') + (geo.country ? '<div class="srv-tile"><small>Country</small><b>' + esc(geo.country) + '</b></div>' : '') + '</div>';
+    }
+    html += '<div class="srv-btns"><button type="button" class="srv-again">Check another</button>' + (ok ? '<button type="button" class="srv-cta">Top Up MLBB</button>' : '') + '</div>';
+    res.innerHTML = html;
+    res.querySelector('.srv-again').onclick = function () { res.innerHTML = ''; pidEl.value = ''; sidEl.value = ''; prevVal['srv-pid'] = ''; prevVal['srv-sid'] = ''; renderDigits(); pidEl.focus(); };
+    var cta = res.querySelector('.srv-cta');
+    if (cta) cta.onclick = function () {
+      close(); var l = mlbbGames();
+      setTimeout(function () {
+        if (l.length === 1 && window.openGameDetail) {
+          window.openGameDetail(l[0].id);
+          setTimeout(function () { [['detail-ingame-id', pid], ['detail-server-id', sid]].forEach(function (f) { var el = document.getElementById(f[0]); if (el) { el.value = f[1]; el.dispatchEvent(new Event('input', { bubbles: true })); } }); }, 600);
+        } else { if (window.showPage) window.showPage('home'); if (window.filterGamesBySearch) setTimeout(function () { window.filterGamesBySearch('mobile legends'); }, 300); }
+      }, 650);
+    };
+    scanning = false; go.disabled = false; go.textContent = 'Check Region';
+  }
+
+  async function open() {
+    if (busy || openState) return; build(); if (!panel) return;
+    busy = true; openState = true; btn.classList.add('on');
+    bannerH = banner.offsetHeight; banner.style.height = bannerH + 'px'; banner.classList.add('srv-anim'); void banner.offsetHeight; banner.classList.add('srv-shut');
+    await sleep(620);
+    panel.classList.add('show', 'opening'); await sleep(1750); panel.classList.remove('opening'); busy = false;
+    var pe = document.getElementById('srv-pid'); if (pe && !pe.value) pe.focus();
+  }
+  async function close(instant) {
+    if (!openState) return; token++; scanning = false;
+    var go = document.getElementById('srv-go'); if (go) { go.disabled = false; go.textContent = 'Check Region'; }
+    var bar = document.getElementById('srv-bar'); if (bar) bar.classList.remove('on');
+    if (instant === true) { panel.classList.remove('show', 'opening', 'closing'); banner.classList.remove('srv-shut', 'srv-anim'); banner.style.height = ''; openState = false; busy = false; btn.classList.remove('on'); return; }
+    if (busy) return; busy = true;
+    panel.classList.add('closing'); await sleep(520);
+    panel.classList.remove('show', 'closing'); banner.style.height = bannerH + 'px'; banner.classList.remove('srv-shut'); await sleep(640);
+    banner.classList.remove('srv-anim'); banner.style.height = ''; openState = false; busy = false; btn.classList.remove('on');
+  }
+
+  function init() {
+    var grp = document.querySelector('.header-icons-group'), lang = document.getElementById('header-lang-toggle');
+    if (!grp || document.getElementById('srv-check-btn')) return;
+    btn = document.createElement('div'); btn.id = 'srv-check-btn'; btn.className = 'header-icon'; btn.setAttribute('role', 'button'); btn.setAttribute('aria-label', 'MLBB server check');
+    btn.innerHTML = ICON;
+    btn.addEventListener('click', function () { openState ? close() : open(); });
+    grp.insertBefore(btn, lang || grp.firstChild);
+    var d = document.getElementById('dashboard');
+    function sync() { var on = d && d.classList.contains('active'); document.body.classList.toggle('srv-home', !!on); if (!on && openState && panel) close(true); }
+    if (d && window.MutationObserver) new MutationObserver(sync).observe(d, { attributes: true, attributeFilter: ['class'] });
+    sync();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="kb-nav-js">
+(function () {
+  var root = document.documentElement, base = window.innerHeight, last = 0, raf = 0;
+  function apply() {
+    raf = 0;
+    var h = window.innerHeight; if (h > base) base = h;
+    var kb = base - h; if (kb < 150) kb = 0;          /* small changes = browser toolbar, not the keyboard */
+    if (kb !== last) { last = kb; root.style.setProperty('--kb-shift', kb + 'px'); }
+  }
+  function sched() { if (!raf) raf = requestAnimationFrame(apply); }
+  window.addEventListener('resize', sched);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', sched);
+  window.addEventListener('orientationchange', function () { setTimeout(function () { base = window.innerHeight; last = -1; apply(); }, 400); });
+})();
+</script>
+
 </body>
 </html>
