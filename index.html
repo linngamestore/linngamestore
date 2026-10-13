@@ -362,6 +362,23 @@
         /* Large blurred shadows + filters on the wallet card and floating bot are repainted on every tab switch. */
         html.perf-low .wallet-balance-card { box-shadow: 0 6px 16px -8px rgba(60,40,140,0.45) !important; }
         html.perf-low .tab-enter * { animation-duration: 0.28s !important; }
+        /* Always-running DECORATIVE loops that animate box-shadow / background-position / left / color / filter.
+           Those properties can't be composited, so each frame repaints the element (and everything it
+           overlaps) on the main thread - with many of them alive at once that is the "stutter" when a page
+           with lots of motion opens. Weak phones / Telegram WebView get the still version (same colours and
+           layout); loading spinners and progress bars are NOT touched. */
+        html.perf-low .logo-brand-text, html.perf-low #header-logo .logo-icon-wrap img,
+        html.perf-low #header-logo .logo-icon-wrap.shine::after, html.perf-low .linn-anim span,
+        html.perf-low #name-check > h2.title-header > span::before,
+        html.perf-low .pay-hot, html.perf-low .pay-hot *, html.perf-low .game-desc-redeem-btn::after,
+        html.perf-low .wallet-balance-card::after, html.perf-low .pc-topup-btn, html.perf-low .pc-topup-btn::after,
+        html.perf-low .gz-btn, html.perf-low .notif-badge.show, html.perf-low .lb-st.rank-1 .lb-st-av,
+        html.perf-low .admin-status-bar.online-text, html.perf-low .ord-step.active .ord-dot,
+        html.perf-low .ot-dot.active, html.perf-low #maint-overlay h2, html.perf-low #maint-overlay .mt-chip i,
+        html.perf-low .game-card-img-wrap, html.perf-low .fab-item-skel,
+        html.perf-low .tier-badge::before, html.perf-low .tier-badge.tier-badge-glow { animation: none !important; }
+        /* Short entrance animations: finish fast on weak devices instead of staggering for ~1.5s. */
+        html.perf-low .tab-enter *, html.perf-low .page-enter *, html.perf-low .modal-box { animation-delay: 0s !important; }
         /* Long history lists: skip rendering rows that are off-screen (all devices, no visual change). */
         .history-card { content-visibility: auto; contain-intrinsic-size: auto 92px; }
         /* While the theme swap's background-color transition is running, every
@@ -5704,10 +5721,16 @@ html[data-theme="dark"] .gz-login-card,html[data-theme="dark"] .gz-login-tab,htm
 .gz-lc-ico{font-size:52px;line-height:1;animation:gzBob 3.2s ease-in-out infinite;filter:drop-shadow(0 8px 14px rgba(76,147,255,.45))}
 .gz-login-card h3{margin:14px 0 6px;font-size:18px;font-weight:600}
 .gz-login-card p{margin:0 auto 20px;max-width:300px;font-size:13px;line-height:1.7;color:var(--text-secondary)}
-.gz-lc-sub{margin-top:14px;font-size:11.5px;letter-spacing:.4px;color:var(--text-muted)}
+.gz-lc-sub{margin-top:14px;font-size:11.5px;letter-spacing:0;color:var(--text-muted)}
 .gz-login-tab{align-items:center;gap:12px;margin:12px 0 14px;padding:12px 14px;border-radius:20px;animation:gzPop .5s .1s cubic-bezier(.22,.8,.3,1) both}
 .gz-login-tab>*:not(.gz-orb){position:relative;z-index:1}
 .gz-lt-ico{font-size:26px;animation:gzBob 3s ease-in-out infinite}
+.gz-lt-ico{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto}
+.gz-lt-ico svg{width:26px;height:26px;color:var(--accent)}
+.gz-lc-ico{display:flex;align-items:center;justify-content:center}
+.gz-lc-ico svg{width:52px;height:52px;color:var(--accent)}
+.gz-sheet-why span{display:flex;align-items:flex-start;gap:8px}
+.gz-why-ck{width:16px;height:16px;flex:0 0 auto;margin-top:2px;color:#16A34A}
 .gz-lt-txt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
 .gz-lt-txt b{font-size:13.5px;font-weight:600}
 .gz-lt-txt small{font-size:11.5px;line-height:1.5;color:var(--text-secondary)}
@@ -6256,10 +6279,10 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             <!-- Guest-only Login tab (hidden once signed in) -->
             <div class="gz-login-tab gz-only-guest" id="gz-home-login">
                 <span class="gz-orb gz-orb-a"></span><span class="gz-orb gz-orb-b"></span>
-                <div class="gz-lt-ico">🔐</div>
+                <div class="gz-lt-ico"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></div>
                 <div class="gz-lt-txt">
-                    <b>Login ဝင်ပြီး ဝယ်ယူရန်</b>
-                    <small>Top up, Voucher ဈေးတွေကို ကြည့်နိုင်ပါတယ်။ ဝယ်ယူရန် Login လိုပါတယ်။</small>
+                    <b data-i18n="gz_buy_login_t">Login ဝင်ပြီး ဝယ်ယူရန်</b>
+                    <small data-i18n="gz_banner_sub">Top up, Voucher ဈေးတွေကို ကြည့်နိုင်ပါတယ်။ ဝယ်ယူရန် Login လိုပါတယ်။</small>
                 </div>
                 <button type="button" class="gz-btn gz-btn-sm" onclick="gzOpenLogin()">Login</button>
             </div>
@@ -6453,9 +6476,9 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
 
             <div class="gz-login-card gz-only-guest" data-gz="wallet">
                 <span class="gz-orb gz-orb-a"></span><span class="gz-orb gz-orb-b"></span><span class="gz-orb gz-orb-c"></span>
-                <div class="gz-lc-ico">🔐</div>
-                <h3>Wallet သုံးရန် Login ဝင်ပါ</h3>
-                <p>Balance၊ Top Up နဲ့ ငွေလွှဲမှတ်တမ်းတွေကို Login ဝင်ထားမှ မြင်ရမှာပါ။</p>
+                <div class="gz-lc-ico"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></div>
+                <h3 data-i18n="gz_wallet_login_t">Wallet သုံးရန် Login ဝင်ပါ</h3>
+                <p data-i18n="gz_wallet_login_p">Balance၊ Top Up နဲ့ ငွေလွှဲမှတ်တမ်းတွေကို Login ဝင်ထားမှ မြင်ရမှာပါ။</p>
                 <button type="button" class="gz-btn" onclick="gzOpenLogin()">Login</button>
                 <div class="gz-lc-sub">Google · Telegram · Email</div>
             </div>
@@ -6466,7 +6489,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                  real linked account so balance/history follow them across
                  devices. Toggled by renderWalletAuthGate(). -->
             <div id="wallet-login-required" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin:0 0 14px;border-radius:14px;background:var(--card-bg, rgba(127,127,127,.1));">
-                <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:0;flex:1 1 auto;min-width:0;">
+                <p data-i18n="gz_wallet_login_p2" style="font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:0;flex:1 1 auto;min-width:0;">
                     Wallet နဲ့ ဝယ်ရန်နှင့် Top Up လုပ်ရန် Login ဝင်ပါ။
                 </p>
                 <button type="button" class="btn wallet-login-glass-btn" style="flex:0 0 auto;width:auto;min-width:92px;padding:8px 18px;" onclick="openWalletAuthGate()">Login</button>
@@ -6484,7 +6507,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                     </svg>
                     <div class="wallet-balance-top">
                         <svg class="ui-icon wallet-balance-icon"><use href="#icon-wallet"></use></svg>
-                        <span class="wallet-balance-label">Wallet Balance</span>
+                        <span data-i18n="wb_label" class="wallet-balance-label">Wallet Balance</span>
                     </div>
                     <div class="wallet-balance-row">
                         <div class="wallet-balance-amount" id="wallet-balance-amount">0 MMK</div>
@@ -6505,11 +6528,11 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 <div class="wseg" id="wallet-seg" role="tablist">
                     <button type="button" class="wseg-btn green" id="wseg-btn-txn" role="tab" aria-selected="false" onclick="setWalletSegTab('txn')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h13.5M15 4.5 18.5 8 15 11.5"/><path d="M19 16H5.5M9 12.5 5.5 16 9 19.5"/></svg>
-                        <span>Transactions</span>
+                        <span data-i18n="w_transactions">Transactions</span>
                     </button>
                     <button type="button" class="wseg-btn blue active" id="wseg-btn-topup" role="tab" aria-selected="true" onclick="setWalletSegTab('topup')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle fill="currentColor" fill-opacity=".16" cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-                        <span>Top Up History</span>
+                        <span data-i18n="w_topup_history">Top Up History</span>
                     </button>
                 </div>
 
@@ -6517,10 +6540,10 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 <div class="wseg-track no-anim" id="wallet-track" style="transform:translateX(0)">
                 <div class="wseg-pane off" id="wallet-pane-txn" role="tabpanel">
                     <div class="wtx-tabs" id="wallet-txn-tabs">
-                        <button type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
-                        <button type="button" class="wtx-chip" data-f="in" onclick="setWalletTxnFilter('in')">Deposits</button>
-                        <button type="button" class="wtx-chip" data-f="out" onclick="setWalletTxnFilter('out')">Withdrawals</button>
-                        <button type="button" class="wtx-chip" data-f="buy" onclick="setWalletTxnFilter('buy')">Purchases</button>
+                        <button data-i18n="hist_status_all" type="button" class="wtx-chip active" data-f="all" onclick="setWalletTxnFilter('all')">All</button>
+                        <button data-i18n="w_deposits" type="button" class="wtx-chip" data-f="in" onclick="setWalletTxnFilter('in')">Deposits</button>
+                        <button data-i18n="w_withdrawals" type="button" class="wtx-chip" data-f="out" onclick="setWalletTxnFilter('out')">Withdrawals</button>
+                        <button data-i18n="w_purchases" type="button" class="wtx-chip" data-f="buy" onclick="setWalletTxnFilter('buy')">Purchases</button>
                     </div>
                     <div id="wallet-txn-list" style="margin-bottom:14px;"></div>
                 </div>
@@ -6622,7 +6645,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         <div class="modal-overlay" id="wallet-topup-overlay" onclick="if(event.target===this) closeWalletTopupModal()">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3>Top Up Wallet</h3>
+                    <h3 data-i18n="btn_top_up_wallet">Top Up Wallet</h3>
                     <div class="modal-close" onclick="closeWalletTopupModal()">
                         <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
                     </div>
@@ -6647,12 +6670,12 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
 
                     <div id="wallet-topup-payment-info" style="display:none; margin-top:12px; flex-direction:column; gap:4px;">
                         <div class="wallet-pay-info-card">
-                            <p class="wallet-pay-info-label">Transfer the exact amount to</p>
+                            <p data-i18n="pm_transfer" class="wallet-pay-info-label">Transfer the exact amount to</p>
                             <div class="pm-qr-info-row">
                                 <img id="wallet-pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid rgba(255,255,255,0.4);">
                                 <div class="pm-info-grid">
                                     <div class="pm-info-box">
-                                        <span class="pm-info-box-label">Name</span>
+                                        <span data-i18n="pm_name" class="pm-info-box-label">Name</span>
                                         <div class="pm-info-box-row">
                                             <span class="pm-name-wrap"><p id="wallet-pm-name"></p><svg class="pm-name-verified" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                                             <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-name', this)" title="Copy name">
@@ -6661,7 +6684,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                                         </div>
                                     </div>
                                     <div class="pm-info-box">
-                                        <span class="pm-info-box-label">No.</span>
+                                        <span data-i18n="pm_no" class="pm-info-box-label">No.</span>
                                         <div class="pm-info-box-row">
                                             <p id="wallet-pm-number"></p>
                                             <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-number', this)" title="Copy phone number">
@@ -6678,7 +6701,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                             </div>
                         </div>
 
-                        <label style="display:block;font-size:13px;font-weight: 600;color:var(--text);margin-top:14px;">Upload Payment Receipt</label>
+                        <label data-i18n="pm_upload_receipt" style="display:block;font-size:13px;font-weight: 600;color:var(--text);margin-top:14px;">Upload Payment Receipt</label>
                         <label class="upload-shot-box" id="wallet-upload-shot-box" for="wallet-receipt-file">
                             <div class="upload-shot-icon"><svg class="ui-icon"><use href="#icon-camera"></use></svg></div>
                             <span class="upload-shot-label">Upload Screenshot</span>
@@ -6777,7 +6800,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         <div class="modal-overlay" id="wallet-topup-detail-overlay" onclick="if(event.target===this) closeWalletTopupDetail()">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3>Top Up Details</h3>
+                    <h3 data-i18n="w_topup_details">Top Up Details</h3>
                     <div class="modal-close" onclick="closeWalletTopupDetail()">
                         <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
                     </div>
@@ -6791,8 +6814,8 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
 
             <div class="gz-login-card gz-only-guest" data-gz="profile">
                 <span class="gz-orb gz-orb-a"></span><span class="gz-orb gz-orb-b"></span><span class="gz-orb gz-orb-c"></span>
-                <div class="gz-lc-ico">🔐</div>
-                <h3>Profile ကြည့်ရန် Login ဝင်ပါ</h3>
+                <div class="gz-lc-ico"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></div>
+                <h3 data-i18n="gz_profile_login_t">Profile ကြည့်ရန် Login ဝင်ပါ</h3>
                 <p>Login ဝင်ထားမှ သင့် Profile၊ Tier နဲ့ အချက်အလက်တွေကို မြင်ရမှာပါ။</p>
                 <button type="button" class="gz-btn" onclick="gzOpenLogin()">Login</button>
                 <div class="gz-lc-sub">Google · Telegram · Email</div>
@@ -6907,7 +6930,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                  from the Profile page too, without needing a separate Settings page. -->
             <div class="detail-form-card profile-card-anim" id="profile-prefs-card" style="margin-top:14px;animation-delay:40ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('profile-prefs-body','profile-prefs-chevron')" role="button" aria-label="Show preferences">
-                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h7M17 6h3M4 12h2M12 12h8M4 18h9M19 18h1"/><circle fill="currentColor" fill-opacity=".16" cx="14" cy="6" r="2.6"/><circle fill="currentColor" fill-opacity=".16" cx="9" cy="12" r="2.6"/><circle fill="currentColor" fill-opacity=".16" cx="16" cy="18" r="2.6"/></svg></span><label style="align-self:flex-start;margin-top:0;">Preferences</label></span>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h7M17 6h3M4 12h2M12 12h8M4 18h9M19 18h1"/><circle fill="currentColor" fill-opacity=".16" cx="14" cy="6" r="2.6"/><circle fill="currentColor" fill-opacity=".16" cx="9" cy="12" r="2.6"/><circle fill="currentColor" fill-opacity=".16" cx="16" cy="18" r="2.6"/></svg></span><label data-i18n="pf_prefs" style="align-self:flex-start;margin-top:0;">Preferences</label></span>
                     <svg class="ui-icon collapsible-chevron" id="profile-prefs-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="profile-prefs-body">
@@ -6980,7 +7003,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             <!-- Security: optional Security Code (4-digit PIN) + Authenticator. Verified by the Worker, not the browser. -->
             <div class="detail-form-card profile-card-anim" id="security-card" style="margin-top:14px;animation-delay:80ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('security-body','security-chevron');secRefresh()" role="button" aria-label="Show security">
-                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-lock"></use></svg></span><label>Security</label></span>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-lock"></use></svg></span><label data-i18n="pf_security">Security</label></span>
                     <svg class="ui-icon collapsible-chevron" id="security-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="security-body"><div id="sec-rows"></div></div>
@@ -6992,7 +7015,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                  Collapsed by default like the sections below - tap the header to open. -->
             <div class="detail-form-card profile-card-anim" id="account-card" style="margin-top:14px;animation-delay:120ms;">
                 <div class="collapsible-header" onclick="toggleCollapsible('account-body','account-chevron')" role="button" aria-label="Show account">
-                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-user"></use></svg></span><label style="align-self:flex-start;margin-top:0;">Account</label></span>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-user"></use></svg></span><label data-i18n="pf_account" style="align-self:flex-start;margin-top:0;">Account</label></span>
                     <svg class="ui-icon collapsible-chevron" id="account-chevron"><use href="#icon-chevron-right"></use></svg>
                 </div>
                 <div class="collapsible-body" id="account-body">
@@ -7115,7 +7138,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
 
             <div class="vip-card profile-card-anim" id="vip-card" style="display:none;animation-delay:160ms;">
                 <div class="vip-card-head collapsible-header" onclick="toggleCollapsible('vip-body','vip-chevron')" role="button" aria-label="Show VIP status">
-                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-crown"></use></svg></span><h4>VIP Status</h4></span>
+                    <span class="prefs-row-label"><span class="prefs-row-icon"><svg class="ui-icon"><use href="#icon-crown"></use></svg></span><h4 data-i18n="pf_vip">VIP Status</h4></span>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <div id="vip-tier-badge"></div>
                         <svg class="ui-icon collapsible-chevron" id="vip-chevron"><use href="#icon-chevron-right"></use></svg>
@@ -7123,9 +7146,9 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 </div>
                 <div class="collapsible-body" id="vip-body">
                     <div class="vip-stats-row">
-                        <div class="vip-stat"><b id="vip-stat-spent">0 MMK</b><span>Total Spent</span></div>
-                        <div class="vip-stat"><b id="vip-stat-orders">0</b><span>Orders</span></div>
-                        <div class="vip-stat"><b id="vip-stat-since">-</b><span>Member Since</span></div>
+                        <div class="vip-stat"><b id="vip-stat-spent">0 MMK</b><span data-i18n="pf_total_spent">Total Spent</span></div>
+                        <div class="vip-stat"><b id="vip-stat-orders">0</b><span data-i18n="pf_orders">Orders</span></div>
+                        <div class="vip-stat"><b id="vip-stat-since">-</b><span data-i18n="pf_member_since">Member Since</span></div>
                     </div>
                     <div id="vip-progress-wrap">
                         <div class="vip-progress-label"><span id="vip-progress-text">-</span></div>
@@ -7204,7 +7227,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         <div class="modal-overlay" id="profile-edit-overlay" onclick="if(event.target===this) closeProfileEditModal()">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3>Edit Profile</h3>
+                    <h3 data-i18n="pf_edit">Edit Profile</h3>
                     <div class="modal-close" onclick="closeProfileEditModal()">
                         <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
                     </div>
@@ -7214,11 +7237,11 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                     <p style="font-size:11px;color:var(--text-muted);text-align:center;margin:0 0 4px;">Tap your profile photo to change it</p>
                     <div class="profile-edit-grid">
                         <div class="profile-edit-field">
-                            <label>Name</label>
+                            <label data-i18n="pm_name">Name</label>
                             <input type="text" id="profile-name" placeholder="Enter your name">
                         </div>
                         <div class="profile-edit-field">
-                            <label>Phone Number</label>
+                            <label data-i18n="pf_phone">Phone Number</label>
                             <input type="text" id="profile-phone" placeholder="+95 9 123 456 789">
                         </div>
                     </div>
@@ -7394,12 +7417,12 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 <button type="button" class="game-desc-toggle" id="detail-game-desc-toggle" onclick="toggleGameDescExpand()" style="display:none;">Show more</button>
                 <button type="button" class="game-desc-redeem-btn" id="detail-game-desc-redeem-btn" onclick="openGameRedeemLink()" style="display:none;">
                     <svg class="ui-icon rb-lead"><use href="#icon-gift"></use></svg>
-                    <span>Redeem Now</span>
+                    <span data-i18n="gd_redeem">Redeem Now</span>
                     <i class="rb-go"><svg class="ui-icon"><use href="#icon-chevron-right"></use></svg></i>
                 </button>
                 <button type="button" class="game-open-app-btn" id="detail-game-desc-open-btn" onclick="openGameApp(selectedGameId)" style="display:none;">
                     <svg class="ui-icon"><use href="#icon-gamepad"></use></svg>
-                    <span>Game ဖွင့်မယ်</span>
+                    <span data-i18n="gd_open_game">Game ဖွင့်မယ်</span>
                 </button>
             </div>
             </div>
@@ -7428,7 +7451,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 </div>
                 <label class="idg-remember">
                     <input type="checkbox" id="idg-remember" checked onchange="idgToggleRemember(this)">
-                    <span>Remember this ID on this device</span>
+                    <span data-i18n="gd_remember_id">Remember this ID on this device</span>
                 </label>
                 <button type="button" id="confirm-id-btn" class="confirm-id-btn" onclick="confirmPlayerIdManual()" style="display:none;">
                     <span class="confirm-id-spinner" id="confirm-id-spinner"><i></i><i></i><i></i></span>
@@ -7463,8 +7486,8 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             <div id="detail-payment-section" style="display:none;">
                 <h3 class="detail-section-title" data-i18n="sec_how_pay">How do you want to pay?</h3>
                 <div class="pay-type-tabs" id="detail-pay-type-tabs">
-                    <button type="button" class="pay-type-tab" data-type="wallet" onclick="choosePaymentType('wallet')"><b>Wallet Balance</b><small>Instant · 24/7</small></button>
-                    <button type="button" class="pay-type-tab" data-type="payment" onclick="choosePaymentType('payment')"><b>Kpay / Wave / etc.</b><small>Bank &amp; e-wallet transfer</small></button>
+                    <button type="button" class="pay-type-tab" data-type="wallet" onclick="choosePaymentType('wallet')"><b data-i18n="wb_label">Wallet Balance</b><small data-i18n="gd_instant">Instant · 24/7</small></button>
+                    <button type="button" class="pay-type-tab" data-type="payment" onclick="choosePaymentType('payment')"><b>Kpay / Wave / etc.</b><small data-i18n="gd_bank_sub">Bank &amp; e-wallet transfer</small></button>
                 </div>
 
                 <!-- WALLET: shown when the customer chooses to pay from their
@@ -7478,12 +7501,12 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                     <div id="detail-payment-methods" style="display:flex; flex-direction:column; gap:10px;"></div>
 
                     <div id="detail-payment-info" class="detail-form-card" style="display:none; margin-top:10px;">
-                        <p style="font-size:12px;color:var(--text-secondary);">Transfer the exact amount to:</p>
+                        <p data-i18n="pm_transfer_c" style="font-size:12px;color:var(--text-secondary);">Transfer the exact amount to:</p>
                         <div class="pm-qr-info-row">
                             <img id="pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass, rgba(127,127,127,.25));">
                             <div class="pm-info-grid">
                                 <div class="pm-info-box">
-                                    <span class="pm-info-box-label">Name</span>
+                                    <span data-i18n="pm_name" class="pm-info-box-label">Name</span>
                                     <div class="pm-info-box-row">
                                         <span class="pm-name-wrap"><p id="pm-name"></p><svg class="pm-name-verified" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                                         <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-name', this)" title="Copy name">
@@ -7492,7 +7515,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                                     </div>
                                 </div>
                                 <div class="pm-info-box">
-                                    <span class="pm-info-box-label">No.</span>
+                                    <span data-i18n="pm_no" class="pm-info-box-label">No.</span>
                                     <div class="pm-info-box-row">
                                         <p id="pm-number"></p>
                                         <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-number', this)" title="Copy phone number">
@@ -7508,7 +7531,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                             <span>Only send to the exact Number &amp; Name above. If it looks different from before, <a onclick="contactAdmin()">contact Support</a> before paying.</span>
                         </div>
 
-                        <label>Upload Payment Receipt</label>
+                        <label data-i18n="pm_upload_receipt">Upload Payment Receipt</label>
                         <label class="upload-shot-box" id="upload-shot-box" for="receipt-file">
                             <div class="upload-shot-icon"><svg class="ui-icon"><use href="#icon-camera"></use></svg></div>
                             <span class="upload-shot-label">Upload Screenshot</span>
@@ -7521,7 +7544,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                         <input type="file" id="receipt-file" class="upload-shot-input" accept="image/*" onchange="previewReceiptImage(event)">
                         <p id="receipt-upload-status" style="font-size:12px;color:var(--text-secondary);display:none;"></p>
 
-                        <label style="display:block;margin-top:14px;">Transaction ID</label>
+                        <label data-i18n="od_transaction_id" style="display:block;margin-top:14px;">Transaction ID</label>
                         <input type="text" id="detail-transaction-id" placeholder="Detected automatically after you upload your receipt" autocomplete="off" readonly style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border-glass, rgba(127,127,127,.25));background:var(--fill-soft, rgba(127,127,127,.08));color:var(--text);font-size:14px;">
                         <p style="font-size:11px;color:var(--text-secondary);margin-top:4px;">We read this automatically from your receipt screenshot. If it can't be found, it's set to "None".</p>
                     </div>
@@ -7532,6 +7555,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             </div>
 
             <div class="buy-bar" id="buy-bar">
+            <div class="buy-sel" id="buy-sel" style="display:none;" aria-live="polite"><span class="buy-sel-name" id="buy-sel-name"></span><b class="buy-sel-price" id="buy-sel-price"></b></div>
             <div class="topup-short" id="detail-topup-short" style="display:none;"><span id="detail-topup-short-text"></span><button type="button" class="btn btn-primary" id="detail-topup-short-btn" onclick="topupShortfall()"></button></div>
             <div class="eta-hint" id="detail-eta-hint" style="display:none;"></div>
             <div class="slide-confirm-wrap" id="detail-confirm-wrap">
@@ -7621,7 +7645,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             <div id="success-timeline" style="text-align:left;"></div>
             <button type="button" class="game-open-app-btn" id="success-open-game-btn" onclick="openGameApp(selectedGameId)" style="display:none;margin-top:0;margin-bottom:10px;">
                 <svg class="ui-icon"><use href="#icon-gamepad"></use></svg>
-                <span>Game ဖွင့်မယ်</span>
+                <span data-i18n="gd_open_game">Game ဖွင့်မယ်</span>
             </button>
             <button class="btn btn-primary" id="success-go-history-btn" onclick="goToHistoryFromSuccess()" data-i18n="btn_go_history">Go to History</button>
         </div>
@@ -7908,6 +7932,44 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 notif_empty_unread_t: "You're all caught up", notif_empty_unread_s: 'New order updates and announcements will show up here.',
                 notif_empty_read_t: 'Nothing here yet', notif_empty_read_s: 'Notifications you have opened are kept here.',
                 welcome_new: 'Welcome', welcome_back: 'Welcome Back',
+                gz_buy_login_t: 'Log in to buy',
+                gz_banner_sub: 'You can browse Top up and Voucher prices. Login is needed to buy.',
+                gz_wallet_login_t: 'Log in to use Wallet',
+                gz_wallet_login_p: 'Your balance, top-ups and transfer history appear once you log in.',
+                gz_wallet_login_p2: 'Log in to pay with Wallet and to top up.',
+                gz_profile_login_t: 'Log in to view your Profile',
+                gz_sheet_t: 'Login required to buy',
+                gz_sheet_p: 'You can look at prices without logging in, but you need an account to place an order.',
+                gz_later: 'Later',
+                gd_redeem: 'Redeem Now',
+                gd_open_game: 'Open Game',
+                gd_remember_id: 'Remember this ID on this device',
+                gd_instant: 'Instant · 24/7',
+                pm_transfer_c: 'Transfer the exact amount to:',
+                pm_transfer: 'Transfer the exact amount to',
+                pm_upload_receipt: 'Upload Payment Receipt',
+                w_transactions: 'Transactions',
+                w_topup_history: 'Top Up History',
+                w_deposits: 'Deposits',
+                w_withdrawals: 'Withdrawals',
+                w_purchases: 'Purchases',
+                w_topup_details: 'Top Up Details',
+                pf_prefs: 'Preferences',
+                pf_security: 'Security',
+                pf_account: 'Account',
+                pf_vip: 'VIP Status',
+                pf_total_spent: 'Total Spent',
+                pf_orders: 'Orders',
+                pf_member_since: 'Member Since',
+                pf_edit: 'Edit Profile',
+                pf_phone: 'Phone Number',
+                pm_name: 'Name',
+                pm_no: 'No.',
+                wb_label: 'Wallet Balance',
+                gd_bank_sub: 'Bank & e-wallet transfer',
+                gz_sheet_w1: 'Your order history and Wallet balance are kept safe for you.',
+                gz_sheet_w2: 'Change phones and log back in to the same account.',
+                gz_sheet_w3: 'Log in with Google, Telegram or Email in about 10 seconds.',
             },
             my: {
                 link_hint: 'Telegram, Email, Google — အားလုံးကို account တစ်ခုတည်းအတွက် ချိတ်ဆက်ထားနိုင်ပါသည်။',
@@ -8068,6 +8130,44 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 notif_empty_unread_t: 'အသစ်မရှိတော့ပါ', notif_empty_unread_s: 'အော်ဒါ အခြေအနေနှင့် ကြေညာချက်အသစ်များ ဤနေရာတွင် ပေါ်လာပါမည်။',
                 notif_empty_read_t: 'ဖတ်ပြီးသားမရှိသေးပါ', notif_empty_read_s: 'ဖွင့်ကြည့်ပြီးသော အသိပေးချက်များ ဤနေရာတွင် သိမ်းထားပါမည်။',
                 welcome_new: 'ကြိုဆိုပါတယ်', welcome_back: 'ပြန်လည်ကြိုဆိုပါတယ်',
+                gz_buy_login_t: 'Login ဝင်ပြီး ဝယ်ယူရန်',
+                gz_banner_sub: 'Top up, Voucher ဈေးတွေကို ကြည့်နိုင်ပါတယ်။ ဝယ်ယူရန် Login လိုပါတယ်။',
+                gz_wallet_login_t: 'Wallet သုံးရန် Login ဝင်ပါ',
+                gz_wallet_login_p: 'Balance၊ Top Up နဲ့ ငွေလွှဲမှတ်တမ်းတွေကို Login ဝင်ထားမှ မြင်ရမှာပါ။',
+                gz_wallet_login_p2: 'Wallet နဲ့ ဝယ်ရန်နှင့် Top Up လုပ်ရန် Login ဝင်ပါ။',
+                gz_profile_login_t: 'Profile ကြည့်ရန် Login ဝင်ပါ',
+                gz_sheet_t: 'ဝယ်ယူရန် Login ဝင်ရပါမယ်',
+                gz_sheet_p: 'ဈေးနှုန်းတွေကို Login မဝင်ဘဲ ကြည့်လို့ရပါတယ်။ ဒါပေမယ့် Order တင်ဖို့ Account လိုအပ်ပါတယ်။',
+                gz_later: 'နောက်မှ',
+                gd_redeem: 'Redeem လုပ်မည်',
+                gd_open_game: 'Game ဖွင့်မယ်',
+                gd_remember_id: 'ဒီစက်မှာ ဒီ ID ကို မှတ်ထားမည်',
+                gd_instant: 'ချက်ချင်း · ၂၄/၇',
+                pm_transfer_c: 'ပမာဏအတိအကျကို အောက်ပါအကောင့်သို့ လွှဲပါ -',
+                pm_transfer: 'ပမာဏအတိအကျကို အောက်ပါအကောင့်သို့ လွှဲပါ',
+                pm_upload_receipt: 'ငွေလွှဲပြေစာ တင်ပါ',
+                w_transactions: 'ငွေစာရင်း',
+                w_topup_history: 'ငွေဖြည့်မှတ်တမ်း',
+                w_deposits: 'ငွေဝင်',
+                w_withdrawals: 'ငွေထွက်',
+                w_purchases: 'ဝယ်ယူမှု',
+                w_topup_details: 'ငွေဖြည့်အသေးစိတ်',
+                pf_prefs: 'ရွေးချယ်မှုများ',
+                pf_security: 'လုံခြုံရေး',
+                pf_account: 'အကောင့်',
+                pf_vip: 'VIP အဆင့်',
+                pf_total_spent: 'စုစုပေါင်း သုံးစွဲငွေ',
+                pf_orders: 'အော်ဒါများ',
+                pf_member_since: 'အဖွဲ့ဝင်ဖြစ်သည့်နေ့',
+                pf_edit: 'Profile ပြင်မည်',
+                pf_phone: 'ဖုန်းနံပါတ်',
+                pm_name: 'အမည်',
+                pm_no: 'နံပါတ်',
+                wb_label: 'Wallet လက်ကျန်ငွေ',
+                gd_bank_sub: 'ဘဏ်နှင့် e-wallet ငွေလွှဲ',
+                gz_sheet_w1: 'သင့် Order မှတ်တမ်းနဲ့ Wallet ငွေကို လုံခြုံစွာ သိမ်းထားပေးနိုင်ပါတယ်',
+                gz_sheet_w2: 'ဖုန်းပြောင်းလည်း Account တူတူနဲ့ ပြန်ဝင်ကြည့်နိုင်ပါတယ်',
+                gz_sheet_w3: 'Google · Telegram · Email ထဲက တစ်ခုခုနဲ့ ၁၀ စက္ကန့်အတွင်း ဝင်လို့ရပါတယ်',
             }
         };
         let currentLang = localStorage.getItem('gz_lang') || 'en';
@@ -8128,10 +8228,43 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         window.applyI18n = applyI18n;
         function setLanguage(lang) {
             botEvt('lang');
-            currentLang = (lang === 'en') ? 'en' : 'my';
-            try { localStorage.setItem('gz_lang', currentLang); } catch (e) { /* private browsing - ignore */ }
-            applyI18n();
-            if (window.updateHomeStatsTimestampLabel) window.updateHomeStatsTimestampLabel();
+            const next = (lang === 'en') ? 'en' : 'my';
+            const commit = () => {
+                currentLang = next;
+                try { localStorage.setItem('gz_lang', currentLang); } catch (e) { /* private browsing - ignore */ }
+                applyI18n();
+                if (window.updateHomeStatsTimestampLabel) window.updateHomeStatsTimestampLabel();
+            };
+            const root = document.documentElement;
+            const main = document.querySelector('main.content-area');
+            // Burmese and English lines have different heights, so swapping the text shifts everything below.
+            // Remember which element sits near the top of the screen and put it back where it was afterwards.
+            let anchor = null, top0 = 0;
+            try {
+                const probe = document.elementFromPoint(window.innerWidth / 2, window.innerHeight * 0.3);
+                if (probe && main && main.contains(probe)) { anchor = probe; top0 = probe.getBoundingClientRect().top; }
+            } catch (e) { anchor = null; }
+            const restore = () => {
+                try {
+                    if (!anchor || !anchor.isConnected) return;
+                    const d = anchor.getBoundingClientRect().top - top0;
+                    if (Math.abs(d) > 1) window.scrollBy({ top: d, left: 0, behavior: 'instant' });
+                } catch (e) { /* ignore */ }
+            };
+            const calm = root.classList.contains('perf-low') || root.classList.contains('lang-swapping') ||
+                (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            if (!main || calm || next === currentLang) { commit(); restore(); return; }
+            // Soft swap: fade the page out, change the text while it is invisible, fade back in.
+            root.classList.add('lang-swapping');
+            main.classList.add('lang-out');
+            setTimeout(() => {
+                commit();
+                restore();
+                requestAnimationFrame(() => {
+                    main.classList.remove('lang-out');
+                    setTimeout(() => root.classList.remove('lang-swapping'), 220);
+                });
+            }, 130);
         }
         window.setLanguage = setLanguage;
         function toggleLanguage() {
@@ -9176,18 +9309,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                     // onPlayerIdFieldChange() the moment the ID/server field
                     // is edited again.
                     confirmBtn.style.display = 'none';
-                    // Multi-server game opened from the game grid: ID is good -> take the player to the Server cards.
-                    const flow = window.__srvFlow;
-                    if (flow && flow.groups && flow.groups[flow.idx]) {
-                        const carry = { name: selectedGameName, player: playerId, server: serverId };
-                        setTimeout(() => {
-                            if (window.__srvFlow !== flow || playerIdVerified !== true || window.currentStorePage !== 'game-detail') return;
-                            window.__srvFlow = null;
-                            window.__srvCarry = carry;
-                            openServerSelect(flow.idx, flow.groups);
-                            serverSelectReturnPage = flow.ret || 'home';
-                        }, 900);
-                    }
+                    try { window.gzScrollToPackages && window.gzScrollToPackages(); } catch (e) {}
                 } else if (outcome === 'invalid') {
                     playerIdVerified = false;
                     verifiedPlayerName = null;
@@ -10194,6 +10316,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             selectedGameG2BulkIdCheckCode = game.g2bulkIdCheckCode || null;
             selectedPackage = null;
             pkgZoomDone = false;
+            try { window.gzBuySel && window.gzBuySel(null); } catch (e) {}
             // Voucher/coupon-style games deliver a code rather than crediting a
             // player account, so the admin can turn off the In-Game ID prompt
             // entirely for them (missing field defaults to "required", so
@@ -11174,6 +11297,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
 
         function closeGameDetail() {
             selectedPackage = null;
+            try { window.gzBuySel && window.gzBuySel(null); } catch (e) {}
             selectedPaymentMethod = null;
             selectedPaymentType = null;
             editingReceiptFile = null;
@@ -11625,9 +11749,36 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         }
 
         window.openGameDetail = openGameDetail;
+        // Keep a handle on the ORIGINAL function before replacing window.selectPackageOption.
+        // (selectPackageOption is a global function declaration, so assigning to
+        // window.selectPackageOption REPLACES it - calling it by name inside the wrapper
+        // used to call the wrapper itself forever => stack overflow => cards "unclickable".)
+        const __selectPackageOptionOrig = selectPackageOption;
+        // Selected card + price shown right above the slide button (sticky bar), so the customer always sees
+        // what they are about to buy while scrolling payment methods. null hides it.
+        window.gzBuySel = function (pkg) {
+            try {
+                const box = document.getElementById('buy-sel');
+                if (!box) return;
+                if (!pkg) { box.style.display = 'none'; return; }
+                document.getElementById('buy-sel-name').textContent = String(pkg.amount == null ? '' : pkg.amount);
+                document.getElementById('buy-sel-price').textContent = Number(pkg.price || 0).toLocaleString() + ' MMK';
+                box.style.display = 'flex';
+            } catch (e) {}
+        };
         window.selectPackageOption = function (i) {
-            selectPackageOption(i);
-            try { if (window.isCustomerAuthenticated && !window.isCustomerAuthenticated()) window.gzLoginNeeded('buy'); } catch (e) {}
+            // Guests can browse the price cards but cannot pick one / buy: ask them to log in.
+            let authed = false;
+            try { authed = !!(window.isCustomerAuthenticated && window.isCustomerAuthenticated()); } catch (e) { authed = false; }
+            if (!authed) {
+                // Remember which card they wanted so it is selected for them right after they log in.
+                window.__gzPendingPkg = { gid: selectedGameId, idx: i };
+                try { window.gzLoginNeeded && window.gzLoginNeeded('buy'); } catch (e) {}
+                return;
+            }
+            __selectPackageOptionOrig(i);
+            // (a sold-out card returns early inside the original and leaves selectedPackage unchanged)
+            try { window.gzBuySel(selectedPackage); } catch (e) {}
         };
         window.selectPaymentMethod = selectPaymentMethod;
         window.previewReceiptImage = previewReceiptImage;
@@ -12629,6 +12780,20 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         }
         window.isCustomerAuthenticated = isCustomerAuthenticated;
 
+        // Firebase restores a saved session ASYNCHRONOUSLY after page load, so auth.currentUser is null for a
+        // moment even for someone who is already logged in (Google / Telegram / E-mail OTP all leave a real
+        // session). Buy / top-up must wait for that restore before deciding "not logged in", otherwise a
+        // logged-in customer gets sent back to the Login form. Resolves to auth.currentUser (or null).
+        window.gzAuthReady = async function () {
+            if (auth.currentUser) return auth.currentUser;
+            try {
+                if (typeof auth.authStateReady === 'function') {
+                    await Promise.race([auth.authStateReady(), new Promise(r => setTimeout(r, 5000))]);
+                }
+            } catch (e) { /* fall through */ }
+            return auth.currentUser || null;
+        };
+
         // ALL orders (bank transfer + wallet) are created by the Worker (POST /orders/create):
         // it needs a login, verifies wallet owner / payment method / receipt and sends the Telegram card.
         // The browser can no longer write the `orders` collection.
@@ -13224,7 +13389,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 }
                 // Top-up requests are created by the Worker (verifies sign-in + wallet
                 // ownership + payment method); the browser can no longer write walletTopups.
-                const topupUser = auth.currentUser;
+                const topupUser = auth.currentUser || await window.gzAuthReady();
                 if (!topupUser) throw new Error('Please sign in to top up your wallet.');
                 const topupIdToken = await topupUser.getIdToken();
                 let topupRes, topupData;
@@ -16247,6 +16412,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             btnElement.innerText = "Processing...";
             btnElement.disabled = true;
 
+            if (!auth.currentUser) { await window.gzAuthReady(); }
             if (!auth.currentUser) { sendToLoginForm(btnElement, originalText); return; }
 
             try {
@@ -16400,6 +16566,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             btnElement.innerText = "Processing...";
             btnElement.disabled = true;
 
+            if (!auth.currentUser) { await window.gzAuthReady(); }
             if (!auth.currentUser) { sendToLoginForm(btnElement, originalText); return; }
 
             try {
@@ -19047,10 +19214,9 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             if (group.ids.length <= 1) {
                 openGameDetail(group.ids[0]);
             } else {
-                // Go straight INTO the game (default entry). Once the ID check passes,
-                // runPlayerIdCheck sends the player on to the Server cards (see __srvFlow there).
-                window.__srvFlow = { idx, groups: HOME_GAME_GROUPS, ret: gameDetailReturnPage, opening: true };
-                try { openGameDetail(group.repId); } finally { if (window.__srvFlow) window.__srvFlow.opening = false; }
+                // Several servers: pick the Server card FIRST, then enter the ID on the game page
+                // (same order as Voucher / Software). No auto-redirect after the ID check any more.
+                openServerSelect(idx, HOME_GAME_GROUPS);
             }
         }
         window.openGameEntry = openGameEntry;
@@ -24890,21 +25056,44 @@ html .page-section.revisit .game-card, html .page-section.revisit .popular-card,
     <div class="gz-sheet-box" role="dialog" aria-label="Login required">
         <span class="gz-orb gz-orb-a"></span><span class="gz-orb gz-orb-b"></span>
         <div class="gz-sheet-grab"></div>
-        <div class="gz-lc-ico">🛒</div>
-        <h3>ဝယ်ယူရန် Login ဝင်ရပါမယ်</h3>
-        <p>ဈေးနှုန်းတွေကို Login မဝင်ဘဲ ကြည့်လို့ရပါတယ်။ ဒါပေမယ့် Order တင်ဖို့ Account လိုအပ်ပါတယ်။</p>
+        <div class="gz-lc-ico"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></div>
+        <h3 data-i18n="gz_sheet_t">ဝယ်ယူရန် Login ဝင်ရပါမယ်</h3>
+        <p data-i18n="gz_sheet_p">ဈေးနှုန်းတွေကို Login မဝင်ဘဲ ကြည့်လို့ရပါတယ်။ ဒါပေမယ့် Order တင်ဖို့ Account လိုအပ်ပါတယ်။</p>
         <div class="gz-sheet-why">
-            <span>✅ သင့် Order မှတ်တမ်းနဲ့ Wallet ငွေကို လုံခြုံစွာ သိမ်းထားပေးနိုင်ပါတယ်</span>
-            <span>✅ ဖုန်းပြောင်းလည်း Account တူတူနဲ့ ပြန်ဝင်ကြည့်နိုင်ပါတယ်</span>
-            <span>✅ Google · Telegram · Email ထဲက တစ်ခုခုနဲ့ ၁၀ စက္ကန့်အတွင်း ဝင်လို့ရပါတယ်</span>
+            <span><svg class="ui-icon gz-why-ck" aria-hidden="true"><use href="#icon-check"></use></svg><i data-i18n="gz_sheet_w1">သင့် Order မှတ်တမ်းနဲ့ Wallet ငွေကို လုံခြုံစွာ သိမ်းထားပေးနိုင်ပါတယ်</i></span>
+            <span><svg class="ui-icon gz-why-ck" aria-hidden="true"><use href="#icon-check"></use></svg><i data-i18n="gz_sheet_w2">ဖုန်းပြောင်းလည်း Account တူတူနဲ့ ပြန်ဝင်ကြည့်နိုင်ပါတယ်</i></span>
+            <span><svg class="ui-icon gz-why-ck" aria-hidden="true"><use href="#icon-check"></use></svg><i data-i18n="gz_sheet_w3">Google · Telegram · Email ထဲက တစ်ခုခုနဲ့ ၁၀ စက္ကန့်အတွင်း ဝင်လို့ရပါတယ်</i></span>
         </div>
         <div class="gz-sheet-actions">
             <button type="button" class="gz-btn" onclick="gzOpenLogin()">Login</button>
-            <button type="button" class="gz-btn gz-btn-ghost" onclick="gzCloseSheet()">နောက်မှ</button>
+            <button data-i18n="gz_later" type="button" class="gz-btn gz-btn-ghost" onclick="gzCloseSheet()">နောက်မှ</button>
         </div>
     </div>
 </div>
 
+<style id="gz-ux-css">
+/* Guests: small lock on every price card (they can look, not buy). */
+html.gz-guest #detail-package-list .package-card { position: relative; }
+html.gz-guest #detail-package-list .package-card::after {
+    content: ""; position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; z-index: 3;
+    background: rgba(15,23,42,.62) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='10.5' width='15' height='10' rx='3' fill='%23fff' fill-opacity='.2'/%3E%3Cpath d='M8 10.5V8a4 4 0 0 1 8 0v2.5'/%3E%3Ccircle cx='12' cy='15.5' r='1.2' fill='%23fff' stroke='none'/%3E%3C/svg%3E") center/13px 13px no-repeat;
+    pointer-events: none;
+}
+/* Selected package summary above the slide-to-confirm button */
+.buy-sel { align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px; border-radius: 14px;
+    border: 1.5px solid var(--border); background: var(--surface); font-size: 13.5px; color: var(--text); }
+.buy-sel-name { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.buy-sel-price { flex: 0 0 auto; color: var(--accent); font-weight: 700; }
+#detail-package-list { scroll-margin-top: 84px; }
+/* Language switch: soft fade (skipped on weak phones / reduced motion - see setLanguage) */
+html.lang-swapping main.content-area { transition: opacity .18s ease; }
+html.lang-swapping main.content-area.lang-out { opacity: 0; transition-duration: .12s; }
+/* Burmese text is taller than English: keep buttons the same height in both languages so the layout does not jump */
+.btn { min-height: 44px; }
+.gz-sheet-why i { font-style: normal; }
+/* Phones run in perf-low (backdrop blur off), so the translucent glass sheet let the page show through the text. Make it solid there. */
+html.perf-low .gz-sheet-box { background: var(--surface) !important; }
+</style>
 <script id="gz-guest-js">
 (function () {
     var wasGuest = null;
@@ -24914,9 +25103,26 @@ html .page-section.revisit .game-card, html .page-section.revisit .popular-card,
         document.documentElement.classList.toggle('gz-guest', guest);
         if (wasGuest === true && !guest) {
             window.gzCloseSheet();
+            // They just logged in: select the price card they had tapped as a guest (same game only).
+            try {
+                var pend = window.__gzPendingPkg; window.__gzPendingPkg = null;
+                if (pend && window.currentStorePage === 'game-detail' && typeof selectedGameId !== 'undefined' && selectedGameId === pend.gid) {
+                    setTimeout(function () { try { window.selectPackageOption(pend.idx); } catch (e) {} }, 350);
+                }
+            } catch (e) {}
             try { if (window.currentStorePage === 'profile') { window.renderProfileFields && window.renderProfileFields(); window.loadProfileStats && window.loadProfileStats(); } } catch (e) {}
         }
         wasGuest = guest;
+    };
+    // After the Player ID is verified: gently bring the price cards into view if they are still below the fold.
+    window.gzScrollToPackages = function () {
+        var el = document.getElementById('detail-package-list');
+        if (!el || window.currentStorePage !== 'game-detail') return;
+        var r = el.getBoundingClientRect();
+        if (r.top > window.innerHeight * 0.62) {
+            var calm = document.documentElement.classList.contains('perf-low');
+            setTimeout(function () { try { el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }); } catch (e) {} }, 260);
+        }
     };
     window.gzOpenLogin = function () {
         window.gzCloseSheet();
