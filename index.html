@@ -8505,7 +8505,7 @@ body{line-height:1.65}
         // Which bottom-nav page a game's detail modal was opened from (Home
         // or Voucher) - so closing it returns the customer to the right tab
         // instead of always dropping back to Home.
-        let gameDetailReturnPage = 'home';
+        let gameDetailReturnPage = 'home'; window.setGameDetailReturnPage = function (p) { gameDetailReturnPage = p; };
         let activePackageTab = 'currency';
         // Label shown on a tab button/chip. The two built-ins ('package' /
         // 'currency') can be renamed per game from the admin panel (e.g.
@@ -23944,83 +23944,9 @@ html.pkg-gate .pkg-flow.instant .pkg-reveal,html.pkg-gate .pkg-flow.instant .pkg
 </style>
 <script id="flow-redesign-js">
 (function(){
-  try{ document.documentElement.classList.add('pkg-gate'); }catch(e){}
+  /* Price cards are always visible again - no "enter Player ID to unlock" gate, no polling. */
+  try{ document.documentElement.classList.remove('pkg-gate'); }catch(e){}
   var $=function(id){return document.getElementById(id);};
-  var st={gid:null,open:false,typed:false,val:'',changed:0,settleT:0,revealT:0};
-
-  function en(){ try{ return typeof currentLang!=='undefined' && currentLang==='en'; }catch(e){ return false; } }
-  function needsId(){ try{ return typeof selectedGameNeedsPlayerId==='undefined' ? true : !!selectedGameNeedsPlayerId; }catch(e){ return true; } }
-  function canCheck(){ try{ return !!((typeof selectedGameG2BulkCode!=='undefined' && selectedGameG2BulkCode) || (typeof selectedGameFazerCardCategory!=='undefined' && selectedGameFazerCardCategory)); }catch(e){ return false; } }
-  function hasPkg(){ try{ return typeof selectedPackage!=='undefined' && !!selectedPackage; }catch(e){ return false; } }
-  function verified(){ try{ return typeof playerIdVerified==='undefined' ? null : playerIdVerified; }catch(e){ return null; } }
-
-  function wantOpen(){
-    if(!needsId()) return true;
-    if(hasPkg()) return true;
-    var idEl=$('detail-ingame-id'); var v=idEl?idEl.value.trim():'';
-    if(!v) return false;
-    var ok=verified();
-    if(ok===true) return true;
-    if(ok===false) return false;
-    if(st.open) return true;                      // keep open while re-typing
-    if(!canCheck()) return Date.now()-st.changed>700;   // game has no ID checker: open once typing settles
-    var s=$('detail-id-status'), b=$('confirm-id-btn');   // checker finished with "couldn't check" -> order isn't blocked
-    return !!(s && s.style.display==='block' && !(b && b.classList.contains('checking')));
-  }
-
-  function replayCards(){
-    var f=$('pkg-flow'); if(!f) return;
-    f.classList.add('revealing'); clearTimeout(st.revealT);
-    st.revealT=setTimeout(function(){ f.classList.remove('revealing'); },1800);
-    document.querySelectorAll('#detail-package-list .package-card').forEach(function(c){
-      c.classList.remove('card-zoom'); void c.offsetWidth; c.classList.add('card-zoom');
-    });
-  }
-
-  function apply(o,instant){
-    var f=$('pkg-flow'); if(!f) return;
-    clearTimeout(st.settleT);
-    f.classList.toggle('instant',!!instant);
-    if(o){
-      f.classList.add('open');
-      if(instant){ f.classList.add('settled'); }
-      else{
-        replayCards();
-        st.settleT=setTimeout(function(){ f.classList.add('settled'); },850);
-        if(st.typed){
-          setTimeout(function(){
-            var r=f.getBoundingClientRect(), vh=window.innerHeight||document.documentElement.clientHeight;
-            if(r.top>vh*0.42) f.scrollIntoView({behavior:'smooth',block:'start'});
-          },260);
-        }
-      }
-    }else{
-      f.classList.remove('settled'); f.classList.remove('open');
-    }
-    st.open=o;
-    if(instant) setTimeout(function(){ f.classList.remove('instant'); },60);
-  }
-
-  function tick(){
-    var gd=$('game-detail');
-    if(!gd||!gd.classList.contains('active')){
-      if(st.gid!==null){ st.gid=null; st.typed=false; apply(false,true); }
-      return;
-    }
-    var gid; try{ gid=selectedGameId; }catch(e){ gid=null; }
-    if(gid!==st.gid){ st.gid=gid; st.typed=false; apply(false,true); }
-    var idEl=$('detail-ingame-id'), v=idEl?idEl.value:'';
-    if(v!==st.val){ st.val=v; st.changed=Date.now(); }
-    var w=wantOpen();
-    if(w!==st.open) apply(w,false);
-    var t=$('pkg-lock-text');
-    if(t){ var txt=en()?'Enter your Player ID to unlock packages':'Package ရွေးရန် Player ID အရင်ထည့်ပါ'; if(t.textContent!==txt) t.textContent=txt; }
-  }
-  setInterval(tick,150);
-  ['detail-ingame-id','detail-server-id'].forEach(function(id){
-    var el=$(id); if(el) el.addEventListener('input',function(){ st.typed=true; st.changed=Date.now(); },true);
-  });
-
   /* step bar: progress fill + section badges + tap-to-jump */
   function sync(){
     var bar=$('ord-steps'); if(!bar) return;
@@ -24632,7 +24558,7 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     banner = document.getElementById('home-banner-carousel');
     if (!banner || document.getElementById('srv-panel')) return;
     panel = document.createElement('div'); panel.id = 'srv-panel'; panel.className = 'srv-panel';
-    panel.innerHTML = '<i class="srv-ring"></i><i class="srv-scan"></i><i class="srv-c tl"></i><i class="srv-c tr"></i><i class="srv-c bl"></i><i class="srv-c br"></i><div class="srv-head"><span class="srv-ic"><i class="srv-r1"></i><i class="srv-r2"></i><i class="srv-r3"></i></span><div class="srv-tt"><b>Server Check</b><small>Player ID + Server ID \u1011\u100A\u1037\u103A\u1015\u103C\u102E\u1038 Region \u1005\u1005\u103A\u1015\u102B</small></div><span class="srv-tag">MLBB</span><button type="button" class="srv-x" aria-label="Close">x</button></div>' +
+    panel.innerHTML = '<div class="srv-head"><span class="srv-ic"><i class="srv-r1"></i><i class="srv-r2"></i><i class="srv-r3"></i></span><div class="srv-tt"><b>Server Check</b><small>Player ID + Server ID \u1011\u100A\u1037\u103A\u1015\u103C\u102E\u1038 Region \u1005\u1005\u103A\u1015\u102B</small></div><span class="srv-tag">MLBB</span><button type="button" class="srv-x" aria-label="Close">x</button></div>' +
       '<div class="srv-form" id="srv-form"><input id="srv-pid" inputmode="numeric" autocomplete="off" placeholder="Player ID" maxlength="14"><input id="srv-sid" inputmode="numeric" autocomplete="off" placeholder="Server" maxlength="6"></div>' +
       '<button type="button" class="srv-go" id="srv-go">Check Region</button>' +
       '<div class="srv-bar" id="srv-bar"><i></i></div><div class="srv-status" id="srv-sub"></div><div class="srv-result" id="srv-result"></div>';
@@ -24648,7 +24574,7 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
   }
 
   // Region text "decodes" from random characters into the real value (short, main-thread-light)
-  function decode(el) {
+  function decode(el) { return;
     if (!el || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
     var fin = el.textContent; if (!fin || fin.length > 18) return;
     var set = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789', n = 0, steps = 14;
@@ -24686,41 +24612,42 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     res.querySelector('.srv-again').onclick = function () { panel.classList.remove('is-ok', 'is-bad'); res.innerHTML = ''; pidEl.value = ''; sidEl.value = ''; prevVal['srv-pid'] = ''; prevVal['srv-sid'] = ''; renderDigits(); pidEl.focus(); };
     var cta = res.querySelector('.srv-cta');
     if (cta) cta.onclick = function () {
-      close(); var l = mlbbGames();
-      setTimeout(function () {
-        if (l.length === 1 && window.openGameDetail) {
-          window.openGameDetail(l[0].id);
-          setTimeout(function () { [['detail-ingame-id', pid], ['detail-server-id', sid]].forEach(function (f) { var el = document.getElementById(f[0]); if (el) { el.value = f[1]; el.dispatchEvent(new Event('input', { bubbles: true })); } }); }, 600);
-        } else { if (window.showPage) window.showPage('home'); if (window.filterGamesBySearch) setTimeout(function () { window.filterGamesBySearch('mobile legends'); }, 300); }
-      }, 650);
+      var l = mlbbGames();
+      if (!l.length || !window.openGameDetail) { close(true); return; }
+      // several MLBB entries (Global / regions): use the default one, same order the name check ranks them
+      var rank = function (x) { var g = x.g || {}; return (g.serverName ? 1e6 : 0) + (typeof g.order === 'number' ? g.order : 9999); };
+      l.sort(function (a, b) { return rank(a) - rank(b); });
+      window.__srvFlow = null;
+      if (window.setGameDetailReturnPage) window.setGameDetailReturnPage('dashboard');
+      close(true);
+      window.openGameDetail(l[0].id);
+      requestAnimationFrame(function () {
+        [['detail-ingame-id', pid], ['detail-server-id', sid]].forEach(function (f) { var el = document.getElementById(f[0]); if (el) { el.value = f[1]; el.dispatchEvent(new Event('input', { bubbles: true })); } });
+      });
     };
     scanning = false; go.disabled = false; go.textContent = 'Check Region';
   }
 
-  async function open() {
-    if (busy || openState) return; build(); if (!panel) return;
-    busy = true; openState = true; btn.classList.add('on');
-    bannerH = banner.offsetHeight; banner.style.height = bannerH + 'px'; banner.classList.add('srv-anim'); void banner.offsetHeight; banner.classList.add('srv-shut');
-    await sleep(620);
-    panel.classList.add('show', 'opening'); await sleep(1450); panel.classList.remove('opening'); busy = false;
-    var pe = document.getElementById('srv-pid'); if (pe && !pe.value) pe.focus();
+  function open() {
+    if (openState) return; build(); if (!panel) return;
+    openState = true; btn.classList.add('on');
+    banner.style.display = 'none';
+    panel.classList.add('show');
   }
-  async function close(instant) {
+  function close() {
     if (!openState) return; token++; scanning = false;
     var go = document.getElementById('srv-go'); if (go) { go.disabled = false; go.textContent = 'Check Region'; }
     var bar = document.getElementById('srv-bar'); if (bar) bar.classList.remove('on');
-    panel.classList.remove('is-scan', 'is-ok', 'is-bad'); if (instant === true) { panel.classList.remove('show', 'opening', 'closing'); banner.classList.remove('srv-shut', 'srv-anim'); banner.style.height = ''; openState = false; busy = false; btn.classList.remove('on'); return; }
-    if (busy) return; busy = true;
-    panel.classList.add('closing'); await sleep(520);
-    panel.classList.remove('show', 'closing'); banner.style.height = bannerH + 'px'; banner.classList.remove('srv-shut'); await sleep(640);
-    banner.classList.remove('srv-anim'); banner.style.height = ''; openState = false; busy = false; btn.classList.remove('on');
+    panel.classList.remove('show', 'is-scan', 'is-ok', 'is-bad');
+    banner.style.display = '';
+    openState = false; busy = false; btn.classList.remove('on');
   }
 
   function init() {
     var grp = document.querySelector('.header-icons-group'), lang = document.getElementById('header-lang-toggle');
     if (!grp || document.getElementById('srv-check-btn')) return;
     btn = document.createElement('div'); btn.id = 'srv-check-btn'; btn.className = 'header-icon'; btn.setAttribute('role', 'button'); btn.setAttribute('aria-label', 'MLBB server check');
-    btn.innerHTML = '<i class="srv-dot"></i><span class="srv-btn-txt">Server Check</span>';
+    btn.innerHTML = ICON;
     btn.addEventListener('click', function () { openState ? close() : open(); });
     grp.insertBefore(btn, lang || grp.firstChild);
     var d = document.getElementById('dashboard');
@@ -24747,5 +24674,129 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
 })();
 </script>
 
+<style id="smooth-final">
+/* Header: plain globe icon instead of the "Server Check" pill */
+html #srv-check-btn, html[data-theme="dark"] #srv-check-btn { width: 40px !important; height: 40px !important; min-width: 0 !important; padding: 0 !important; border-radius: 50% !important; justify-content: center; align-items: center;
+  color: var(--accent) !important; background: var(--glass-bg-strong) !important; border: 1px solid var(--glass-border) !important; box-shadow: none !important; transition: transform .15s ease; }
+html #srv-check-btn:active { transform: scale(.94); }
+html #srv-check-btn svg { width: 20px; height: 20px; display: block; }
+html #srv-check-btn.on, html[data-theme="dark"] #srv-check-btn.on { color: #fff !important; background: var(--accent) !important; border-color: transparent !important; }
+/* Name-check panel: clean card, compact inputs. Check -> the white card turns purple (fade), inputs + results stay as white blocks on it.
+   Motion is opacity/transform only (no glow, no corner brackets, no scan sweep). */
+.srv-panel > .srv-ring, .srv-panel > .srv-scan, .srv-panel > .srv-c, .srv-panel::after, .srv-ic i { display: none !important; }
+.srv-panel, html[data-theme="dark"] .srv-panel { padding: 12px !important; border-radius: 20px !important; box-shadow: 0 6px 18px rgba(var(--accent-rgb), .10) !important; background: var(--surface) !important; border: 1px solid var(--border) !important; will-change: auto !important; }
+.srv-panel::before { content: '' !important; display: block !important; position: absolute !important; inset: 0 !important; height: auto !important; border-radius: inherit !important; pointer-events: none;
+  background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 55%, #6366F1 100%) !important; opacity: 0; transition: opacity .35s ease; }
+.srv-panel.is-scan::before, .srv-panel.is-ok::before, .srv-panel.is-bad::before { opacity: 1; }
+.srv-form { gap: 8px !important; margin-bottom: 8px !important; }
+.srv-form input, html[data-theme="dark"] .srv-form input { height: 38px !important; padding: 0 12px !important; font-size: 13.5px !important; border-radius: 12px !important; box-shadow: none !important;
+  background: #fff !important; color: #1F2430 !important; border: 1.2px solid rgba(139,92,246,.35) !important; transition: border-color .2s ease, transform .2s ease; }
+html[data-theme="dark"] .srv-panel:not(.is-scan):not(.is-ok):not(.is-bad) .srv-form input { background: rgba(255,255,255,.06) !important; color: var(--text) !important; }
+.srv-form input::placeholder { color: #8A8FA0 !important; }
+.srv-form input:focus { border-color: #8B5CF6 !important; box-shadow: 0 0 0 3px rgba(139,92,246,.18) !important; }
+.srv-form #srv-pid { flex: 1; } .srv-form #srv-sid { width: 28% !important; max-width: 96px !important; }
+.srv-go { height: 40px !important; font-size: 14px !important; border-radius: 12px !important; box-shadow: none !important; transition: background-color .3s ease, color .3s ease, transform .15s ease !important; }
+.srv-panel.is-scan .srv-go, .srv-panel.is-ok .srv-go, .srv-panel.is-bad .srv-go { background: #fff !important; color: #6D28D9 !important; }
+.srv-panel.is-scan .srv-tt b, .srv-panel.is-ok .srv-tt b, .srv-panel.is-bad .srv-tt b, .srv-panel.is-scan .srv-tt small, .srv-panel.is-ok .srv-tt small, .srv-panel.is-bad .srv-tt small, .srv-panel.is-scan .srv-status, .srv-panel.is-ok .srv-status, .srv-panel.is-bad .srv-status { color: #fff !important; }
+.srv-panel.is-scan .srv-tag, .srv-panel.is-ok .srv-tag, .srv-panel.is-bad .srv-tag { background: rgba(255,255,255,.2) !important; color: #fff !important; border-color: transparent !important; }
+.srv-panel.is-scan .srv-x, .srv-panel.is-ok .srv-x, .srv-panel.is-bad .srv-x { background: transparent !important; border-color: rgba(255,255,255,.45) !important; }
+.srv-panel.is-scan .srv-x::before, .srv-panel.is-scan .srv-x::after, .srv-panel.is-ok .srv-x::before, .srv-panel.is-ok .srv-x::after, .srv-panel.is-bad .srv-x::before, .srv-panel.is-bad .srv-x::after { background: #fff !important; }
+.srv-bar { background: rgba(255,255,255,.28) !important; } .srv-bar i { background: #fff !important; }
+/* results = white blocks on the purple card */
+.srv-player, .srv-tile, .srv-err, .srv-tile.y { background: #fff !important; border: 0 !important; box-shadow: none !important; color: #1F2430 !important; }
+.srv-pn { color: #1F2430 !important; } .srv-pi, .srv-tile small { color: #6B7280 !important; } .srv-tile b { color: #7C3AED !important; } .srv-tile.y b { color: #D97706 !important; }
+.srv-err { color: #DC2626 !important; } .srv-err.warn { color: #B45309 !important; }
+.srv-btns .srv-again { background: rgba(255,255,255,.2) !important; color: #fff !important; } .srv-btns .srv-cta { background: #fff !important; color: #6D28D9 !important; }
+/* motion: short, transform + opacity only */
+@keyframes srvRise { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
+@keyframes srvPopIn { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+.srv-panel.opening, .srv-panel.opening *, .srv-panel.closing, .srv-panel.closing * { animation: none !important; }
+.srv-panel.show { animation: srvRise .26s cubic-bezier(.22,1,.36,1) both !important; }
+.srv-panel.show .srv-head { animation: srvRise .32s cubic-bezier(.22,1,.36,1) .05s both; }
+.srv-panel.show #srv-pid { animation: srvRise .32s cubic-bezier(.22,1,.36,1) .10s both; }
+.srv-panel.show #srv-sid { animation: srvRise .32s cubic-bezier(.22,1,.36,1) .15s both; }
+.srv-panel.show .srv-go { animation: srvRise .32s cubic-bezier(.22,1,.36,1) .20s both; }
+.srv-player { animation: srvRise .3s cubic-bezier(.22,1,.36,1) both !important; }
+.srv-tile:nth-child(1) { animation: srvRise .3s cubic-bezier(.22,1,.36,1) .08s both !important; }
+.srv-tile:nth-child(2) { animation: srvRise .3s cubic-bezier(.22,1,.36,1) .16s both !important; }
+.srv-btns { animation: srvRise .3s cubic-bezier(.22,1,.36,1) .24s both !important; }
+.srv-err { animation: srvRise .28s cubic-bezier(.22,1,.36,1) both !important; }
+.srv-ok { animation: srvPopIn .35s cubic-bezier(.3,1.6,.5,1) .2s both !important; }
+/* Game cards: no endless rainbow-border repaint, light fade-up entrance only (first visit) */
+@keyframes cardPop { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
+@keyframes cardWave { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
+html .game-card:not(.card-pop):not(.card-wave), html .game-card .game-card-name, html .popular-card:not(.card-pop), html .game-search-wrap.expanded, html .bullet-chat-wrapper::before { animation: none !important; }
+html .game-card.card-pop { animation: cardPop .26s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 18ms) !important; }
+html .game-card.card-wave { animation: cardWave .26s ease-out backwards !important; animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 30ms), 180ms) !important; }
+html .popular-card.card-pop { animation: cardPop .28s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 24ms) !important; }
+html .page-section.revisit .game-card.card-pop, html .page-section.revisit .game-card.card-wave, html .page-section.revisit .popular-card.card-pop, html .page-section.revisit .voucher-card.card-pop { animation: none !important; }
+/* Top Up / Voucher / Software tabs: motion stays, but ONE layer only. The page itself no longer fades (that stacked on the card
+   entrance = the double flash); cards keep their light fade-up (first visit only, see revisit rule above). Costly bits stay off:
+   skeleton shimmer, blurred background copy, content-visibility. Image fades in with a short compositor-only animation. */
+#home.page-section.active, #voucher.page-section.active, #software.page-section.active { animation: none !important; transform: none !important; }
+#all-games-grid .game-card, #voucher-games-grid .voucher-card, #software-games-grid .game-card, #home .voucher-card, #home .game-card { content-visibility: visible !important; }
+html .page-section.revisit .game-card, html .page-section.revisit .popular-card, html .page-section.revisit .voucher-card { animation: none !important; opacity: 1 !important; }
+@keyframes imgFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.game-card-img-wrap, .game-card-img-wrap.img-ready { animation: none !important; background: var(--border) !important; }
+.game-card-img-wrap::before { display: none !important; }
+/* Lazy-loading spinner instead of the skeleton shimmer: shown until the image has loaded (or failed) */
+@keyframes imgSpin { to { transform: rotate(360deg); } }
+.game-card-img-wrap.img-fail::after { display: none !important; }
+.img-retry { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; padding: 0; border: 0; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: #fff; background: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,.25); -webkit-tap-highlight-color: transparent; }
+.img-retry:active { transform: scale(.92); }
+.img-retry svg { width: 18px; height: 18px; display: block; }
+
+.game-card-img-wrap:not(.img-ready)::after { content: ''; position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; box-sizing: border-box; border-radius: 50%; z-index: 2; pointer-events: none;
+  border: 2.5px solid rgba(var(--accent-rgb), .22); border-top-color: var(--accent); animation: imgSpin .7s linear infinite; }
+
+.game-card-img-wrap > img { opacity: 1 !important; transition: none !important; animation: imgFadeIn .3s ease-out; }
+/* Price cards: always shown, no slide-down reveal */
+.pkg-lock { display: none !important; }
+</style>
+<script id="grid-img-eager">
+(function(){
+  /* lazy images inside a hidden tab never start loading on slow phones -> load them right away */
+  var ids=['all-games-grid','voucher-games-grid','software-games-grid','popular-games-scroll','popular-vouchers-scroll'], raf=0;
+  function fix(){ raf=0; ids.forEach(function(id){ var g=document.getElementById(id); if(!g) return; g.querySelectorAll('img[loading="lazy"]').forEach(function(i){ i.loading='eager'; }); }); }
+  function sched(){ if(!raf) raf=requestAnimationFrame(fix); }
+  function boot(){ ids.forEach(function(id){ var g=document.getElementById(id); if(g) new MutationObserver(sched).observe(g,{childList:true,subtree:true}); }); sched(); }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
+<script id="img-retry-js">
+(function(){
+  /* Spinner keeps going while an image loads (even forever). After 60s without a result a Retry button appears. */
+  var ids=['all-games-grid','voucher-games-grid','software-games-grid','popular-games-scroll','popular-vouchers-scroll'];
+  var LIMIT=60000, ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>';
+  function watch(w){
+    if(w._rt||w.classList.contains('img-ready')) return;
+    w._rt=setTimeout(function(){
+      w._rt=0;
+      if(!w.isConnected||w.classList.contains('img-ready')) return;
+      var im=w.querySelector('img');
+      if(im&&im.complete&&im.naturalWidth>0){ w.classList.add('img-ready'); return; }
+      w.classList.add('img-fail');
+      if(w.querySelector('.img-retry')) return;
+      var b=document.createElement('button'); b.type='button'; b.className='img-retry'; b.setAttribute('aria-label','Retry'); b.innerHTML=ICON;
+      b.addEventListener('click',function(e){
+        e.stopPropagation(); e.preventDefault();
+        var img=w.querySelector('img'); b.remove(); w.classList.remove('img-fail');
+        if(img){ var u=img.getAttribute('src')||''; img.removeAttribute('src'); img.src=u.replace(/([?&])r=\d+&?/,'$1').replace(/[?&]$/,'')+(u.indexOf('?')>-1?'&':'?')+'r='+Date.now(); }
+        watch(w);
+      });
+      w.appendChild(b);
+    },LIMIT);
+  }
+  function scan(root){ (root.querySelectorAll?root.querySelectorAll('.game-card-img-wrap'):[]).forEach(watch); if(root.matches&&root.matches('.game-card-img-wrap')) watch(root); }
+  function boot(){
+    ids.forEach(function(id){ var g=document.getElementById(id); if(!g) return;
+      scan(g);
+      new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) scan(n); }); }); }).observe(g,{childList:true,subtree:true});
+    });
+  }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
 </body>
 </html>
