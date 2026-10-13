@@ -8211,7 +8211,7 @@ body{line-height:1.65}
             // listenGames() is already started unconditionally at load for
             // that reason, so this hook only needs to stop it on every other
             // page and restart it if the user navigates back.
-            const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'software', 'game-detail'];
+            const GAMES_PAGES = ['dashboard', 'home', 'voucher', 'software', 'game-detail', 'server-select'];
             if (GAMES_PAGES.includes(pageId) && window.listenGames) window.listenGames();
             else if (!GAMES_PAGES.includes(pageId) && window.stopListenGames) window.stopListenGames();
             // Wallet top-up history: only needed on the Wallet page, and only
@@ -9086,6 +9086,18 @@ body{line-height:1.65}
                     // onPlayerIdFieldChange() the moment the ID/server field
                     // is edited again.
                     confirmBtn.style.display = 'none';
+                    // Multi-server game opened from the game grid: ID is good -> take the player to the Server cards.
+                    const flow = window.__srvFlow;
+                    if (flow && flow.groups && flow.groups[flow.idx]) {
+                        const carry = { name: selectedGameName, player: playerId, server: serverId };
+                        setTimeout(() => {
+                            if (window.__srvFlow !== flow || playerIdVerified !== true || window.currentStorePage !== 'game-detail') return;
+                            window.__srvFlow = null;
+                            window.__srvCarry = carry;
+                            openServerSelect(flow.idx, flow.groups);
+                            serverSelectReturnPage = flow.ret || 'home';
+                        }, 900);
+                    }
                 } else if (outcome === 'invalid') {
                     playerIdVerified = false;
                     verifiedPlayerName = null;
@@ -10078,6 +10090,9 @@ body{line-height:1.65}
             if (window.__suppressNextCardClick) { window.__suppressNextCardClick = false; return; }
             const game = window.GAMES ? window.GAMES[gameId] : null;
             if (!game) return;
+            // Server-card flow: only the call made by openGameEntry keeps it alive; any other open drops it.
+            if (window.__srvFlow && !window.__srvFlow.opening) window.__srvFlow = null;
+            const srvCarry = window.__srvCarry; window.__srvCarry = null;
             selectedGameId = gameId;
             selectedGameName = game.name;
             selectedGameServerName = game.serverName || '';
@@ -10211,6 +10226,13 @@ body{line-height:1.65}
             if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
 
             showPage('game-detail');
+            // Came from the Server cards after an ID check: keep the same ID/Server, no retyping.
+            if (srvCarry && String(srvCarry.name || '').trim().toLowerCase() === String(game.name || '').trim().toLowerCase() && srvCarry.player) {
+                const pEl = document.getElementById('detail-ingame-id'), sEl = document.getElementById('detail-server-id');
+                if (pEl && needsPlayerId) pEl.value = srvCarry.player;
+                if (sEl && needsServerId && srvCarry.server) sEl.value = srvCarry.server;
+                if (pEl && needsPlayerId) onPlayerIdFieldChange();
+            }
         }
 
         function switchPackageTab(tabId) {
@@ -18939,7 +18961,10 @@ body{line-height:1.65}
             if (group.ids.length <= 1) {
                 openGameDetail(group.ids[0]);
             } else {
-                openServerSelect(idx);
+                // Go straight INTO the game (default entry). Once the ID check passes,
+                // runPlayerIdCheck sends the player on to the Server cards (see __srvFlow there).
+                window.__srvFlow = { idx, groups: HOME_GAME_GROUPS, ret: gameDetailReturnPage, opening: true };
+                try { openGameDetail(group.repId); } finally { if (window.__srvFlow) window.__srvFlow.opening = false; }
             }
         }
         window.openGameEntry = openGameEntry;
@@ -18969,6 +18994,7 @@ body{line-height:1.65}
         window.openServerSelect = openServerSelect;
 
         function closeServerSelect() {
+            window.__srvCarry = null;
             showPage(serverSelectReturnPage);
         }
         window.closeServerSelect = closeServerSelect;
@@ -19477,6 +19503,12 @@ body{line-height:1.65}
                 if (gamesLoadedOnce && snap.docChanges().length === 0) return;
                 const newGames = {};
                 snap.forEach(docSnap => { newGames[docSnap.id] = docSnap.data(); });
+                // A re-subscribe delivers every doc as "added" even when nothing changed; redrawing
+                // all grids for that is what made page switches stutter. Same data -> skip.
+                let gamesSig = '';
+                try { gamesSig = JSON.stringify(newGames); } catch (e) { gamesSig = ''; }
+                if (gamesLoadedOnce && gamesSig && gamesSig === window.__gamesSig) return;
+                window.__gamesSig = gamesSig;
                 RAW_GAMES = newGames;
                 const rerenderAll = () => {
                     applyProviderFilterAndRerender();
@@ -23107,6 +23139,23 @@ html .popular-card.card-pop{animation:bubbleRise 1.05s cubic-bezier(.3,.8,.35,1)
 .games-grid-scroll{-webkit-backdrop-filter:none;backdrop-filter:none}
 .badge,.badge.badge-success,.badge.badge-warning,.badge.badge-processing,.badge.badge-danger{-webkit-backdrop-filter: none;backdrop-filter: none}
 .modal-overlay:not(.show),.success-overlay:not(.show),.drawer-overlay:not(.show){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* ---- Lag fix: ID / Name Check result + taps + page switches ----
+   Result cards used to slide in AND the ID box animated a big blurred box-shadow, a light sweep and a shake at the
+   same moment (all main-thread paints). Now: one opacity fade, static ring colour change, nothing else moving. */
+@keyframes idResultFade { from { opacity: 0; } to { opacity: 1; } }
+.pd, .pe { animation: idResultFade .18s ease-out; }
+.idg { transition: border-color .2s ease; }
+.idg[data-state="valid"], html[data-theme="dark"] .idg[data-state="valid"] { box-shadow: 0 0 0 3px rgba(74,222,128,.22); }
+.idg[data-state="invalid"], html[data-theme="dark"] .idg[data-state="invalid"] { animation: none; box-shadow: 0 0 0 3px rgba(248,113,113,.18); }
+.idg[data-state="valid"]::after, .idg[data-state="checking"]::after { animation: none; opacity: 0; }
+.idg[data-state="checking"] { border-color: rgba(var(--accent-rgb),.55); }
+/* taps respond at once: no 80ms hold before the press feedback, no double-tap-zoom wait */
+@media (hover: none) and (pointer: coarse) { .game-card:active { transition-delay: 0ms; } }
+button, [onclick], .game-card, .package-card, .nav-item, .list-card { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+/* page switches: a short fade only (a full-page slide + 10px rise on a big DOM is what made taps feel stuck) */
+@keyframes pageFadeQuick { from { opacity: 0; } to { opacity: 1; } }
+.page-section.active, .page-section.swipe-left.active, .page-section.swipe-right.active { animation: pageFadeQuick .14s ease-out both; transform: none; }
+.page-section.revisit.active { animation: none !important; }
 </style>
 <script>
 /* Header logo gyro parallax: shifts the logo up to ~2px left/right/up/down as the phone tilts.
@@ -23549,7 +23598,7 @@ document.addEventListener('animationend', function (e) {
 .page-section.revisit .game-card-anim.card-pop:not(.game-card),
 .page-section.revisit .popular-card.card-pop { animation: none !important; }
 html .page-section.revisit .game-card.card-pop,
-html .page-section.revisit .game-card.card-wave { animation: linnSpin 4s linear infinite !important; }
+html .page-section.revisit .game-card.card-wave { animation: none !important; }
 /* Page-level fade only on first visit; revisits switch instantly (a big subtree fading is costly). */
 .page-section.revisit.active { animation: none !important; }
 /* Skip layout/paint of off-screen cards while a long grid is shown. */
@@ -24073,14 +24122,38 @@ html body {
   line-height: 1.5; letter-spacing: .005em; -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, .title, .detail-section-title { font-weight: 700; letter-spacing: 0; }
-/* Cards: flat, no border, softer corners, no rainbow ring */
-html .game-card, html .voucher-card {
+/* Voucher cards: flat, softer corners */
+html .voucher-card {
   border: 0 !important; border-radius: var(--r-card) !important;
   background: var(--surface) !important;
   box-shadow: 0 6px 18px rgba(var(--accent-rgb), .13) !important;
 }
-html .game-card .game-card-name, html[data-theme="dark"] .game-card .game-card-name {
-  border: 0 !important; background: transparent !important; box-shadow: none !important; font-weight: 600;
+/* Game cards: original look (gradient ring on the card + tinted name pill with its own ring).
+   Fully STATIC - no running/spinning border, so nothing repaints every frame. Name text is normal weight (no bold). */
+html .game-card {
+  border: 1.5px solid transparent !important; border-radius: 20px !important;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, #4285F4 0%, #A56CE8 50%, #F0505F 100%) border-box !important;
+  background-origin: border-box !important;
+  box-shadow: 0 4px 12px rgba(31,45,90,.10) !important;
+}
+html .game-card .game-card-name {
+  border: 1.5px solid transparent !important; border-radius: 10px;
+  background:
+    linear-gradient(rgba(24,119,242,.14), rgba(24,119,242,.14)) padding-box,
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, #4285F4, #A56CE8) border-box !important;
+  background-origin: border-box !important;
+  box-shadow: none !important; color: #1670F0 !important; font-weight: 400 !important;
+}
+html[data-theme="dark"] .game-card .game-card-name {
+  background:
+    linear-gradient(rgba(168,85,247,.22), rgba(168,85,247,.22)) padding-box,
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, #4285F4, #A56CE8) border-box !important;
+  background-origin: border-box !important;
+  color: #C99BFF !important;
 }
 .game-card .game-card-img-wrap, .game-card-img-wrap img, .voucher-card-stack img { border-radius: 18px; }
 .home-banner-carousel, .home-banner-track, .home-banner-slide { border-radius: 24px; }
@@ -24364,12 +24437,16 @@ html[data-theme="dark"] .modal-box {
 @keyframes walDot { 0% { transform: translate(0,0) scale(.4); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; } }
 
 /* ---- MLBB Server Check (clean card, site theme) ---- */
-#srv-check-btn { display: none; position: relative; }
+#srv-check-btn { display: none; position: relative; width: auto; min-width: 0; height: 30px; padding: 0 12px; border-radius: 999px !important; color: #8B3FF0;
+  background: linear-gradient(135deg, rgba(139,92,246,.18), rgba(168,85,247,.08)); border: 1.2px solid rgba(139,92,246,.55);
+  box-shadow: 0 3px 10px rgba(139,92,246,.22), inset 0 1px 0 rgba(255,255,255,.6); transition: transform .15s ease, background .25s ease, color .25s ease; }
 body.srv-home #srv-check-btn { display: flex; }
-#srv-check-btn svg { width: 22px; height: 22px; }
-#srv-check-btn.on { background: rgba(var(--accent-rgb), .18); }
-#home-banner-carousel.srv-shut { transition: height .6s cubic-bezier(.65,0,.35,1), opacity .5s ease, margin .6s ease; height: 0 !important; opacity: 0; margin-bottom: 0 !important; overflow: hidden; pointer-events: none; }
-#home-banner-carousel.srv-anim { transition: height .6s cubic-bezier(.65,0,.35,1), opacity .5s ease .1s, margin .6s ease; overflow: hidden; }
+#srv-check-btn .srv-btn-txt { font-size: 11px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; line-height: 1; }
+html[data-theme="dark"] #srv-check-btn { color: #C9B1FF; border-color: rgba(196,168,255,.5); background: linear-gradient(135deg, rgba(139,92,246,.30), rgba(168,85,247,.12)); box-shadow: 0 3px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10); }
+#srv-check-btn.on, html[data-theme="dark"] #srv-check-btn.on { color: #fff; background: linear-gradient(135deg, #8B5CF6, #A855F7); border-color: transparent; }
+/* banner folds UP into the top edge (height + lift + slight shrink; transform/opacity do the visible work) */
+#home-banner-carousel.srv-shut { transition: height .6s cubic-bezier(.65,0,.35,1), opacity .45s ease, margin .6s ease, transform .6s cubic-bezier(.65,0,.35,1); height: 0 !important; opacity: 0; margin-bottom: 0 !important; overflow: hidden; pointer-events: none; transform: translate3d(0,-38px,0) scale(.96); transform-origin: 50% 0; }
+#home-banner-carousel.srv-anim { transition: height .6s cubic-bezier(.65,0,.35,1), opacity .5s ease .1s, margin .6s ease, transform .6s cubic-bezier(.65,0,.35,1); overflow: hidden; transform-origin: 50% 0; }
 .srv-panel { display: none; position: relative; margin: 0 0 12px; padding: 12px; border-radius: 20px; color: var(--text); overflow: hidden;
   background: radial-gradient(110% 80% at 100% 0%, rgba(var(--accent-rgb), .20), transparent 62%), linear-gradient(160deg, rgba(var(--accent-rgb), .08), rgba(var(--accent-rgb), .02)), var(--glass-bg-strong);
   border: 1px solid var(--glass-border); box-shadow: 0 8px 24px rgba(var(--accent-rgb), .14), inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(var(--accent-rgb), .08); }
@@ -24379,23 +24456,77 @@ html[data-theme="dark"] .srv-panel { box-shadow: 0 8px 24px rgba(0,0,0,.35), ins
 html[data-theme="dark"] .srv-panel::before { background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,0)); }
 .srv-panel.show { display: block; }
 
-/* open / close: only transform + opacity are animated (no blur, no clip-path) so it stays smooth on phones */
-.srv-panel.opening { animation: srvSlide .8s var(--ease-out) both; will-change: transform, opacity; }
-.srv-panel.closing { animation: srvSlide .5s ease reverse both; }
-.srv-panel.opening .srv-head { animation: srvBehind .8s var(--ease-out) .25s backwards; }
-.srv-panel.opening #srv-pid { animation: srvFromRight .8s var(--ease-out) .45s backwards; }
-.srv-panel.opening #srv-sid { animation: srvFromRight .8s var(--ease-out) .65s backwards; }
-.srv-panel.opening .srv-go { animation: srvFromBottom .8s var(--ease-out) .85s backwards; }
+/* open / close: only transform + opacity (plus one short ring flash) so it stays smooth on phones.
+   After the banner has folded away, the panel fades up and its parts fly in from ALTERNATING sides with a springy
+   overshoot: title from the left, Player ID from the right, Server from the left, button from the right - then a
+   purple ring flashes once when everything has landed. */
+.srv-panel.opening { animation: srvPanelIn .5s ease both; will-change: transform, opacity; }
+.srv-panel.closing { animation: srvPanelIn .45s ease reverse both; }
+.srv-panel.opening .srv-head { animation: srvFromLeft .8s cubic-bezier(.3,1.5,.5,1) .05s backwards; }
+.srv-panel.opening #srv-pid { animation: srvFromRight .8s cubic-bezier(.3,1.5,.5,1) .22s backwards; }
+.srv-panel.opening #srv-sid { animation: srvFromLeft .8s cubic-bezier(.3,1.5,.5,1) .38s backwards; }
+.srv-panel.opening .srv-go { animation: srvFromRight .8s cubic-bezier(.3,1.5,.5,1) .54s backwards; }
+.srv-panel.opening::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; animation: srvLand .6s ease .85s both; }
+@keyframes srvPanelIn { from { opacity: 0; transform: translate3d(0,14px,0) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes srvFromLeft { 0% { opacity: 0; transform: translate3d(-110px,0,0) rotate(-6deg) scale(.88); } 55% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes srvFromRight { 0% { opacity: 0; transform: translate3d(110px,0,0) rotate(6deg) scale(.88); } 55% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes srvLand { 0% { box-shadow: inset 0 0 0 2px rgba(139,92,246,0), 0 0 0 rgba(139,92,246,0); } 40% { box-shadow: inset 0 0 0 2px rgba(139,92,246,.75), 0 0 22px rgba(139,92,246,.35); } 100% { box-shadow: inset 0 0 0 2px rgba(139,92,246,0), 0 0 0 rgba(139,92,246,0); } }
+@keyframes srvFromBottom { from { opacity: 0; transform: translate3d(0,18px,0); } to { opacity: 1; transform: none; } }
 @keyframes srvSlide { from { opacity: 0; transform: translate3d(-28px,0,0); } to { opacity: 1; transform: none; } }
 @keyframes srvBehind { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
-@keyframes srvFromRight { from { opacity: 0; transform: translate3d(44px,0,0); } to { opacity: 1; transform: none; } }
-@keyframes srvFromBottom { from { opacity: 0; transform: translate3d(0,18px,0); } to { opacity: 1; transform: none; } }
+
+/* ---- Premium layer: ring, lock-on corners, scan sweep, state colours, exits ---- */
+.srv-panel { --srv-c: #8B5CF6; }
+.srv-panel.is-ok { --srv-c: #22C55E; } .srv-panel.is-bad { --srv-c: #EF4444; }
+.srv-panel > .srv-ring { position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 52%, #6366F1 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask-composite: exclude; opacity: .85; }
+.srv-panel > .srv-c { position: absolute; width: 13px; height: 13px; border: 0 solid var(--srv-c); opacity: 0; pointer-events: none; transition: border-color .3s ease; z-index: 2; }
+.srv-panel.show > .srv-c { opacity: .9; }
+.srv-c.tl { top: 8px; left: 8px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 5px; --dx: -16px; --dy: -16px; }
+.srv-c.tr { top: 8px; right: 8px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 5px; --dx: 16px; --dy: -16px; }
+.srv-c.bl { bottom: 8px; left: 8px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 5px; --dx: -16px; --dy: 16px; }
+.srv-c.br { bottom: 8px; right: 8px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 5px; --dx: 16px; --dy: 16px; }
+.srv-panel.opening > .srv-c { animation: srvLock .65s cubic-bezier(.3,1.6,.5,1) .75s backwards; }
+@keyframes srvLock { from { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) scale(1.9); } to { opacity: .9; transform: none; } }
+.srv-panel.is-scan > .srv-c { animation: srvBreath .7s ease-in-out infinite alternate; }
+@keyframes srvBreath { from { opacity: .35; } to { opacity: 1; } }
+.srv-panel > .srv-scan { position: absolute; top: 0; bottom: 0; left: 0; width: 45%; opacity: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(90deg, transparent, rgba(139,92,246,.30), rgba(236,72,153,.18), transparent); transform: translate3d(-100%,0,0); }
+.srv-panel.is-scan > .srv-scan { opacity: 1; animation: srvSweep 1.05s ease-in-out infinite; }
+@keyframes srvSweep { to { transform: translate3d(230%,0,0); } }
+/* result parts land from alternating sides too */
+.srv-player { animation: srvPanelIn .45s ease both; }
+.srv-tile:nth-child(1) { animation: srvFromLeft .7s cubic-bezier(.3,1.5,.5,1) .12s both; }
+.srv-tile:nth-child(2) { animation: srvFromRight .7s cubic-bezier(.3,1.5,.5,1) .26s both; }
+.srv-btns { animation: srvPanelIn .5s ease .4s both; }
+.srv-ok { animation: srvPop .55s cubic-bezier(.3,1.8,.5,1) .25s backwards; }
+@keyframes srvPop { from { transform: scale(0); } to { transform: scale(1); } }
+.srv-err { animation: srvFromLeft .6s cubic-bezier(.3,1.5,.5,1) both; }
+/* exit: parts leave to the sides they came from */
+.srv-panel.closing .srv-head { animation: srvToLeft .32s ease-in both; }
+.srv-panel.closing #srv-pid { animation: srvToRight .32s ease-in .04s both; }
+.srv-panel.closing #srv-sid { animation: srvToLeft .32s ease-in .08s both; }
+.srv-panel.closing .srv-go { animation: srvToRight .32s ease-in .12s both; }
+@keyframes srvToLeft { to { opacity: 0; transform: translate3d(-90px,0,0) rotate(-5deg); } }
+@keyframes srvToRight { to { opacity: 0; transform: translate3d(90px,0,0) rotate(5deg); } }
+/* header pill: tiny live dot */
+#srv-check-btn .srv-dot { position: relative; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: #A855F7; flex: 0 0 auto; }
+#srv-check-btn .srv-dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #A855F7; animation: srvDot 2.2s ease-out infinite; }
+#srv-check-btn.on .srv-dot, #srv-check-btn.on .srv-dot::after { background: #fff; }
+@keyframes srvDot { 0% { transform: scale(1); opacity: .6; } 70%, 100% { transform: scale(3.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .srv-panel *, .srv-panel, #srv-check-btn .srv-dot::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
 
 /* header */
 .srv-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
 .srv-ic { width: 34px; height: 34px; border-radius: 12px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #fff;
   background: linear-gradient(145deg, var(--accent), var(--accent-dark)); box-shadow: 0 4px 12px rgba(var(--accent-rgb), .32), inset 0 1px 0 rgba(255,255,255,.35); }
-.srv-ic svg { width: 18px; height: 18px; }
+.srv-ic { position: relative; background: linear-gradient(145deg, #8B5CF6, #A855F7) !important; box-shadow: 0 4px 12px rgba(139,92,246,.4), inset 0 1px 0 rgba(255,255,255,.35) !important; }
+.srv-ic::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.9); }
+.srv-ic i { position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.85); opacity: 0; transform: scale(.2); }
+.srv-panel.show .srv-ic i { animation: srvPing 1.8s ease-out 2; }
+.srv-panel.show .srv-ic .srv-r2 { animation-delay: .35s; } .srv-panel.show .srv-ic .srv-r3 { animation-delay: .7s; }
+@keyframes srvPing { 0% { opacity: .9; transform: scale(.2); } 100% { opacity: 0; transform: scale(1); } }
 .srv-tt { min-width: 0; }
 .srv-tt b { display: block; font-size: 14.5px; font-weight: 700; line-height: 1.2; }
 .srv-tt small { display: block; font-size: 10.5px; line-height: 1.3; color: var(--text-secondary); margin-top: 1px; }
@@ -24501,7 +24632,7 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     banner = document.getElementById('home-banner-carousel');
     if (!banner || document.getElementById('srv-panel')) return;
     panel = document.createElement('div'); panel.id = 'srv-panel'; panel.className = 'srv-panel';
-    panel.innerHTML = '<div class="srv-head"><span class="srv-ic">' + ICON + '</span><div class="srv-tt"><b>Server Check</b><small>Player ID + Server ID \u1011\u100A\u1037\u103A\u1015\u103C\u102E\u1038 Region \u1005\u1005\u103A\u1015\u102B</small></div><span class="srv-tag">MLBB</span><button type="button" class="srv-x" aria-label="Close">x</button></div>' +
+    panel.innerHTML = '<i class="srv-ring"></i><i class="srv-scan"></i><i class="srv-c tl"></i><i class="srv-c tr"></i><i class="srv-c bl"></i><i class="srv-c br"></i><div class="srv-head"><span class="srv-ic"><i class="srv-r1"></i><i class="srv-r2"></i><i class="srv-r3"></i></span><div class="srv-tt"><b>Server Check</b><small>Player ID + Server ID \u1011\u100A\u1037\u103A\u1015\u103C\u102E\u1038 Region \u1005\u1005\u103A\u1015\u102B</small></div><span class="srv-tag">MLBB</span><button type="button" class="srv-x" aria-label="Close">x</button></div>' +
       '<div class="srv-form" id="srv-form"><input id="srv-pid" inputmode="numeric" autocomplete="off" placeholder="Player ID" maxlength="14"><input id="srv-sid" inputmode="numeric" autocomplete="off" placeholder="Server" maxlength="6"></div>' +
       '<button type="button" class="srv-go" id="srv-go">Check Region</button>' +
       '<div class="srv-bar" id="srv-bar"><i></i></div><div class="srv-status" id="srv-sub"></div><div class="srv-result" id="srv-result"></div>';
@@ -24516,13 +24647,25 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     try { var last = JSON.parse(localStorage.getItem('linn_srv_last') || 'null'); if (last) { document.getElementById('srv-pid').value = last.p || ''; document.getElementById('srv-sid').value = last.s || ''; renderDigits(); } } catch (e) {}
   }
 
+  // Region text "decodes" from random characters into the real value (short, main-thread-light)
+  function decode(el) {
+    if (!el || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    var fin = el.textContent; if (!fin || fin.length > 18) return;
+    var set = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789', n = 0, steps = 14;
+    var t = setInterval(function () {
+      n++; var k = Math.floor(fin.length * n / steps);
+      el.textContent = fin.slice(0, k) + fin.slice(k).replace(/[^ ]/g, function () { return set.charAt(Math.floor(Math.random() * set.length)); });
+      if (n >= steps) { clearInterval(t); el.textContent = fin; }
+    }, 45);
+  }
+
   async function scan() {
     if (scanning) return;
     var pidEl = document.getElementById('srv-pid'), sidEl = document.getElementById('srv-sid'), pid = pidEl.value.trim(), sid = sidEl.value.trim();
     var form = document.getElementById('srv-form'), sub = document.getElementById('srv-sub'), res = document.getElementById('srv-result'), bar = document.getElementById('srv-bar'), go = document.getElementById('srv-go');
     if (pid.length < 5 || !sid) { form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); sub.textContent = 'Player ID \u1014\u1032\u1037 Server ID \u1011\u100A\u1037\u103A\u1015\u102B'; (pid.length < 5 ? pidEl : sidEl).focus(); return; }
     try { localStorage.setItem('linn_srv_last', JSON.stringify({ p: pid, s: sid })); } catch (e) {}
-    var my = ++token; scanning = true; go.disabled = true; go.textContent = 'Checking...'; pidEl.blur(); sidEl.blur();
+    var my = ++token; panel.classList.remove('is-ok', 'is-bad'); panel.classList.add('is-scan'); scanning = true; go.disabled = true; go.textContent = 'Checking...'; pidEl.blur(); sidEl.blur();
     res.innerHTML = ''; bar.classList.add('on'); sub.textContent = 'Contacting MLBB...';
     var list = mlbbGames(), ent = list.filter(function (x) { return x.g.g2bulkCode; })[0], code = ent ? String(ent.g.g2bulkCode) : 'mlbb';
     var msgs = ['Verifying player...', 'Locating region...'], mi = 0, tm = setInterval(function () { if (mi < msgs.length) sub.textContent = msgs[mi++]; }, 650);
@@ -24538,7 +24681,9 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     }
     html += '<div class="srv-btns"><button type="button" class="srv-again">Check another</button>' + (ok ? '<button type="button" class="srv-cta">Top Up MLBB</button>' : '') + '</div>';
     res.innerHTML = html;
-    res.querySelector('.srv-again').onclick = function () { res.innerHTML = ''; pidEl.value = ''; sidEl.value = ''; prevVal['srv-pid'] = ''; prevVal['srv-sid'] = ''; renderDigits(); pidEl.focus(); };
+    panel.classList.remove('is-scan'); panel.classList.add(ok ? 'is-ok' : 'is-bad');
+    if (ok) { try { navigator.vibrate && navigator.vibrate(14); } catch (e) {} decode(res.querySelector('.srv-tile b')); }
+    res.querySelector('.srv-again').onclick = function () { panel.classList.remove('is-ok', 'is-bad'); res.innerHTML = ''; pidEl.value = ''; sidEl.value = ''; prevVal['srv-pid'] = ''; prevVal['srv-sid'] = ''; renderDigits(); pidEl.focus(); };
     var cta = res.querySelector('.srv-cta');
     if (cta) cta.onclick = function () {
       close(); var l = mlbbGames();
@@ -24557,14 +24702,14 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     busy = true; openState = true; btn.classList.add('on');
     bannerH = banner.offsetHeight; banner.style.height = bannerH + 'px'; banner.classList.add('srv-anim'); void banner.offsetHeight; banner.classList.add('srv-shut');
     await sleep(620);
-    panel.classList.add('show', 'opening'); await sleep(1750); panel.classList.remove('opening'); busy = false;
+    panel.classList.add('show', 'opening'); await sleep(1450); panel.classList.remove('opening'); busy = false;
     var pe = document.getElementById('srv-pid'); if (pe && !pe.value) pe.focus();
   }
   async function close(instant) {
     if (!openState) return; token++; scanning = false;
     var go = document.getElementById('srv-go'); if (go) { go.disabled = false; go.textContent = 'Check Region'; }
     var bar = document.getElementById('srv-bar'); if (bar) bar.classList.remove('on');
-    if (instant === true) { panel.classList.remove('show', 'opening', 'closing'); banner.classList.remove('srv-shut', 'srv-anim'); banner.style.height = ''; openState = false; busy = false; btn.classList.remove('on'); return; }
+    panel.classList.remove('is-scan', 'is-ok', 'is-bad'); if (instant === true) { panel.classList.remove('show', 'opening', 'closing'); banner.classList.remove('srv-shut', 'srv-anim'); banner.style.height = ''; openState = false; busy = false; btn.classList.remove('on'); return; }
     if (busy) return; busy = true;
     panel.classList.add('closing'); await sleep(520);
     panel.classList.remove('show', 'closing'); banner.style.height = bannerH + 'px'; banner.classList.remove('srv-shut'); await sleep(640);
@@ -24575,7 +24720,7 @@ html[data-theme="dark"] .srv-err { color: #FCA5A5; } html[data-theme="dark"] .sr
     var grp = document.querySelector('.header-icons-group'), lang = document.getElementById('header-lang-toggle');
     if (!grp || document.getElementById('srv-check-btn')) return;
     btn = document.createElement('div'); btn.id = 'srv-check-btn'; btn.className = 'header-icon'; btn.setAttribute('role', 'button'); btn.setAttribute('aria-label', 'MLBB server check');
-    btn.innerHTML = ICON;
+    btn.innerHTML = '<i class="srv-dot"></i><span class="srv-btn-txt">Server Check</span>';
     btn.addEventListener('click', function () { openState ? close() : open(); });
     grp.insertBefore(btn, lang || grp.firstChild);
     var d = document.getElementById('dashboard');
