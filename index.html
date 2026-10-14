@@ -7863,7 +7863,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 status_pending: 'Pending', status_processing: 'Processing', status_success: 'Completed', status_fail: 'Failed',
                 od_package: 'Package', od_payment_method: 'Payment Method', od_transaction_id: 'Transaction ID', od_ingame_id: 'In-Game ID',
                 od_ingame_name: 'In-Game Name', od_server_id: 'Server ID', od_server: 'Server', od_ordered_at: 'Ordered At',
-                od_success_at: 'Success At', od_order_id: 'Order ID', od_confirmed_in: 'Confirmed In', st_account: 'Account', st_package: 'Package', st_payment: 'Payment', st_confirm: 'Confirm', ot_avg: 'Usually delivered in', ot_waiting: 'Waiting in queue', ot_inprogress: 'Being delivered', ot_elapsed: 'for', ot_done_hint: 'Delivered successfully', ot_fail_hint: 'Order could not be completed', ot_placed: 'Order Placed', ot_processing: 'Processing', ot_success: 'Success', ot_failed: 'Failed', od_amount_paid: 'Amount Paid',
+                od_success_at: 'Success At', od_order_id: 'Order ID', od_confirmed_in: 'Confirmed In', st_account: 'Account', st_package: 'Package', st_payment: 'Payment', st_confirm: 'Confirm', ot_avg: 'Usually delivered in', ot_waiting: 'Waiting in queue', ot_inprogress: 'Being delivered', ot_elapsed: 'so far', ot_done_hint: 'Delivered successfully', ot_fail_hint: 'Order could not be completed', ot_placed: 'Order Placed', ot_processing: 'Processing', ot_success: 'Success', ot_failed: 'Failed', od_amount_paid: 'Amount Paid',
                 od_payment_receipt: 'Payment Receipt', od_reason: 'Reason', od_note: 'Note', od_download_receipt: 'Download Receipt', vr_button: 'Verified Receipt (QR)', vr_title: 'Verified Receipt', vr_dark: 'Dark', vr_light: 'Light', vr_save: 'Save Image', vr_verify_title: 'Receipt Verification', vr_ok_title: 'Genuine order', vr_ok_sub: 'This receipt matches a completed order in our system.', vr_bad_title: 'Could not verify', vr_bad_sub: 'We could not find a completed order for this receipt.',
                 title_wallet: 'My Wallet', title_profile: 'My Profile',
                 sec_account_info: 'Account Info', lbl_rank: 'Rank', lbl_server: 'Server', sec_description: 'Description',
@@ -8384,8 +8384,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             if (swipeDir) target.classList.add(swipeDir);
             // Switching back to a tab that was already shown once: its cards must not replay the
             // pop/wave entrance (display:none -> block restarts every CSS animation = the stutter).
-            if (window.__pgSeen && window.__pgSeen[pageId]) target.classList.add('revisit');
-            else { window.__pgSeen = window.__pgSeen || {}; if (['home','voucher','software'].includes(pageId)) setTimeout(() => { window.__pgSeen[pageId] = true; }, 1600); }
+            // (no more 'revisit' class: cards replay their entrance motion every time a Game tab is opened - see ux-restore-js)
             target.classList.add('active');
             // Top Up / Voucher / Software share one "Game" nav button, so
             // remember which of the three was last opened (used when the
@@ -8518,8 +8517,9 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             const panel = document.querySelector('.side-drawer');
             if (!panel) return;
             clearTimeout(drawerSlideTimer);
-            panel.classList.add('drawer-sliding');
-            drawerSlideTimer = setTimeout(() => panel.classList.remove('drawer-sliding'), 620);
+            // The old 'drawer-sliding' class swapped the panel + every button to a flat colour for 620ms and then
+            // back to the glass gradient = the visible dim -> bright flicker. Colours now stay identical the whole time.
+            panel.classList.remove('drawer-sliding');
         }
         function openDrawer() {
             withDrawerSlideClass();
@@ -8649,6 +8649,8 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                     ? document.querySelector('.page-section.active') : null;
                 // A touch that starts inside a popup/modal (slide-to-submit, inputs...) never drags the page behind it
                 if (e.target.closest && e.target.closest('.modal-overlay, .modal-box, .drawer-overlay')) dragEl = null;
+                // Top Up / Voucher / Software: the tab bar stays put, only the content below it follows the finger
+                if (dragEl && dragEl.querySelector) { const gb = dragEl.querySelector(':scope > .gt-body'); if (gb) dragEl = gb; }
             }, { passive: true });
 
             content.addEventListener('touchmove', (e) => {
@@ -10451,14 +10453,14 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         function switchPackageTab(tabId) {
             if (tabId === activePackageTab) return;
             activePackageTab = tabId;
-            // pkgZoomDone stays true: replaying the staggered zoom on every card at each tab tap was the stutter.
+            pkgZoomDone = false; // price cards play their zoom-in motion again on every tab switch
             document.querySelectorAll('.pkg-type-tab').forEach(el => el.classList.toggle('active', el.dataset.type === tabId));
             // let the tab highlight paint first, then swap the cards (one cheap fade, no per-card animation)
             requestAnimationFrame(() => {
                 if (activePackageTab !== tabId) return;
                 renderDetailPackageList();
                 const list = document.getElementById('detail-package-list');
-                if (list) { list.classList.remove('pkg-swap'); void list.offsetWidth; list.classList.add('pkg-swap'); }
+                if (list) { list.classList.remove('pkg-swap'); }
             });
         }
         window.switchPackageTab = switchPackageTab;
@@ -11350,6 +11352,15 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             const title = document.getElementById('success-title');
             const subtext = document.getElementById('success-subtext');
             const iconWrap = document.getElementById('success-check-icon');
+            const _sKey = String(status || 'Pending');
+            const _sameIcon = iconWrap.dataset.sKey === _sKey && iconWrap.firstElementChild;
+            iconWrap.dataset.sKey = _sKey;
+            if (_sameIcon) {
+                // same status again (snapshot refresh): only refresh the texts, keep the icon so its animation isn't replayed
+                const _t = { Processing: ['success_processing_title', 'success_processing_sub'], Success: ['success_completed_title', 'success_completed_sub'], Fail: ['success_failed_title', 'success_failed_sub'] }[_sKey];
+                if (_t) { title.innerText = t(_t[0]); subtext.innerText = t(_t[1]); }
+                return;
+            }
             if (status === 'Processing') {
                 title.innerText = t('success_processing_title');
                 subtext.innerText = t('success_processing_sub');
@@ -25153,5 +25164,180 @@ html.perf-low .gz-sheet-box { background: var(--surface) !important; }
     setTimeout(window.gzSyncAuthUI, 1200);
 })();
 </script>
+
+<style id="ux-restore-css">
+/* ===================================================================================================
+   UX restore pass (loaded last, so it wins over the older "perf" overrides above)
+   1) Top Up / Voucher / Software: only the content under the tab bar moves, never the whole screen
+   2) Game / popular / voucher / price card entrance motion is back to the full version
+   3) Sidebar: one constant colour set (no dim -> bright swap while it slides)
+   4) Order Confirmed modal: solid card, working check-mark draw animation
+   =================================================================================================== */
+
+/* ---- 1) Game tabs: the bar is static, the body slides ---- */
+.gt-body { min-width: 0; }
+.gt-body.tab-dragging { animation: none !important; transition: none !important; }
+@keyframes gtInR  { from { opacity: 0; transform: translate3d(48px, 0, 0); }  to { opacity: 1; transform: none; } }
+@keyframes gtInL  { from { opacity: 0; transform: translate3d(-48px, 0, 0); } to { opacity: 1; transform: none; } }
+@keyframes gtInUp { from { opacity: 0; transform: translate3d(0, 16px, 0); }  to { opacity: 1; transform: none; } }
+.gt-body.gt-in-r  { animation: gtInR  .4s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
+.gt-body.gt-in-l  { animation: gtInL  .4s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
+.gt-body.gt-in-up { animation: gtInUp .4s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
+/* the pages themselves never move or fade, swipe or tap (the tab bar must not shift) */
+html:not(#_) #home.page-section, html:not(#_) #voucher.page-section, html:not(#_) #software.page-section {
+    animation: none !important; transform: none !important;
+}
+
+/* ---- 2) Card motion: full version again (also on low-power phones) ---- */
+@keyframes cardPop  { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes cardWave { from { opacity: 0; transform: translateY(30px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes cardZoom { from { opacity: 0; transform: scale(1.25); } to { opacity: 1; transform: none; } }
+html:not(#_) .game-card.card-pop,
+html:not(#_) .voucher-card.card-pop {
+    animation: cardPop .5s var(--ease-spring, cubic-bezier(.34,1.56,.64,1)) backwards !important;
+    animation-delay: calc(var(--i, 0) * 55ms) !important;
+}
+html:not(#_) .voucher-card.card-pop { animation: cardPop .5s var(--ease-spring, cubic-bezier(.34,1.56,.64,1)) backwards !important; animation-delay: calc(var(--i, 0) * 55ms) !important; }
+html:not(#_) .game-card.card-wave {
+    animation: cardWave 1s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards !important;
+    animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 170ms), 1400ms) !important;
+}
+html:not(#_) .popular-card.card-pop {
+    animation: bubbleRise 1.05s cubic-bezier(.3,.8,.35,1) backwards !important;
+    animation-delay: calc(var(--i, 0) * 95ms) !important;
+}
+/* rainbow border stays as a static colour ring (no endless spin = no lag); only the entrance motion plays */
+html:not(#_) .game-card:not(.card-pop):not(.card-wave) { animation: none !important; }
+html:not(#_) .popular-card .game-card-img-wrap.img-ready { animation: bubbleBob 3.4s ease-in-out infinite !important; animation-delay: calc(var(--i, 0) * -.55s) !important; }
+/* never suppress the entrance on revisit any more */
+html:not(#_) .page-section.revisit .game-card, html:not(#_) .page-section.revisit .popular-card, html:not(#_) .page-section.revisit .voucher-card { opacity: 1 !important; }
+/* price cards: staggered zoom-in on open and on every package-tab switch */
+html:not(#_) .package-card.card-zoom { animation: cardZoom .6s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards !important; animation-delay: calc(var(--i, 0) * 60ms) !important; }
+html:not(#_) #detail-package-list.pkg-swap { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+    html:not(#_) .game-card.card-pop, html:not(#_) .game-card.card-wave, html:not(#_) .popular-card.card-pop,
+    html:not(#_) .voucher-card.card-pop, html:not(#_) .package-card.card-zoom, .gt-body { animation: none !important; }
+}
+
+/* ---- 3) Sidebar: identical look before / during / after the slide ---- */
+.side-drawer.drawer-sliding { backdrop-filter: none; -webkit-backdrop-filter: none; }
+html:not(#_) .side-drawer, html:not(#_) .side-drawer.drawer-sliding {
+    background: linear-gradient(170deg, rgba(232,241,255,.96) 0%, rgba(214,229,255,.94) 55%, rgba(226,236,255,.96) 100%) !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+html[data-theme="dark"]:not(#_) .side-drawer, html[data-theme="dark"]:not(#_) .side-drawer.drawer-sliding {
+    background: linear-gradient(170deg, rgba(18,34,68,.98) 0%, rgba(10,20,46,.99) 55%, rgba(14,26,56,.98) 100%) !important;
+}
+.drawer-overlay { background: rgba(0,0,0,.5); }
+
+/* ---- 4) Order Confirmed modal ---- */
+html:not(#_) .success-overlay { background: rgba(8,12,28,.58); }
+html:not(#_) .success-box {
+    background: var(--surface) !important; border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(0,0,0,.35);
+    width: 88%; max-width: 340px; padding: 30px 22px 22px; border-radius: 24px;
+    max-height: 88vh; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+}
+.success-check { position: relative; width: 76px; height: 76px; flex: 0 0 auto; }
+.success-overlay.show .success-check { animation: scPop .55s var(--ease-spring, cubic-bezier(.34,1.56,.64,1)) .08s both; }
+.success-check::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+    border: 2px solid rgba(34,197,94,.55); opacity: 0;
+}
+.success-overlay.show .success-check::after { animation: scRing .9s ease-out .35s 1 both; }
+@keyframes scPop  { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes scRing { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
+/* the tick / cross: stroked and drawn in (these classes had no CSS, so the browser filled the path black) */
+.sc-draw { width: 40px; height: 40px; display: block; fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.sc-draw.ok  { stroke: #16A34A; }
+.sc-draw.bad { stroke: #DC2626; }
+html[data-theme="dark"] .sc-draw.ok { stroke: #4ADE80; }
+html[data-theme="dark"] .sc-draw.bad { stroke: #F87171; }
+.sc-draw path { stroke-dasharray: 1 2; stroke-dashoffset: 1; opacity: 0; }
+.success-overlay.show .sc-draw path { animation: scDraw .5s cubic-bezier(.45,0,.2,1) .38s forwards; }
+.success-overlay.show .sc-draw.bad path:nth-child(2) { animation-delay: .6s; }
+@keyframes scDraw { from { opacity: 1; stroke-dashoffset: 1; } to { opacity: 1; stroke-dashoffset: 0; } }
+@keyframes scRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.success-overlay.show .success-box > h3, .success-overlay.show .success-box > p,
+.success-overlay.show .success-box > #success-timeline, .success-overlay.show .success-box > .btn,
+.success-overlay.show .success-box > .game-open-app-btn { animation: scRise .45s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
+.success-overlay.show .success-box > h3 { animation-delay: .3s; }
+.success-overlay.show .success-box > p { animation-delay: .36s; }
+.success-overlay.show .success-box > #success-timeline { animation-delay: .44s; }
+.success-overlay.show .success-box > .game-open-app-btn { animation-delay: .5s; }
+.success-overlay.show .success-box > .btn { animation-delay: .54s; }
+.success-box .ot-hint { overflow-wrap: anywhere; line-height: 1.45; }
+.success-box .order-timeline { margin: 4px 0 8px; }
+.success-box .btn { width: 100%; }
+@media (prefers-reduced-motion: reduce) {
+    .success-overlay.show .success-check, .success-overlay.show .success-check::after,
+    .success-overlay.show .success-box > * { animation: none !important; }
+    .sc-draw path { stroke-dashoffset: 0 !important; opacity: 1 !important; animation: none !important; }
+}
+</style>
+
+<script id="ux-restore-js">
+(function () {
+    var GAME = ['home', 'voucher', 'software'];
+
+    /* 1) put everything under each page's tab bar into one .gt-body wrapper (ids / listeners are untouched) */
+    GAME.forEach(function (id) {
+        var pg = document.getElementById(id);
+        if (!pg || pg.querySelector(':scope > .gt-body')) return;
+        var bar = pg.querySelector(':scope > .game-subtab-bar');
+        if (!bar) return;
+        var w = document.createElement('div');
+        w.className = 'gt-body';
+        while (bar.nextSibling) w.appendChild(bar.nextSibling);
+        pg.appendChild(w);
+    });
+
+    document.addEventListener('animationend', function (e) {
+        var n = e.animationName;
+        if (e.target && e.target.classList && e.target.classList.contains('gt-body') && (n === 'gtInR' || n === 'gtInL' || n === 'gtInUp')) {
+            e.target.classList.remove('gt-in-r', 'gt-in-l', 'gt-in-up');
+        }
+    }, true);
+
+    /* 2) replay the card entrance every time a Game tab is opened */
+    function replayCards(pageId) {
+        var pg = document.getElementById(pageId);
+        if (!pg) return;
+        var cards = [].slice.call(pg.querySelectorAll('.game-card, .voucher-card')).slice(0, 36);
+        var hosts = [];
+        cards.forEach(function (c) {
+            var host = c.parentElement;
+            if (hosts.indexOf(host) < 0) { hosts.push(host); host._uxN = 0; }
+            var popular = c.classList.contains('popular-card');
+            c.style.setProperty('--i', String(Math.min(host._uxN++, popular ? 8 : 12)));
+            c.classList.remove('card-pop', 'card-wave');
+        });
+        void pg.offsetWidth; // one reflow so every card restarts together
+        cards.forEach(function (c) { c.classList.add('card-pop'); });
+    }
+
+    function enter(prev, page) {
+        var body = document.querySelector('#' + page + ' > .gt-body');
+        if (!body || prev === page) return;
+        var cls = 'gt-in-up';
+        if (GAME.indexOf(prev) > -1) cls = GAME.indexOf(page) > GAME.indexOf(prev) ? 'gt-in-r' : 'gt-in-l';
+        body.classList.remove('gt-in-r', 'gt-in-l', 'gt-in-up');
+        void body.offsetWidth;
+        body.classList.add(cls);
+        replayCards(page);
+    }
+
+    var _sp = window.showPage;
+    if (typeof _sp === 'function') {
+        window.showPage = function (p) {
+            var prev = window.currentStorePage;
+            var r = _sp.apply(this, arguments);
+            try { if (GAME.indexOf(p) > -1) enter(prev, p); } catch (e) {}
+            return r;
+        };
+    }
+})();
+</script>
+
 </body>
 </html>
