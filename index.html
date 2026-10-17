@@ -837,6 +837,18 @@
         .order-ok-overlay.show .order-ok-check svg { animation: orderOkRise 0.7s cubic-bezier(0.45, 0, 0.2, 1) 0.45s forwards; }
         @keyframes orderOkPop { from { transform: scale(0); } to { transform: scale(1); } }
         @keyframes orderOkRise { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+        .order-ok-again {
+            display: none; margin: 18px auto 0; width: 100%; padding: 13px 16px; border: 0; border-radius: 16px; cursor: pointer;
+            font: inherit; font-size: 15px; font-weight: 700; color: #fff;
+            background: linear-gradient(155deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.12) 55%, rgba(52,210,123,0.38) 100%);
+            border: 1px solid rgba(255,255,255,0.55);
+            -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+            box-shadow: 0 8px 22px rgba(22,163,74,0.32), 0 0 18px rgba(52,210,123,0.25), inset 0 1px 0 rgba(255,255,255,0.65);
+            text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+            -webkit-tap-highlight-color: transparent; transition: transform .12s ease;
+        }
+        .order-ok-again:active { transform: scale(0.97); }
+        .order-ok-overlay.has-again .order-ok-again { display: block; }
         .order-ok-title { font-size: 20px; font-weight: 600; letter-spacing: 0.2px; }
         .order-ok-sub { margin-top: 6px; font-size: 13px; opacity: 0.95; word-break: break-word; }
         @media (prefers-reduced-motion: reduce) { .order-ok-check svg { clip-path: none !important; animation: none !important; } }
@@ -3234,8 +3246,11 @@
            flat instant show/hide. */
         .collapsible-header { display: flex; align-items: center; justify-content: space-between; width: 100%; cursor: pointer; }
         .collapsible-chevron { width: 16px; height: 16px; color: var(--text-muted); transition: transform 0.25s ease; flex-shrink: 0; }
-        .collapsible-body { max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-8px); transition: max-height 0.38s cubic-bezier(.22,1,.36,1), opacity 0.3s ease, transform 0.3s ease; }
-        .collapsible-body.open { max-height: 640px; opacity: 1; transform: translateY(0); }
+        /* Closed = display:none (nothing inside is laid out or animated); open = a cheap opacity/transform fade-in.
+           The old max-height transition forced a full layout of the page on every frame = the stutter. */
+        .collapsible-body { display: none; }
+        .collapsible-body.open { display: block; animation: collapsibleIn 0.22s ease-out both; }
+        @keyframes collapsibleIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
         .tier-preview-item { display: flex; flex-direction: column; align-items: center; gap: 7px; }
         .tier-preview-frame-outer { position: relative; width: 46px; height: 46px; }
         .tier-preview-frame-inner { position: absolute; top: 50%; left: 50%; width: 84px; height: 84px; transform: translate(-50%, -50%) scale(0.548); }
@@ -5505,61 +5520,6 @@ html[data-theme="dark"] #name-check-card select:focus, html[data-theme="dark"] #
     box-shadow: 0 0 0 3px rgba(96,165,250,.18), inset 0 1px 0 rgba(255,255,255,.12);
 }
 </style>
-<style id="nc-picker-css">
-/* ===== Name Check: custom game picker (replaces the native <select> popup) ===== */
-#name-check-card.ncp-ready #nc-game { display: none !important; }
-#name-check-card.ncp-open { position: relative; z-index: 60; }
-.ncp { position: relative; margin-top: 8px; }
-.ncp-trigger { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 6px 12px; border-radius: 14px; cursor: pointer;
-  background: rgba(255,255,255,.50); border: 1px solid rgba(255,255,255,.85);
-  -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
-  box-shadow: 0 4px 14px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(15,23,42,.04);
-  transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-.ncp.open .ncp-trigger, .ncp-trigger:focus-visible { outline: none; border-color: rgba(59,130,246,.65); background: rgba(255,255,255,.72);
-  box-shadow: 0 0 0 3px rgba(59,130,246,.16), 0 6px 18px rgba(59,130,246,.14), inset 0 1px 0 rgba(255,255,255,.95); }
-.ncp-ph { flex: 1; min-width: 0; font-size: 13.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ncp-chev { width: 16px; height: 16px; flex-shrink: 0; margin-left: auto; color: #6B7280; transition: transform .25s ease; }
-.ncp.open .ncp-chev { transform: rotate(180deg); color: #2563EB; }
-.ncp-tag { --h: 215; display: inline-flex; align-items: center; gap: 7px; max-width: calc(100% - 28px); padding: 3px 6px 3px 4px; border-radius: 999px;
-  background: linear-gradient(180deg, hsla(var(--h),90%,60%,.24), hsla(var(--h),90%,60%,.10)); border: 1px solid hsla(var(--h),80%,50%,.38);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.6); color: hsl(var(--h),70%,34%); font-size: 12.5px; font-weight: 600; }
-.ncp-tag .ncp-tn { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ncp-x { all: unset; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  background: hsla(var(--h),85%,50%,.18); color: hsl(var(--h),70%,34%); font-size: 13px; line-height: 1; cursor: pointer; flex-shrink: 0; }
-.ncp-x:active { transform: scale(.88); }
-.ncp-av { width: 24px; height: 24px; border-radius: 8px; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
-  background: var(--border); color: var(--text-muted); font-size: 12px; font-weight: 700; }
-.ncp-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ncp-panel { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 70; border-radius: 16px; overflow: hidden; display: none;
-  background: rgba(255,255,255,.82); border: 1px solid rgba(255,255,255,.9);
-  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
-  box-shadow: 0 18px 40px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.95); }
-.ncp.open .ncp-panel { display: block; animation: ncpIn .18s ease both; }
-@keyframes ncpIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
-#name-check-card input.ncp-search { display: block; box-sizing: border-box; width: calc(100% - 16px); margin: 8px; padding: 9px 12px; font-size: 13px; border-radius: 11px; }
-.ncp-list { max-height: 264px; overflow-y: auto; overscroll-behavior: contain; padding: 0 6px 6px; -webkit-overflow-scrolling: touch; }
-.ncp-item { --h: 215; display: flex; align-items: center; gap: 10px; padding: 7px 9px; margin-bottom: 5px; border-radius: 13px; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  background: linear-gradient(135deg, hsla(var(--h),90%,62%,.13), hsla(var(--h),90%,62%,.05)); border: 1px solid hsla(var(--h),80%,55%,.16); transition: background .15s, border-color .15s; }
-.ncp-item .ncp-av { width: 36px; height: 36px; border-radius: 10px; font-size: 14px; }
-.ncp-item .ncp-in { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ncp-item:active, .ncp-item.hl { background: linear-gradient(135deg, hsla(var(--h),90%,60%,.24), hsla(var(--h),90%,60%,.12)); border-color: hsla(var(--h),80%,50%,.32); }
-.ncp-item.sel { background: linear-gradient(135deg, hsla(var(--h),90%,60%,.26), hsla(var(--h),90%,60%,.12)); border-color: hsla(var(--h),80%,50%,.45); }
-.ncp-item.sel::after { content: ''; width: 16px; height: 16px; flex-shrink: 0; background: hsl(var(--h),70%,42%);
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>") center / contain no-repeat;
-  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>") center / contain no-repeat; }
-.ncp-empty { padding: 18px 10px; text-align: center; font-size: 12.5px; color: var(--text-muted); }
-html[data-theme="dark"] .ncp-trigger { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.15); box-shadow: 0 4px 14px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10); }
-html[data-theme="dark"] .ncp.open .ncp-trigger { background: rgba(255,255,255,.11); border-color: rgba(96,165,250,.6); box-shadow: 0 0 0 3px rgba(96,165,250,.18), inset 0 1px 0 rgba(255,255,255,.12); }
-html[data-theme="dark"] .ncp-chev { color: #A8B0BF; }
-html[data-theme="dark"] .ncp-tag { color: hsl(var(--h),90%,82%); background: linear-gradient(180deg, hsla(var(--h),90%,60%,.30), hsla(var(--h),90%,60%,.12)); border-color: hsla(var(--h),85%,65%,.5); }
-html[data-theme="dark"] .ncp-x { background: hsla(var(--h),90%,75%,.22); color: hsl(var(--h),90%,82%); }
-html[data-theme="dark"] .ncp-item { background: linear-gradient(135deg, hsla(var(--h),85%,60%,.16), hsla(var(--h),85%,60%,.06)); border-color: hsla(var(--h),80%,65%,.20); }
-html[data-theme="dark"] .ncp-panel { background: rgba(28,32,44,.86); border-color: rgba(255,255,255,.14); box-shadow: 0 18px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10); }
-html[data-theme="dark"] .ncp-item:active, html[data-theme="dark"] .ncp-item.hl { background: linear-gradient(135deg, hsla(var(--h),85%,60%,.28), hsla(var(--h),85%,60%,.12)); }
-html[data-theme="dark"] .ncp-item.sel { background: linear-gradient(135deg, hsla(var(--h),85%,60%,.30), hsla(var(--h),85%,60%,.12)); border-color: hsla(var(--h),85%,65%,.5); }
-html[data-theme="dark"] .ncp-item.sel::after { background: hsl(var(--h),90%,75%); }
-@media (prefers-reduced-motion: reduce) { .ncp.open .ncp-panel { animation: none; } .ncp-chev { transition: none; } }
-</style>
 <style id="maint-css">
 /* ===== Maintenance screen: AI bot repairing the system (pure CSS + inline SVG) ===== */
 #maint-overlay{display:none;position:fixed;inset:0;z-index:2147483100;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 22px) 20px calc(env(safe-area-inset-bottom,0px) + 22px);background:radial-gradient(120% 80% at 50% 0%,#14122e 0%,#070a14 60%);color:#fff;text-align:center;font-family:'Manrope','Outfit',system-ui,sans-serif;isolation:isolate}
@@ -7444,6 +7404,9 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                     </div>
                     <span class="idg-badge" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4 4.6-5"/></svg></span>
                 </div>
+                <div class="idg" id="detail-charname-wrap" style="display:none;margin-top:10px;">
+                    <div class="idg-field"><input type="text" id="detail-charname" placeholder="Character Name" aria-label="Character Name" autocomplete="off" maxlength="60" oninput="onPlayerIdFieldChange()"></div>
+                </div>
                 <div id="detail-id-status" style="margin-top:12px;display:none;"></div>
                 <div id="recent-ids-block" style="display:none;">
                     <p class="recent-ids-label">Recent</p>
@@ -7659,6 +7622,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             </div>
             <div class="order-ok-title" id="order-ok-title">Order Success</div>
             <div class="order-ok-sub" id="order-ok-sub" style="display:none;"></div>
+            <button type="button" class="order-ok-again" id="order-ok-again" onclick="event.stopPropagation(); window.buyAgainFromSuccess && window.buyAgainFromSuccess()">Buy again</button>
         </div>
     </div>
 
@@ -7926,7 +7890,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 success_completed_title: 'Order Completed!', success_completed_sub: 'Your top up has been delivered. Thanks for ordering with us.',
                 success_failed_title: 'Order Failed', success_failed_sub: 'Something went wrong with this order. Check the details in History or contact support.',
                 success_confirmed_title: 'Order Confirmed',
-                order_ok_title: 'Successfully',
+                order_ok_title: 'Successfully', order_ok_again: 'Buy again',
                 notif_tab_unread: 'Unread', notif_tab_read: 'Read', notif_mark_all: 'Mark all read',
                 notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'View in History',
                 notif_empty_unread_t: "You're all caught up", notif_empty_unread_s: 'New order updates and announcements will show up here.',
@@ -8124,7 +8088,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 success_completed_title: 'အော်ဒါ ပြီးမြောက်ပါပြီ!', success_completed_sub: 'သင့်ရဲ့ top up ကို ပေးပို့ပြီးပါပြီ။ ကျွန်ုပ်တို့နှင့် အော်ဒါတင်သည့်အတွက် ကျေးဇူးတင်ပါသည်။',
                 success_failed_title: 'အော်ဒါ မအောင်မြင်ပါ', success_failed_sub: 'ဒီအော်ဒါမှာ တစ်ခုခုမှားယွင်းသွားပါသည်။ History တွင်စစ်ဆေးပါ (သို့) Support ကိုဆက်သွယ်ပါ။',
                 success_confirmed_title: 'အော်ဒါ အတည်ပြုပြီး',
-                order_ok_title: 'Successfully',
+                order_ok_title: 'Successfully', order_ok_again: 'ထပ်ဝယ်မယ်',
                 notif_tab_unread: 'မဖတ်ရသေး', notif_tab_read: 'ဖတ်ပြီး', notif_mark_all: 'အားလုံး ဖတ်ပြီးပြုမည်',
                 notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'History တွင်ကြည့်မည်',
                 notif_empty_unread_t: 'အသစ်မရှိတော့ပါ', notif_empty_unread_s: 'အော်ဒါ အခြေအနေနှင့် ကြေညာချက်အသစ်များ ဤနေရာတွင် ပေါ်လာပါမည်။',
@@ -8310,14 +8274,14 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         // then re-adding 'in-view' with a forced reflow in between restarts
         // the CSS animation instead of it only firing once on first render.
         function playProfileCardsIn() {
+            // Batched: read all positions first, write all classes, ONE reflow, then start the animations
+            // (the old per-card read/write/reflow loop re-laid-out the whole Profile page once per card).
+            const els = Array.from(document.querySelectorAll('#profile .profile-card-anim'));
             let n = 0;
-            document.querySelectorAll('#profile .profile-card-anim').forEach(el => {
-                el.classList.remove('in-view');
-                // Alternate sides by visible position (hidden cards don't count).
-                el.classList.toggle('from-left', el.offsetParent !== null && (n++ % 2 === 0));
-                void el.offsetWidth;
-                el.classList.add('in-view');
-            });
+            const left = els.map(el => el.offsetParent !== null && (n++ % 2 === 0));
+            els.forEach((el, i) => { el.classList.remove('in-view'); el.classList.toggle('from-left', left[i]); });
+            if (els.length) void els[0].offsetWidth;
+            els.forEach(el => el.classList.add('in-view'));
         }
         window.playProfileCardsIn = playProfileCardsIn;
 
@@ -8800,6 +8764,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         let selectedGameId = null;
         let selectedGameG2BulkCode = null;
         let selectedGameNeedsPlayerId = true;
+        let selectedGameNeedsCharName = false;   // game.charNameRequired (G2Bulk games whose /games/fields lists charname)
         let selectedGameJCPlaysProduct = null;
         // Category id for the currently-open game's FazerCards game top-up
         // link, if any. Unlike G2Bulk/JCPlays, the store never calls
@@ -9103,13 +9068,13 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         //  reason (for invalid): 'server' (server doesn't match) | 'id' (ID/ID+server not found)
         //  reason (for unknown): 'unavailable' (busy/auth/5xx) | 'network' (fetch failed)
         // Non-2xx like 400/404/422 from the API are a real "not found" answer, not an outage.
-        async function g2bulkCheckPlayer(game, playerId, serverId) {
+        async function g2bulkCheckPlayer(game, playerId, serverId, charname) {
             let res;
             try {
                 res = await fetch('https://api.g2bulk.com/v1/games/checkPlayerId', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ game, user_id: playerId, server_id: serverId || undefined })
+                    body: JSON.stringify({ game, user_id: playerId, server_id: serverId || undefined, charname: charname || undefined })
                 });
             } catch (e) {
                 return { outcome: 'unknown', reason: 'network', status: 0 };
@@ -9245,6 +9210,13 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 return;
             }
 
+            const charNameVal = selectedGameNeedsCharName ? ((document.getElementById('detail-charname') || {}).value || '').trim() : '';
+            if (selectedGameNeedsCharName && !charNameVal) {
+                // This game also needs the character name (docs 5.1.2 fields) - wait for it instead of guessing.
+                playerIdVerified = null; verifiedPlayerName = null;
+                statusEl.style.display = 'none';
+                return;
+            }
             renderIdCheckingText();
             confirmBtn.disabled = true;
             confirmBtn.classList.remove('confirmed');
@@ -9265,7 +9237,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 let outcome, resolvedName = null;
                 let checkResult = { outcome: 'unknown', reason: 'unavailable' };
                 if (selectedGameG2BulkCode) {
-                    checkResult = await g2bulkCheckPlayer(selectedGameG2BulkCode, playerId, serverId);
+                    checkResult = await g2bulkCheckPlayer(selectedGameG2BulkCode, playerId, serverId, charNameVal);
                     outcome = checkResult.outcome;
                     if (outcome === 'valid') resolvedName = checkResult.name;
                 } else if (selectedGameFazerCardCategory) {
@@ -9359,190 +9331,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         }
         window.runPlayerIdCheck = runPlayerIdCheck;
 
-        // ---------- Profile: Name Check ----------
-        // Standalone version of the checkout page's ID check: the customer
-        // picks any game from a dropdown, and as soon as a game is chosen the
-        // form shows a Server ID box only if that game needs one. It then
-        // auto-checks (debounced) through the same providers as checkout
-        // (G2Bulk / FazerCards) and shows Player Name + region.
-        // Games sold in several regions are stored as separate entries with
-        // the same name (differing by serverName), so the ID is checked
-        // against every entry of the chosen game and each one that recognises
-        // it is listed with its region label ("Global" when none is set).
-        // Country only shows if a provider's reply actually includes one -
-        // G2Bulk's checkPlayerId itself only returns { valid, name, openid }.
-        let ncGroups = {};      // lower-cased game name -> [game entries]
-        const ncDropdownKeys = new Set(); // games whose Server is a dropdown (hidden from the home check)
-        const ncProbed = new Set();
-        let ncOptionsSig = '';  // avoids rebuilding the dropdown (and losing the selection) on every catalogue snapshot
-        let ncTimer = null;
-        let ncRunId = 0;
-        const ncEsc = (s) => (window.escapeHtml ? window.escapeHtml(String(s)) : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
-
-        function ncCheckable(g) {
-            if (!g) return false;
-            if (isVoucherGame(g)) return false;
-            if (g.playerIdRequired === false) return false;
-            if (g.serverIdRequired === false) return false; // ID-only games (no Server ID) are not listed
-            if (/heartopia/i.test(g.name || '')) return false; // Heartopia needs no Server ID -> not in home check
-            // Server picked from a dropdown = the player already knows the server/region -> nothing to check
-            const hasOpts = (m, o) => m === 'select' && Array.isArray(o) && o.length;
-            if (hasOpts(g.fazercardServerMode, g.fazercardServerOptions) || hasOpts(g.g2bulkServerMode, g.g2bulkServerOptions)) return false;
-            return !!(g.g2bulkCode || g.fazercardCategoryId);
-        }
-
-        function ncRenderGameOptions() {
-            const sel = document.getElementById('nc-game');
-            if (!sel || !window.GAMES) return;
-            const groups = {};
-            Object.keys(window.GAMES).forEach(id => {
-                const g = window.GAMES[id];
-                if (!ncCheckable(g)) return;
-                const key = (g.name || '').trim().toLowerCase();
-                if (!key) return;
-                (groups[key] = groups[key] || []).push(g);
-            });
-            // G2Bulk games that come with a live server dropdown are not listed either.
-            Object.keys(groups).forEach(k => {
-                if (ncDropdownKeys.has(k)) { delete groups[k]; return; }
-                if (ncProbed.has(k)) return;
-                const entries = groups[k];
-                if (!entries.some(g => g.serverIdRequired !== false)) return;
-                const src = entries.find(g => g2bulkCodeOf(g));
-                const code = src && src.g2bulkCode;
-                if (!code) return;
-                ncProbed.add(k);
-                g2bulkFetchServers(code).then(list => {
-                    if (!list || !list.length) return;
-                    ncDropdownKeys.add(k);
-                    ncOptionsSig = '';
-                    ncRenderGameOptions();
-                    const sel = document.getElementById('nc-game');
-                    if (sel && sel.value === k) { sel.value = ''; ncOnGameChange(); }
-                });
-            });
-            ncGroups = groups;
-            const orderOf = (k) => Math.min(...groups[k].map(g => typeof g.order === 'number' ? g.order : Infinity));
-            const keys = Object.keys(groups).sort((a, b) => {
-                const oa = orderOf(a), ob = orderOf(b);
-                if (oa !== ob) return oa - ob;
-                return a.localeCompare(b);
-            });
-            const sig = keys.map(k => k + ':' + groups[k].length).join('|') + '|' + currentLang;
-            if (sig === ncOptionsSig) return;
-            ncOptionsSig = sig;
-            const prev = sel.value;
-            sel.innerHTML = `<option value="">${ncEsc(t('nc_select_game'))}</option>`
-                + keys.map(k => `<option value="${ncEsc(k)}">${ncEsc(groups[k][0].name)}</option>`).join('');
-            if (prev && groups[prev]) sel.value = prev;
-            sel.classList.toggle('has-value', !!sel.value);
-        }
-        window.ncRenderGameOptions = ncRenderGameOptions;
-
-        // Rebuilds #nc-server-id as a <select> when the game's provider gives
-        // a fixed server/region list, otherwise as a plain text input - same
-        // idea as renderServerIdField() on the checkout page.
-        function ncRenderServerField(entries) {
-            const old = document.getElementById('nc-server-id');
-            const opts = entries.map(g =>
-                (g.fazercardServerMode === 'select' && g.fazercardServerOptions) ||
-                (g.g2bulkServerMode === 'select' && g.g2bulkServerOptions)
-            ).find(o => Array.isArray(o) && o.length);
-            const mkSelect = (list) => {
-                const el = document.createElement('select');
-                el.innerHTML = `<option value="">${ncEsc(t('nc_select_server'))}</option>`
-                    + list.map(o => `<option value="${ncEsc(o.value)}">${ncEsc(o.label || o.value)}</option>`).join('');
-                el.addEventListener('change', () => { el.classList.toggle('has-value', !!el.value); ncOnFieldChange(); });
-                el.id = 'nc-server-id';
-                return el;
-            };
-            let el;
-            if (opts) {
-                el = mkSelect(opts);
-            } else {
-                el = document.createElement('input');
-                el.type = 'text';
-                el.placeholder = t('nc_server_ph');
-                el.setAttribute('data-i18n-ph', 'nc_server_ph');
-                el.autocomplete = 'off';
-                el.setAttribute('oninput', 'sanitizeIdDigitsInput(this); ncOnFieldChange()');
-                el.id = 'nc-server-id';
-            }
-            old.replaceWith(el);
-
-            // No saved options: use G2Bulk's live server list.
-            const src = entries.find(g => g2bulkCodeOf(g));
-            const code = src && src.g2bulkCode;
-            if (!opts && code && entries.some(g => g.serverIdRequired !== false)) {
-                const gameKey = document.getElementById('nc-game').value;
-                g2bulkFetchServers(code).then(list => {
-                    if (!list.length || document.getElementById('nc-game').value !== gameKey) return;
-                    const cur = document.getElementById('nc-server-id');
-                    if (!cur || cur.tagName === 'SELECT') return;
-                    cur.replaceWith(mkSelect(list));
-                });
-            }
-        }
-        function g2bulkCodeOf(g) { return g && g.g2bulkCode; }
-
-        function ncOnGameChange() {
-            const sel = document.getElementById('nc-game');
-            const key = sel.value;
-            sel.classList.toggle('has-value', !!key);
-            clearTimeout(ncTimer);
-            ncRunId++;
-            ncShownAt = null;
-            ncSig = '';
-            const result = document.getElementById('nc-result');
-            result.style.display = 'none';
-            result.innerHTML = '';
-            const fields = document.getElementById('nc-fields');
-            const entries = ncGroups[key];
-            if (!key || !entries) { fields.style.display = 'none'; return; }
-            // Server ID only when at least one region entry of this game needs it.
-            const needsServer = entries.some(g => g.serverIdRequired !== false);
-            document.getElementById('nc-server-wrap').style.display = needsServer ? 'block' : 'none';
-            ncRenderServerField(entries);
-            if (!needsServer) document.getElementById('nc-server-id').value = '';
-            fields.style.display = 'block';
-            ncOnFieldChange();
-        }
-        window.ncOnGameChange = ncOnGameChange;
-
-        let ncSig = ''; // game|id|server of the check that is running or already on screen
-        function ncOnFieldChange() {
-            const key = document.getElementById('nc-game').value;
-            const entries = ncGroups[key];
-            const result = document.getElementById('nc-result');
-            if (!entries) { clearTimeout(ncTimer); ncRunId++; ncShownAt = null; ncSig = ''; result.style.display = 'none'; return; }
-            const idField = document.getElementById('nc-player-id');
-            const serverField = document.getElementById('nc-server-id');
-            // "123456789 (7891)" pasted format: bracketed number is the server/zone ID.
-            const m = idField.value.match(/\(([^)]+)\)/);
-            if (m && serverField.tagName === 'INPUT') {
-                serverField.value = m[1].trim().replace(/[^a-zA-Z0-9]/g, '');
-                idField.value = idField.value.replace(/\s*\([^)]*\)\s*/, '').trim();
-            }
-            const needsServer = entries.some(g => g.serverIdRequired !== false);
-            const playerId = idField.value.trim();
-            const serverId = serverField.value.trim();
-            const sig = key + '|' + playerId + '|' + serverId;
-            // Same input as the check already running / shown: a repeat event must not wipe the
-            // result and start over (that was the "info shows, vanishes, shows again" flicker).
-            if (sig === ncSig && result.innerHTML) return;
-            clearTimeout(ncTimer);
-            ncRunId++;
-            ncShownAt = null;
-            ncSig = '';
-            if (!playerId || (needsServer && !serverId)) { result.style.display = 'none'; result.innerHTML = ''; return; }
-            ncSig = sig;
-            result.innerHTML = `<p class="id-checking-text">${ncEsc(t('checking_id_text'))}</p>`;
-            result.style.display = 'flex';
-            ncTimer = setTimeout(ncRunCheck, 450);
-        }
-        window.ncOnFieldChange = ncOnFieldChange;
-
-        // "myanmar" -> "Myanmar", "south east asia" -> "South East Asia"
+        // "myanmar" -> "Myanmar", "south east asia" -> "South East Asia" (used by the checkout player card)
         function fmtRegion(r) {
             return String(r || '').trim().replace(/(^|[\s\-_/(])([a-z])/g, (m, a, b) => a + b.toUpperCase());
         }
@@ -9558,225 +9347,6 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             return out;
         }
 
-        // One provider check for one game entry -> { outcome: 'valid'|'invalid'|'unknown', name, geo }
-        const ncCheckCache = new Map();
-        function ncCheckEntry(g, playerId, serverId) {
-            const prov = g.g2bulkCode ? 'g:' + g.g2bulkCode : (g.fazercardCategoryId ? 'f:' + g.fazercardCategoryId : '');
-            const sid = g.serverIdRequired !== false ? serverId : '';
-            const key = prov + '|' + playerId + '|' + sid;
-            const hit = ncCheckCache.get(key);
-            if (hit && Date.now() - hit.t < 120000) return hit.p;   // same ID re-checked / region entries sharing one provider game
-            const p = ncCheckEntryRaw(g, playerId, serverId);
-            ncCheckCache.set(key, { t: Date.now(), p });
-            p.then(r => { if (!r || r.outcome === 'unknown') ncCheckCache.delete(key); }, () => ncCheckCache.delete(key));
-            if (ncCheckCache.size > 60) ncCheckCache.delete(ncCheckCache.keys().next().value);
-            return p;
-        }
-        async function ncCheckEntryRaw(g, playerId, serverId) {
-            const sid = g.serverIdRequired !== false ? serverId : '';
-            let outcome = 'unknown', name = null, geo = {};
-            let reason = '';
-            if (g.g2bulkCode) {
-                const cr = await g2bulkCheckPlayer(g.g2bulkCode, playerId, sid);
-                outcome = cr.outcome; reason = cr.reason || '';
-                if (outcome === 'valid') { name = cr.name; geo = ncGeo(cr.data); }
-            } else if (g.fazercardCategoryId) {
-                const keys = (Array.isArray(g.fazercardFields) && g.fazercardFields.length) ? g.fazercardFields : ['player_id'];
-                if (keys.some(k => /server|zone/i.test(k)) && !sid) return { outcome: 'unknown' };
-                const fields = {};
-                keys.forEach(k => { fields[k] = /server|zone/i.test(k) ? sid : playerId; });
-                const res = await fetch(FAZERCARD_VALIDATE_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ categoryId: g.fazercardCategoryId, fields })
-                });
-                const data = await res.json();
-                if (!res.ok || !data.ok) outcome = 'unknown';
-                else if (data.valid === true) { outcome = 'valid'; name = data.playerName || null; geo = ncGeo(data); }
-                else { outcome = 'invalid'; reason = 'id'; }
-            }
-            return { outcome, name, geo, reason };
-        }
-
-        // Hides the result (and, for the Clear button, empties the Player ID /
-        // Server ID fields too; the selected game stays). Bumping ncRunId
-        // cancels any check still in flight so it can't re-open the box.
-        let ncShownAt = null;      // when the final result appeared (null = nothing to auto-close)
-        let ncShownScrollY = 0;
-        function ncDismissResult(clearInputs) {
-            clearTimeout(ncTimer);
-            ncRunId++;
-            ncShownAt = null;
-            ncSig = '';
-            const result = document.getElementById('nc-result');
-            if (result) { result.style.display = 'none'; result.innerHTML = ''; }
-            if (clearInputs) {
-                const idField = document.getElementById('nc-player-id');
-                if (idField) idField.value = '';
-                const serverField = document.getElementById('nc-server-id');
-                if (serverField) { serverField.value = ''; serverField.classList.remove('has-value'); }
-            }
-        }
-        window.ncDismissResult = ncDismissResult;
-
-        // Called once the final result (valid / not found / unavailable) is on
-        // screen: adds the Clear chip on top and starts the scroll auto-close.
-        function ncFinishResult(box) {
-            const row = document.createElement('div');
-            row.className = 'nc-clear-row';
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'nc-clear-btn';
-            btn.setAttribute('aria-label', t('nc_clear'));
-            btn.innerHTML = `<svg class="ui-icon"><use href="#icon-close"></use></svg><span>${ncEsc(t('nc_clear'))}</span>`;
-            btn.addEventListener('click', () => ncDismissResult(true));
-            row.appendChild(btn);
-            box.insertBefore(row, box.firstChild);
-            box.style.display = 'flex';
-            ncShownAt = Date.now();
-            ncShownScrollY = window.scrollY;
-        }
-
-        // Hide the floating header on scroll-down, reveal it on scroll-up
-        // (RAF-throttled so fast scrolling on low-end phones doesn't run
-        // this on every scroll event). Always shown near the very top so
-        // it doesn't flicker while the page is still settling there.
-        // The bottom nav mirrors the same show/hide so both docks move
-        // together instead of the nav staying fixed while the header hides.
-        (function () {
-            let lastY = window.scrollY;
-            let ticking = false;
-            const headerEl = document.querySelector('.header');
-            const navEl = document.getElementById('bottom-nav');
-            const notchBubbleEl = document.getElementById('nav-notch-bubble');
-            function applyHeaderVisibility() {
-                const y = window.scrollY;
-                if (y < 40) {
-                    if (headerEl) headerEl.classList.remove('header-hidden');
-                    if (navEl) navEl.classList.remove('nav-hidden');
-                    if (notchBubbleEl) notchBubbleEl.classList.remove('nav-hidden');
-                } else if (y > lastY + 10) {
-                    if (headerEl) headerEl.classList.add('header-hidden');
-                    if (navEl) navEl.classList.add('nav-hidden');
-                    if (notchBubbleEl) notchBubbleEl.classList.add('nav-hidden');
-                } else if (y < lastY - 10) {
-                    if (headerEl) headerEl.classList.remove('header-hidden');
-                    if (navEl) navEl.classList.remove('nav-hidden');
-                    if (notchBubbleEl) notchBubbleEl.classList.remove('nav-hidden');
-                }
-                if (Math.abs(y - lastY) > 10 || y < 40) lastY = y;
-                ticking = false;
-            }
-            let scrollIdleT = null;
-            const rootEl = document.documentElement;
-            window.addEventListener('scroll', () => {
-                if (!rootEl.classList.contains('is-scrolling')) rootEl.classList.add('is-scrolling');
-                clearTimeout(scrollIdleT);
-                scrollIdleT = setTimeout(() => rootEl.classList.remove('is-scrolling'), 180);
-                if (!ticking) {
-                    requestAnimationFrame(applyHeaderVisibility);
-                    ticking = true;
-                }
-            }, { passive: true });
-        })();
-
-        // Scrolling the page away from where the result appeared closes it
-        // (the IDs stay). The first ~0.8s is ignored so keyboard / layout
-        // adjustments right after typing don't close it by accident.
-        window.addEventListener('scroll', () => {
-            if (ncShownAt === null || window.currentStorePage !== 'dashboard') return;
-            if (Date.now() - ncShownAt < 1500) return;
-            const ae = document.activeElement;
-            if (ae && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;   // keyboard open: viewport shifts aren't a real scroll
-            if (Math.abs(window.scrollY - ncShownScrollY) > 120) ncDismissResult(false);
-        }, { passive: true });
-        // Entering the Name Check page scrolls to the top; re-baseline so that alone doesn't count as a scroll.
-        window.ncResetScrollBaseline = () => {
-            if (ncShownAt !== null) { ncShownAt = Date.now(); ncShownScrollY = window.scrollY; }
-        };
-
-        async function ncRunCheck() {
-            try { await ncRunCheckInner(); } catch (e) { console.error('Name check error:', e); ncSig = ''; }
-        }
-        async function ncRunCheckInner() {
-            const myRun = ++ncRunId;
-            const key = document.getElementById('nc-game').value;
-            const entries = ncGroups[key];
-            if (!entries) return;
-            const playerId = document.getElementById('nc-player-id').value.trim();
-            const serverEl = document.getElementById('nc-server-id');
-            const serverId = serverEl.value.trim();
-            const serverLabel = serverEl.tagName === 'SELECT' ? (serverEl.options[serverEl.selectedIndex]?.text || serverId) : serverId;
-            if (!playerId) return;
-            // Deterministic ranking: the plain/"Global" entry (no serverName) first, then by admin order.
-            // Result order must NOT depend on which provider call happens to answer first.
-            const rank = (g) => (g.serverName ? 1 : 0) * 1e6 + (typeof g.order === 'number' ? g.order : 9999);
-            const rankedAll = entries.slice().sort((a, b) => rank(a) - rank(b));
-            // Stage 1: check only the best-ranked (Global) entry. If it recognises the ID, that is
-            // the answer - the other region entries are not checked at all. Only when it can't
-            // confirm the ID do we fall back to checking every entry (old behaviour).
-            let ranked = rankedAll;
-            try {
-                const first = await ncCheckEntry(rankedAll[0], playerId, serverId);
-                if (first && first.outcome === 'valid' && first.name) ranked = [rankedAll[0]];
-            } catch (e) { /* fall back to all entries */ }
-            if (myRun !== ncRunId) return;
-            const settled = [];
-            await new Promise(resolve => {
-                let pending = ranked.length, firstValidAt = 0, timer = null, done = false;
-                const finish = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
-                ranked.forEach(g => {
-                    ncCheckEntry(g, playerId, serverId).catch(() => ({ outcome: 'unknown' })).then(r => {
-                        settled.push({ g, r });
-                        if (r && r.outcome === 'valid' && r.name) {
-                            // best-ranked entry answered valid -> it wins, no need to wait for the rest
-                            if (g === ranked[0]) return finish();
-                            // otherwise give the better-ranked entries a short moment to answer
-                            if (!firstValidAt) { firstValidAt = Date.now(); timer = setTimeout(finish, 1500); }
-                        }
-                        if (--pending === 0) finish();
-                    });
-                });
-            });
-            if (myRun !== ncRunId) return; // a newer edit/selection superseded this check
-            settled.sort((a, b) => rank(a.g) - rank(b.g));
-            const box = document.getElementById('nc-result');
-            box.innerHTML = '';
-            const valid = settled.filter(x => x.r.outcome === 'valid' && x.r.name);
-            if (!valid.length) {
-                const bad = settled.find(x => x.r.outcome === 'invalid' && x.r.reason === 'server') || settled.find(x => x.r.outcome === 'invalid');
-                const usedServer = (serverLabel && entries.some(g => g.serverIdRequired !== false)) ? serverLabel : '';
-                if (bad) {
-                    const pr = idProblemFor(bad.r, playerId, usedServer);
-                    box.appendChild(buildIdProblemBanner(pr.kind, pr.title, pr.body, pr.note));
-                } else {
-                    const net = settled.some(x => x.r.reason === 'network');
-                    const pr = idProblemFor({ outcome: 'unknown', reason: net ? 'network' : 'unavailable' }, playerId, usedServer);
-                    box.appendChild(buildIdProblemBanner(pr.kind, pr.title, pr.body, pr.note));
-                }
-                ncFinishResult(box);
-                return;
-            }
-            // One result per in-game name. Several store entries (Global / Singapore / Myanmar ...) can
-            // share one provider game and all answer "valid" for the same ID - that does NOT mean the
-            // account exists in each region, so only the best-ranked entry is shown. If the provider's reply
-            // itself carries a region/country, that real value is used (and an entry whose label matches it wins).
-            const byName = new Map();
-            valid.forEach(({ g, r }) => {
-                const k = String(r.name).trim().toLowerCase();
-                const cur = byName.get(k);
-                const rr = String((r.geo && r.geo.region) || '').trim().toLowerCase();
-                const matches = rr && String(g.serverName || '').trim().toLowerCase() === rr;
-                if (!cur || (matches && !cur.matches)) byName.set(k, { g, r, matches });
-            });
-            byName.forEach(({ g, r }) => {
-                let region = pcRegionLabel(r.geo && r.geo.region, g.serverName, gameKeyOf(g), serverId);
-                if (r.geo && r.geo.country) region += ' \u00b7 ' + r.geo.country;
-                const card = buildPlayerDetailCard(r.name, region, (serverLabel && g.serverIdRequired !== false) ? serverLabel : '', playerId);
-                box.appendChild(card);
-            });
-            ncFinishResult(box);
-        }
-        window.ncRunCheck = ncRunCheck;
 
         // Redeem link for whichever game's detail page is currently open (set
         // by renderGameDescCard below, read by openGameRedeemLink on tap).
@@ -10002,7 +9572,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ game: code })
             }).then(async res => {
-                if (!res.ok) return []; // 403 = this game has no server list
+                if (!res.ok) { if (res.status !== 403) delete g2bulkServerCache[code]; return []; } // 403 = this game has no server list (cached); 429/5xx = transient, retry next time
                 let data = null;
                 try { data = await res.json(); } catch (e) { return []; }
                 const list = normalizeG2BulkServers(data);
@@ -10327,6 +9897,10 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 ? !isVoucherGame(game)
                 : game.playerIdRequired !== false;
             selectedGameNeedsPlayerId = needsPlayerId;
+            selectedGameNeedsCharName = needsPlayerId && game.charNameRequired === true;
+            { const cw = document.getElementById('detail-charname-wrap'), ci = document.getElementById('detail-charname');
+              if (cw) cw.style.display = selectedGameNeedsCharName ? '' : 'none';
+              if (ci && !selectedGameNeedsCharName) ci.value = ''; }
             document.getElementById('account-info-section').style.display = needsPlayerId ? '' : 'none';
             if (!needsPlayerId) document.getElementById('detail-ingame-id').value = '';
 
@@ -11488,6 +11062,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
             const inGameId = document.getElementById('detail-ingame-id').value.trim();
             const serverId = document.getElementById('detail-server-id').value.trim();
 
+            if (selectedGameNeedsCharName && !((document.getElementById('detail-charname') || {}).value || '').trim()) { window.showToast('Please enter your Character Name', 'fail'); if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb(); return; }
             if (selectedGameNeedsPlayerId && !inGameId) { window.showToast('Please enter your In-Game ID', 'fail'); if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb(); return; }
             if (!selectedPaymentType) { window.showToast('Please choose how you want to pay', 'fail'); if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb(); return; }
 
@@ -11714,6 +11289,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 quantity: orderQty(),
                 inGameId,
                 serverId,
+                charName: selectedGameNeedsCharName ? ((document.getElementById('detail-charname') || {}).value || '').trim() : '',
                 // Only trust this when the ID that got verified is the exact
                 // ID still in the field — if the customer edited it after
                 // confirming, playerIdVerified is already reset to null so
@@ -11746,6 +11322,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 quantity: orderQty(),
                 inGameId,
                 serverId,
+                charName: selectedGameNeedsCharName ? ((document.getElementById('detail-charname') || {}).value || '').trim() : '',
                 inGameName: playerIdVerified === true ? verifiedPlayerName : null,
                 g2bulkGameCode: selectedGameG2BulkCode,
                 g2bulkCatalogueName: selectedPackage.g2bulk || null,
@@ -12978,6 +12555,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         // hold more than 10,000,000 MMK - the "Wallet Balance" total shown
         // elsewhere isn't capped, only how much can be added in one request.
         const WALLET_TOPUP_MIN = 5000;
+        window.WALLET_TOPUP_MIN = WALLET_TOPUP_MIN; // module-scope const: expose so the classic shortfall script can read it
         function walletMinText() {
             const n = WALLET_TOPUP_MIN.toLocaleString();
             return (typeof currentLang !== 'undefined' && currentLang === 'en')
@@ -13486,6 +13064,9 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         const WALLET_TOPUP_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
         let walletTopupCleanupDone = false;
         async function cleanupOldWalletTopups(guestId) {
+            // Disabled: firestore.rules allow walletTopups delete for admin only, so this batch delete always
+            // failed with permission-denied after wasting a read query on every session.
+            return;
             if (!guestId || walletTopupCleanupDone) return;
             walletTopupCleanupDone = true;
             try {
@@ -16417,7 +15998,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
 
         async function submitOrder(orderData, btnElement) {
             if (window.__MAINT_CLOSED) { window.showToast('ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
-                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
+                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
@@ -16486,6 +16067,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 const receiptOrderPayload = {
                     playerId: inGameId,
                     serverId: serverId || '',
+                    ...(charName ? { charName } : {}),
                     serverRegion: serverRegion || '',
                     // Name resolved by the "Confirm ID" name-check, saved so
                     // it can be shown in Order Details and printed on the receipt.
@@ -16571,7 +16153,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         // balance that only actually covers one of them.
         async function submitWalletOrder(orderData, btnElement) {
             if (window.__MAINT_CLOSED) { window.showToast('ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
-                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
+                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerText = "Processing...";
@@ -16627,6 +16209,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 const orderPayload = {
                     playerId: inGameId,
                     serverId: serverId || '',
+                    ...(charName ? { charName } : {}),
                     serverRegion: serverRegion || '',
                     // Name resolved by the "Confirm ID" name-check, saved so
                     // it can be shown in Order Details and printed on the receipt.
@@ -16933,7 +16516,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                         const label = `${data.game || ''}${data.itemAmount ? ' - ' + data.itemAmount : ''}`.trim();
                         if (data.status === 'Success' && !orderStatusNotified.has(orderId + ':success')) {
                             orderStatusNotified.add(orderId + ':success');
-                            showOrderSuccessModal(label);
+                            showOrderSuccessModal(label, data);
                             if (window.invalidateUserStatsCache) window.invalidateUserStatsCache();
                             if (window.loadProfileStats) window.loadProfileStats(true);
                         } else if (data.status === 'Fail' && !orderStatusNotified.has(orderId + ':fail')) {
@@ -17009,15 +16592,55 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         // Check wipes in bottom -> top, a chime plays as it finishes, the card stays ~3s
         // (tap anywhere to close it sooner).
         let orderOkTimer = null, orderOkSoundTimer = null;
-        const ORDER_OK_SHOW_MS = 3000;
+        const ORDER_OK_SHOW_MS = 9000; // long enough to tap "Buy again"; tapping outside closes it sooner
         function hideOrderSuccessModal() {
             const ov = document.getElementById('order-ok-overlay');
             clearTimeout(orderOkTimer); clearTimeout(orderOkSoundTimer);
             if (ov) ov.classList.remove('show');
         }
         window.hideOrderSuccessModal = hideOrderSuccessModal;
-        function showOrderSuccessModal(label) {
+        // "Buy again": open the same game, pick the same package (price) and scroll down to the payment step.
+        // Everything after that (pay type, receipt, confirm) is left to the customer.
+        function findReorderTarget(order) {
+            const games = window.GAMES || {};
+            const name = String((order && order.game) || '').trim();
+            const gameId = Object.keys(games).find(id => games[id] && String(games[id].name || '').trim() === name);
+            if (!gameId) return null;
+            const pkgs = Array.isArray(games[gameId].packages) ? games[gameId].packages : [];
+            const amt = String((order && order.itemAmount) || '').trim();
+            const price = Number(order && order.price);
+            let idx = pkgs.findIndex(p => String(p.amount).trim() === amt && Number(p.price) === price);
+            if (idx < 0) idx = pkgs.findIndex(p => String(p.amount).trim() === amt);
+            return { gameId, pkgIndex: idx };
+        }
+        function buyAgainFromSuccess() {
+            const order = window._orderOkAgain;
+            hideOrderSuccessModal();
+            const tgt = order && findReorderTarget(order);
+            if (!tgt) { try { window.showToast('This item is no longer available', 'fail'); } catch (e) {} return; }
+            openGameDetail(tgt.gameId); // also switches to the game-detail page
+            const game = window.GAMES[tgt.gameId];
+            if (tgt.pkgIndex >= 0 && game.packages[tgt.pkgIndex]) {
+                const targetPkg = game.packages[tgt.pkgIndex];
+                try { const tab = pkgTabOf(targetPkg); if (tab !== activePackageTab) switchPackageTab(tab); } catch (e) {}
+                try { selectPackageOption(tgt.pkgIndex); } catch (e) { console.error('buy again select failed', e); }
+            }
+            // Page-in and card animations are still running for ~0.7s, so re-run the scroll until the layout settles.
+            const goPay = () => {
+                const el = document.getElementById('detail-payment-section');
+                const bar = document.getElementById('buy-bar');
+                const target = (el && el.offsetHeight > 0) ? el : ((bar && bar.offsetHeight > 0) ? bar : null);
+                if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+            };
+            [120, 450, 900, 1400].forEach(ms => setTimeout(goPay, ms));
+        }
+        window.buyAgainFromSuccess = buyAgainFromSuccess;
+        function showOrderSuccessModal(label, order) {
             botEvt('order-ok');
+            window._orderOkAgain = order && order.game ? { game: order.game, itemAmount: order.itemAmount, price: order.price } : null;
+            { const ov0 = document.getElementById('order-ok-overlay'), b0 = document.getElementById('order-ok-again');
+              if (ov0) ov0.classList.toggle('has-again', !!window._orderOkAgain);
+              if (b0) { const tx = t('order_ok_again'); b0.textContent = (tx && tx !== 'order_ok_again') ? tx : 'Buy again'; } }
             const ov = document.getElementById('order-ok-overlay');
             if (!ov) return;
             document.getElementById('order-ok-title').textContent = t('order_ok_title');
@@ -22613,7 +22236,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
                 clearTimeout(__versionTapTimer);
                 if (window.eruda) { eruda.show(); return; }
                 var s = document.createElement('script');
-                s.src = 'https://cdn.jsdelivr.net/npm/eruda';
+                s.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.1/eruda.min.js'; // pinned (was unpinned = whatever jsDelivr serves latest)
                 s.onload = function () { eruda.init(); eruda.show(); };
                 document.body.appendChild(s);
             }
@@ -22775,141 +22398,7 @@ html[data-theme="dark"] .gz-sheet-box{background-color:rgba(14,24,48,.82)}
         else initWalletSeg();
 })();
 </script>
-<script id="nc-picker-js">
-(function () {
-    function init() {
-        var sel = document.getElementById('nc-game');
-        var card = document.getElementById('name-check-card');
-        if (!sel || !card || document.getElementById('nc-picker')) return;
 
-        var wrap = document.createElement('div'); wrap.id = 'nc-picker'; wrap.className = 'ncp';
-        var trigger = document.createElement('div'); trigger.className = 'ncp-trigger'; trigger.tabIndex = 0;
-        trigger.setAttribute('role', 'button'); trigger.setAttribute('aria-haspopup', 'listbox');
-        var panel = document.createElement('div'); panel.className = 'ncp-panel';
-        var search = document.createElement('input'); search.type = 'text'; search.className = 'ncp-search';
-        search.placeholder = 'Search game...'; search.autocomplete = 'off'; search.setAttribute('autocapitalize', 'off');
-        var list = document.createElement('div'); list.className = 'ncp-list'; list.setAttribute('role', 'listbox');
-        panel.appendChild(search); panel.appendChild(list);
-        wrap.appendChild(trigger); wrap.appendChild(panel);
-        sel.insertAdjacentElement('afterend', wrap);
-        card.classList.add('ncp-ready');
-
-        var hl = 0;
-        // Every game gets its own pale hue: its position in the full game list x the golden angle,
-        // so no two games share a colour (filtering the list doesn't change anyone's colour).
-        function hueFor(key) {
-            var all = options(), idx = 0;
-            for (var i = 0; i < all.length; i++) { if (all[i].value === key) { idx = i; break; } }
-            return Math.round((idx * 137.508 + 215) % 360);
-        }
-        function options() { return Array.prototype.filter.call(sel.options, function (o) { return o.value; }); }
-        function imgFor(key) {
-            var G = window.GAMES || {}, plain = '', any = '';
-            Object.keys(G).forEach(function (id) {
-                var g = G[id];
-                if (!g || !g.image || String(g.name || '').trim().toLowerCase() !== key) return;
-                if (!g.serverName && !plain) plain = g.image;
-                if (!any) any = g.image;
-            });
-            return plain || any;
-        }
-        function avatar(key, name) {
-            var d = document.createElement('span'); d.className = 'ncp-av';
-            var letter = (name || '?').trim().charAt(0).toUpperCase();
-            var src = imgFor(key);
-            if (src) {
-                var im = new Image(); im.alt = ''; im.decoding = 'async'; im.draggable = false;
-                im.onerror = function () { im.remove(); d.textContent = letter; };
-                im.src = src; d.appendChild(im);
-            } else d.textContent = letter;
-            return d;
-        }
-        function renderTrigger() {
-            trigger.textContent = '';
-            var cur = sel.value && sel.options[sel.selectedIndex];
-            if (cur && cur.value) {
-                var tag = document.createElement('span'); tag.className = 'ncp-tag'; tag.style.setProperty('--h', hueFor(cur.value));
-                tag.appendChild(avatar(cur.value, cur.text));
-                var tn = document.createElement('span'); tn.className = 'ncp-tn'; tn.textContent = cur.text; tag.appendChild(tn);
-                var x = document.createElement('button'); x.type = 'button'; x.className = 'ncp-x'; x.textContent = '\u00d7'; x.setAttribute('aria-label', 'Clear');
-                x.addEventListener('click', function (e) { e.stopPropagation(); pick(''); });
-                tag.appendChild(x); trigger.appendChild(tag);
-            } else {
-                var ph = document.createElement('span'); ph.className = 'ncp-ph';
-                ph.textContent = (sel.options[0] && !sel.options[0].value) ? sel.options[0].text : 'Select game';
-                trigger.appendChild(ph);
-            }
-            var ns = 'http://www.w3.org/2000/svg';
-            var sv = document.createElementNS(ns, 'svg'); sv.setAttribute('class', 'ncp-chev'); sv.setAttribute('viewBox', '0 0 24 24');
-            sv.setAttribute('fill', 'none'); sv.setAttribute('stroke', 'currentColor'); sv.setAttribute('stroke-width', '2.5');
-            sv.setAttribute('stroke-linecap', 'round'); sv.setAttribute('stroke-linejoin', 'round');
-            var pl = document.createElementNS(ns, 'polyline'); pl.setAttribute('points', '6 9 12 15 18 9'); sv.appendChild(pl);
-            trigger.appendChild(sv);
-        }
-        function filtered() {
-            var q = search.value.trim().toLowerCase();
-            return options().filter(function (o) { return !q || o.text.toLowerCase().indexOf(q) !== -1; });
-        }
-        function renderList() {
-            var items = filtered();
-            list.textContent = '';
-            if (hl >= items.length) hl = 0;
-            if (!items.length) {
-                var em = document.createElement('div'); em.className = 'ncp-empty';
-                em.textContent = options().length ? 'No game found' : 'Loading games...';
-                list.appendChild(em); return;
-            }
-            items.forEach(function (o, i) {
-                var it = document.createElement('div');
-                it.className = 'ncp-item' + (o.value === sel.value ? ' sel' : '') + (i === hl && search.value ? ' hl' : '');
-                it.setAttribute('role', 'option'); it.style.setProperty('--h', hueFor(o.value));
-                it.appendChild(avatar(o.value, o.text));
-                var nm = document.createElement('span'); nm.className = 'ncp-in'; nm.textContent = o.text; it.appendChild(nm);
-                it.addEventListener('click', function () { pick(o.value); });
-                list.appendChild(it);
-            });
-        }
-        function open() {
-            if (wrap.classList.contains('open')) return;
-            search.value = ''; hl = 0; renderList();
-            wrap.classList.add('open'); card.classList.add('ncp-open');
-            trigger.setAttribute('aria-expanded', 'true');
-            var cur = list.querySelector('.sel'); if (cur && cur.scrollIntoView) { try { cur.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
-        }
-        function close() {
-            wrap.classList.remove('open'); card.classList.remove('ncp-open');
-            trigger.setAttribute('aria-expanded', 'false');
-        }
-        function pick(val) {
-            sel.value = val;
-            sel.classList.toggle('has-value', !!val);
-            sel.dispatchEvent(new Event('change', { bubbles: true }));   // runs ncOnGameChange() exactly like the native select did
-            renderTrigger(); close();
-            if (window.haptic) { try { window.haptic('select'); } catch (e) {} }
-        }
-
-        trigger.addEventListener('click', function () { wrap.classList.contains('open') ? close() : open(); });
-        trigger.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wrap.classList.contains('open') ? close() : open(); }
-        });
-        search.addEventListener('input', function () { hl = 0; renderList(); });
-        search.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') { e.preventDefault(); var f = filtered(); if (f[hl]) pick(f[hl].value); }   // auto-select the top match
-            else if (e.key === 'ArrowDown') { e.preventDefault(); hl = Math.min(hl + 1, filtered().length - 1); renderList(); }
-            else if (e.key === 'ArrowUp') { e.preventDefault(); hl = Math.max(hl - 1, 0); renderList(); }
-            else if (e.key === 'Escape') close();
-        });
-        document.addEventListener('pointerdown', function (e) { if (!wrap.contains(e.target)) close(); }, true);
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-
-        // The game list is (re)built into the hidden <select> by the app whenever the catalogue loads / language changes.
-        new MutationObserver(function () { renderTrigger(); if (wrap.classList.contains('open')) renderList(); })
-            .observe(sel, { childList: true });
-        renderTrigger();
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-})();
-</script>
 <script id="haptic-js">
     /* Haptic feedback: Telegram Mini App HapticFeedback when opened inside Telegram,
        navigator.vibrate on Android browsers otherwise (iOS Safari has no web haptics, so it stays silent there).
@@ -24019,15 +23508,21 @@ html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-nav-item.active { co
   setInterval(eta,500);
   var T44='button,[role=button],.header-icon,.history-date-chip,.pkg-type-tab,.game-subtab-btn,.idg-clear,.pay-type-tab,.copy-btn';
   function tap(){
+    /* Two phases (all reads, then all writes) - interleaving them forced a full layout for every single button. */
+    var todo=[];
     document.querySelectorAll(T44).forEach(function(el){
       if(el.dataset.t44)return;
       var r=el.getBoundingClientRect(); if(!r.width||!r.height)return;
-      el.dataset.t44='1';
       var dx=Math.max(0,(44-r.width)/2), dy=Math.max(0,(44-r.height)/2);
-      if(!dx&&!dy)return;
-      try{ var c=getComputedStyle(el,'::after').content; if(c&&c!=='none'&&c!=='normal')return; }catch(e){}
+      var skip=!dx&&!dy;
+      if(!skip){ try{ var c=getComputedStyle(el,'::after').content; if(c&&c!=='none'&&c!=='normal')skip=true; }catch(e){} }
+      todo.push([el,dx,dy,skip]);
+    });
+    todo.forEach(function(t){
+      var el=t[0]; el.dataset.t44='1';
+      if(t[3])return;
       el.classList.add('tap44');
-      el.style.setProperty('--t44x',(-dx)+'px'); el.style.setProperty('--t44y',(-dy)+'px');
+      el.style.setProperty('--t44x',(-t[1])+'px'); el.style.setProperty('--t44y',(-t[2])+'px');
     });
   }
   var tt; function sched(){clearTimeout(tt);tt=setTimeout(tap,400);}
@@ -24039,7 +23534,7 @@ html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-nav-item.active { co
       var total=getOrderTotal(), bal=Number(currentWalletBalance)||0;
       if(!(total>bal)) return 0;
       var need=Math.ceil((total-bal)/100)*100;
-      return {need:need, topup:Math.max(WALLET_TOPUP_MIN, need)};
+      return {need:need, topup:Math.max(Number(window.WALLET_TOPUP_MIN)||5000, need)};
     }catch(e){return 0;}
   }
   window.topupShortfall=function(){
