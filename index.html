@@ -1477,10 +1477,6 @@
         .prov-tab i { font-style: normal; flex: none; min-width: 20px; padding: 2px 5px; border-radius: 6px; font-size: 10px; font-weight: 800; line-height: 1.2; text-align: center; color: #fff; background: var(--pc, #2563EB); }
         .prov-tab.p1 { --pc: #2563EB; } .prov-tab.p2 { --pc: #EA580C; } .prov-tab.p3 { --pc: #059669; } .prov-tab.po { --pc: #64748B; }
         .prov-tab.active { color: var(--text); background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.14), inset 0 0 0 1.5px var(--pc); }
-        .prov-info-btn { flex: none; width: 30px; height: 30px; margin-left: 2px; border-radius: 50%; border: 0; background: transparent; color: var(--text-secondary); font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-        .prov-info-btn.on { color: var(--accent); background: rgba(var(--accent-rgb), .12); }
-        .prov-info { display: none; margin: -4px 0 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-alt); font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
-        .prov-info.show { display: block; }
         .prov-tab em { font-style: normal; flex: none; padding: 1px 6px; border-radius: 99px; font-size: 9px; font-weight: 800; letter-spacing: .04em; color: var(--pc); background: color-mix(in srgb, var(--pc) 14%, transparent); }
         .prov-soon { grid-column: 1 / -1; width: 100%; box-sizing: border-box; margin: 6px 0 10px; padding: 30px 20px 24px; border-radius: 22px; text-align: center; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 8px 26px rgba(0,0,0,.08); }
         .prov-soon-scene { position: relative; width: 100%; max-width: 300px; margin: 0 auto 10px; }
@@ -1566,8 +1562,6 @@
         @keyframes p2wPop { from { opacity: 0; transform: translateY(24px) scale(.85) } to { opacity: 1; transform: none } }
         @keyframes p2wSpark { 0% { opacity: 0; transform: translateY(0) scale(.4) } 25% { opacity: 1 } 100% { opacity: 0; transform: translateY(-60px) scale(1) } }
         @media (prefers-reduced-motion: reduce) { .p2w-card, .p2w-ico svg, .p2w-dot, .prov-tab.unlock, .prov-tab em.new { animation: none !important; } html:not(#_) .p2-launch .game-card, html:not(#_) .p2-launch .voucher-card { animation: none !important; } }
-        .prov-info b { color: var(--text); }
-        .prov-info div + div { margin-top: 6px; }
 
         /* Category filter chips row, above the All Games grid */
         .cat-filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 12px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: pan-x pan-y; }
@@ -6212,6 +6206,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
         </symbol>
     </svg>
 
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="icon-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></symbol></svg>
     <!-- Toast Notification -->
     <div id="toast"><span class="toast-icon-circle" id="toast-icon-circle"><svg class="ui-icon" id="toast-icon" style="color:#fff;"><use id="toast-icon-use" href="#icon-check"></use></svg></span> <span id="toast-msg">Success!</span> <svg class="ui-icon toast-close" onclick="window.hideToast && window.hideToast()"><use href="#icon-close"></use></svg></div>
 
@@ -6591,7 +6586,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 <div class="game-subtab-btn" onclick="showPage('software')" data-i18n="nav_software">Software</div>
             </div>
             <div class="prov-tabs" id="prov-tabs-home" data-page="home"></div>
-            <div class="prov-info" id="prov-info-home"></div>
+            
             <div id="favorite-games-section" style="display:none;">
                 <h2 class="title-header" data-i18n="title_favorites">My Favorites</h2>
                 <div class="popular-scroll-wrap" id="favorite-games-scroll"></div>
@@ -6629,7 +6624,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 <div class="game-subtab-btn" onclick="showPage('software')" data-i18n="nav_software">Software</div>
             </div>
             <div class="prov-tabs" id="prov-tabs-voucher" data-page="voucher"></div>
-            <div class="prov-info" id="prov-info-voucher"></div>
+            
             <div id="popular-vouchers-section">
                 <h2 class="title-header" data-i18n="title_popular">Popular</h2>
                 <div class="popular-scroll-wrap" id="popular-vouchers-scroll">
@@ -7746,8 +7741,8 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             <div id="detail-payment-section" style="display:none;">
                 <h3 class="detail-section-title" data-i18n="sec_how_pay">How do you want to pay?</h3>
                 <div class="pay-type-tabs" id="detail-pay-type-tabs">
-                    <button type="button" class="pay-type-tab" data-type="wallet" onclick="choosePaymentType('wallet')"><b data-i18n="wb_label">Wallet Balance</b><small data-i18n="gd_instant">Instant · 24/7</small></button>
-                    <button type="button" class="pay-type-tab" data-type="payment" onclick="choosePaymentType('payment')"><b>Kpay / Wave / etc.</b><small data-i18n="gd_bank_sub">Bank &amp; e-wallet transfer</small></button>
+                    <button type="button" class="pay-type-tab" data-type="wallet" onclick="choosePaymentType('wallet')"><span class="ptt-ico"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></span><span class="ptt-txt"><b data-i18n="wb_label">Wallet Balance</b><small data-i18n="gd_instant">Instant · 24/7</small></span><span class="ptt-check"><svg class="ui-icon"><use href="#icon-check"></use></svg></span></button>
+                    <button type="button" class="pay-type-tab" data-type="payment" onclick="choosePaymentType('payment')"><span class="ptt-ico"><svg class="ui-icon"><use href="#icon-card"></use></svg></span><span class="ptt-txt"><b>Payment</b><small data-i18n="gd_bank_sub">Bank &amp; e-wallet transfer</small></span><span class="ptt-check"><svg class="ui-icon"><use href="#icon-check"></use></svg></span></button>
                 </div>
 
                 <!-- WALLET: shown when the customer chooses to pay from their
@@ -8099,10 +8094,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 prov_name_p1: 'Provider 1', prov_name_p2: 'Provider 2', prov_name_p3: 'Provider 3', prov_other: 'Other',
                 prov_new_badge: 'NEW', p2w_title: 'Welcome to P2', p2w_text: 'Provider 2 server is now open. Browse the new games and packages in the P2 tab.', p2w_btn: 'Start browsing',
                 prov_soon_badge: 'Soon', prov_soon_bot: 'AI BOT IS SETTING UP', prov_soon_title: 'Coming Soon', prov_soon_text: 'This server is not open yet. It will be available very soon - for now please use Provider 1.', prov_soon_btn: 'Go to Provider 1',
-                prov_desc_p1: 'Provider 1 server (G2Bulk). Its own game list, packages and prices.',
-                prov_desc_p2: 'Provider 2 server (FazerCards). Its own game list, packages and prices.',
                 prov_desc_p3: 'Provider 3 server (JCPlays). Redeem-code vouchers.',
-                prov_note: 'Same game can appear in both tabs, but they are separate servers: packages, prices and delivery speed can differ, and top-ups are not interchangeable. Pick the tab (server) that matches your game account / region - your order is delivered by the provider you pick here.',
                 title_all_games: 'All Games', title_popular: 'Popular',
                 title_vouchers: 'Vouchers & Gift Cards', title_software: 'Software',
                 title_guide: 'Top-Up in 4 Steps', dash_orders: 'Orders',
@@ -8304,10 +8296,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 prov_name_p1: 'Provider 1', prov_name_p2: 'Provider 2', prov_name_p3: 'Provider 3', prov_other: 'အခြား',
                 prov_new_badge: 'NEW', p2w_title: 'P2 မှ ကြိုဆိုပါတယ်', p2w_text: 'Provider 2 server ကို စတင်ဖွင့်လှစ်လိုက်ပါပြီ။ ဂိမ်းအသစ်တွေ၊ package တွေကို P2 tab မှာ ကြည့်ရှုဝယ်ယူနိုင်ပါပြီ။', p2w_btn: 'စတင်ကြည့်မည်',
                 prov_soon_badge: 'Soon', prov_soon_bot: 'AI BOT ပြင်ဆင်နေပါတယ်', prov_soon_title: 'Coming Soon', prov_soon_text: 'ဒီ server ကို မဖွင့်သေးပါဘူး။ မကြာခင် ဖွင့်ပေးပါမယ် — ခုလောလောဆယ် Provider 1 ကို အသုံးပြုပေးပါ။', prov_soon_btn: 'Provider 1 သို့သွားမည်',
-                prov_desc_p1: 'Provider 1 server (G2Bulk) — ကိုယ်ပိုင် ဂိမ်းစာရင်း၊ package နဲ့ ဈေးနှုန်းတွေ ရှိပါတယ်။',
-                prov_desc_p2: 'Provider 2 server (FazerCards) — ကိုယ်ပိုင် ဂိမ်းစာရင်း၊ package နဲ့ ဈေးနှုန်းတွေ ရှိပါတယ်။',
                 prov_desc_p3: 'Provider 3 server (JCPlays) — Redeem code voucher များ။',
-                prov_note: 'ဂိမ်းတူတာ နှစ်ခုလုံးမှာ ရှိနိုင်ပေမယ့် server မတူပါဘူး — package၊ ဈေးနှုန်း၊ ပို့ဆောင်ချိန် ကွာနိုင်ပြီး တစ်ခုနဲ့တစ်ခု အစားထိုးမရပါ။ ကိုယ့်ဂိမ်းအကောင့်/region နဲ့ကိုက်တဲ့ tab ကို ရွေးပါ — ရွေးထားတဲ့ provider ကနေပဲ ပို့ပေးပါမယ်။',
                 title_all_games: 'ဂိမ်းအားလုံး', title_popular: 'ခေတ်စားနေသော',
                 title_vouchers: 'ဗောက်ချာနှင့် လက်ဆောင်ကတ်များ', title_software: 'ဆော့ဖ်ဝဲ',
                 title_guide: '၄ ဆင့်နဲ့ Top-Up လုပ်ပါ', dash_orders: 'အော်ဒါများ',
@@ -10658,7 +10647,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             buildPackageShareLink(selectedGameId, index)
                 .then(shareLink => copyTextToClipboard(shareLink))
                 .then(ok => {
-                    if (ok) window.showToast('Link copied — share it with a friend 🔗', 'success');
+                    if (ok) window.showToast('Link copied — share it with a friend', 'success');
                 });
         }
 
@@ -10779,25 +10768,20 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             const enough = bal >= price;
             const val = enough ? price : price - bal;
             box.classList.toggle('wp-low', !enough); box.classList.toggle('wp-ok', enough);
-            box.innerHTML = `<div class="wp">
-                <div class="wp-head">
-                    <span class="wp-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect fill="currentColor" fill-opacity=".16" x="3" y="7" width="18" height="13" rx="3.5"/><path d="M6 7V6a2 2 0 0 1 2-2h8.5A1.5 1.5 0 0 1 18 5.5V7"/><path d="M21 12.5h-4a2 2 0 0 0 0 4h4"/><circle cx="17.2" cy="14.5" r=".8" fill="currentColor" stroke="none"/></svg></span>
-                    <div><div class="wp-lbl">Wallet Balance</div><div class="wp-bal">${bal.toLocaleString()} MMK</div></div>
-                    <span class="wp-chip">Available 24/7</span>
+            const left = bal - price;
+            const WALLET_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect fill="currentColor" fill-opacity=".16" x="3" y="7" width="18" height="13" rx="3.5"/><path d="M6 7V6a2 2 0 0 1 2-2h8.5A1.5 1.5 0 0 1 18 5.5V7"/><path d="M21 12.5h-4a2 2 0 0 0 0 4h4"/><circle cx="17.2" cy="14.5" r=".8" fill="currentColor" stroke="none"/></svg>';
+            box.innerHTML = `<div class="wp2">
+                <div class="wp2-top">
+                    <span class="wp-ic">${WALLET_SVG}</span>
+                    <div class="wp2-who"><div class="wp-lbl">Wallet Balance</div><div class="wp-bal">${bal.toLocaleString()} MMK</div></div>
+                    <span class="wp2-state ${enough ? 'ok' : 'low'}"><svg class="ui-icon"><use href="${enough ? '#icon-check' : '#icon-alert'}"></use></svg>${enough ? 'Enough' : 'Not enough'}</span>
                 </div>
-                <div class="wp-rows"><div><span>Order total</span><b><i class="wp-count" data-to="${price}" style="font-style:normal;">${price.toLocaleString()}</i> MMK</b></div><div><span>Your wallet</span><b><i class="wp-count" data-to="${bal}" style="font-style:normal;">${bal.toLocaleString()}</i> MMK</b></div></div>
-                <div class="wp-sep"></div>
-                <div class="wp-res ${enough ? 'ok' : 'low'}"><span>${enough ? 'Total to pay' : 'Still needed'}</span><strong><i class="wp-count" data-to="${val}" style="font-style:normal;">${val.toLocaleString()}</i> <small>MMK</small></strong></div>
-                ${enough ? '<span class="wallet-pay-note ok">✓ Enough balance — it will be deducted when you confirm.</span>'
-                         : '<button type="button" class="btn btn-primary" onclick="openWalletTopupModal()">Top Up Wallet</button>'}
+                <div class="wp2-rows">
+                    <div><span>Order total</span><b>${price.toLocaleString()} MMK</b></div>
+                    <div class="wp2-res ${enough ? 'ok' : 'low'}"><span>${enough ? 'Balance after payment' : 'Still needed'}</span><b>${(enough ? left : price - bal).toLocaleString()} MMK</b></div>
+                </div>
+                ${enough ? '' : '<button type="button" class="btn btn-primary" onclick="(window.topupShortfall || window.openWalletTopupModal)()">Top Up Wallet</button>'}
             </div>`;
-            {
-                // Count one after another: Order total -> Your wallet -> result
-                const counters = Array.from(box.querySelectorAll('.wp-count[data-to]'));
-                const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                if (!reduce) counters.forEach(el => { if (Number(el.dataset.to) > 0) el.textContent = '0'; });
-                counters.reduce((chain, el) => chain.then(() => el.isConnected ? wpCountUp(el, Number(el.dataset.to)) : null), Promise.resolve());
-            }   // order total, wallet and result count up
             updateConfirmButtonForPaymentType();
         }
         window.renderWalletPayBox = renderWalletPayBox;
@@ -10810,11 +10794,11 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 const enough = currentWalletBalance >= total;
                 confirmBtn.disabled = !enough;
                 confirmBtn.innerText = enough
-                    ? `Buy ${(window.qtyAmount?window.qtyAmount(selectedPackage.amount,orderQty()):selectedPackage.amount)}${orderQty() > 1 ? ' (\u00d7' + orderQty() + ')' : ''} - ${total.toLocaleString()} MMK (Wallet)`
+                    ? `Pay ${total.toLocaleString()} MMK`
                     : 'Insufficient Wallet Balance';
             } else if (selectedPaymentType === 'payment') {
                 confirmBtn.disabled = false;
-                confirmBtn.innerText = `Buy ${(window.qtyAmount?window.qtyAmount(selectedPackage.amount,orderQty()):selectedPackage.amount)}${orderQty() > 1 ? ' (\u00d7' + orderQty() + ')' : ''} - ${total.toLocaleString()} MMK`;
+                confirmBtn.innerText = `Pay ${total.toLocaleString()} MMK`;
             }
         }
 
@@ -12491,7 +12475,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                         localStorage.setItem('linn_wallet_warn_seen', String(ww.at));
                         const bar = document.createElement('div');
                         bar.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:99999;background:#B91C1C;color:#fff;padding:14px 16px;border-radius:14px;font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.35);';
-                        bar.innerHTML = '<b>⚠️ Wallet Warning</b><br>သင့် Wallet ထဲက ' + Number(ww.amount || 0).toLocaleString() + ' MMK ကို Top Up / Order မှတ်တမ်းမရှိသောကြောင့် ပယ်ချလိုက်ပါသည်။ မှားယွင်းမှုဟု ယူဆပါက Help Center သို့ ဆက်သွယ်ပါ။<div style="text-align:right;margin-top:8px;"><button style="background:#fff;color:#B91C1C;border:0;border-radius:8px;padding:6px 14px;font-weight:600;">OK</button></div>';
+                        bar.innerHTML = '<b><svg class="ui-icon" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;"><use href="#icon-alert"></use></svg>Wallet Warning</b><br>သင့် Wallet ထဲက ' + Number(ww.amount || 0).toLocaleString() + ' MMK ကို Top Up / Order မှတ်တမ်းမရှိသောကြောင့် ပယ်ချလိုက်ပါသည်။ မှားယွင်းမှုဟု ယူဆပါက Help Center သို့ ဆက်သွယ်ပါ။<div style="text-align:right;margin-top:8px;"><button style="background:#fff;color:#B91C1C;border:0;border-radius:8px;padding:6px 14px;font-weight:600;">OK</button></div>';
                         bar.querySelector('button').onclick = () => bar.remove();
                         document.body.appendChild(bar);
                     }
@@ -12633,12 +12617,11 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             if (!bar) return;
             if (tabs.length < 2) { bar.classList.remove('show'); bar.innerHTML = ''; if (info) info.classList.remove('show'); return; }
             const open = !!(info && info.classList.contains('show'));
-            const html = tabs.map(c => `<div class="prov-tab ${c.toLowerCase()}${c === active ? ' active' : ''}" data-prov="${c}" role="button"><i>${c === 'PO' ? '•' : c}</i>${c === 'PO' ? escapeHtml(t('prov_other')) : escapeHtml(t('prov_name_' + c.toLowerCase()))}${provIsSoon(c) ? `<em>${escapeHtml(t('prov_soon_badge'))}</em>` : (c === 'P2' && !p2Seen() ? `<em class="new">${escapeHtml(t('prov_new_badge'))}</em>` : '')}</div>`).join('')
-                + `<button type="button" class="prov-info-btn${open ? ' on' : ''}" data-provinfo="1" aria-label="P1 / P2">?</button>`;
+            const html = tabs.map(c => `<div class="prov-tab ${c.toLowerCase()}${c === active ? ' active' : ''}" data-prov="${c}" role="button"><i>${c === 'PO' ? '•' : c}</i>${c === 'PO' ? escapeHtml(t('prov_other')) : escapeHtml(t('prov_name_' + c.toLowerCase()))}${provIsSoon(c) ? `<em>${escapeHtml(t('prov_soon_badge'))}</em>` : (c === 'P2' && !p2Seen() ? `<em class="new">${escapeHtml(t('prov_new_badge'))}</em>` : '')}</div>`).join('');
             if (bar.dataset.sig !== html) { bar.innerHTML = html; bar.dataset.sig = html; }
             bar.classList.add('show');
             if (active === 'P2' && window.currentStorePage === pageKey) maybeShowP2Welcome();
-            if (info) info.innerHTML = tabs.filter(c => c !== 'PO').map(c => `<div><b>${c}</b> — ${escapeHtml(t('prov_desc_' + c.toLowerCase()))}</div>`).join('') + `<div>${escapeHtml(t('prov_note'))}</div>`;
+            if (info) { info.innerHTML = ''; info.classList.remove('show'); }
         }
         // P2 first-visit welcome + launch motion
         function p2Seen() { try { return localStorage.getItem('linnP2Seen') === '1'; } catch (e) { return true; } }
@@ -12677,10 +12660,6 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             if (!bar) return;
             const tab = e.target.closest('.prov-tab');
             if (tab) { setProviderTab(tab.dataset.prov); return; }
-            if (e.target.closest('.prov-info-btn')) {
-                const info = document.getElementById('prov-info-' + bar.dataset.page);
-                if (info) { info.classList.toggle('show'); const b = bar.querySelector('.prov-info-btn'); if (b) b.classList.toggle('on', info.classList.contains('show')); }
-            }
         });
 
         // Which catalogue entry an order was really placed on. Orders store the game's name + server label only, but two
@@ -12762,7 +12741,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
         function copyGameShareLink(gameId) {
             if (!gameId) return;
             (window.copyTextToClipboard || copyTextToClipboard)(buildGameShareLink(gameId)).then(ok => {
-                if (window.showToast) window.showToast(ok ? 'Link copied 🔗' : 'Copy failed', ok ? 'success' : 'fail');
+                if (window.showToast) window.showToast(ok ? 'Link copied' : 'Copy failed', ok ? 'success' : 'fail');
             });
         }
         window.copyGameShareLink = copyGameShareLink;
@@ -14938,12 +14917,12 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 }
 
                 if (ctx === 'account-link') {
-                    window.showToast(`Email (${pendingLoginEmail}) ချိတ်ဆက်ပြီးပါပြီ 🎉`);
+                    window.showToast(`Email (${pendingLoginEmail}) ချိတ်ဆက်ပြီးပါပြီ`);
                     renderGoogleAccountUI(auth.currentUser);
                     return;
                 }
 
-                window.showToast('Email ဖြင့် Login ဝင်ပြီးပါပြီ 🎉');
+                window.showToast('Email ဖြင့် Login ဝင်ပြီးပါပြီ');
                 if (window.renderMiniProfile) window.renderMiniProfile();
                 if (window.renderWalletAuthGate) window.renderWalletAuthGate();
                 renderGoogleAccountUI(auth.currentUser);
@@ -15657,7 +15636,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     progressText.innerText = `${formatMMK(remaining)} more to reach ${next.label || next.name}`;
                     progressFill.style.width = pct + '%';
                 } else {
-                    progressText.innerText = 'Highest tier reached 🎉';
+                    progressText.innerText = 'Highest tier reached';
                     progressFill.style.width = '100%';
                 }
 
@@ -21818,7 +21797,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 while (fx.childElementCount > 6) fx.firstChild.remove();
                 const el = document.createElement('span');
                 el.className = 'fx-p';
-                el.textContent = /^[\x00-\x7f]+$/.test(ch) ? ch : ch + '\uFE0E';
+                if (ch.charAt(0) === '<') el.innerHTML = ch; else el.textContent = /^[\x00-\x7f]+$/.test(ch) ? ch : ch + '\uFE0E';
                 el.style.color = color;
                 el.style.setProperty('--dx0', rand(-7, 7).toFixed(1) + 'px');
                 el.style.setProperty('--dx', rand(-18, 18).toFixed(1) + 'px');
@@ -21938,7 +21917,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 ov.className = 'bot-ov ' + kind;
                 if (kind === 'shades') ov.innerHTML = '<i class="sh"></i>';
                 else if (kind === 'hands') ov.innerHTML = '<i class="hd l"></i><i class="hd r"></i>';
-                else ov.innerHTML = g(kind === 'money' ? '💰' : kind === 'q' ? '?' : kind === 'angry' ? '&gt;' : '') + g(kind === 'money' ? '💰' : kind === 'q' ? '?' : kind === 'angry' ? '&lt;' : '');
+                else ov.innerHTML = g(kind === 'money' ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.8 9.6c0-1.3-1.3-2-2.8-2s-2.8.7-2.8 2 1.2 1.7 2.8 2 2.8.8 2.8 2.2-1.3 2-2.8 2-2.8-.7-2.8-2"/></svg>' : kind === 'q' ? '?' : kind === 'angry' ? '&gt;' : '') + g(kind === 'money' ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.8 9.6c0-1.3-1.3-2-2.8-2s-2.8.7-2.8 2 1.2 1.7 2.8 2 2.8.8 2.8 2.2-1.3 2-2.8 2-2.8-.7-2.8-2"/></svg>' : kind === 'q' ? '?' : kind === 'angry' ? '&lt;' : '');
                 rig.classList.add('ov-eyes');
                 if (ms) ovTimer = setTimeout(eyesOff, ms);
             }
@@ -21975,7 +21954,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     express('happy', 2600); anim('bot-hop'); setTimeout(() => anim('bot-hop'), 520);
                     hands(150, -150, 1800); headNod();
                     burst(['★', '✦', '●', '✿', '◆'], ['#ffd54a', '#ff7ab8', '#5ec8ff', '#3ddc84', '#b7a8ff'], 18);
-                    say(L('အော်ဒါ အောင်မြင်ပါပြီ! 🎉', 'Order placed! 🎉'), 3200);
+                    say(L('အော်ဒါ အောင်မြင်ပါပြီ!', 'Order placed!'), 3200);
                 },
                 'fail'() {       // sad eyes + ? + head droops
                     express('sad', 2800); emit('?', '#7df0ff'); setTimeout(() => emit('?', '#7df0ff'), 500);
@@ -21985,16 +21964,16 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 'wallet-up'() {  // 💰 eyes + "+"
                     eyes('money', 2400); express('happy', 2400); anim('bot-hop'); headNod();
                     for (let i = 0; i < 4; i++) setTimeout(() => emit('+', '#3ddc84'), i * 320);
-                    say(L('ပိုက်ဆံဝင်ပြီ! 💰', 'Wallet topped up! 💰'), 3000);
+                    say(L('ပိုက်ဆံဝင်ပြီ!', 'Wallet topped up!'), 3000);
                 },
                 'vip'() {        // golden crown + sparkle ring
-                    acc('crown', '👑', 4200); express('happy', 3200); headSway(); anim('bot-hop');
+                    acc('crown', '<svg viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>', 4200); express('happy', 3200); headSway(); anim('bot-hop');
                     burst(['✦', '✧', '★'], ['#ffd54a', '#ffe9a0', '#ffb400'], 16, true);
                     setTimeout(() => burst(['✦', '✧'], ['#ffd54a', '#fff2b8'], 10, true), 600);
-                    say(L('VIP အဆင့်တက်ပြီ! 👑', 'VIP tier up! 👑'), 3600);
+                    say(L('VIP အဆင့်တက်ပြီ!', 'VIP tier up!'), 3600);
                 },
                 'notif'() {      // holds an envelope, waves; tap opens Notifications
-                    clearNotif(); notifArmed = true; acc('env', '✉️'); wave('l'); express('happy', 1500);
+                    clearNotif(); notifArmed = true; acc('env', '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.5L12 13l8.5-5.5"/></svg>'); wave('l'); express('happy', 1500);
                     say(L('စာအသစ်ရှိတယ်! နှိပ်ကြည့်ပါ', 'New message! Tap me'), 6000, () => go(openNotificationsPage));
                     notifTimer = setTimeout(clearNotif, 16000);
                 },
@@ -22002,15 +21981,15 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 'lang'() {       // fluffs hair + waves
                     acc('hair', '<i></i><i></i><i></i>', 1300); wave('r'); anim('bot-wiggle'); express('happy', 1200);
                 },
-                'dark'() { eyes('shades', 2800); emit('✦', '#ffe27a'); headTilt(); say('😎', 1800); },
+                'dark'() { eyes('shades', 2800); emit('✦', '#ffe27a'); headTilt();  },
                 'light'() { express('happy', 1500); emit('☀', '#ffcf4a'); wave('r'); },
-                'idok'() { emit('👍', '#ffcf4a'); express('happy', 2000); wave('r'); headNod(); say(L('ID မှန်ပါတယ်!', 'ID looks good!'), 2400); },
+                'idok'() { emit('<svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h10.3a2 2 0 0 0 2-1.7l1.3-8a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>', '#ffcf4a'); express('happy', 2000); wave('r'); headNod(); say(L('ID မှန်ပါတယ်!', 'ID looks good!'), 2400); },
                 'idbad'() { express('sad', 1800); emit('?', '#7df0ff'); headShake(); },
                 'angry'() {
                     eyes('angry', 1600, '#ff4d4d'); anim('bot-wiggle'); rig.classList.add('angry');
-                    for (let i = 0; i < 3; i++) setTimeout(() => emit('💢', '#ff4d4d'), i * 260);
+                    for (let i = 0; i < 3; i++) setTimeout(() => emit('<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', '#ff4d4d'), i * 260);
                     setTimeout(() => rig.classList.remove('angry'), 1600);
-                    say(L('ဟိတ်! တော်ပါတော့ 😤', 'Hey! Stop poking 😤'), 2400);
+                    say(L('ဟိတ်! တော်ပါတော့', 'Hey! Stop poking'), 2400);
                 },
                 'tickle'() {     // ^ ^ eyes + hehe
                     express('happy', 1900); anim('bot-wiggle'); squash(1.06, 0.94); setTimeout(() => squash(1, 1), 260);
@@ -22018,20 +21997,20 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 },
                 'hey'() { wave('l'); wave('r'); express('happy', 1800); hands(140, -140, 1200); emit('!', '#ffd66b'); anim('bot-hop'); say(L('ဟေး!', 'Yay!'), 1800); },
                 'lowbal'() { say(L('Top Up လုပ်မလား?', 'Top up your wallet?'), 5000, () => go(() => showPage('wallet'))); headTilt(); },
-                'coffee'() { acc('cup', '☕', 5500); express('happy', 2500); emit('~', '#dff6ff'); say(L('မနက်စောစော ကော်ဖီလေး ☕', 'Morning coffee ☕'), 3400); },
-                'bed'() { acc('bed', '🌙', 6000); yawn(); say(L('နွေးနွေးထွေးထွေး အိပ်ရာဝင်တော့မယ် 🛏️', 'Time to tuck in 🛏️'), 3600); }
+                'coffee'() { acc('cup', '<svg viewBox="0 0 24 24"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v3M12 3v3"/></svg>', 5500); express('happy', 2500); emit('~', '#dff6ff'); say(L('မနက်စောစော ကော်ဖီလေး', 'Morning coffee'), 3400); },
+                'bed'() { acc('bed', '<svg viewBox="0 0 24 24"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/></svg>', 6000); yawn(); say(L('နွေးနွေးထွေးထွေး အိပ်ရာဝင်တော့မယ်', 'Time to tuck in'), 3600); }
             };
             function react(name) { if (isOpen() || isDrag()) return; const f = R[name]; if (f) go(f); }
             socialFabBot.react = react;
             R['peek'] = function () {   // peek-a-boo: camera uncovered
                 express('surprise', 700); anim('bot-hop');
                 setTimeout(() => { express('happy', 1800); wave('l'); wave('r'); hands(140, -140, 1100); emit('!', '#ffd66b'); }, 650);
-                say(L('ကွက်တီး! 😆', 'Peek-a-boo! 😆'), 2200);
+                say(L('ကွက်တီး!', 'Peek-a-boo!'), 2200);
             };
             R['dizzy'] = function () {  // phone shaken
                 express('dizzy', 2800); anim('bot-wiggle'); headSeq([[-10, -1, 0, 160], [10, 1, 0, 160], [-8, -1, 0, 160], [8, 1, 0, 160], [0, 0, 0, 160]]);
                 for (let i = 0; i < 3; i++) setTimeout(() => emit('★', '#ffe27a'), i * 300);
-                say(L('အီး… မူးတယ် 😵‍💫', 'Whoa… dizzy 😵‍💫'), 2600);
+                say(L('အီး… မူးတယ်', 'Whoa… dizzy'), 2600);
             };
             // ----- tilt the phone -> robot body leans along (iOS asks permission on first tap) -----
             (function () {
@@ -22206,11 +22185,11 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             }, 240000);
             setTimeout(() => { const h = new Date().getHours(); if (calm() && h >= 5 && h < 9) react('coffee'); }, 12000);
             const TIPS = [
-                ['Top-Up လုပ်ဖို့ ဂိမ်းရွေးပါ 🎮', 'Pick a game to top up 🎮'],
+                ['Top-Up လုပ်ဖို့ ဂိမ်းရွေးပါ', 'Pick a game to top up'],
                 ['Wallet နဲ့ ပိုမြန်မြန် ဝယ်လို့ရတယ်', 'Pay faster with your Wallet'],
                 ['ID မှန်မမှန် Confirm လုပ်ပါနော်', 'Double-check your ID before paying'],
-                ['ပြဿနာရှိရင် ကျွန်တော့်ကို နှိပ်ပါ 💬', 'Need help? Tap me 💬'],
-                ['VIP တက်ရင် ဆုလာဘ်တွေ ရမယ် 👑', 'Level up to VIP for perks 👑']
+                ['ပြဿနာရှိရင် ကျွန်တော့်ကို နှိပ်ပါ', 'Need help? Tap me'],
+                ['VIP တက်ရင် ဆုလာဘ်တွေ ရမယ်', 'Level up to VIP for perks']
             ];
             let tipI = 0;
             (function tips() {
@@ -22429,8 +22408,8 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     fab.classList.remove('fab-idle');
                     express('happy', 2600); look(0, -0.2);
                     wave('r'); setTimeout(() => wave('r'), 1050); setTimeout(() => wave('l'), 550);
-                    emit('👋', '#ffcf4a'); headSeq([[-8, -1, 0, 400], [0, 0, 0, 200]]);
-                    say(L('ဟေး! 👋', 'Hey! 👋'), 2400);
+                    emit('<svg viewBox="0 0 24 24"><path d="M12 3l2.2 6.3L21 12l-6.8 2.7L12 21l-2.2-6.3L3 12l6.8-2.7z"/></svg>', '#ffcf4a'); headSeq([[-8, -1, 0, 400], [0, 0, 0, 200]]);
+                    say(L('ဟေး!', 'Hey!'), 2400);
                 }
                 function tick() {
                     if (!on || document.hidden || !vid || vid.readyState < 2) return;
@@ -22480,7 +22459,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     prev = null; lastX = null; dir = 0; flips = 0; base = null; covered = false; dark = 0; on = true;
                     timer = setInterval(tick, 90);
                     offTimer = setTimeout(stop, 180000);          // auto-off after 3 min (battery / privacy)
-                    express('wide', 1200); say(L('လက်ခါပြပါ 👋 ကျွန်တော်လည်း ပြန်ခါမယ်', 'Wave at me 👋 I will wave back'), 3200);
+                    express('wide', 1200); say(L('လက်ခါပြပါ ကျွန်တော်လည်း ပြန်ခါမယ်', 'Wave at me, I will wave back'), 3200);
                 }
                 function stop() {
                     if (!on) return;
@@ -22515,7 +22494,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 handR.style.setProperty('--hrr', '-125deg');   // hand held up high
                 handR.style.setProperty('--hry', '-4px');
                 headSeq([[-8, -1, 0, 500], [0, 0, 0, 200]]);
-                say(L('မင်္ဂလာပါ! 👋', 'Hello! 👋'), 3200);
+                say(L('မင်္ဂလာပါ!', 'Hello!'), 3200);
                 wave('r'); emit('♪', '#b7a8ff');
                 setTimeout(() => { wave('r'); stayAwake(); }, 1050);
                 setTimeout(() => { wave('r'); stayAwake(); emit('✦', '#ffe27a'); }, 2100);
@@ -25676,5 +25655,144 @@ html:not(#_) body.no-bottom-nav { padding-top: calc(16px + env(safe-area-inset-t
   apply();
 })();
 </script>
+
+<style id="lg-polish">
+/* ===== Notification toast: liquid glass, sits lower ===== */
+html body #toast {
+  top: calc(env(safe-area-inset-top, 0px) + 78px) !important;
+  left: 16px !important; right: 16px !important; max-width: 440px;
+  padding: 11px 14px 11px 12px !important; gap: 11px !important;
+  border-radius: 22px !important; overflow: hidden;
+  font-size: 13.5px; font-weight: 600; letter-spacing: .1px;
+  border: 1px solid rgba(255,255,255,.55) !important;
+  background: rgba(255,255,255,.62) !important;
+  background: color-mix(in srgb, currentColor 9%, rgba(255,255,255,.58)) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.05) !important;
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.05) !important;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -1px 0 rgba(255,255,255,.18), inset 0 0 22px rgba(255,255,255,.22), 0 16px 38px -12px rgba(15,23,42,.38), 0 2px 8px rgba(15,23,42,.08) !important;
+  opacity: 0; pointer-events: none;
+  transform: translateY(calc(-100% - 150px)) scale(.96) !important;
+  transition: transform .5s cubic-bezier(.2,1.2,.3,1), opacity .25s ease !important;
+}
+html body #toast.show { opacity: 1; pointer-events: auto; transform: none !important; }
+html[data-theme="dark"] body #toast {
+  border-color: rgba(255,255,255,.20) !important;
+  background: rgba(24,28,40,.50) !important;
+  background: color-mix(in srgb, currentColor 11%, rgba(20,24,36,.50)) !important;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(255,255,255,.05), inset 0 0 22px rgba(255,255,255,.05), 0 18px 40px -12px rgba(0,0,0,.6) !important;
+}
+html body #toast::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 140% at 8% -30%, rgba(255,255,255,.65), rgba(255,255,255,0) 55%), linear-gradient(115deg, rgba(255,255,255,.22), rgba(255,255,255,0) 40%);
+  opacity: .8;
+}
+html[data-theme="dark"] body #toast::before { opacity: .22; }
+html body #toast > * { position: relative; }
+html body #toast .toast-icon-circle { width: 26px; height: 26px; box-shadow: inset 0 1.5px 0 rgba(255,255,255,.55), 0 4px 10px -3px rgba(0,0,0,.35); }
+html body #toast .toast-icon-circle svg { width: 14px; height: 14px; stroke-width: 2.6; }
+html body #toast .toast-close { width: 16px; height: 16px; padding: 8px; margin: -8px; box-sizing: content-box; opacity: .55; }
+
+/* ===== Payment type tabs ===== */
+html body .pay-type-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; margin: 0 0 14px; background: none !important; }
+html body .pay-type-tab {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 10px;
+  min-width: 0; padding: 12px 12px 13px; text-align: left; border-radius: 18px;
+  border: 1.5px solid var(--border-glass, rgba(128,140,160,.28)); background: var(--surface); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-tap-highlight-color: transparent;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease, transform .15s ease;
+}
+html body .pay-type-tab:active { transform: scale(.97); }
+.pay-type-tab .ptt-ico { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; flex: none; color: var(--accent); background: rgba(var(--accent-rgb), .11); transition: background .2s ease, color .2s ease; }
+.pay-type-tab .ptt-ico .ui-icon { width: 19px; height: 19px; }
+.pay-type-tab .ptt-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; width: 100%; }
+html body .pay-type-tab b { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.2; color: var(--text); }
+html body .pay-type-tab small { display: block; font-size: 11px; font-weight: 500; line-height: 1.3; color: var(--text-secondary); }
+.pay-type-tab .ptt-check { position: absolute; top: 11px; right: 11px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid rgba(128,140,160,.4); color: transparent; transition: all .2s ease; }
+.pay-type-tab .ptt-check .ui-icon { width: 11px; height: 11px; stroke-width: 3.2; }
+html body .pay-type-tab.active { border-color: var(--accent); background: rgba(var(--accent-rgb), .07); box-shadow: 0 0 0 3.5px rgba(var(--accent-rgb), .14); }
+html body .pay-type-tab.active b { color: var(--text); }
+.pay-type-tab.active .ptt-ico { background: var(--accent); color: #fff; }
+.pay-type-tab.active .ptt-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ===== mascot svg props ===== */
+.fx-p svg, .bot-acc svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.14em; display: block; }
+.bot-acc.crown svg, .bot-acc.cup svg { fill: currentColor; fill-opacity: .25; }
+/* ===== Sidebar: smooth open/close (GPU-friendly) =====
+   Before: width/top/bottom/right/border-radius were animated (re-layout every frame) while every tab ran a blur() filter
+   animation at the same time. Now the panel is laid out ONCE at its final size and only clip-path + transform animate;
+   tabs fade/rise with opacity + transform only. */
+html:not(#_):not(#__):not(#___) .side-drawer.pg-drawer {
+  top: 0; bottom: 0; right: 0; left: auto; height: auto; width: var(--pg-w);
+  border: 0 !important; border-radius: 0; box-shadow: none;
+  clip-path: inset(calc(12px + env(safe-area-inset-top, 0px)) 12px 12px calc(var(--pg-w) - var(--pg-rail) - 12px) round 32px);
+  transform: translate3d(0,-115%,0);
+  will-change: transform, clip-path;
+  transition: clip-path .42s cubic-bezier(.4,0,.2,1), transform .42s cubic-bezier(.4,0,.2,1) .05s;
+}
+html:not(#_):not(#__):not(#___) .drawer-overlay.show .side-drawer.pg-drawer {
+  clip-path: inset(0 0 0 0 round 34px 0 0 34px);
+  transform: translate3d(0,0,0);
+  transition: transform .42s cubic-bezier(.22,1,.36,1), clip-path .46s cubic-bezier(.22,1,.36,1) .3s;
+}
+html:not(#_):not(#__):not(#___) .drawer-overlay { transition: opacity .3s ease; }
+@keyframes pgGrain { 0% { opacity: 0; transform: translate3d(0,8px,0) scale(.97); } 100% { opacity: 1; transform: none; } }
+.drawer-overlay.show .pg-head, .drawer-overlay.show .pg-item, .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-cta { animation-duration: .4s; }
+.drawer-overlay.show .pg-head { animation-delay: .6s; }
+.drawer-overlay.show .pg-item:nth-of-type(1), .drawer-overlay.show .pg-item:nth-of-type(1)::before { animation-delay: .66s; }
+.drawer-overlay.show .pg-item:nth-of-type(2), .drawer-overlay.show .pg-item:nth-of-type(2)::before { animation-delay: .70s; }
+.drawer-overlay.show .pg-item:nth-of-type(3), .drawer-overlay.show .pg-item:nth-of-type(3)::before { animation-delay: .74s; }
+.drawer-overlay.show .pg-item:nth-of-type(4), .drawer-overlay.show .pg-item:nth-of-type(4)::before { animation-delay: .78s; }
+.drawer-overlay.show .pg-item:nth-of-type(5), .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: .82s; }
+.drawer-overlay.show .pg-item:nth-of-type(6), .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: .86s; }
+.drawer-overlay.show .pg-item:nth-of-type(7), .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: .90s; }
+.drawer-overlay.show .pg-more, .drawer-overlay.show .pg-more .pg-mini::before { animation-delay: .94s; }
+.drawer-overlay.show .pg-cta, .drawer-overlay.show .pg-cta::before { animation-delay: .98s; }
+.pg-orb { contain: strict; }
+@media (prefers-reduced-motion: reduce) {
+  html:not(#_):not(#__):not(#___) .side-drawer.pg-drawer, html:not(#_):not(#__):not(#___) .drawer-overlay.show .side-drawer.pg-drawer { transition: none; }
+}
+/* ===== Order page: tidy wallet box + one clean buy bar ===== */
+html body .wallet-pay-box.wp-low, html body .wallet-pay-box.wp-ok {
+  background: var(--surface) !important; border: 1.5px solid var(--border-glass, rgba(128,140,160,.28)) !important;
+  border-radius: 20px !important; padding: 14px !important; box-shadow: none !important;
+}
+.wp2 { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.wp2-top { display: flex; align-items: center; gap: 12px; }
+.wp2-top .wp-ic { width: 42px; height: 42px; border-radius: 14px; }
+.wp2-who { flex: 1; min-width: 0; }
+.wp2-who .wp-lbl { font-size: 11.5px; color: var(--text-secondary); }
+.wp2-who .wp-bal { font-size: 19px; font-weight: 700; line-height: 1.25; color: var(--text); font-variant-numeric: tabular-nums; }
+.wp2-state { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px 5px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.wp2-state .ui-icon { width: 13px; height: 13px; stroke-width: 2.8; }
+.wp2-state.ok { color: #1f8a3d; background: rgba(49,162,76,.13); }
+.wp2-state.low { color: #d32f2f; background: rgba(229,57,53,.12); }
+html[data-theme="dark"] .wp2-state.ok { color: #5fd88a; }
+html[data-theme="dark"] .wp2-state.low { color: #ff8582; }
+.wp2-rows { background: var(--surface-alt, rgba(128,140,160,.08)); border-radius: 14px; padding: 2px 14px; }
+.wp2-rows > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 10px 0; font-size: 13px; color: var(--text-secondary); }
+.wp2-rows > div + div { border-top: 1px dashed rgba(128,140,160,.32); }
+.wp2-rows b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.wp2-rows .wp2-res > span { color: var(--text); font-weight: 600; }
+.wp2-rows .wp2-res b { font-size: 16px; font-weight: 700; }
+.wp2-rows .wp2-res.ok b { color: #1f8a3d; } .wp2-rows .wp2-res.low b { color: #d32f2f; }
+html[data-theme="dark"] .wp2-rows .wp2-res.ok b { color: #5fd88a; } html[data-theme="dark"] .wp2-rows .wp2-res.low b { color: #ff8582; }
+.wp2 .btn { width: 100%; height: 46px; border-radius: 14px; font-size: 14px; font-weight: 600; }
+/* the separate "short by" bar repeated the box above - the box has the Top Up button now */
+html body #detail-topup-short { display: none !important; }
+
+/* buy bar = one floating card: what you pick + the slide-to-pay control */
+html body .buy-bar {
+  gap: 10px; margin: 20px 0 0; padding: 12px; border-radius: 24px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--border-glass, rgba(128,140,160,.22));
+  box-shadow: 0 -6px 30px -12px rgba(15,23,42,.22), 0 10px 30px -14px rgba(15,23,42,.18);
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+html body .buy-bar .buy-sel { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 2px 6px 0 !important; border-radius: 0 !important; }
+html body .buy-bar .buy-sel-name { font-size: 13px; font-weight: 600; color: var(--text); }
+html body .buy-bar .buy-sel-price { font-size: 16px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+html body .buy-bar .eta-hint { padding: 0 6px; background: transparent; font-size: 12px; text-align: left; }
+</style>
 </body>
 </html>
