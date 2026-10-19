@@ -1,6 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script id="lg-btn-js">
+(function () {
+  'use strict';
+  if (window.LinnBtn) return;
+  /* ---------- which elements get the spinner ---------- */
+  var SKIP = '[data-no-busy],.pkg-type-tab,.udp-tab,.wtx-chip,.pay-type-tab,.game-list-tab-btn,.pkg-tab-btn,.wseg-btn,.nav-item,.header-icon,' +
+    '.guide-card-close,.od-card-close,.pkg-card-close,.pp-switch,.secret-toggle-btn,.pw-toggle-btn,.cal2-nav-btn,.resync-pct-btn,.odb-chip,.maint-chip,' +
+    '.pkg-type-opt,.pkg-picker-chip,.pkg-move-btn,.drw-clear,.st-collapse,.date-filter-trigger,#detail-confirm-btn,' +
+    'button:not(.btn)[class*="close"],button:not(.btn)[class*="-tab"],button:not(.btn)[class*="-chip"]';
+  var BTN = 'button,[role="button"],a.btn:not([href]),.btn';
+  var SHOW_AFTER = 150;   // ms - quick actions never flash a spinner
+  var MAX_BUSY = 30000;   // ms - never leave a button locked forever
+
+  function eligible(el) {
+    if (!el || el.nodeType !== 1) return false;
+    if (el.tagName === 'A' && el.getAttribute('href')) return false;
+    if (el.tagName === 'INPUT') return false;
+    try { return el.matches(BTN) && !el.matches(SKIP); } catch (e) { return false; }
+  }
+
+  /* ---------- busy state ---------- */
+  function mark(btn, p) {
+    btn.__lgn = (btn.__lgn || 0) + 1;
+    var shown = false, done = false;
+    var t1 = setTimeout(function () {
+      if (done) return;
+      shown = true;
+      try { btn.style.setProperty('--lg-spin', getComputedStyle(btn).color); } catch (e) {}
+      btn.classList.add('lg-busy');
+      if (!String(btn.textContent || '').trim()) btn.classList.add('lg-busy-ov');
+      btn.setAttribute('aria-busy', 'true');
+    }, SHOW_AFTER);
+    var t2 = setTimeout(end, MAX_BUSY);
+    function end() {
+      if (done) return; done = true;
+      clearTimeout(t1); clearTimeout(t2);
+      btn.__lgn = Math.max(0, (btn.__lgn || 1) - 1);
+      if (!btn.__lgn) { btn.classList.remove('lg-busy', 'lg-busy-ov'); btn.removeAttribute('aria-busy'); }
+    }
+    p.then(end, end);
+  }
+  function busyThenable(btn, r) {
+    var list = [];
+    if (r && typeof r.then === 'function') list.push(r);
+    else if (Array.isArray(r)) r.forEach(function (x) { if (x && typeof x.then === 'function') list.push(x); });
+    if (!list.length || !eligible(btn)) return;
+    mark(btn, list.length === 1 ? Promise.resolve(list[0]) : Promise.allSettled(list));
+  }
+  window.LinnBtn = {
+    /* manual use: LinnBtn.run(button, async () => { ... }) */
+    run: function (btn, fn) { var p = Promise.resolve().then(fn); if (btn) busyThenable(btn, p); return p; },
+    busy: busyThenable
+  };
+
+  /* ---------- addEventListener('click', async fn) ---------- */
+  var nativeAdd = EventTarget.prototype.addEventListener, nativeRem = EventTarget.prototype.removeEventListener, WM = new WeakMap();
+  EventTarget.prototype.addEventListener = function (type, fn, opts) {
+    if (type === 'click' && typeof fn === 'function' && this && this.nodeType === 1) {
+      var w = WM.get(fn);
+      if (!w) {
+        w = function (e) {
+          var self = this;
+          if (self.__lgn > 0 && eligible(self)) { e.preventDefault(); return; }   // already running: ignore double tap
+          var r = fn.apply(self, arguments);
+          if (r && typeof r.then === 'function') {
+            var b = eligible(self) ? self : (e && e.target && e.target.closest ? e.target.closest(BTN) : null);
+            if (b && self.contains(b)) busyThenable(b, r);
+          }
+          return r;
+        };
+        WM.set(fn, w);
+      }
+      return nativeAdd.call(this, type, w, opts);
+    }
+    return nativeAdd.apply(this, arguments);
+  };
+  EventTarget.prototype.removeEventListener = function (type, fn, opts) {
+    if (type === 'click' && typeof fn === 'function' && WM.has(fn)) return nativeRem.call(this, type, WM.get(fn), opts);
+    return nativeRem.apply(this, arguments);
+  };
+
+  /* ---------- inline onclick="asyncFn()" ---------- */
+  function splitTop(code) {
+    var parts = [], cur = '', q = '', depth = 0, i, c;
+    for (i = 0; i < code.length; i++) {
+      c = code[i];
+      if (q) { cur += c; if (c === '\\') { cur += code[++i] || ''; } else if (c === q) q = ''; continue; }
+      if (c === '"' || c === "'" || c === '`') { q = c; cur += c; continue; }
+      if (c === '(' || c === '[' || c === '{') depth++;
+      if (c === ')' || c === ']' || c === '}') depth--;
+      if (c === ';' && depth === 0) { if (cur.trim()) parts.push(cur); cur = ''; continue; }
+      cur += c;
+    }
+    if (cur.trim()) parts.push(cur);
+    return parts;
+  }
+  function wrapInline(el) {
+    var code = el.getAttribute && el.getAttribute('onclick');
+    if (!code || el.__lgc === code) return;
+    el.__lgc = code;
+    if (!eligible(el) || /\breturn\b|\bawait\b/.test(code)) return;
+    var parts = splitTop(code), fn;
+    if (!parts.length) return;
+    try { fn = new Function('event', 'with(document){with(this.form||{}){with(this){return [' + parts.join(',\n') + '\n]}}}'); }
+    catch (e) { return; }   // not a plain call list - leave the native handler alone
+    el.onclick = function (e) {
+      if (el.__lgn > 0) { if (e && e.preventDefault) e.preventDefault(); return false; }
+      var r = fn.call(el, e);
+      busyThenable(el, r);
+    };
+  }
+  function scan(root) {
+    if (!root || root.nodeType !== 1) return;
+    if (root.hasAttribute('onclick')) wrapInline(root);
+    var l = root.querySelectorAll('[onclick]');
+    for (var i = 0; i < l.length; i++) wrapInline(l[i]);
+  }
+  function start() {
+    scan(document.documentElement);
+    new MutationObserver(function (ms) {
+      for (var i = 0; i < ms.length; i++) {
+        var m = ms[i];
+        if (m.type === 'attributes') wrapInline(m.target);
+        else for (var j = 0; j < m.addedNodes.length; j++) scan(m.addedNodes[j]);
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['onclick'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+
+</script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Telegram Mini App SDK - provides window.Telegram.WebApp / initData when
          the site is opened from inside linngamestorebot's mini app. No-op
@@ -5120,29 +5251,29 @@ html.perf-low .popular-card .game-card-img-wrap.img-ready { animation: none; wil
 .sec-link{display:block;text-align:center;font-size:11.5px;color:var(--accent);margin:2px 0 4px;font-weight:600}
 /* Profile page menu tabs (Preferences, Account, Tier Designs, Follow Us, Support, Terms): slightly larger again.
    Only the tab headers shrink - the rows inside the opened sections keep their normal size. */
-#profile-prefs-card, #account-card, #tier-preview-card, #social-links-card, #support-entry-card, #terms-entry-card {
+#profile-prefs-card, #account-card, #tier-preview-card, #social-links-card, #support-entry-card, #developer-entry-card, #terms-entry-card {
     padding: 11px 14px; border-radius: 16px; margin-top: 8px !important; gap: 0;
 }
 #profile-prefs-card > .collapsible-header .prefs-row-icon, #account-card > .collapsible-header .prefs-row-icon,
 #tier-preview-card > .collapsible-header .prefs-row-icon, #social-links-card > .collapsible-header .prefs-row-icon,
-#support-entry-card .prefs-row-icon, #terms-entry-card .prefs-row-icon {
+#support-entry-card .prefs-row-icon, #developer-entry-card .prefs-row-icon, #terms-entry-card .prefs-row-icon {
     width: 32px; height: 32px; border-radius: 10px;
 }
 #profile-prefs-card > .collapsible-header .prefs-row-icon svg, #account-card > .collapsible-header .prefs-row-icon svg,
 #tier-preview-card > .collapsible-header .prefs-row-icon svg, #social-links-card > .collapsible-header .prefs-row-icon svg,
-#support-entry-card .prefs-row-icon svg, #terms-entry-card .prefs-row-icon svg {
+#support-entry-card .prefs-row-icon svg, #developer-entry-card .prefs-row-icon svg, #terms-entry-card .prefs-row-icon svg {
     width: 18px !important; height: 18px !important;
 }
 #profile-prefs-card > .collapsible-header .prefs-row-label, #account-card > .collapsible-header .prefs-row-label,
 #tier-preview-card > .collapsible-header .prefs-row-label, #social-links-card > .collapsible-header .prefs-row-label,
-#support-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label { gap: 10px; font-size: 15px; }
+#support-entry-card .prefs-row-label, #developer-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label { gap: 10px; font-size: 15px; }
 #profile-prefs-card > .collapsible-header label, #account-card > .collapsible-header label,
 #tier-preview-card > .collapsible-header label, #social-links-card > .collapsible-header label {
     font-size: 15px; align-self: center !important; margin: 0 !important; line-height: 1.2;
 }
 #profile-prefs-card > .collapsible-header .collapsible-chevron, #account-card > .collapsible-header .collapsible-chevron,
 #tier-preview-card > .collapsible-header .collapsible-chevron, #social-links-card > .collapsible-header .collapsible-chevron,
-#support-entry-card > div > .ui-icon, #terms-entry-card > div > .ui-icon { width: 14px !important; height: 14px !important; }
+#support-entry-card > div > .ui-icon, #developer-entry-card > div > .ui-icon, #terms-entry-card > div > .ui-icon { width: 14px !important; height: 14px !important; }
 /* The two floating glass docks re-blur everything moving under them on every frame of a swipe
    (that is what makes a fling die early). Drop the blur only while scrolling, slightly more opaque
    so the change is barely visible - same trick as html.theme-switching. */
@@ -5716,6 +5847,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 #tier-preview-card .prefs-row-label, #tier-preview-card .prefs-row-label *,
 #social-links-card .prefs-row-label, #social-links-card .prefs-row-label *,
 #support-entry-card .prefs-row-label, #support-entry-card .prefs-row-label *,
+#developer-entry-card .prefs-row-label, #developer-entry-card .prefs-row-label *,
 #terms-entry-card .prefs-row-label, #terms-entry-card .prefs-row-label * { font-weight: 400 !important; }
 #security-card .sec-meta b .sec-chip { font-weight: 600 !important; }
 </style>
@@ -5854,6 +5986,41 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
   background: var(--surface) !important;
   -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
 }
+</style>
+<style id="lg-btn-css">
+/* ===== LINN unified buttons + loading spinner (shared by Admin panel and Store) ===== */
+@keyframes lgSpin { to { transform: rotate(360deg); } }
+
+/* one geometry for every .btn: same height, radius, weight, centred content, icons aligned */
+.btn, .udp-update-btn {
+  box-sizing: border-box !important;
+  display: inline-flex; align-items: center !important; justify-content: center !important; gap: 8px;
+  min-height: 44px !important; padding-top: 10px; padding-bottom: 10px;
+  border-radius: 14px !important; font-weight: 600 !important; font-size: 14.5px; line-height: 1.25 !important;
+  text-align: center; white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
+  position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+}
+.btn > svg, .btn > .ui-icon, .btn > img { flex: 0 0 auto; width: 18px; height: 18px; }
+.btn-md { min-height: 40px !important; font-size: 13.5px !important; }
+.btn-sm { min-height: 36px !important; font-size: 13px !important; border-radius: 12px !important; }
+.btn-xs { min-height: 30px !important; font-size: 12px !important; border-radius: 10px !important; padding-top: 4px !important; padding-bottom: 4px !important; }
+.btn:disabled, .btn[disabled], .udp-update-btn:disabled { opacity: .5 !important; cursor: not-allowed !important; filter: saturate(.6); }
+.btn:focus-visible, button:focus-visible { outline: 2px solid var(--accent, #6366f1); outline-offset: 2px; }
+.btn-primary, .btn-danger { border-color: transparent !important; }
+
+/* ---- spinner: shown while a button's action is running (also the old .busy / .loading classes) ---- */
+.lg-busy, .btn.busy, .btn.loading, .udp-update-btn.busy { pointer-events: none !important; cursor: progress !important; }
+.lg-busy:not(:disabled), .btn.busy, .btn.loading { opacity: .9; }
+.lg-busy::before, .btn.busy::before, .btn.loading::before, .udp-update-btn.busy::before {
+  content: ""; flex: 0 0 auto; box-sizing: border-box; width: 16px; height: 16px; margin-right: 8px; border-radius: 50%;
+  border: 2.5px solid currentColor; border-right-color: transparent; animation: lgSpin .7s linear infinite;
+}
+.btn.busy::after, .btn.loading::after, .udp-update-btn.busy::after { display: none !important; content: none !important; }
+/* icon-only buttons: the spinner replaces the icon */
+.lg-busy.lg-busy-ov { color: transparent !important; }
+.lg-busy.lg-busy-ov > * { opacity: 0; }
+.lg-busy.lg-busy-ov::before { position: absolute; left: 50%; top: 50%; margin: -8px 0 0 -8px; color: var(--lg-spin, #888); border-color: var(--lg-spin, #888); border-right-color: transparent; }
+@media (prefers-reduced-motion: reduce) { .lg-busy::before, .btn.busy::before, .btn.loading::before { animation-duration: 1.6s !important; } }
 </style>
 </head>
 <body>
@@ -7283,6 +7450,16 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     <span class="prefs-row-label">
                         <span class="prefs-row-icon"><svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-help"></use></svg></span>
                         <span>Support</span>
+                    </span>
+                    <svg class="ui-icon" style="width:16px;height:16px;color:var(--text-muted);"><use href="#icon-chevron-right"></use></svg>
+                </div>
+            </div>
+
+            <div class="detail-form-card profile-card-anim" id="developer-entry-card" style="margin-top:14px;cursor:pointer;animation-delay:300ms;" onclick="contactDeveloper()" role="button" aria-label="Contact the developer on Telegram">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                    <span class="prefs-row-label">
+                        <span class="prefs-row-icon"><svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-telegram"></use></svg></span>
+                        <span>Contact Developer</span>
                     </span>
                     <svg class="ui-icon" style="width:16px;height:16px;color:var(--text-muted);"><use href="#icon-chevron-right"></use></svg>
                 </div>
@@ -14666,7 +14843,8 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             const els = emailCtxEls(ctx);
             const code = (els.code && els.code.value || '').trim();
             const guestId = window.getGuestId ? window.getGuestId() : null;
-            if (!code || !guestId) return;
+            if (!/^\d{6}$/.test(code)) { window.showToast('Code ၆ လုံး ထည့်ပါ', 'fail'); return; }
+            if (!guestId) { window.showToast('Account မတွေ့ပါ — Page ကို refresh လုပ်ပြီး ထပ်စမ်းပါ', 'fail'); return; }
             if (els.verifyBtn) els.verifyBtn.disabled = true;
             try {
                 // Signed-in Google/Telegram users linking an e-mail prove ownership of their account.
@@ -15812,6 +15990,16 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
         }
         window.contactAdmin = contactAdmin;
 
+        // Profile -> "Contact Developer": opens the developer's Telegram chat.
+        // Username comes from Admin Panel → Settings → Social Links → Developer Telegram Username;
+        // DEVELOPER_TELEGRAM (no @) is only the fallback while that is empty.
+        const DEVELOPER_TELEGRAM = 'linn270_0';
+        function contactDeveloper() {
+            const username = window.DEVELOPER_TELEGRAM_USERNAME || DEVELOPER_TELEGRAM;
+            window.open('https://t.me/' + username, '_blank', 'noopener');
+        }
+        window.contactDeveloper = contactDeveloper;
+
         // Fallback username used whenever the admin hasn't configured a
         // Support Contact username yet (Dashboard → Settings → Social Links
         // → Support Contact), so these buttons always work even when unset.
@@ -15931,6 +16119,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             const data = docSnap.exists() ? docSnap.data() : {};
             renderSocialLinks(data);
             renderHeaderSupportButtons(data);
+            window.DEVELOPER_TELEGRAM_USERNAME = (data.developerTelegram || '').trim();
         }, (error) => {
             console.error("Social links fetch error:", error);
         }));
