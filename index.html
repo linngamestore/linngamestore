@@ -6399,58 +6399,52 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
          pages where the bottom nav is out of reach) plus a few extra
          links that don't have a bottom-nav slot. -->
     <div class="drawer-overlay" id="drawer-overlay" onclick="if(event.target===this) closeDrawer()">
-        <aside class="side-drawer" id="side-drawer">
-            <div class="drawer-header drawer-header-slim">
-                <div class="drawer-close" onclick="closeDrawer()" role="button" aria-label="Close menu">
-                    <svg class="ui-icon" style="width:15px;"><use href="#icon-close"></use></svg>
+        <aside class="side-drawer pg-drawer" id="side-drawer">
+            <i class="pg-orb pg-orb1" aria-hidden="true"></i><i class="pg-orb pg-orb2" aria-hidden="true"></i>
+            <div class="pg-panel">
+                <div class="pg-head">
+                    <div class="pg-avatar" onclick="drawerNavigate('profile')" role="button" aria-label="Profile"><div class="pg-avatar-in" id="drawer-profile-avatar">
+                        <img id="drawer-profile-avatar-img" src="" alt="" style="display:none;">
+                        <svg class="ui-icon" id="drawer-profile-avatar-icon"><use href="#icon-user"></use></svg>
+                    </div></div>
+                    <div class="pg-who" onclick="drawerNavigate('profile')" role="button">
+                        <b id="drawer-profile-name">Guest</b>
+                        <div class="pg-bal" id="pg-balance">0 MMK</div>
+                        <div id="drawer-profile-tier" style="display:none;"></div>
+                    </div>
+                    <button type="button" class="pg-close" onclick="closeDrawer()" aria-label="Close menu" data-no-busy><svg class="ui-icon"><use href="#icon-close"></use></svg></button>
                 </div>
+                <div class="pg-rule"></div>
+                <nav class="pg-nav" id="drawer-nav" aria-label="Menu">
+                    <i class="pg-glider" id="pg-glider" aria-hidden="true"></i>
+                    <div class="pg-item" data-page="dashboard" role="button" tabindex="0" onclick="drawerNavigate('dashboard')">
+                        <span class="pg-chip" style="--c:#FBDFCF"><svg class="ui-icon"><use href="#icon-home"></use></svg></span><span class="pg-label" data-i18n="nav_home">Home</span>
+                    </div>
+                    <div class="pg-item" data-page="home" role="button" tabindex="0" onclick="drawerNavigate(window.lastGameSubTab || 'home')">
+                        <span class="pg-chip" style="--c:#FCE9C2"><svg class="ui-icon"><use href="#icon-gamepad-nav"></use></svg></span><span class="pg-label" data-i18n="nav_game">Game</span>
+                    </div>
+                    <div class="pg-item" data-page="history" role="button" tabindex="0" onclick="drawerNavigate('history')">
+                        <span class="pg-chip" style="--c:#DCE8D6"><svg class="ui-icon"><use href="#icon-history-nav"></use></svg></span><span class="pg-label" data-i18n="nav_history">History</span>
+                    </div>
+                    <div class="pg-item" data-page="wallet" role="button" tabindex="0" onclick="drawerNavigate('wallet')">
+                        <span class="pg-chip" style="--c:#F3DAC8"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></span><span class="pg-label" data-i18n="nav_wallet">Wallet</span>
+                    </div>
+                    <div class="pg-item" data-page="leaderboard" role="button" tabindex="0" onclick="drawerNavigate('leaderboard')">
+                        <span class="pg-chip" style="--c:#E9DEF0"><svg class="ui-icon"><use href="#icon-trophy"></use></svg></span><span class="pg-label" data-i18n="nav_leaderboard">Leaderboard</span>
+                    </div>
+                    <div class="pg-item" role="button" tabindex="0" onclick="closeDrawer(); openNotificationsPage();">
+                        <span class="pg-chip" style="--c:#D8E7EB"><svg class="ui-icon"><use href="#icon-bell"></use></svg></span><span class="pg-label" data-i18n="nav_notifications">Notifications</span><span class="notif-badge" id="notif-dot"></span>
+                    </div>
+                    <div class="pg-item" role="button" tabindex="0" onclick="closeDrawer(); openGuidePage();">
+                        <span class="pg-chip" style="--c:#F6DFE4"><svg class="ui-icon"><use href="#icon-message-circle"></use></svg></span><span class="pg-label" data-i18n="nav_support">Support</span>
+                    </div>
+                </nav>
+                <div class="pg-more">
+                    <div class="pg-mini" role="button" tabindex="0" onclick="window.toggleTheme(event)"><svg class="ui-icon" id="theme-toggle-icon-drawer"><use href="#icon-sun"></use></svg><span data-i18n="nav_theme">Dark Mode</span></div>
+                    <div class="pg-mini" role="button" tabindex="0" onclick="closeDrawer(); openTermsPage();"><svg class="ui-icon"><use href="#icon-book"></use></svg><span data-i18n="nav_terms">Terms &amp; Policy</span></div>
+                </div>
+                <button type="button" class="pg-cta" onclick="closeDrawer(); openWalletTopupModal();" data-no-busy><span data-i18n="nav_topup">Top Up</span> <span>·</span> Wallet</button>
             </div>
-            <div class="drawer-profile-card" onclick="drawerNavigate('profile')" role="button">
-                <div class="drawer-profile-avatar" id="drawer-profile-avatar">
-                    <img id="drawer-profile-avatar-img" src="" alt="" style="display:none;">
-                    <svg class="ui-icon" id="drawer-profile-avatar-icon" style="width:20px;height:20px;"><use href="#icon-user"></use></svg>
-                </div>
-                <div class="drawer-profile-info">
-                    <span id="drawer-profile-name">Guest</span>
-                    <div id="drawer-profile-tier" style="display:none;"></div>
-                </div>
-                <svg class="ui-icon" style="width:14px;height:14px;color:var(--text-muted);flex-shrink:0;"><use href="#icon-chevron-right"></use></svg>
-            </div>
-            <nav class="drawer-nav" id="drawer-nav">
-                <div class="drawer-nav-item active" data-page="dashboard" onclick="drawerNavigate('dashboard')">
-                    <svg class="ui-icon"><use href="#icon-home"></use></svg><span data-i18n="nav_home">Home</span>
-                </div>
-                <div class="drawer-nav-item" data-page="home" onclick="drawerNavigate(window.lastGameSubTab || 'home')">
-                    <svg class="ui-icon"><use href="#icon-gamepad-nav"></use></svg><span data-i18n="nav_game">Game</span>
-                </div>
-                <div class="drawer-nav-item" data-page="history" onclick="drawerNavigate('history')">
-                    <svg class="ui-icon"><use href="#icon-history-nav"></use></svg><span data-i18n="nav_history">History</span>
-                </div>
-                <div class="drawer-nav-item" data-page="leaderboard" onclick="drawerNavigate('leaderboard')">
-                    <svg class="ui-icon"><use href="#icon-trophy"></use></svg><span data-i18n="nav_leaderboard">Leaderboard</span>
-                </div>
-                <div class="drawer-nav-item" data-page="wallet" onclick="drawerNavigate('wallet')">
-                    <svg class="ui-icon"><use href="#icon-wallet"></use></svg><span data-i18n="nav_wallet">Wallet</span>
-                </div>
-                <div class="drawer-nav-item" onclick="closeDrawer(); openGuidePage();">
-                    <svg class="ui-icon"><use href="#icon-message-circle"></use></svg><span data-i18n="nav_support">Support</span>
-                </div>
-
-                <div class="drawer-divider"></div>
-                <div class="drawer-section-label">More</div>
-
-                <div class="drawer-nav-item" onclick="closeDrawer(); openNotificationsPage();">
-                    <svg class="ui-icon"><use href="#icon-bell"></use></svg><span data-i18n="nav_notifications">Notifications</span>
-                    <span class="notif-badge" id="notif-dot"></span>
-                </div>
-                <div class="drawer-nav-item" onclick="window.toggleTheme(event)">
-                    <svg class="ui-icon" id="theme-toggle-icon-drawer"><use href="#icon-sun"></use></svg><span data-i18n="nav_theme">Dark Mode</span>
-                </div>
-                <div class="drawer-nav-item" onclick="closeDrawer(); openTermsPage();">
-                    <svg class="ui-icon"><use href="#icon-book"></use></svg><span data-i18n="nav_terms">Terms &amp; Policy</span>
-                </div>
-            </nav>
-            <div class="drawer-footer" data-i18n="drawer_footer">Linn Game Store</div>
         </aside>
     </div>
 
@@ -8677,7 +8671,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             const navBtn = document.getElementById(`btn-${pageId}`) || (GAME_TAB_PAGES.includes(pageId) ? document.getElementById('btn-game') : null);
             if (navBtn) navBtn.classList.add('active');
             if (navBtn && window.updateNavNotch) window.updateNavNotch(navBtn);
-            document.querySelectorAll('.drawer-nav-item[data-page]').forEach(el => {
+            document.querySelectorAll('.drawer-nav-item[data-page], .pg-item[data-page]').forEach(el => {
                 el.classList.toggle('active', el.dataset.page === pageId);
             });
             // Name+Tier mini-profile strip and the LIVE bullet-chat ticker are
@@ -8832,6 +8826,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             withDrawerSlideClass();
             document.getElementById('drawer-overlay').classList.add('show');
             document.body.style.overflow = 'hidden';
+            if (window.pgGlide) window.pgGlide(true);
         }
         function closeDrawer() {
             withDrawerSlideClass();
@@ -25515,5 +25510,171 @@ html.is-scrolling .profile-card.rank1-aura, html.is-scrolling .rank1-shield, htm
 html.is-scrolling .tier-badge.tier-badge-glow, html.is-scrolling .nav-icon-wrap-wallet, html.is-scrolling .gz-btn, html.is-scrolling .logo-brand-text,
 html.is-scrolling .pc-topup-btn, html.is-scrolling #header-logo .logo-icon-wrap img, html.is-scrolling .ot-dot.active, html.is-scrolling .ord-step.active .ord-dot { animation-play-state: paused !important; }
 </style>
+<style id="peach-glide-css">
+/* ===== Sidebar (purple + white): floating strip drops in, unfolds sideways, then docks to the edge ===== */
+.drawer-overlay { --pg-w: min(268px, 72vw); --pg-rail: 70px; --pg-ink: #2A1F5C; --pg-sub: #6B5FA8; --pg-pur: #6C4DF6; }
+html:not(#_):not(#__) .drawer-overlay { background: rgba(26,16,64,.5) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html:not(#_):not(#__) .side-drawer.pg-drawer {
+  position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); bottom: 12px; right: 12px; height: auto;
+  width: var(--pg-rail); max-width: none; min-width: 0; padding: 0; overflow: hidden;
+  background: linear-gradient(170deg, #F3EEFF 0%, #E9E1FF 100%) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  border: 1px solid rgba(255,255,255,.85) !important; border-radius: 32px;
+  box-shadow: 0 22px 50px -18px rgba(76,48,200,.55);
+  font-family: Poppins, "Noto Sans Myanmar", sans-serif; color: var(--pg-ink) !important;
+  transform: translate3d(0,-115%,0);
+  transition: width .3s cubic-bezier(.4,0,.2,1), top .3s cubic-bezier(.4,0,.2,1), bottom .3s cubic-bezier(.4,0,.2,1), right .3s cubic-bezier(.4,0,.2,1), border-radius .3s ease, transform .42s cubic-bezier(.4,0,.2,1) .05s;
+}
+/* open: first the floating strip drops in (transform), then it widens and docks flush to the screen edge */
+html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer {
+  width: var(--pg-w); top: 0; bottom: 0; right: 0; border-radius: 34px 0 0 34px; border-right-color: transparent !important;
+  transform: translate3d(0,0,0);
+  transition: transform .45s cubic-bezier(.22,1,.36,1),
+              width .5s cubic-bezier(.22,1,.36,1) .34s, top .45s cubic-bezier(.22,1,.36,1) .34s, bottom .45s cubic-bezier(.22,1,.36,1) .34s,
+              right .45s cubic-bezier(.22,1,.36,1) .34s, border-radius .45s ease .34s;
+}
+.pg-orb { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
+.pg-orb1 { right: -50px; top: 40px; width: 250px; height: 250px; background: radial-gradient(circle,#A78BFA,transparent 68%); animation: pgO1 9s ease-in-out infinite alternate; }
+.pg-orb2 { right: 40px; top: 380px; width: 270px; height: 270px; background: radial-gradient(circle,#C4B5FD,transparent 68%); animation: pgO2 11s ease-in-out infinite alternate; }
+@keyframes pgO1 { to { transform: translate(-50px,60px); } } @keyframes pgO2 { to { transform: translate(60px,-40px); } }
+.drawer-overlay:not(.show) .pg-orb { animation-play-state: paused; }
+.pg-panel {
+  position: absolute; top: 9px; bottom: 9px; left: 6px; width: calc(var(--pg-w) - 14px); box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-radius: 26px; background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95);
+  box-shadow: 0 16px 34px -24px rgba(76,48,200,.5);
+}
+.pg-panel::-webkit-scrollbar { display: none; }
+.pg-head { display: flex; align-items: center; gap: 10px; flex: none; }
+.pg-avatar { width: 42px; height: 42px; flex: none; border-radius: 50%; padding: 2px; background: linear-gradient(135deg,#A78BFA,#6C4DF6); cursor: pointer; box-sizing: border-box; }
+.pg-avatar-in { width: 100%; height: 100%; border-radius: 50%; background: #fff; display: grid; place-items: center; overflow: hidden; }
+.pg-avatar-in img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pg-avatar-in .ui-icon { width: 19px; height: 19px; stroke: #6C4DF6 !important; }
+.pg-who { flex: 1; min-width: 0; cursor: pointer; }
+.pg-who b { display: block; font-size: 14px; font-weight: 700; color: var(--pg-ink) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pg-bal { font-size: 11.5px; color: var(--pg-sub) !important; margin-top: 1px; white-space: nowrap; }
+.pg-who .tier-badge { display: inline-flex; margin-top: 3px; padding: 2px 8px 2px 6px; font-size: 10.5px; }
+.pg-close { width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; background: transparent !important; box-shadow: none !important; color: var(--pg-ink); display: grid; place-items: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .12s; }
+.pg-close .ui-icon { width: 19px; height: 19px; stroke: var(--pg-ink) !important; }
+.pg-close:active { background: rgba(108,77,246,.12) !important; transform: scale(.9); }
+.pg-rule { height: 1px; background: rgba(108,77,246,.16); flex: none; }
+.pg-nav { position: relative; flex: none; }
+.pg-glider { position: absolute; left: 0; right: 0; top: 0; height: 46px; border-radius: 16px; background: #fff; box-shadow: 0 8px 18px -10px rgba(108,77,246,.55), inset 0 0 0 1px rgba(108,77,246,.1); transition: transform .42s cubic-bezier(.6,0,.25,1), height .3s ease, opacity .2s; pointer-events: none; will-change: transform; }
+.pg-glider.no-anim { transition: none; }
+.pg-glider::after { content: ""; position: absolute; right: 12px; top: 50%; margin-top: -3.5px; width: 7px; height: 7px; border-radius: 50%; background: #6C4DF6; }
+.pg-item { position: relative; display: flex; align-items: center; gap: 12px; height: 46px; margin-bottom: 2px; padding: 0 8px; border-radius: 16px; cursor: pointer; color: var(--pg-ink) !important; font-size: 14px; font-weight: 500; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; transition: transform .12s ease; }
+.pg-item:active { transform: scale(.97); }
+.pg-item.active { font-weight: 600; }
+.pg-chip { width: 32px; height: 32px; flex: none; border-radius: 11px; background: linear-gradient(135deg,#F0EAFF,#DDD2FF) !important; display: grid; place-items: center; }
+.pg-chip .ui-icon { width: 17px; height: 17px; stroke: #5B3FD8 !important; }
+.pg-item.active .pg-chip { background: linear-gradient(135deg,#8B6CFA,#6C4DF6) !important; }
+.pg-item.active .pg-chip .ui-icon { stroke: #fff !important; }
+.pg-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--pg-ink); }
+.pg-item .notif-badge { position: absolute; top: 6px; left: 30px; right: auto; }
+.pg-more { display: flex; gap: 7px; flex: none; }
+.pg-mini { position: relative; flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 12px; background: #fff; border: 1px solid rgba(108,77,246,.16); font-size: 11.5px; font-weight: 600; color: var(--pg-sub) !important; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .12s; }
+.pg-mini:active { transform: scale(.96); }
+.pg-mini .ui-icon { width: 15px; height: 15px; flex: none; stroke: #6C4DF6 !important; }
+.pg-mini span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pg-cta { margin-top: auto; flex: none; height: 44px; border: 0; border-radius: 22px; background: linear-gradient(135deg,#8B6CFA,#6C4DF6) !important; color: #fff !important; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 18px -10px #6C4DF6; -webkit-tap-highlight-color: transparent; transition: transform .12s; white-space: nowrap; }
+.pg-cta:active { transform: scale(.97); }
+
+/* each tab shows up as a cloud of tiny purple specks, then clears into the sharp tab */
+@keyframes pgGrain { 0% { opacity: 0; filter: blur(9px); transform: scale(.93); } 55% { opacity: .85; filter: blur(3px); } 100% { opacity: 1; filter: blur(0); transform: none; } }
+@keyframes pgDust { 0% { opacity: 1; } 70% { opacity: .55; } 100% { opacity: 0; } }
+.pg-item::before, .pg-mini::before, .pg-cta::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle, rgba(108,77,246,.75) 1.1px, transparent 1.7px) 0 0 / 6px 6px, radial-gradient(circle, rgba(167,139,250,.8) 1px, transparent 1.6px) 3px 3px / 6px 6px; }
+.pg-cta { position: relative; }
+.drawer-overlay:not(.show) .pg-head, .drawer-overlay:not(.show) .pg-item, .drawer-overlay:not(.show) .pg-more, .drawer-overlay:not(.show) .pg-cta { opacity: 0; }
+.drawer-overlay.show .pg-head, .drawer-overlay.show .pg-item, .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-cta { animation: pgGrain .55s ease-out both; }
+.drawer-overlay.show .pg-item::before, .drawer-overlay.show .pg-mini::before, .drawer-overlay.show .pg-cta::before { animation: pgDust .6s ease-out both; }
+.drawer-overlay.show .pg-head { animation-delay: .72s; }
+.drawer-overlay.show .pg-item:nth-of-type(1), .drawer-overlay.show .pg-item:nth-of-type(1)::before { animation-delay: .8s; }
+.drawer-overlay.show .pg-item:nth-of-type(2), .drawer-overlay.show .pg-item:nth-of-type(2)::before { animation-delay: .86s; }
+.drawer-overlay.show .pg-item:nth-of-type(3), .drawer-overlay.show .pg-item:nth-of-type(3)::before { animation-delay: .92s; }
+.drawer-overlay.show .pg-item:nth-of-type(4), .drawer-overlay.show .pg-item:nth-of-type(4)::before { animation-delay: .98s; }
+.drawer-overlay.show .pg-item:nth-of-type(5), .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: 1.04s; }
+.drawer-overlay.show .pg-item:nth-of-type(6), .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: 1.1s; }
+.drawer-overlay.show .pg-item:nth-of-type(7), .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: 1.16s; }
+.drawer-overlay.show .pg-more, .drawer-overlay.show .pg-more .pg-mini::before { animation-delay: 1.22s; }
+.drawer-overlay.show .pg-cta, .drawer-overlay.show .pg-cta::before { animation-delay: 1.28s; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-orb { animation: none; }
+  html:not(#_):not(#__) .side-drawer.pg-drawer, html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer { transition: none; }
+  .drawer-overlay.show .pg-head, .drawer-overlay.show .pg-item, .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-cta { animation: none; opacity: 1; }
+  .drawer-overlay.show .pg-item::before, .drawer-overlay.show .pg-mini::before, .drawer-overlay.show .pg-cta::before { animation: none; opacity: 0; }
+  .pg-glider { transition: none; }
+}
+@media (max-height: 640px) { .pg-item { height: 42px; } .pg-panel { gap: 7px; } }
+</style>
+<script id="peach-glide-js">
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ----- sliding highlight follows the active item ----- */
+  window.pgGlide = function (instant) {
+    var nav = $('drawer-nav'), g = $('pg-glider'); if (!nav || !g) return;
+    var a = nav.querySelector('.pg-item.active');
+    if (!a) { g.style.opacity = '0'; return; }
+    if (instant) g.classList.add('no-anim');
+    g.style.opacity = '1'; g.style.height = a.offsetHeight + 'px'; g.style.transform = 'translateY(' + a.offsetTop + 'px)';
+    if (instant) { void g.offsetWidth; g.classList.remove('no-anim'); }
+  };
+  function pgInit() {
+    var nav = $('drawer-nav'); if (!nav) return;
+    new MutationObserver(function () { window.pgGlide(false); }).observe(nav, { attributes: true, attributeFilter: ['class'], subtree: true });
+    nav.addEventListener('click', function (e) {          /* glide to the tapped item right away */
+      var it = e.target.closest && e.target.closest('.pg-item'), g = $('pg-glider'); if (!it || !g) return;
+      g.style.opacity = '1'; g.style.height = it.offsetHeight + 'px'; g.style.transform = 'translateY(' + it.offsetTop + 'px)';
+    });
+    nav.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('pg-item')) { e.preventDefault(); e.target.click(); } });
+    /* balance mirrors the wallet card */
+    var src = $('wallet-balance-amount'), dst = $('pg-balance');
+    function syncBal() { if (src && dst) { var t = (src.textContent || '').trim(); if (t) dst.textContent = t; } }
+    if (src) { syncBal(); new MutationObserver(syncBal).observe(src, { childList: true, characterData: true, subtree: true }); }
+    window.pgGlide(true);
+  }
+  if (document.readyState !== 'loading') pgInit(); else document.addEventListener('DOMContentLoaded', pgInit);
+})();
+</script>
+<style id="header-motion-css">
+/* Header glides out when you step into an inner page (it has its own back button) and glides back on return */
+.header { transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .35s ease; }
+.header.header-hidden { opacity: 0; }
+body { transition: padding-top .45s cubic-bezier(.4,0,.2,1); }
+html:not(#_) body.no-bottom-nav { padding-top: calc(16px + env(safe-area-inset-top, 0px) + var(--tg-top-inset, 0px)) !important; }
+@media (prefers-reduced-motion: reduce) { .header, body { transition: none; } }
+</style>
+<script id="hide-on-scroll-js">
+/* Header + bottom nav: tuck away when scrolling down, return when scrolling up.
+   Header is ALSO hidden for as long as an inner page is open (body.no-bottom-nav, set by showPage()). */
+(function () {
+  var TH = 8, lastY = window.scrollY || 0, tick = false, scrollHidden = false;
+  var body = document.body;
+  function inner() { return body.classList.contains('no-bottom-nav'); }
+  function apply() {
+    var h = document.querySelector('.header'), n = document.getElementById('bottom-nav');
+    if (h) h.classList.toggle('header-hidden', scrollHidden || inner());
+    if (n) n.classList.toggle('nav-hidden', scrollHidden);
+  }
+  function setHidden(v) { if (v === scrollHidden) return; scrollHidden = v; apply(); }
+  function locked() {
+    return body.style.overflow === 'hidden' || !!document.querySelector('.drawer-overlay.show, .modal-overlay.show, .success-overlay.show');
+  }
+  function update() {
+    tick = false;
+    var y = Math.max(0, window.scrollY || 0), max = document.documentElement.scrollHeight - window.innerHeight, d = y - lastY;
+    if (locked() || y <= 24 || y >= max - 2) { setHidden(false); lastY = y; return; }
+    if (d > TH) { setHidden(true); lastY = y; }
+    else if (d < -TH) { setHidden(false); lastY = y; }
+  }
+  window.addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(update); } }, { passive: true });
+  /* entering / leaving an inner page: animate the header out / back in */
+  new MutationObserver(function () { scrollHidden = false; lastY = window.scrollY || 0; apply(); }).observe(body, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.nav-item, .drawer-overlay, .header-icon')) setTimeout(function () { setHidden(false); lastY = window.scrollY || 0; }, 0); }, true);
+  window.addEventListener('orientationchange', function () { setHidden(false); });
+  apply();
+})();
+</script>
 </body>
 </html>
