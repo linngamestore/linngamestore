@@ -8811,14 +8811,35 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             // back to the glass gradient = the visible dim -> bright flicker. Colours now stay identical the whole time.
             panel.classList.remove('drawer-sliding');
         }
+        // Measures the header's 3-line button so the sidebar can grow out of exactly that spot (circle -> tall pill -> panel)
+        function pgMeasure() {
+            const ov = document.getElementById('drawer-overlay'), b = document.getElementById('drawer-toggle-btn');
+            if (!ov || !b) return;
+            const r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+            let d = Math.round(Math.min(r.width, r.height)); if (d < 36) d = 40; if (d > 56) d = 56;
+            let cr = Math.round(vw - (r.left + r.width / 2) - d / 2), ct = Math.round(r.top + r.height / 2 - d / 2);
+            if (!isFinite(cr) || cr < 4) cr = 14; if (!isFinite(ct) || ct < 6) ct = 14;
+            ov.style.setProperty('--pg-d', d + 'px'); ov.style.setProperty('--pg-cr', cr + 'px'); ov.style.setProperty('--pg-ct', ct + 'px');
+        }
+        let pgBurgerTimer = null, pgCloseTimer = null;
         function openDrawer() {
             withDrawerSlideClass();
+            clearTimeout(pgBurgerTimer); clearTimeout(pgCloseTimer);
+            document.getElementById('drawer-overlay').classList.remove('pg-closing');
+            pgMeasure();
+            const burger = document.getElementById('drawer-toggle-btn'); if (burger) burger.classList.add('pg-burger-away');
             document.getElementById('drawer-overlay').classList.add('show');
             document.body.style.overflow = 'hidden';
             if (window.pgGlide) window.pgGlide(true);
         }
         function closeDrawer() {
             withDrawerSlideClass();
+            const ovl = document.getElementById('drawer-overlay');
+            if (ovl && ovl.classList.contains('show')) {
+                ovl.classList.add('pg-closing');
+                clearTimeout(pgCloseTimer); pgCloseTimer = setTimeout(() => ovl.classList.remove('pg-closing'), 980);
+                clearTimeout(pgBurgerTimer); pgBurgerTimer = setTimeout(() => { const b = document.getElementById('drawer-toggle-btn'); if (b) b.classList.remove('pg-burger-away'); }, 780);
+            }
             document.getElementById('drawer-overlay').classList.remove('show');
             document.body.style.overflow = '';
         }
@@ -19999,6 +20020,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                             if (gamesLoadedOnce) return;
                             gamesLoadedOnce = true;
                             rerenderAll();
+                            window.__gzDataReady = true; try { window.gzSyncAuthUI && window.gzSyncAuthUI(); } catch (e) {}
                             if (window.onSiteDataReady) window.onSiteDataReady();
                         }, 350);
                         return;
@@ -20009,6 +20031,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     clearTimeout(gamesInitialRenderTimer);
                     gamesLoadedOnce = true;
                     rerenderAll();
+                    window.__gzDataReady = true; try { window.gzSyncAuthUI && window.gzSyncAuthUI(); } catch (e) {}
                     if (window.onSiteDataReady) window.onSiteDataReady();
                 } else {
                     // Live update: wait until the user's finger/scroll is idle.
@@ -25100,6 +25123,24 @@ html.lang-swapping main.content-area.lang-out { opacity: 0; transition-duration:
 .gz-sheet-why i { font-style: normal; }
 /* Phones run in perf-low (backdrop blur off), so the translucent glass sheet let the page show through the text. Make it solid there. */
 html.perf-low .gz-sheet-box { background: var(--surface) !important; }
+
+/* ---- Home "Login to buy" card redesign ---- */
+.gz-login-tab{display:none;align-items:center;gap:14px;margin:14px 0 16px;padding:16px;border-radius:22px;
+  background:linear-gradient(135deg,#3B82F6 0%,#4F46E5 55%,#7C3AED 100%);border:0;color:#fff;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 12px 28px rgba(79,70,229,.35),inset 0 1px 0 rgba(255,255,255,.35);
+  animation:gzFadeIn .45s ease both}
+html[data-theme="dark"] .gz-login-tab{background:linear-gradient(135deg,#2556C8 0%,#3B35B5 55%,#5B21B6 100%);color:#fff;border:0;box-shadow:0 12px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.15)}
+html.gz-guest .gz-login-tab.gz-only-guest{display:flex}
+.gz-login-tab .gz-orb{display:none}
+.gz-login-tab::before{content:"";position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.14);pointer-events:none}
+.gz-login-tab .gz-lt-ico{width:46px;height:46px;border-radius:15px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);animation:none}
+.gz-login-tab .gz-lt-ico svg{width:24px;height:24px;color:#fff}
+.gz-login-tab .gz-lt-txt b{font-size:15px;font-weight:700;color:#fff}
+.gz-login-tab .gz-lt-txt small{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.85)}
+.gz-login-tab .gz-btn{background:#fff;color:#4F46E5;animation:none;box-shadow:0 6px 14px rgba(0,0,0,.18);padding:11px 22px;font-weight:700}
+.gz-login-tab .gz-btn::after{display:none}
+@keyframes gzFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 <script id="gz-guest-js">
 (function () {
@@ -25108,7 +25149,7 @@ html.perf-low .gz-sheet-box { background: var(--surface) !important; }
     window.gzSyncAuthUI = function () {
         // Until Firebase has restored a saved session (window.authResolvedOnce) we do NOT know the
         // visitor is a guest, so the Login UI stays hidden instead of flashing for logged-in users.
-        var guest = !authed() && !!window.authResolvedOnce;
+        var guest = !authed() && !!window.authResolvedOnce && !!window.__gzDataReady;
         document.documentElement.classList.toggle('gz-guest', guest);
         if (wasGuest === true && !guest) {
             window.gzCloseSheet();
@@ -25165,6 +25206,8 @@ html.perf-low .gz-sheet-box { background: var(--surface) !important; }
     if (document.readyState !== 'loading') window.gzSyncAuthUI();
     else document.addEventListener('DOMContentLoaded', function () { window.gzSyncAuthUI(); });
     setTimeout(window.gzSyncAuthUI, 1200);
+    // Fallback: if data never arrives (offline), still show the guest card after 8s.
+    setTimeout(function () { window.__gzDataReady = true; window.gzSyncAuthUI(); }, 8000);
 })();
 </script>
 
@@ -25183,6 +25226,8 @@ html.perf-low .gz-sheet-box { background: var(--surface) !important; }
 @keyframes gtInR  { from { opacity: 0; transform: translate3d(48px, 0, 0); }  to { opacity: 1; transform: none; } }
 @keyframes gtInL  { from { opacity: 0; transform: translate3d(-48px, 0, 0); } to { opacity: 1; transform: none; } }
 @keyframes gtInUp { from { opacity: 0; transform: translate3d(0, 16px, 0); }  to { opacity: 1; transform: none; } }
+@keyframes gtBarDrop { 0% { opacity: 0; transform: translate3d(0, -64px, 0); } 70% { opacity: 1; transform: translate3d(0, 5px, 0); } 100% { opacity: 1; transform: none; } }
+html:not(#_) .game-subtab-bar.gt-bar-drop { animation: gtBarDrop .6s cubic-bezier(.22,1,.36,1) both; }
 .gt-body.gt-in-r  { animation: gtInR  .4s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
 .gt-body.gt-in-l  { animation: gtInL  .4s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
 .gt-body.gt-in-up { animation: gtInUp .4s var(--ease-out, cubic-bezier(.22,1,.36,1)) backwards; }
@@ -25219,7 +25264,7 @@ html:not(#_) .package-card.card-zoom { animation: cardZoom .6s var(--ease-out, c
 html:not(#_) #detail-package-list.pkg-swap { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
     html:not(#_) .game-card.card-pop, html:not(#_) .game-card.card-wave, html:not(#_) .popular-card.card-pop,
-    html:not(#_) .voucher-card.card-pop, html:not(#_) .package-card.card-zoom, .gt-body { animation: none !important; }
+    html:not(#_) .voucher-card.card-pop, html:not(#_) .package-card.card-zoom, .gt-body, html:not(#_) .game-subtab-bar.gt-bar-drop { animation: none !important; }
 }
 
 /* ---- 3) Sidebar: identical look before / during / after the slide ---- */
@@ -25300,6 +25345,7 @@ html[data-theme="dark"] .sc-draw.bad { stroke: #F87171; }
         if (e.target && e.target.classList && e.target.classList.contains('gt-body') && (n === 'gtInR' || n === 'gtInL' || n === 'gtInUp')) {
             e.target.classList.remove('gt-in-r', 'gt-in-l', 'gt-in-up');
         }
+        if (n === 'gtBarDrop' && e.target && e.target.classList) e.target.classList.remove('gt-bar-drop');
     }, true);
 
     /* 2) replay the card entrance every time a Game tab is opened */
@@ -25327,7 +25373,12 @@ html[data-theme="dark"] .sc-draw.bad { stroke: #F87171; }
         body.classList.remove('gt-in-r', 'gt-in-l', 'gt-in-up');
         // Only ONE entrance effect per open (was: whole page slides/fades in AND every card pops = looked like cards
         // appearing twice). Switching between Top Up / Voucher / Software -> page slide only; coming from another tab -> card pop only.
-        if (cls === 'gt-in-up') { replayCards(page); return; }
+        if (cls === 'gt-in-up') {
+            // entering the Game tab from another tab: the top bar drops in from above
+            var topBar = document.querySelector('#' + page + ' > .game-subtab-bar');
+            if (topBar) { topBar.classList.remove('gt-bar-drop'); void topBar.offsetWidth; topBar.classList.add('gt-bar-drop'); }
+            replayCards(page); return;
+        }
         void body.offsetWidth;
         body.classList.add(cls);
         var pgEl = document.getElementById(page);
@@ -25657,9 +25708,9 @@ html:not(#_) body.no-bottom-nav { padding-top: calc(16px + env(safe-area-inset-t
 </script>
 
 <style id="lg-polish">
-/* ===== Notification toast: liquid glass, sits lower ===== */
+/* ===== Notification toast: liquid glass, pinned near the top ===== */
 html body #toast {
-  top: calc(env(safe-area-inset-top, 0px) + 78px) !important;
+  top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
   left: 16px !important; right: 16px !important; max-width: 440px;
   padding: 11px 14px 11px 12px !important; gap: 11px !important;
   border-radius: 22px !important; overflow: hidden;
@@ -25793,6 +25844,686 @@ html body .buy-bar .buy-sel { background: transparent !important; border: 0 !imp
 html body .buy-bar .buy-sel-name { font-size: 13px; font-weight: 600; color: var(--text); }
 html body .buy-bar .buy-sel-price { font-size: 16px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 html body .buy-bar .eta-hint { padding: 0 6px; background: transparent; font-size: 12px; text-align: left; }
+</style>
+<style id="pg-morph-css">
+/* ===== Sidebar v3: 3-line button -> circle -> grows down into a tall pill -> icons -> widens sideways -> text emerges -> blur clears -> each tab forms its own tiny grid ===== */
+.drawer-overlay { --pg-d: 44px; --pg-cr: 16px; --pg-ct: 12px; --pg-tx: calc(var(--pg-w) - var(--pg-cr) - var(--pg-d) / 2 - 42px); }
+html:not(#_):not(#__):not(#___):not(#____) .side-drawer.pg-drawer {
+  top: 0; bottom: 0; right: 0; left: auto; height: auto; width: var(--pg-w);
+  border: 0 !important; border-radius: 0; box-shadow: none; transform: none; transition: none; animation: none;
+  clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); will-change: clip-path;
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); transform: none; transition: none; animation: pgMorph 2.2s both; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .side-drawer.pg-drawer { animation: pgClose .95s linear both; }
+@keyframes pgMorph {
+  0%, 5% { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.3,0,.2,1); }
+  28% { clip-path: inset(var(--pg-ct) var(--pg-cr) 12px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); }
+  42% { clip-path: inset(var(--pg-ct) var(--pg-cr) 12px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.22,1,.36,1); }
+  66%, 100% { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); }
+}
+@keyframes pgClose {
+  0%   { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); opacity: 1; animation-timing-function: cubic-bezier(.6,0,.3,1); }
+  42%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: linear; }
+  50%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.5,0,.2,1); }
+  92%  { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 1; }
+  100% { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 0; }
+}
+/* keep the overlay visible while the rod collapses; only the dim layer fades out meanwhile */
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) { opacity: 1; transition: none; background: transparent !important; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)::before { content: ""; position: absolute; inset: 0; background: rgba(26,16,64,.5); pointer-events: none; animation: pgDimOut .6s ease-out both; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show):not(.pg-closing) { transition: none; }
+@keyframes pgDimOut { from { opacity: 1; } to { opacity: 0; } }
+/* panel content starts shifted so the icon column sits inside the narrow pill, then slides home while the pill widens */
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel { animation: pgPanelSlide 2.2s both; }
+@keyframes pgPanelSlide {
+  0%, 42% { transform: translate3d(var(--pg-tx), 0, 0); animation-timing-function: cubic-bezier(.22,1,.36,1); }
+  66%, 100% { transform: translate3d(0, 0, 0); }
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-panel { opacity: 0; transition: opacity .16s ease; }
+/* icons pop in once the pill has grown */
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay .pg-item { opacity: 1; animation: none; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item { animation: none; opacity: 1; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-chip { animation: pgChipIn .4s cubic-bezier(.2,1.25,.4,1) both; }
+@keyframes pgChipIn { 0% { opacity: 0; transform: scale(.35); } 100% { opacity: 1; transform: scale(1); } }
+/* text emerges from the icons, blurred, then clears */
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-label { animation: pgTextIn .6s cubic-bezier(.22,1,.36,1) both; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta { animation: pgTextIn .6s cubic-bezier(.22,1,.36,1) 1.2s both; }
+@keyframes pgTextIn { 0% { opacity: 0; transform: translate3d(-14px,0,0); filter: blur(9px); } 100% { opacity: 1; transform: none; filter: blur(0); } }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-cta { opacity: 0; }
+/* no more permanent dots: each tab forms a small grid of tiles that dissolves away (ends fully transparent) */
+.pg-item::before, .pg-mini::before, .pg-cta::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(135deg, rgba(139,108,250,.16), rgba(108,77,246,.08));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation: pgGridIn .55s ease-out both; }
+@keyframes pgGridIn { 0% { opacity: 0; } 38% { opacity: 1; } 100% { opacity: 0; } }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(1) .pg-chip { animation-delay: 0.660s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(1) .pg-label { animation-delay: 1.000s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(1)::before { animation-delay: 1.750s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(2) .pg-chip { animation-delay: 0.705s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(2) .pg-label { animation-delay: 1.040s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(2)::before { animation-delay: 1.810s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(3) .pg-chip { animation-delay: 0.750s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(3) .pg-label { animation-delay: 1.080s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(3)::before { animation-delay: 1.870s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(4) .pg-chip { animation-delay: 0.795s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(4) .pg-label { animation-delay: 1.120s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(4)::before { animation-delay: 1.930s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(5) .pg-chip { animation-delay: 0.840s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(5) .pg-label { animation-delay: 1.160s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: 1.990s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(6) .pg-chip { animation-delay: 0.885s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(6) .pg-label { animation-delay: 1.200s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: 2.050s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7) .pg-chip { animation-delay: 0.930s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7) .pg-label { animation-delay: 1.240s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: 2.110s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more .pg-mini:nth-child(1)::before { animation-delay: 2.15s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more .pg-mini:nth-child(2)::before { animation-delay: 2.2s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation-delay: 2.28s; }
+/* the 3-line button melts into the circle */
+.header-menu-btn svg { transition: opacity .14s ease, transform .2s ease; }
+.header-menu-btn.pg-burger-away svg { opacity: 0; transform: scale(.4) rotate(90deg); }
+@media (prefers-reduced-motion: reduce) {
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-chip, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-label,
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta { animation: none; opacity: 1; }
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation: none; opacity: 0; }
+}
+</style>
+<style id="pg-dark-css">
+/* ===== Sidebar in dark mode: same layout, dark glass panel + light text (was always the light purple/white one) ===== */
+html[data-theme="dark"] .drawer-overlay { --pg-ink: #EDE9FF; --pg-sub: #B7AEE6; --pg-pur: #A78BFA; }
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) .side-drawer.pg-drawer { background: linear-gradient(170deg, #261E4D 0%, #15102B 100%) !important; box-shadow: none; }
+html[data-theme="dark"] .pg-orb { opacity: .4; }
+html[data-theme="dark"] .pg-avatar-in { background: #1B1636; }
+html[data-theme="dark"] .pg-avatar-in .ui-icon { stroke: #C4B5FD !important; }
+html[data-theme="dark"] .pg-glider { background: rgba(167,139,250,.20); box-shadow: 0 8px 18px -10px rgba(0,0,0,.65), inset 0 0 0 1px rgba(167,139,250,.38); }
+html[data-theme="dark"] .pg-glider::after { background: #C4B5FD; }
+html[data-theme="dark"] .pg-chip { background: linear-gradient(135deg, #3A2E78, #271F52) !important; }
+html[data-theme="dark"] .pg-chip .ui-icon { stroke: #C4B5FD !important; }
+html[data-theme="dark"] .pg-item.active .pg-chip { background: linear-gradient(135deg, #8B6CFA, #6C4DF6) !important; }
+html[data-theme="dark"] .pg-item.active .pg-chip .ui-icon { stroke: #fff !important; }
+html[data-theme="dark"] .pg-mini { background: rgba(255,255,255,.07); border-color: rgba(167,139,250,.30); }
+html[data-theme="dark"] .pg-mini .ui-icon { stroke: #C4B5FD !important; }
+html[data-theme="dark"] .pg-rule { background: rgba(167,139,250,.24); }
+html[data-theme="dark"] .pg-close:active { background: rgba(167,139,250,.20) !important; }
+</style>
+<style id="wallet-nav-redesign">
+/* Wallet tab: no glowing round bubble - a clean raised squircle that matches the other nav icons */
+html:not(#_) .nav-icon-wrap-wallet{
+  width:44px;height:44px;border-radius:15px;animation:none!important;
+  background:linear-gradient(145deg,var(--accent),var(--accent-dark));
+  border:1px solid rgba(255,255,255,.35);
+  transform:translateY(-8px);
+  box-shadow:0 8px 14px -6px rgba(var(--accent-rgb),.55),inset 0 1px 0 rgba(255,255,255,.4);
+}
+html:not(#_) .nav-icon-wrap-wallet::before{opacity:.6}
+html:not(#_) .nav-icon-wrap-wallet .ui-icon{width:22px;height:22px}
+html:not(#_) .nav-item-wallet:active .nav-icon-wrap-wallet{transform:translateY(-8px) scale(.92)}
+html:not(#_) .nav-item-wallet.active .nav-icon-wrap-wallet,
+html:not(#_) .nav-item.active .nav-icon-wrap-wallet{
+  transform:translateY(-8px) scale(1);
+  box-shadow:0 10px 16px -6px rgba(var(--accent-rgb),.65),inset 0 1px 0 rgba(255,255,255,.45)
+}
+</style>
+<style id="wallet-dive-css">
+@keyframes walletDive{
+  0%{opacity:0;transform:scale(.12);filter:blur(6px)}
+  55%{opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:none;filter:none}
+}
+@keyframes walletBtnSink{0%{transform:translateY(-8px) scale(1)}35%{transform:translateY(-3px) scale(.78)}100%{transform:translateY(-8px) scale(1)}}
+html:not(#_) #wallet.page-section.wallet-dive{animation:walletDive .5s cubic-bezier(.22,1,.36,1) both!important;transform-origin:var(--wd-x,50%) var(--wd-y,100%);will-change:transform,opacity}
+html:not(#_) .nav-item-wallet.wallet-sink .nav-icon-wrap-wallet{animation:walletBtnSink .45s cubic-bezier(.34,1.3,.64,1)!important}
+@media (prefers-reduced-motion:reduce){html:not(#_) #wallet.page-section.wallet-dive{animation:none!important}}
+</style>
+<script id="wallet-dive-js">
+(function(){
+  var _sp=window.showPage; if(typeof _sp!=='function') return;
+  window.showPage=function(p){
+    var from=window.currentStorePage;
+    var r=_sp.apply(this,arguments);
+    try{
+      if(p==='wallet' && from!=='wallet'){
+        var w=document.getElementById('wallet'), b=document.getElementById('btn-wallet');
+        if(w){
+          if(b){var rc=b.getBoundingClientRect();
+            w.style.setProperty('--wd-x',(rc.left+rc.width/2)+'px');
+            w.style.setProperty('--wd-y',(rc.top+rc.height/2+window.scrollY)+'px');
+            b.classList.remove('wallet-sink'); void b.offsetWidth; b.classList.add('wallet-sink');
+            setTimeout(function(){b.classList.remove('wallet-sink');},500);}
+          w.classList.remove('wallet-dive'); void w.offsetWidth; w.classList.add('wallet-dive');
+          setTimeout(function(){w.classList.remove('wallet-dive');},560);
+        }
+      }
+    }catch(e){}
+    return r;
+  };
+})();
+</script>
+<style id="mpb-slide-css">
+@keyframes mpbSlideIn{
+  0%{opacity:0;transform:translate3d(-72px,0,0) scale(.96)}
+  60%{opacity:1}
+  80%{transform:translate3d(5px,0,0) scale(1)}
+  100%{opacity:1;transform:none}
+}
+html:not(#_) .mini-profile-bar:not(.mpb-ready){opacity:0;transform:translate3d(-72px,0,0);pointer-events:none}
+html:not(#_) .mini-profile-bar.mpb-ready{animation:mpbSlideIn .55s cubic-bezier(.22,1,.36,1) both}
+@media (prefers-reduced-motion:reduce){html:not(#_) .mini-profile-bar.mpb-ready{animation:none}}
+</style>
+<script id="mpb-slide-js">
+(function(){
+  function check(){
+    try{
+      var b=document.getElementById('mini-profile-bar');
+      if(b && window.__gzDataReady && window.authResolvedOnce) b.classList.add('mpb-ready');
+    }catch(e){}
+  }
+  var _s=window.gzSyncAuthUI;
+  window.gzSyncAuthUI=function(){ var r=typeof _s==='function'?_s.apply(this,arguments):undefined; check(); return r; };
+  document.addEventListener('DOMContentLoaded',check);
+  setInterval(check,700);
+  setTimeout(function(){ var b=document.getElementById('mini-profile-bar'); if(b) b.classList.add('mpb-ready'); },9000);
+})();
+</script>
+<style id="nav-intro-css">
+/* Icons come in on their own, no bar behind them:
+   Wallet rises -> Game+History step out -> Home+Profile step out -> only then the glass bar fades in */
+@keyframes navWalletRise{
+  0%{opacity:0;transform:translate3d(0,72px,0) scale(.55)}
+  60%{opacity:1;transform:translate3d(0,-9px,0) scale(1.1)}
+  100%{opacity:1;transform:none}
+}
+@keyframes navStepOut{
+  from{opacity:0;transform:translate3d(var(--nx,0px),0,0) scale(.4)}
+  to{opacity:1;transform:none}
+}
+@keyframes navBgIn{
+  from{background:transparent;border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+html:not(.nav-go) .bottom-nav{opacity:0!important;pointer-events:none!important}
+html.nav-go .bottom-nav{animation:navBgIn .6s ease-out 1.6s backwards}
+html.nav-go .bottom-nav .nav-item-wallet{animation:navWalletRise .62s cubic-bezier(.22,1.2,.36,1) backwards}
+html.nav-go .bottom-nav #btn-game,html.nav-go .bottom-nav #btn-history{animation:navStepOut .55s cubic-bezier(.22,1,.36,1) .6s backwards}
+html.nav-go .bottom-nav #btn-dashboard,html.nav-go .bottom-nav #btn-profile{animation:navStepOut .55s cubic-bezier(.22,1,.36,1) 1.12s backwards}
+@media (prefers-reduced-motion:reduce){html.nav-go .bottom-nav,html.nav-go .bottom-nav .nav-item{animation:none!important}}
+</style>
+<script id="nav-intro-js">
+(function(){
+  var done=false;
+  function go(){
+    if(done) return; done=true;
+    try{
+      var nav=document.getElementById('bottom-nav'), w=document.getElementById('btn-wallet');
+      if(nav&&w){
+        var wr=w.getBoundingClientRect(), wc=wr.left+wr.width/2;
+        nav.querySelectorAll('.nav-item:not(.nav-item-wallet)').forEach(function(it){
+          var r=it.getBoundingClientRect();
+          it.style.setProperty('--nx',(wc-(r.left+r.width/2))+'px');
+        });
+      }
+    }catch(e){}
+    document.documentElement.classList.add('nav-go');
+    setTimeout(function(){ if(nav) nav.style.removeProperty('animation'); },1400);
+  }
+  function check(){ if(!done && window.__gzDataReady && window.authResolvedOnce) go(); }
+  var _s=window.gzSyncAuthUI;
+  window.gzSyncAuthUI=function(){ var r=typeof _s==='function'?_s.apply(this,arguments):undefined; check(); return r; };
+  document.addEventListener('DOMContentLoaded',check);
+  var iv=setInterval(function(){ check(); if(done) clearInterval(iv); },400);
+  setTimeout(go,9000);
+})();
+</script>
+<style id="polish-pack-css">
+/* 1) Wallet / Profile login cards - same look as the new Home card */
+html:not(#_) .gz-login-card{
+  background:linear-gradient(135deg,#3B82F6 0%,#4F46E5 55%,#7C3AED 100%);border:0;color:#fff;
+  -webkit-backdrop-filter:none;backdrop-filter:none;border-radius:26px;
+  box-shadow:0 14px 32px rgba(79,70,229,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+html[data-theme="dark"]:not(#_) .gz-login-card{background:linear-gradient(135deg,#2556C8 0%,#3B35B5 55%,#5B21B6 100%);color:#fff;border:0}
+html:not(#_) .gz-login-card .gz-orb{display:none}
+.gz-login-card::before{content:"";position:absolute;right:-40px;top:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.13);pointer-events:none}
+.gz-login-card::after{content:"";position:absolute;left:-50px;bottom:-60px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
+html:not(#_) .gz-login-card .gz-lc-ico{width:76px;height:76px;margin:0 auto;border-radius:24px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.38);filter:none;box-shadow:0 10px 22px rgba(0,0,0,.18)}
+html:not(#_) .gz-login-card .gz-lc-ico svg{width:38px;height:38px;color:#fff}
+html:not(#_) .gz-login-card h3{color:#fff;font-weight:700}
+html:not(#_) .gz-login-card p,html:not(#_) .gz-login-card .gz-lc-sub{color:rgba(255,255,255,.86)}
+html:not(#_) .gz-login-card .gz-btn{background:#fff;color:#4F46E5;animation:none;font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.2)}
+html:not(#_) .gz-login-card .gz-btn::after{display:none}
+
+/* 2) Popular games: cards slide in from the left one after another once data is there */
+@keyframes popFromLeft{from{opacity:0;transform:translate3d(-64px,0,0) scale(.9)}to{opacity:1;transform:none}}
+html:not(#_):not(#__) .page-section:not(.revisit) .popular-card.card-pop{
+  animation:popFromLeft .6s cubic-bezier(.22,1,.36,1) backwards!important;
+  animation-delay:calc(var(--i,0)*90ms + 150ms)!important}
+
+/* 3) Empty banner placeholder: shimmer sweep */
+@keyframes bannerSweep{from{transform:translateX(-120%)}to{transform:translateX(220%)}}
+html:not(#_) .home-banner-slide:empty{position:relative;overflow:hidden}
+html:not(#_) .home-banner-slide:empty::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);animation:bannerSweep 1.5s ease-in-out infinite}
+html[data-theme="dark"] .home-banner-slide:empty::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent)}
+
+/* 4) "Connecting..." swaps smoothly for the logo; Admin pill slides in from the left once data is ready */
+@keyframes logoSwapIn{from{opacity:0;transform:translate3d(-14px,0,0) scale(.8)}to{opacity:1;transform:none}}
+html:not(#_) .logo:not(.logo-loading) .logo-icon-wrap,html:not(#_) .logo:not(.logo-loading) .logo-brand-text{animation:logoSwapIn .5s cubic-bezier(.22,1,.36,1) backwards}
+html:not(#_) .logo:not(.logo-loading) .logo-brand-text{animation-delay:.08s}
+@keyframes adminPillIn{from{opacity:0;transform:translate3d(-60px,0,0)}60%{opacity:1}80%{transform:translate3d(4px,0,0)}to{opacity:1;transform:none}}
+html:not(.nav-go) #admin-status-bar{display:none!important}
+html.nav-go #admin-status-bar{animation:adminPillIn .6s .25s cubic-bezier(.22,1,.36,1) backwards}
+
+/* 5) Sliding light on the nav bar under the active tab */
+.nav-lamp{position:absolute;top:0;left:0;width:34px;height:4px;border-radius:0 0 6px 6px;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,var(--accent),var(--accent-dark));
+  box-shadow:0 6px 14px 2px rgba(var(--accent-rgb),.55);
+  transition:transform .5s cubic-bezier(.34,1.35,.64,1),opacity .3s ease}
+.nav-lamp.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.nav-lamp{transition:none}}
+</style>
+<script id="polish-pack-js">
+(function(){
+  var nav=document.getElementById('bottom-nav'); if(!nav) return;
+  var lamp=document.createElement('span'); lamp.className='nav-lamp'; nav.appendChild(lamp);
+  var ready=false;
+  function place(){
+    if(window.__navDragging) return;
+    var a=nav.querySelector('.nav-item.active');
+    if(!a||!ready){ lamp.classList.remove('on'); return; }
+    var x=a.offsetLeft+a.offsetWidth/2-lamp.offsetWidth/2;
+    lamp.style.transform='translateX('+x+'px)';
+    lamp.classList.add('on');
+  }
+  new MutationObserver(function(){ requestAnimationFrame(place); }).observe(nav,{attributes:true,attributeFilter:['class'],subtree:true});
+  window.addEventListener('resize',place);
+  // start the lamp once the nav intro has finished
+  var iv=setInterval(function(){
+    if(document.documentElement.classList.contains('nav-go')){
+      clearInterval(iv);
+      setTimeout(function(){ ready=true; place(); },2250);
+    }
+  },200);
+  // 6) haptic tick on every tab tap (Telegram haptics inside the mini app, else plain vibrate)
+  function hap(heavy){
+    try{
+      var h=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback;
+      if(h){ heavy?h.impactOccurred('medium'):h.selectionChanged(); return; }
+    }catch(e){}
+    try{ navigator.vibrate&&navigator.vibrate(heavy?18:10); }catch(e){}
+  }
+  nav.addEventListener('pointerdown',function(e){
+    var it=e.target.closest&&e.target.closest('.nav-item'); if(!it) return;
+    hap(it.classList.contains('nav-item-wallet'));
+  },{passive:true});
+})();
+</script>
+<style id="nav-3d-css">
+.bottom-nav{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.bottom-nav.nav-dragging .nav-lamp{transition:none}
+/* 3D key: solid gradient, stacked extrusion underneath, tilted back, glossy top */
+html:not(#_) .nav-item.active .nav-icon-wrap,
+html:not(#_) .nav-item.nav-peek .nav-icon-wrap{
+  background:linear-gradient(155deg,var(--accent) 0%,var(--accent-dark) 100%);
+  border-color:rgba(255,255,255,.5);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.6),inset 0 -3px 6px rgba(0,0,0,.2),
+    0 1px 0 var(--accent-dark),0 2px 0 var(--accent-dark),0 3px 0 var(--accent-dark),0 4px 0 var(--accent-dark),
+    0 5px 0 rgba(0,0,0,.2),0 15px 20px -6px rgba(var(--accent-rgb),.65);
+  transform:translateY(-9px) perspective(260px) rotateX(14deg) scale(1.1);
+  transition:transform .4s cubic-bezier(.34,1.5,.64,1),box-shadow .3s ease}
+html:not(#_) .nav-item.active .nav-icon-wrap .ui-icon,
+html:not(#_) .nav-item.nav-peek .nav-icon-wrap .ui-icon{color:#fff;stroke:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+html:not(#_) .nav-item.active .nav-label,html:not(#_) .nav-item.nav-peek .nav-label{color:var(--accent);font-weight:700}
+html:not(#_) .nav-item:active .nav-icon-wrap{transform:translateY(-3px) perspective(260px) rotateX(8deg) scale(1.03);
+  box-shadow:inset 0 2px 2px rgba(255,255,255,.5),0 1px 0 var(--accent-dark),0 6px 10px -4px rgba(var(--accent-rgb),.5)}
+/* Wallet key is always raised in 3D */
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap.nav-icon-wrap-wallet,
+html:not(#_) .nav-item.nav-item-wallet.active .nav-icon-wrap.nav-icon-wrap-wallet{
+  background:linear-gradient(155deg,var(--accent) 0%,var(--accent-dark) 100%);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.6),inset 0 -3px 6px rgba(0,0,0,.2),
+    0 1px 0 var(--accent-dark),0 2px 0 var(--accent-dark),0 3px 0 var(--accent-dark),0 4px 0 var(--accent-dark),
+    0 5px 0 rgba(0,0,0,.2),0 15px 20px -6px rgba(var(--accent-rgb),.65);
+  transform:translateY(-10px) perspective(260px) rotateX(12deg) scale(1.05)}
+html:not(#_) .nav-item.nav-item-wallet.nav-peek .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(-12px) perspective(260px) rotateX(14deg) scale(1.14)}
+html:not(#_) .nav-item.nav-item-wallet:active .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(-4px) perspective(260px) rotateX(8deg) scale(1)}
+</style>
+<script id="nav-drag-js">
+(function(){
+  var nav=document.getElementById('bottom-nav'); if(!nav) return;
+  var lamp=nav.querySelector('.nav-lamp');
+  var st=null, dragging=false, suppress=false;
+  function hap(){ try{ var h=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback; if(h){h.selectionChanged();return;} }catch(e){} try{navigator.vibrate&&navigator.vibrate(8);}catch(e){} }
+  function items(){ return [].slice.call(nav.querySelectorAll('.nav-item')); }
+  function nearest(x){
+    var best=null,bd=1e9;
+    items().forEach(function(it){ var r=it.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-x); if(d<bd){bd=d;best=it;} });
+    return best;
+  }
+  function lampTo(x){
+    if(!lamp) return;
+    var r=nav.getBoundingClientRect();
+    x=Math.max(r.left+16,Math.min(r.right-16,x));
+    lamp.style.transform='translateX('+(x-r.left-lamp.offsetWidth/2)+'px)';
+    lamp.classList.add('on');
+  }
+  ['touchstart','touchmove','touchend'].forEach(function(n){ nav.addEventListener(n,function(e){ e.stopPropagation(); },{passive:true}); });
+  nav.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0) return;
+    st={x:e.clientX,y:e.clientY,id:e.pointerId,prev:nav.querySelector('.nav-item.active'),over:null};
+  });
+  nav.addEventListener('pointermove',function(e){
+    if(!st||e.pointerId!==st.id) return;
+    var dx=e.clientX-st.x, dy=e.clientY-st.y;
+    if(!dragging){
+      if(Math.abs(dx)<10||Math.abs(dx)<Math.abs(dy)) return;
+      dragging=true; window.__navDragging=true; nav.classList.add('nav-dragging');
+      try{nav.setPointerCapture(e.pointerId);}catch(_){}
+      if(st.prev) st.prev.classList.remove('active');
+    }
+    var it=nearest(e.clientX);
+    if(it!==st.over){ if(st.over) st.over.classList.remove('nav-peek'); it.classList.add('nav-peek'); st.over=it; hap(); }
+    lampTo(e.clientX);
+  });
+  function finish(cancel){
+    if(!st) return;
+    var s=st; st=null;
+    if(!dragging) return;
+    dragging=false; window.__navDragging=false; nav.classList.remove('nav-dragging');
+    try{nav.releasePointerCapture(s.id);}catch(_){}
+    if(s.over) s.over.classList.remove('nav-peek');
+    suppress=true; setTimeout(function(){ suppress=false; },350);
+    var target=cancel?s.prev:(s.over||s.prev);
+    if(target&&target!==s.prev){
+      var ev=new MouseEvent('click',{bubbles:true,cancelable:true}); ev.__internal=true; target.dispatchEvent(ev);
+      setTimeout(function(){ if(!nav.querySelector('.nav-item.active')&&s.prev) s.prev.classList.add('active'); },600);
+    } else if(s.prev){ s.prev.classList.add('active'); }
+  }
+  nav.addEventListener('pointerup',function(){ finish(false); });
+  nav.addEventListener('pointercancel',function(){ finish(true); });
+  nav.addEventListener('click',function(e){ if(suppress&&!e.__internal){ e.stopPropagation(); e.preventDefault(); } },true);
+})();
+</script>
+<style id="nav-3d-tune">
+/* more breathing room: the raised key no longer touches the top edge of the bar */
+html:not(#_) .bottom-nav{padding-top:13px}
+html:not(#_) .nav-item.active .nav-icon-wrap,
+html:not(#_) .nav-item.nav-peek .nav-icon-wrap{transform:translateY(-2px) perspective(260px) rotateX(12deg) scale(1.03)}
+html:not(#_) .nav-item:active .nav-icon-wrap{transform:translateY(1px) perspective(260px) rotateX(6deg) scale(.97)}
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap.nav-icon-wrap-wallet,
+html:not(#_) .nav-item.nav-item-wallet.active .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(-5px) perspective(260px) rotateX(10deg) scale(1)}
+html:not(#_) .nav-item.nav-item-wallet.nav-peek .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(-6px) perspective(260px) rotateX(12deg) scale(1.06)}
+html:not(#_) .nav-item.nav-item-wallet:active .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(0) perspective(260px) rotateX(6deg) scale(.96)}
+</style>
+<style id="nav-round">
+html:not(#_) .bottom-nav{border-radius:30px}
+html:not(#_) .nav-item .nav-icon-wrap{border-radius:16px}
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap.nav-icon-wrap-wallet{border-radius:19px}
+.nav-lamp{border-radius:0 0 10px 10px}
+</style>
+<style id="nav-compact">
+html:not(#_) .bottom-nav{left:22px;right:22px;padding:10px 4px 6px;border-radius:26px}
+html:not(#_) .nav-item{gap:1px}
+html:not(#_) .nav-item .nav-icon-wrap{width:33px;height:33px;border-radius:13px}
+html:not(#_) .nav-item .nav-icon-wrap .ui-icon{width:18px;height:18px}
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap.nav-icon-wrap-wallet{width:38px;height:38px;border-radius:16px}
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap-wallet .ui-icon{width:20px;height:20px}
+html:not(#_) .nav-item .nav-label{font-size:10px}
+@media (min-width:600px){html:not(#_) .bottom-nav{left:50%;right:auto;width:420px;margin-left:-210px}}
+</style>
+<style id="nav-compact2">
+html:not(#_) .bottom-nav{left:30px;right:30px;padding:8px 2px 5px;border-radius:24px}
+html:not(#_) .nav-item .nav-icon-wrap{width:30px;height:30px;border-radius:12px}
+html:not(#_) .nav-item .nav-icon-wrap .ui-icon{width:17px;height:17px}
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap.nav-icon-wrap-wallet{width:35px;height:35px;border-radius:15px}
+html:not(#_) .nav-item.nav-item-wallet .nav-icon-wrap-wallet .ui-icon{width:19px;height:19px}
+html:not(#_) .nav-item .nav-label{font-size:9.5px}
+@media (min-width:600px){html:not(#_) .bottom-nav{width:390px;margin-left:-195px}}
+</style>
+<style id="upgrade-pack-css">
+/* 1) page transitions for Home / History / Profile (direction follows tab order) */
+@keyframes txFromR{from{opacity:0;transform:translate3d(54px,0,0) perspective(900px) rotateY(-9deg) scale(.97)}to{opacity:1;transform:none}}
+@keyframes txFromL{from{opacity:0;transform:translate3d(-54px,0,0) perspective(900px) rotateY(9deg) scale(.97)}to{opacity:1;transform:none}}
+html:not(#_):not(#__) .page-section.tx-r.active{animation:txFromR .45s cubic-bezier(.22,1,.36,1) both!important}
+html:not(#_):not(#__) .page-section.tx-l.active{animation:txFromL .45s cubic-bezier(.22,1,.36,1) both!important}
+
+/* 2) Price cards: 3D keys that press down when picked */
+html:not(#_) #detail-package-list .package-card{
+  box-shadow:0 4px 0 rgba(var(--accent-rgb),.26),0 12px 16px -10px rgba(20,30,60,.35);
+  transform:translateY(0);transition:transform .22s cubic-bezier(.34,1.5,.64,1),box-shadow .22s ease,border-color .2s ease}
+html:not(#_) #detail-package-list .package-card:active{transform:translateY(3px) scale(.985);box-shadow:0 1px 0 rgba(var(--accent-rgb),.3),0 4px 8px -6px rgba(20,30,60,.3)}
+html:not(#_) #detail-package-list .package-card.selected{
+  transform:translateY(3px);border-color:var(--accent);
+  box-shadow:0 1px 0 var(--accent),0 0 0 3px rgba(var(--accent-rgb),.3),inset 0 2px 8px rgba(var(--accent-rgb),.18)}
+html[data-theme="dark"]:not(#_) #detail-package-list .package-card{box-shadow:0 4px 0 rgba(0,0,0,.45),0 12px 16px -10px rgba(0,0,0,.6)}
+html[data-theme="dark"]:not(#_) #detail-package-list .package-card.selected{box-shadow:0 1px 0 var(--accent),0 0 0 3px rgba(var(--accent-rgb),.4),inset 0 2px 8px rgba(var(--accent-rgb),.25)}
+
+/* 3) History: status colour stripe + stronger badge + live dot for pending/processing */
+html:not(#_) .history-card{position:relative;overflow:hidden;padding-left:18px}
+html:not(#_) .history-card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:5px;border-radius:0 6px 6px 0;background:var(--st,#94a3b8);box-shadow:0 0 12px var(--st,#94a3b8)}
+html:not(#_) .history-card .hc-thumb{box-shadow:0 0 0 2px var(--st,transparent)}
+html:not(#_) .history-card .badge{background:color-mix(in srgb,var(--st,#94a3b8) 16%,transparent);color:var(--st,#64748b);border:1px solid color-mix(in srgb,var(--st,#94a3b8) 45%,transparent);font-weight:700}
+@keyframes stPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--st) 55%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+html:not(#_) .history-card.st-pending::after,html:not(#_) .history-card.st-processing::after{content:"";position:absolute;right:12px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--st);animation:stPulse 1.4s ease-out infinite}
+html[data-theme="dark"]:not(#_) .history-card .badge{background:color-mix(in srgb,var(--st,#94a3b8) 24%,transparent)}
+
+/* 4) Side drawer: items cascade in, chips get a lifted icon box */
+@keyframes pgItemIn{from{opacity:0;transform:translate3d(-26px,0,0)}to{opacity:1;transform:none}}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .drawer-overlay.show .pg-item{opacity:1;animation:pgItemIn .45s cubic-bezier(.22,1,.36,1) backwards;animation-delay:calc(.12s + var(--pi,0) * 45ms)}
+html:not(#_) .pg-item .pg-chip{box-shadow:0 3px 0 rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.6);border-radius:13px;transition:transform .25s cubic-bezier(.34,1.5,.64,1)}
+html:not(#_) .pg-item:active .pg-chip{transform:translateY(2px) scale(.94);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+
+/* 5) confetti */
+.cf-bit{position:fixed;top:0;left:0;width:9px;height:14px;border-radius:2px;pointer-events:none;z-index:99999;will-change:transform,opacity}
+
+/* 6) pull to refresh */
+.ptr{position:fixed;left:50%;top:0;width:44px;height:44px;margin-left:-22px;border-radius:50%;z-index:99998;display:flex;align-items:center;justify-content:center;
+  background:var(--surface,#fff);box-shadow:0 8px 20px rgba(20,30,60,.25);border:1px solid var(--border,rgba(0,0,0,.08));
+  transform:translate3d(0,-60px,0);opacity:0;pointer-events:none;transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .2s ease}
+.ptr svg{width:22px;height:22px;color:var(--accent)}
+.ptr.spin svg{animation:ptrSpin .8s linear infinite}
+@keyframes ptrSpin{to{transform:rotate(360deg)}}
+html[data-theme="dark"] .ptr{background:#16213a;border-color:rgba(255,255,255,.12)}
+
+/* 7) dark mode tuning for the new pieces */
+html[data-theme="dark"] .gz-login-tab .gz-btn,html[data-theme="dark"] .gz-login-card .gz-btn{background:#EAF1FF;color:#2F2AA8}
+html[data-theme="dark"] .nav-lamp{box-shadow:0 6px 16px 3px rgba(var(--accent-rgb),.75)}
+html[data-theme="dark"] .bottom-nav{background:rgba(18,26,46,.82);border-color:rgba(255,255,255,.1)}
+html[data-theme="dark"] .nav-item:not(.active):not(.nav-item-wallet) .nav-icon-wrap{background:rgba(255,255,255,.06)}
+html[data-theme="dark"] .home-banner-slide:empty{background:rgba(255,255,255,.06)}
+@media (prefers-reduced-motion:reduce){
+  html:not(#_):not(#__) .page-section.tx-r.active,html:not(#_):not(#__) .page-section.tx-l.active{animation:none!important}
+  .ptr.spin svg{animation:none}
+}
+</style>
+<script id="upgrade-pack-js">
+(function(){
+  function hapN(type){ try{ var h=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback; if(h){ h.notificationOccurred(type||'success'); return; } }catch(e){} try{ navigator.vibrate&&navigator.vibrate([18,40,18]); }catch(e){} }
+
+  // 1) directional page transitions
+  var ORDER={dashboard:0,home:1,voucher:1,software:1,wallet:2,history:3,profile:4};
+  var ANIM={dashboard:1,history:1,profile:1};
+  var _sp=window.showPage;
+  if(typeof _sp==='function'){
+    window.showPage=function(p){
+      var from=window.currentStorePage;
+      var r=_sp.apply(this,arguments);
+      try{
+        if(ANIM[p] && from!==p && from in ORDER && p in ORDER){
+          var el=document.getElementById(p);
+          if(el){
+            el.classList.remove('tx-r','tx-l'); void el.offsetWidth;
+            el.classList.add(ORDER[p]>ORDER[from]?'tx-r':'tx-l');
+            setTimeout(function(){ el.classList.remove('tx-r','tx-l'); },520);
+          }
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  // 4) drawer stagger index
+  try{ document.querySelectorAll('.pg-drawer .pg-item').forEach(function(it,i){ it.style.setProperty('--pi',i); }); }catch(e){}
+
+  // 5) confetti + haptic when an order success card opens
+  function confetti(){
+    var colors=['#4C93FF','#7C3AED','#22C55E','#F59E0B','#EF4444','#06B6D4'];
+    var W=window.innerWidth,H=window.innerHeight;
+    for(var i=0;i<42;i++){
+      var d=document.createElement('i'); d.className='cf-bit';
+      d.style.background=colors[i%colors.length];
+      document.body.appendChild(d);
+      var x0=W/2,y0=H*0.42,ang=(Math.random()*Math.PI)+Math.PI,sp=140+Math.random()*260;
+      var dx=Math.cos(ang)*sp,dy=Math.sin(ang)*sp-60,fall=H*0.5+Math.random()*H*0.4;
+      var an=d.animate([
+        {transform:'translate('+x0+'px,'+y0+'px) rotate(0deg)',opacity:1},
+        {transform:'translate('+(x0+dx)+'px,'+(y0+dy)+'px) rotate('+(Math.random()*360)+'deg)',opacity:1,offset:.4},
+        {transform:'translate('+(x0+dx*1.3)+'px,'+(y0+dy+fall)+'px) rotate('+(Math.random()*720)+'deg)',opacity:0}
+      ],{duration:1500+Math.random()*700,easing:'cubic-bezier(.2,.7,.4,1)',fill:'forwards'});
+      an.onfinish=(function(n){return function(){ n.remove(); };})(d);
+    }
+  }
+  ['success-overlay','order-ok-overlay'].forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    var was=el.classList.contains('show');
+    new MutationObserver(function(){
+      var now=el.classList.contains('show');
+      if(now&&!was){ confetti(); hapN('success'); }
+      was=now;
+    }).observe(el,{attributes:true,attributeFilter:['class']});
+  });
+
+  // 6) refresh button in the header (replaces pull-to-refresh)
+  (function(){
+    var grp=document.querySelector('.header-icons-group'); if(!grp||document.getElementById('header-refresh-btn')) return;
+    var b=document.createElement('div');
+    b.className='header-icon'; b.id='header-refresh-btn'; b.setAttribute('role','button'); b.setAttribute('aria-label','Refresh');
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
+    grp.insertBefore(b,grp.firstChild);
+    var busy=false;
+    b.addEventListener('click',function(){
+      if(busy) return; busy=true; b.classList.add('spin');
+      try{ var h=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback; if(h) h.impactOccurred('light'); else navigator.vibrate&&navigator.vibrate(12); }catch(e){}
+      if(window.currentStorePage==='history'&&typeof window.loadHistory==='function'){
+        try{ window.loadHistory(); }catch(e){}
+        setTimeout(function(){ b.classList.remove('spin'); busy=false; },900);
+      } else { setTimeout(function(){ location.reload(); },600); }
+    });
+  })();
+})();
+</script>
+<style id="refresh-btn-css">
+#header-refresh-btn{display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent)}
+#header-refresh-btn svg{transition:transform .3s ease}
+#header-refresh-btn:active svg{transform:rotate(-90deg) scale(.9)}
+#header-refresh-btn.spin svg{animation:ptrSpin .8s linear infinite}
+@keyframes ptrSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#header-refresh-btn.spin svg{animation:none}}
+</style>
+<style id="ux2-design">
+/* ===== UX 2.0 design refresh (delete this whole block to go back) ===== */
+/* 1) background: soft colour mesh instead of flat grey */
+html:not(#_) body{
+  background:
+    radial-gradient(520px 340px at 8% -4%,rgba(var(--accent-rgb),.16),transparent 70%),
+    radial-gradient(460px 320px at 100% 22%,rgba(124,58,237,.12),transparent 70%),
+    radial-gradient(520px 380px at 0% 78%,rgba(6,182,212,.10),transparent 70%),
+    var(--bg) fixed}
+html[data-theme="dark"]:not(#_) body{
+  background:
+    radial-gradient(520px 340px at 8% -4%,rgba(var(--accent-rgb),.22),transparent 70%),
+    radial-gradient(460px 320px at 100% 22%,rgba(124,58,237,.18),transparent 70%),
+    radial-gradient(520px 380px at 0% 78%,rgba(6,182,212,.12),transparent 70%),
+    var(--bg) fixed}
+
+/* 2) header becomes a floating glass pill */
+html:not(#_) .header{margin:10px 12px 0;padding:10px 16px;border-radius:26px;
+  background:var(--glass-bg-strong,rgba(255,255,255,.78));
+  -webkit-backdrop-filter:var(--blur,blur(16px));backdrop-filter:var(--blur,blur(16px));
+  border:1px solid var(--glass-border,rgba(255,255,255,.6));
+  box-shadow:0 14px 30px -14px rgba(20,30,60,.35),inset 0 1px 0 rgba(255,255,255,.55)}
+html[data-theme="dark"]:not(#_) .header{background:rgba(18,26,46,.78);border-color:rgba(255,255,255,.1)}
+
+/* 3) section titles: bold with an accent tab */
+html:not(#_) .title-header{position:relative;display:flex;align-items:center;gap:10px;
+  font-size:20px;font-weight:800;letter-spacing:-.2px;margin:22px 2px 14px;padding:0;border:0}
+html:not(#_) .title-header::before{content:"";width:6px;height:22px;border-radius:6px;flex:0 0 auto;
+  background:linear-gradient(180deg,var(--accent),#7C3AED);box-shadow:0 4px 10px rgba(var(--accent-rgb),.45)}
+html:not(#_) .title-header::after{content:"";flex:1;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(var(--accent-rgb),.28),transparent)}
+
+/* 4) banner + profile strip */
+html:not(#_) .home-banner-carousel,html:not(#_) .home-banner-track,html:not(#_) .home-banner-slide{border-radius:28px}
+html:not(#_) .home-banner-carousel{box-shadow:0 22px 38px -20px rgba(var(--accent-rgb),.55),0 6px 14px -8px rgba(20,30,60,.3)}
+html:not(#_) .mini-profile-bar{border-radius:22px;border:1px solid var(--glass-border,var(--border));
+  background:var(--glass-bg-strong,var(--surface));box-shadow:0 10px 22px -14px rgba(20,30,60,.35)}
+
+/* 5) game tiles: elevated glass tiles, soft lift, 3D press */
+html:not(#_) .game-card{border-radius:24px;border:1px solid var(--glass-border,var(--border));
+  background:var(--glass-bg-strong,var(--surface));
+  box-shadow:0 14px 24px -16px rgba(20,30,60,.45),0 2px 0 rgba(var(--accent-rgb),.14);
+  transition:transform .25s cubic-bezier(.34,1.5,.64,1),box-shadow .25s ease}
+html:not(#_) .game-card:active{transform:translateY(3px) scale(.97);box-shadow:0 4px 8px -6px rgba(20,30,60,.4)}
+html:not(#_) .game-card .game-card-img-wrap{border-radius:18px}
+html:not(#_) .game-card .game-card-name{font-weight:700;letter-spacing:-.1px}
+html[data-theme="dark"]:not(#_) .game-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);box-shadow:0 14px 24px -16px rgba(0,0,0,.7),0 2px 0 rgba(0,0,0,.35)}
+
+/* 6) "Top-Up in 4 steps" becomes a 2x2 bento grid */
+html:not(#_) .dash-guide-steps{display:grid!important;grid-template-columns:1fr 1fr;gap:12px}
+html:not(#_) .dash-guide-step{position:relative;overflow:hidden;display:flex!important;flex-direction:column;align-items:flex-start;gap:10px;
+  min-height:118px;padding:16px;margin:0!important;border-radius:24px;border:1px solid var(--glass-border,var(--border));
+  background:var(--glass-bg-strong,var(--surface));box-shadow:0 14px 24px -16px rgba(20,30,60,.4);
+  transition:transform .25s cubic-bezier(.34,1.5,.64,1)}
+html:not(#_) .dash-guide-step:active{transform:scale(.96)}
+html:not(#_) .dash-guide-step::after{content:"";position:absolute;right:-26px;top:-26px;width:90px;height:90px;border-radius:50%;background:rgba(var(--accent-rgb),.10)}
+html:not(#_) .dash-guide-num{width:38px;height:38px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;color:#fff;background:linear-gradient(150deg,var(--accent),var(--accent-dark));
+  box-shadow:0 3px 0 var(--accent-dark),0 10px 14px -6px rgba(var(--accent-rgb),.6),inset 0 1px 0 rgba(255,255,255,.5)}
+html:not(#_) .dash-guide-text{font-size:13px;font-weight:600;line-height:1.45;position:relative;z-index:1}
+html[data-theme="dark"]:not(#_) .dash-guide-step{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+
+/* 7) buttons: same raised-key language as the nav */
+html:not(#_) .btn-primary{background:linear-gradient(155deg,var(--accent),var(--accent-dark));color:#fff;border:0;border-radius:16px;font-weight:700;
+  box-shadow:0 4px 0 var(--accent-dark),0 14px 20px -10px rgba(var(--accent-rgb),.7),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .18s cubic-bezier(.34,1.5,.64,1),box-shadow .18s ease}
+html:not(#_) .btn-primary:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent-dark),0 6px 10px -6px rgba(var(--accent-rgb),.6)}
+html:not(#_) .btn-primary:disabled{box-shadow:none;opacity:.55}
+
+/* 8) generic cards + inputs get the same softness */
+html:not(#_) .list-card,html:not(#_) .detail-form-card,html:not(#_) .stat-box{border-radius:22px}
+html:not(#_) input[type="text"],html:not(#_) input[type="number"],html:not(#_) input[type="email"],html:not(#_) input[type="tel"],html:not(#_) input[type="search"]{border-radius:16px}
+
+/* 9) scroll reveal */
+html:not(#_) .rv{opacity:0;transform:translate3d(0,22px,0);transition:opacity .55s ease,transform .6s cubic-bezier(.22,1,.36,1);transition-delay:var(--rd,0ms)}
+html:not(#_) .rv.rv-in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html:not(#_) .rv{opacity:1;transform:none;transition:none}}
+</style>
+<script id="ux2-js">
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  var SEL='.title-header,.dash-guide-step,.mini-profile-bar,.home-banner-carousel,.stat-box,.detail-form-card';
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('rv-in'); io.unobserve(e.target); } });
+  },{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+  var seen=new WeakSet();
+  function scan(){
+    document.querySelectorAll(SEL).forEach(function(el,i){
+      if(seen.has(el)) return; seen.add(el);
+      var r=el.getBoundingClientRect();
+      if(r.top<window.innerHeight*0.92&&r.bottom>0) return; // already on screen: leave alone
+      el.classList.add('rv'); el.style.setProperty('--rd',((i%4)*60)+'ms');
+      io.observe(el);
+    });
+  }
+  setTimeout(scan,1800);
+  setInterval(scan,2500);
+  // safety: never leave anything hidden
+  setTimeout(function(){ document.querySelectorAll('.rv:not(.rv-in)').forEach(function(el){ var r=el.getBoundingClientRect(); if(r.top<window.innerHeight) el.classList.add('rv-in'); }); },6000);
+})();
+</script>
+<style id="header-wider">
+html:not(#_) .header{margin:8px 5px 0;padding:13px 20px;border-radius:26px}
 </style>
 </body>
 </html>
