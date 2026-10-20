@@ -2898,7 +2898,7 @@
         .wallet-min-hint { margin: 10px 0 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.6); position: relative; z-index: 2; }
         /* Modal open: drop the floating bottom nav underneath the sheet so it never covers the slide-to-submit button
            (the overlay lives inside main.content-area's stacking context, which sits below the nav's z-index:100). */
-        body:has(.modal-overlay.show) .bottom-nav { z-index: 0; pointer-events: none; }
+        html.gz-modal-open .bottom-nav { z-index: 0; pointer-events: none; }
         .modal-box { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
 
         /* Payment method picker */
@@ -4880,27 +4880,19 @@ html[data-theme="dark"] .package-card.type-currency .pc-cost { background: #1877
 .mini-profile-bar { margin-bottom: 14px; }
 .bullet-chat-wrapper.show + .content-area, .bullet-chat-wrapper.show { margin-bottom: 0; }
 .admin-status-bar.online-text {
-    background: linear-gradient(135deg, rgba(74,222,128,.16), rgba(34,197,94,.06));
-    border-color: rgba(34,197,94,.40);
-    box-shadow: 0 0 5px rgba(34,197,94,.18), 0 0 10px rgba(34,197,94,.08), inset 0 1px 1px rgba(255,255,255,.40);
-    animation: adminGlow 2.8s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(74,222,128,.24), rgba(34,197,94,.12));
+    border-color: rgba(34,197,94,.60);
+    box-shadow: none; animation: none;
 }
-.admin-status-bar.online-text #admin-status-text { color: #16a34a; font-weight: 700; text-shadow: 0 0 3px rgba(34,197,94,.22); }
-.admin-status-dot.online {
-    background: #22c55e; box-shadow: 0 0 3px 0 rgba(34,197,94,.55), 0 0 6px 1px rgba(34,197,94,.25);
-    animation: adminDot 1.8s ease-in-out infinite;
-}
+.admin-status-bar.online-text #admin-status-text { color: #15a34a; font-weight: 800; text-shadow: none; }
+.admin-status-dot.online { background: #22c55e; box-shadow: none; animation: none; }
 html[data-theme="dark"] .admin-status-bar.online-text {
-    background: linear-gradient(135deg, rgba(61,220,114,.18), rgba(16,185,129,.06));
-    border-color: rgba(74,255,135,.42);
-    box-shadow: 0 0 6px rgba(61,220,114,.22), 0 0 12px rgba(61,220,114,.10), inset 0 1px 1px rgba(255,255,255,.10);
+    background: linear-gradient(135deg, rgba(61,220,114,.24), rgba(16,185,129,.12));
+    border-color: rgba(74,255,135,.55);
+    box-shadow: none;
 }
-html[data-theme="dark"] .admin-status-bar.online-text #admin-status-text { color: #4ade80; text-shadow: 0 0 4px rgba(93,255,149,.28); }
-html[data-theme="dark"] .admin-status-dot.online { background: #4ade80; box-shadow: 0 0 3px 0 rgba(93,255,149,.6), 0 0 7px 1px rgba(61,220,114,.28); }
-@keyframes adminGlow { 0%,100% { box-shadow: 0 0 4px rgba(34,197,94,.14), 0 0 8px rgba(34,197,94,.06), inset 0 1px 1px rgba(255,255,255,.40); } 50% { box-shadow: 0 0 7px rgba(34,197,94,.26), 0 0 14px rgba(34,197,94,.12), inset 0 1px 1px rgba(255,255,255,.40); } }
-@keyframes adminDot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: .85; } }
-html.perf-low .admin-status-bar.online-text, html.perf-low .admin-status-dot.online { animation: none; }
-@media (prefers-reduced-motion: reduce) { .admin-status-bar.online-text, .admin-status-dot.online { animation: none; } }
+html[data-theme="dark"] .admin-status-bar.online-text #admin-status-text { color: #4ade80; text-shadow: none; }
+html[data-theme="dark"] .admin-status-dot.online { background: #4ade80; box-shadow: none; }
 
 /* ===== Wallet login: full-screen "Welcome Back" page (replaces the bottom-sheet popup) ===== */
 #wallet-google-gate-overlay.lg-page {
@@ -4984,10 +4976,10 @@ html[data-theme="dark"] .onboarding-overlay.lg-onb { background: linear-gradient
 .lg-tg:empty { display: none; }
 .lg-foot { margin: 34px 0 0; font-size: 11px; letter-spacing: .3em; color: #6b7794; }
 html[data-theme="dark"] .lg-foot { color: #8294bd; }
-body:has(#wallet-google-gate-overlay.show) .bottom-nav { display: none; }
+html.gz-gate-open .bottom-nav { display: none; }
 /* Login page is full-screen: hide the app header while it (or onboarding login) is open */
-body:has(#wallet-google-gate-overlay.show) .header,
-body:has(#onboarding-overlay:not([style*="display: none"]):not([style*="display:none"])) .header { display: none !important; }
+html.gz-gate-open .header,
+html.gz-onb-open .header { display: none !important; }
 </style>
 <style id="linn-title-glass-grid">
 /* "Linn Game Store" home title: compact full-glass plate (no grid lines) + colour-flowing text */
@@ -6432,6 +6424,9 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                     </div>
                     <div class="pg-item" role="button" tabindex="0" onclick="closeDrawer(); openGuidePage();">
                         <span class="pg-chip" style="--c:#F6DFE4"><svg class="ui-icon"><use href="#icon-message-circle"></use></svg></span><span class="pg-label" data-i18n="nav_support">Support</span>
+                    </div>
+                    <div class="pg-item pg-reload" id="pg-reload-item" role="button" tabindex="0" onclick="window.pgReload && window.pgReload()">
+                        <span class="pg-chip" style="--c:#DDEBD6"><svg class="ui-icon"><use href="#icon-refresh"></use></svg></span><span class="pg-label" data-i18n="nav_reload">Reload</span>
                     </div>
                 </nav>
                 <div class="pg-more">
@@ -8038,7 +8033,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 nav_topup: 'Top Up', nav_game: 'Game', nav_software: 'Software',
                 nav_history: 'History', nav_leaderboard: 'Leaderboard', nav_wallet: 'Wallet',
                 nav_profile: 'Profile', nav_notifications: 'Notifications', nav_theme: 'Dark Mode',
-                nav_terms: 'Terms & Policy', nav_support: 'Support', nav_language: 'Language', nc_title: 'Name Check', nc_clear: 'Clear', nc_select_game: 'Select game', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Select server / region', nc_global: 'Global', nc_server: 'Server', nc_row_name: 'Name', nc_row_region: 'Region', nc_row_id: 'Player ID', nc_unavailable: "Couldn't check right now. Please try again later.", pc_wallet_balance: 'Wallet balance', pc_topup: 'Top up', pc_orders: 'Orders', pc_total_spent: 'Total spent', pc_edit: 'Edit profile',
+                nav_terms: 'Terms & Policy', nav_support: 'Support', nav_reload: 'Reload', nav_language: 'Language', nc_title: 'Name Check', nc_clear: 'Clear', nc_select_game: 'Select game', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Select server / region', nc_global: 'Global', nc_server: 'Server', nc_row_name: 'Name', nc_row_region: 'Region', nc_row_id: 'Player ID', nc_unavailable: "Couldn't check right now. Please try again later.", pc_wallet_balance: 'Wallet balance', pc_topup: 'Top up', pc_orders: 'Orders', pc_total_spent: 'Total spent', pc_edit: 'Edit profile',
                 legal_tab_terms: 'Terms', legal_tab_privacy: 'Privacy', legal_tab_refund: 'Refund',
                 terms_l_about: 'About This Service',
                 terms_b_about: 'Linn Game Store (operating at linngamestore.com) is a game top-up and voucher store. By using this site, browsing, creating an account, or placing an order, you agree to these Terms.',
@@ -8240,7 +8235,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
                 nav_topup: 'ငွေဖြည့်', nav_game: 'ဂိမ်း', nav_software: 'ဆော့ဖ်ဝဲ',
                 nav_history: 'မှတ်တမ်း', nav_leaderboard: 'ထိပ်တန်းစာရင်း', nav_wallet: 'ပိုက်ဆံအိတ်',
                 nav_profile: 'ပရိုဖိုင်', nav_notifications: 'အသိပေးချက်များ', nav_theme: 'အနက်ရောင်မုဒ်',
-                nav_terms: 'စည်းမျဉ်းစည်းကမ်း', nav_support: 'အကူအညီ', nav_language: 'ဘာသာစကား', nc_title: 'အမည်စစ်ဆေးရန်', nc_clear: 'ရှင်းမည်', nc_select_game: 'ဂိမ်းရွေးပါ', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Server / Region ရွေးပါ', nc_global: 'Global', nc_server: 'Server', nc_row_name: 'အမည်', nc_row_region: 'Region', nc_row_id: 'Player ID', nc_unavailable: 'ယခု စစ်ဆေး၍မရပါ၊ ခဏနေမှ ပြန်ကြိုးစားပါ', pc_wallet_balance: 'Wallet လက်ကျန်ငွေ', pc_topup: 'ငွေဖြည့်ရန်', pc_orders: 'အော်ဒါများ', pc_total_spent: 'စုစုပေါင်းသုံးငွေ', pc_edit: 'ပရိုဖိုင်ပြင်ရန်',
+                nav_terms: 'စည်းမျဉ်းစည်းကမ်း', nav_support: 'အကူအညီ', nav_reload: 'ပြန်လည်စတင်ရန်', nav_language: 'ဘာသာစကား', nc_title: 'အမည်စစ်ဆေးရန်', nc_clear: 'ရှင်းမည်', nc_select_game: 'ဂိမ်းရွေးပါ', nc_player_id_ph: 'Player ID', nc_server_ph: 'Server ID', nc_select_server: 'Server / Region ရွေးပါ', nc_global: 'Global', nc_server: 'Server', nc_row_name: 'အမည်', nc_row_region: 'Region', nc_row_id: 'Player ID', nc_unavailable: 'ယခု စစ်ဆေး၍မရပါ၊ ခဏနေမှ ပြန်ကြိုးစားပါ', pc_wallet_balance: 'Wallet လက်ကျန်ငွေ', pc_topup: 'ငွေဖြည့်ရန်', pc_orders: 'အော်ဒါများ', pc_total_spent: 'စုစုပေါင်းသုံးငွေ', pc_edit: 'ပရိုဖိုင်ပြင်ရန်',
                 legal_tab_terms: 'စည်းကမ်းချက်', legal_tab_privacy: 'ကိုယ်ရေးအချက်အလက်', legal_tab_refund: 'ငွေပြန်အမ်း',
                 terms_l_about: 'ဝန်ဆောင်မှုအကြောင်း',
                 terms_b_about: 'Linn Game Store (linngamestore.com တွင် လုပ်ဆောင်သည်) သည် ဂိမ်း top-up နှင့် voucher ရောင်းချသော store တစ်ခု ဖြစ်ပါသည်။ ဤ site ကို အသုံးပြုခြင်း၊ browse လုပ်ခြင်း၊ account ဖွင့်ခြင်း သို့မဟုတ် order တင်ခြင်းဖြင့် ဤစည်းကမ်းချက်များကို သဘောတူလက်ခံရာ ရောက်ပါသည်။',
@@ -8827,6 +8822,7 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             clearTimeout(pgBurgerTimer); clearTimeout(pgCloseTimer);
             document.getElementById('drawer-overlay').classList.remove('pg-closing');
             pgMeasure();
+            if (window.calmFor) window.calmFor(2400);
             const burger = document.getElementById('drawer-toggle-btn'); if (burger) burger.classList.add('pg-burger-away');
             document.getElementById('drawer-overlay').classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -8836,9 +8832,10 @@ html.is-scrolling .header, html.is-scrolling .bottom-nav {
             withDrawerSlideClass();
             const ovl = document.getElementById('drawer-overlay');
             if (ovl && ovl.classList.contains('show')) {
+                if (window.calmFor) window.calmFor(1500);
                 ovl.classList.add('pg-closing');
-                clearTimeout(pgCloseTimer); pgCloseTimer = setTimeout(() => ovl.classList.remove('pg-closing'), 980);
-                clearTimeout(pgBurgerTimer); pgBurgerTimer = setTimeout(() => { const b = document.getElementById('drawer-toggle-btn'); if (b) b.classList.remove('pg-burger-away'); }, 780);
+                clearTimeout(pgCloseTimer); pgCloseTimer = setTimeout(() => ovl.classList.remove('pg-closing'), 1340);
+                clearTimeout(pgBurgerTimer); pgBurgerTimer = setTimeout(() => { const b = document.getElementById('drawer-toggle-btn'); if (b) b.classList.remove('pg-burger-away'); }, 1100);
             }
             document.getElementById('drawer-overlay').classList.remove('show');
             document.body.style.overflow = '';
@@ -23973,7 +23970,7 @@ html .page-section.revisit .game-card.card-wave { animation: none !important; }
 /* ===== Compact sticky order steps ===== */
 .ord-steps{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--tg-top-inset,0px) + 66px);z-index:90;margin:0 0 12px;padding:6px 10px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.10);align-items:center;
   background:var(--glass-bg-strong,var(--surface));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:top .35s cubic-bezier(.4,0,.2,1)}
-body:has(.header.header-hidden) .ord-steps{top:calc(env(safe-area-inset-top,0px) + var(--tg-top-inset,0px) + 8px)}
+html:not(#_) .ord-steps.hdr-up{top:calc(env(safe-area-inset-top,0px) + var(--tg-top-inset,0px) + 8px)}
 .ord-step{flex-direction:row;justify-content:center;gap:6px}
 .ord-dot{width:20px;height:20px;font-size:11px;flex:0 0 auto}
 .ord-dot svg{width:11px;height:11px}
@@ -25652,7 +25649,7 @@ html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer {
   };
   function pgInit() {
     var nav = $('drawer-nav'); if (!nav) return;
-    new MutationObserver(function () { window.pgGlide(false); }).observe(nav, { attributes: true, attributeFilter: ['class'], subtree: true });
+    new MutationObserver(function () { var o = $('drawer-overlay'); if (o && o.classList.contains('show')) window.pgGlide(false); }).observe(nav, { attributes: true, attributeFilter: ['class'], subtree: true });
     nav.addEventListener('click', function (e) {          /* glide to the tapped item right away */
       var it = e.target.closest && e.target.closest('.pg-item'), g = $('pg-glider'); if (!it || !g) return;
       g.style.opacity = '1'; g.style.height = it.offsetHeight + 'px'; g.style.transform = 'translateY(' + it.offsetTop + 'px)';
@@ -25796,6 +25793,7 @@ html:not(#_):not(#__):not(#___) .drawer-overlay { transition: opacity .3s ease; 
 .drawer-overlay.show .pg-item:nth-of-type(5), .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: .82s; }
 .drawer-overlay.show .pg-item:nth-of-type(6), .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: .86s; }
 .drawer-overlay.show .pg-item:nth-of-type(7), .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: .90s; }
+.drawer-overlay.show .pg-item:nth-of-type(8), .drawer-overlay.show .pg-item:nth-of-type(8)::before { animation-delay: .94s; }
 .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-more .pg-mini::before { animation-delay: .94s; }
 .drawer-overlay.show .pg-cta, .drawer-overlay.show .pg-cta::before { animation-delay: .98s; }
 .pg-orb { contain: strict; }
@@ -25854,7 +25852,7 @@ html:not(#_):not(#__):not(#___):not(#____) .side-drawer.pg-drawer {
   clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); will-change: clip-path;
 }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); transform: none; transition: none; animation: pgMorph 2.2s both; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .side-drawer.pg-drawer { animation: pgClose .95s linear both; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .side-drawer.pg-drawer { animation: pgClose 1.3s linear both; }
 @keyframes pgMorph {
   0%, 5% { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.3,0,.2,1); }
   28% { clip-path: inset(var(--pg-ct) var(--pg-cr) 12px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); }
@@ -25862,15 +25860,21 @@ html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)
   66%, 100% { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); }
 }
 @keyframes pgClose {
-  0%   { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); opacity: 1; animation-timing-function: cubic-bezier(.6,0,.3,1); }
-  42%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: linear; }
-  50%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.5,0,.2,1); }
-  92%  { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 1; }
+  0%   { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); opacity: 1; animation-timing-function: cubic-bezier(.45,0,.2,1); }
+  46%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: linear; }
+  54%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.45,0,.2,1); }
+  96%  { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 1; }
   100% { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 0; }
+}
+@keyframes pgPanelOut {
+  0%   { transform: translate3d(0,0,0); opacity: 1; animation-timing-function: cubic-bezier(.45,0,.2,1); }
+  46%  { transform: translate3d(var(--pg-tx),0,0); opacity: 1; }
+  58%, 100% { transform: translate3d(var(--pg-tx),0,0); opacity: 0; }
+}
 }
 /* keep the overlay visible while the rod collapses; only the dim layer fades out meanwhile */
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) { opacity: 1; transition: none; background: transparent !important; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)::before { content: ""; position: absolute; inset: 0; background: rgba(26,16,64,.5); pointer-events: none; animation: pgDimOut .6s ease-out both; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)::before { content: ""; position: absolute; inset: 0; background: rgba(26,16,64,.5); pointer-events: none; animation: pgDimOut 1.1s ease-in-out both; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show):not(.pg-closing) { transition: none; }
 @keyframes pgDimOut { from { opacity: 1; } to { opacity: 0; } }
 /* panel content starts shifted so the icon column sits inside the narrow pill, then slides home while the pill widens */
@@ -25879,7 +25883,7 @@ html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel { anim
   0%, 42% { transform: translate3d(var(--pg-tx), 0, 0); animation-timing-function: cubic-bezier(.22,1,.36,1); }
   66%, 100% { transform: translate3d(0, 0, 0); }
 }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-panel { opacity: 0; transition: opacity .16s ease; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-panel { animation: pgPanelOut 1.3s linear both; transition: none; }
 /* icons pop in once the pill has grown */
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay .pg-item { opacity: 1; animation: none; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item { animation: none; opacity: 1; }
@@ -25888,13 +25892,12 @@ html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-chip { anima
 /* text emerges from the icons, blurred, then clears */
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-label { animation: pgTextIn .6s cubic-bezier(.22,1,.36,1) both; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta { animation: pgTextIn .6s cubic-bezier(.22,1,.36,1) 1.2s both; }
-@keyframes pgTextIn { 0% { opacity: 0; transform: translate3d(-14px,0,0); filter: blur(9px); } 100% { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes pgTextIn { 0% { opacity: 0; transform: translate3d(-14px,0,0); } 100% { opacity: 1; transform: none; } }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-cta { opacity: 0; }
 /* no more permanent dots: each tab forms a small grid of tiles that dissolves away (ends fully transparent) */
 .pg-item::before, .pg-mini::before, .pg-cta::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
   background: linear-gradient(135deg, rgba(139,108,250,.16), rgba(108,77,246,.08));
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation: pgGridIn .55s ease-out both; }
 @keyframes pgGridIn { 0% { opacity: 0; } 38% { opacity: 1; } 100% { opacity: 0; } }
@@ -25919,6 +25922,9 @@ html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7) .pg-chip { animation-delay: 0.930s; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7) .pg-label { animation-delay: 1.240s; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: 2.110s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(8) .pg-chip { animation-delay: 0.975s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(8) .pg-label { animation-delay: 1.280s; }
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(8)::before { animation-delay: 2.170s; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more .pg-mini:nth-child(1)::before { animation-delay: 2.15s; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more .pg-mini:nth-child(2)::before { animation-delay: 2.2s; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation-delay: 2.28s; }
@@ -25936,6 +25942,7 @@ html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before 
 html[data-theme="dark"] .drawer-overlay { --pg-ink: #EDE9FF; --pg-sub: #B7AEE6; --pg-pur: #A78BFA; }
 html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) .side-drawer.pg-drawer { background: linear-gradient(170deg, #261E4D 0%, #15102B 100%) !important; box-shadow: none; }
 html[data-theme="dark"] .pg-orb { opacity: .4; }
+html[data-theme="dark"] .pg-panel { background: rgba(26,20,52,.78); border-color: rgba(167,139,250,.16); box-shadow: none; }
 html[data-theme="dark"] .pg-avatar-in { background: #1B1636; }
 html[data-theme="dark"] .pg-avatar-in .ui-icon { stroke: #C4B5FD !important; }
 html[data-theme="dark"] .pg-glider { background: rgba(167,139,250,.20); box-shadow: 0 8px 18px -10px rgba(0,0,0,.65), inset 0 0 0 1px rgba(167,139,250,.38); }
@@ -26127,6 +26134,8 @@ html.nav-go #admin-status-bar{animation:adminPillIn .6s .25s cubic-bezier(.22,1,
   var nav=document.getElementById('bottom-nav'); if(!nav) return;
   var lamp=document.createElement('span'); lamp.className='nav-lamp'; nav.appendChild(lamp);
   var ready=false;
+  var placing=false;
+  function placeSoon(){ if(placing) return; placing=true; requestAnimationFrame(function(){ placing=false; place(); }); }
   function place(){
     if(window.__navDragging) return;
     var a=nav.querySelector('.nav-item.active');
@@ -26135,7 +26144,7 @@ html.nav-go #admin-status-bar{animation:adminPillIn .6s .25s cubic-bezier(.22,1,
     lamp.style.transform='translateX('+x+'px)';
     lamp.classList.add('on');
   }
-  new MutationObserver(function(){ requestAnimationFrame(place); }).observe(nav,{attributes:true,attributeFilter:['class'],subtree:true});
+  new MutationObserver(placeSoon).observe(nav,{attributes:true,attributeFilter:['class'],subtree:true});
   window.addEventListener('resize',place);
   // start the lamp once the nav intro has finished
   var iv=setInterval(function(){
@@ -26283,10 +26292,16 @@ html:not(#_) .nav-item .nav-label{font-size:9.5px}
 </style>
 <style id="upgrade-pack-css">
 /* 1) page transitions for Home / History / Profile (direction follows tab order) */
-@keyframes txFromR{from{opacity:0;transform:translate3d(54px,0,0) perspective(900px) rotateY(-9deg) scale(.97)}to{opacity:1;transform:none}}
-@keyframes txFromL{from{opacity:0;transform:translate3d(-54px,0,0) perspective(900px) rotateY(9deg) scale(.97)}to{opacity:1;transform:none}}
+@keyframes txFromR{from{opacity:0;transform:translate3d(46px,0,0)}to{opacity:1;transform:none}}
+@keyframes txFromL{from{opacity:0;transform:translate3d(-46px,0,0)}to{opacity:1;transform:none}}
 html:not(#_):not(#__) .page-section.tx-r.active{animation:txFromR .45s cubic-bezier(.22,1,.36,1) both!important}
 html:not(#_):not(#__) .page-section.tx-l.active{animation:txFromL .45s cubic-bezier(.22,1,.36,1) both!important}
+/* Profile: the page stretches out of the right edge (a long strip that keeps growing leftwards) instead of a small tilted slide */
+@keyframes profileExtend{
+  0%{clip-path:inset(-60px -60px -60px 100%);transform:translate3d(56px,0,0);opacity:1}
+  100%{clip-path:inset(-60px -60px -60px -60px);transform:none;opacity:1}
+}
+html:not(#_):not(#__) #profile.page-section.tx-r.active,html:not(#_):not(#__) #profile.page-section.tx-l.active{animation:profileExtend .62s cubic-bezier(.22,1,.36,1) both!important;will-change:clip-path,transform}
 
 /* 2) Price cards: 3D keys that press down when picked */
 html:not(#_) #detail-package-list .package-card{
@@ -26348,14 +26363,15 @@ html[data-theme="dark"] .home-banner-slide:empty{background:rgba(255,255,255,.06
   if(typeof _sp==='function'){
     window.showPage=function(p){
       var from=window.currentStorePage;
+      try{ if(from!==p && window.calmFor) window.calmFor(700); }catch(e){}
       var r=_sp.apply(this,arguments);
       try{
-        if(ANIM[p] && from!==p && from in ORDER && p in ORDER){
+        if(ANIM[p] && from!==p && p in ORDER && (from in ORDER || p==='profile')){
           var el=document.getElementById(p);
           if(el){
             el.classList.remove('tx-r','tx-l'); void el.offsetWidth;
-            el.classList.add(ORDER[p]>ORDER[from]?'tx-r':'tx-l');
-            setTimeout(function(){ el.classList.remove('tx-r','tx-l'); },520);
+            el.classList.add((from in ORDER) ? (ORDER[p]>ORDER[from]?'tx-r':'tx-l') : 'tx-r');
+            setTimeout(function(){ el.classList.remove('tx-r','tx-l'); }, p==='profile'?720:520);
           }
         }
       }catch(e){}
@@ -26394,32 +26410,15 @@ html[data-theme="dark"] .home-banner-slide:empty{background:rgba(255,255,255,.06
     }).observe(el,{attributes:true,attributeFilter:['class']});
   });
 
-  // 6) refresh button in the header (replaces pull-to-refresh)
-  (function(){
-    var grp=document.querySelector('.header-icons-group'); if(!grp||document.getElementById('header-refresh-btn')) return;
-    var b=document.createElement('div');
-    b.className='header-icon'; b.id='header-refresh-btn'; b.setAttribute('role','button'); b.setAttribute('aria-label','Refresh');
-    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
-    grp.insertBefore(b,grp.firstChild);
-    var busy=false;
-    b.addEventListener('click',function(){
-      if(busy) return; busy=true; b.classList.add('spin');
-      try{ var h=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback; if(h) h.impactOccurred('light'); else navigator.vibrate&&navigator.vibrate(12); }catch(e){}
-      if(window.currentStorePage==='history'&&typeof window.loadHistory==='function'){
-        try{ window.loadHistory(); }catch(e){}
-        setTimeout(function(){ b.classList.remove('spin'); busy=false; },900);
-      } else { setTimeout(function(){ location.reload(); },600); }
-    });
-  })();
+  // 6) (header refresh button removed - Reload now lives in the sidebar, see window.pgReload)
 })();
 </script>
 <style id="refresh-btn-css">
-#header-refresh-btn{display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent)}
-#header-refresh-btn svg{transition:transform .3s ease}
-#header-refresh-btn:active svg{transform:rotate(-90deg) scale(.9)}
-#header-refresh-btn.spin svg{animation:ptrSpin .8s linear infinite}
 @keyframes ptrSpin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){#header-refresh-btn.spin svg{animation:none}}
+/* Reload row inside the sidebar */
+.pg-reload.busy .pg-chip .ui-icon{animation:ptrSpin .7s linear infinite}
+.pg-reload.busy{pointer-events:none}
+@media (prefers-reduced-motion:reduce){.pg-reload.busy .pg-chip .ui-icon{animation:none}}
 </style>
 <style id="ux2-design">
 /* ===== UX 2.0 design refresh (delete this whole block to go back) ===== */
@@ -26525,5 +26524,107 @@ html:not(#_) .rv.rv-in{opacity:1;transform:none}
 <style id="header-wider">
 html:not(#_) .header{margin:8px 5px 0;padding:13px 20px;border-radius:26px}
 </style>
+<style id="scroll-bg-css">
+/* The colour mesh lives on a fixed pseudo-layer (GPU composited). 'background: ... fixed' on <body> repainted the whole screen on every scroll frame. */
+html:not(#_):not(#__) body{background:var(--bg)!important}
+html:not(#_):not(#__) body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;transform:translateZ(0);
+  background:
+    radial-gradient(520px 340px at 8% -4%,rgba(var(--accent-rgb),.16),transparent 70%),
+    radial-gradient(460px 320px at 100% 22%,rgba(124,58,237,.12),transparent 70%),
+    radial-gradient(520px 380px at 0% 78%,rgba(6,182,212,.10),transparent 70%)}
+html[data-theme="dark"]:not(#_):not(#__) body::before{
+  background:
+    radial-gradient(520px 340px at 8% -4%,rgba(var(--accent-rgb),.22),transparent 70%),
+    radial-gradient(460px 320px at 100% 22%,rgba(124,58,237,.18),transparent 70%),
+    radial-gradient(520px 380px at 0% 78%,rgba(6,182,212,.12),transparent 70%)}
+</style>
+<style id="banner-fit-css">
+/* Banner: shorter, and the dots sit ON the picture so no empty strip is left under it */
+html:not(#_):not(#__) .home-banner-carousel{position:relative;background:transparent!important;margin-bottom:16px}
+html:not(#_):not(#__) .home-banner-slide{aspect-ratio:2.15 / 1}
+html:not(#_):not(#__) .home-banner-dots{position:absolute;left:0;right:0;bottom:9px;margin:0;z-index:3;pointer-events:none}
+html:not(#_):not(#__) .home-banner-dot{background:rgba(255,255,255,.55);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+html:not(#_):not(#__) .home-banner-dot.active{background:#fff}
+</style>
+<script id="smooth-motion-js">
+/* Smooth motion helper: while a drawer / page / popup is moving, the endless decorative loops (glows, shimmers, orbits)
+   are paused, so every frame goes to the motion itself. They resume right after - nothing visual is removed. */
+(function(){
+  var held=[], timer=null;
+  function pauseLoops(){
+    if(!document.getAnimations) return;
+    var all; try{ all=document.getAnimations(); }catch(e){ return; }
+    for(var i=0;i<all.length;i++){
+      var a=all[i];
+      try{
+        if(a.playState!=='running') continue;
+        var t=a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
+        if(!t || t.iterations!==Infinity) continue;
+        a.pause(); held.push(a);
+      }catch(e){}
+    }
+  }
+  function resumeLoops(){
+    var h=held; held=[];
+    for(var i=0;i<h.length;i++){ try{ h[i].play(); }catch(e){} }
+  }
+  window.calmFor=function(ms){
+    clearTimeout(timer);
+    if(!held.length) pauseLoops();
+    timer=setTimeout(resumeLoops, ms||600);
+  };
+
+  /* popups / full-screen sheets: calm while they open or close */
+  function watchOverlay(el){
+    if(!el || el.__calmWatched) return; el.__calmWatched=true;
+    var was=el.classList.contains('show');
+    new MutationObserver(function(){
+      var now=el.classList.contains('show');
+      if(now!==was){ was=now; window.calmFor(650); }
+    }).observe(el,{attributes:true,attributeFilter:['class']});
+  }
+  function initOverlays(){
+    document.querySelectorAll('.modal-overlay, #success-overlay').forEach(watchOverlay);
+  }
+  if(document.readyState!=='loading') initOverlays(); else document.addEventListener('DOMContentLoaded',initOverlays);
+  setTimeout(initOverlays,2500);
+
+  /* state classes that replaced body:has(...) selectors (those were re-checked on every DOM change) */
+  var root=document.documentElement, syncQ=false;
+  function syncState(){
+    syncQ=false;
+    var ob=document.getElementById('onboarding-overlay');
+    root.classList.toggle('gz-modal-open', !!document.querySelector('.modal-overlay.show'));
+    root.classList.toggle('gz-gate-open', !!document.querySelector('#wallet-google-gate-overlay.show'));
+    root.classList.toggle('gz-onb-open', !!ob && !/display\s*:\s*none/.test(ob.getAttribute('style')||''));
+    var h=document.querySelector('.header'), up=!!(h&&h.classList.contains('header-hidden'));
+    var o=document.querySelectorAll('.ord-steps'); for(var i=0;i<o.length;i++) o[i].classList.toggle('hdr-up',up);
+  }
+  function syncSoon(){ if(syncQ) return; syncQ=true; requestAnimationFrame(syncState); }
+  function initState(){
+    var mo=new MutationObserver(syncSoon);
+    document.querySelectorAll('.modal-overlay, #onboarding-overlay, .header').forEach(function(el){ if(el.__stObs) return; el.__stObs=1; mo.observe(el,{attributes:true,attributeFilter:['class','style']}); });
+    syncState();
+  }
+  if(document.readyState!=='loading') initState(); else document.addEventListener('DOMContentLoaded',initState);
+  window.addEventListener('load',function(){ setTimeout(initState,300); });
+  window.__syncState=syncSoon;
+
+  /* Reload lives in the sidebar now (it used to sit in the header) */
+  window.pgReload=function(){
+    var it=document.getElementById('pg-reload-item');
+    if(it && it.classList.contains('busy')) return;
+    if(it) it.classList.add('busy');
+    try{ var h=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback; if(h) h.impactOccurred('light'); else if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+    if(window.currentStorePage==='history' && typeof window.loadHistory==='function'){
+      try{ window.closeDrawer && window.closeDrawer(); }catch(e){}
+      try{ window.loadHistory(); }catch(e){}
+      setTimeout(function(){ if(it) it.classList.remove('busy'); },1400);
+    } else {
+      setTimeout(function(){ location.reload(); },650);
+    }
+  };
+})();
+</script>
 </body>
 </html>
