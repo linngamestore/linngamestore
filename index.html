@@ -9492,6 +9492,10 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                             <label data-i18n="pf_phone">Phone Number</label>
                             <input type="text" id="profile-phone" placeholder="+95 9 123 456 789">
                         </div>
+                        <div class="profile-edit-field" style="grid-column: 1 / -1;">
+                            <label>Email</label>
+                            <input type="text" id="profile-contact-email" placeholder="name@example.com" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false">
+                        </div>
                     </div>
                     <button class="btn btn-primary" id="save-profile-btn" style="width:100%;margin-top:16px;" onclick="saveProfile()" data-i18n="btn_save_profile">Save Profile</button>
                 </div>
@@ -13841,6 +13845,8 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const p = getSavedProfile();
             document.getElementById('profile-name').value = p.name || '';
             document.getElementById('profile-phone').value = p.phone || '';
+            const ceEl = document.getElementById('profile-contact-email');
+            if (ceEl) ceEl.value = p.contactEmail || '';
             const preview = document.getElementById('profile-photo-preview');
             const placeholder = document.getElementById('avatar-upload-placeholder');
             if (p.photo) {
@@ -14029,6 +14035,12 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         async function saveProfile() {
             const name = document.getElementById('profile-name').value.trim();
             const phone = document.getElementById('profile-phone').value.trim();
+            // Contact email is stored as contactEmail (NOT "email": gz_profile.email marks an Email-OTP login).
+            const contactEmail = ((document.getElementById('profile-contact-email') || {}).value || '').trim().toLowerCase();
+            if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contactEmail)) {
+                window.showToast('Email ပုံစံ မမှန်ပါ', 'fail');
+                return;
+            }
             const existing = getSavedProfile();
             let photoUrl = existing.photo || '';
 
@@ -14041,7 +14053,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 if (editingProfilePhotoFile && window.uploadProfilePhotoToImgBB) {
                     photoUrl = await window.uploadProfilePhotoToImgBB(editingProfilePhotoFile);
                 }
-                const profile = { name, phone, photo: photoUrl };
+                const profile = { ...existing, name, phone, photo: photoUrl, contactEmail };
                 localStorage.setItem('gz_profile', JSON.stringify(profile));
                 editingProfilePhotoFile = null;
                 renderMiniProfile();
@@ -14277,7 +14289,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             if (!p) { p = _prepareImageForUploadImpl(file); _prepCache.set(file, p); }
             return p;
         }
-        function warmReceiptPrep(file) { try { prepareImageForUpload(file); } catch (e) { /* best effort */ } }
+        function warmReceiptPrep(file) { try { prepareImageForUpload(file); _imgHostUpload(file, 'receipt').catch(() => {}); } catch (e) { /* best effort */ } }
         window.warmReceiptPrep = warmReceiptPrep;
         async function _prepareImageForUploadImpl(file) {
             try {
@@ -14328,7 +14340,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         async function uploadReceiptToImgBB(file) {
             const statusEl = document.getElementById('receipt-upload-status');
             statusEl.style.display = 'block';
-            statusEl.innerText = 'Uploading receipt...';
+            if (!_imgUploadDone(file)) statusEl.innerText = 'Uploading receipt...'; else statusEl.style.display = 'none';
 
             try {
                 const url = await _imgHostUpload(file, 'receipt');
@@ -14342,17 +14354,44 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
 
         // One shared uploader: network failures, non-JSON replies (413 / 5xx pages) and a missing url all become a
         // readable error instead of "Unexpected token <" / "Failed to fetch" / "Cannot read properties of undefined".
-        async function _imgHostUpload(file, label) {
-            const form = new FormData();
-            form.append('image', await prepareImageForUpload(file));
-            let res, data = null;
-            try { res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form }); }
-            catch (e) { throw new Error('Network error while uploading your ' + label + '. Please check your connection and try again.'); }
-            try { data = await res.json(); } catch (e) { data = null; }
-            if (!res.ok || !data || !data.success || !data.data || !data.data.url) {
-                throw new Error((data && data.error && data.error.message) || ('Could not upload your ' + label + ' (' + res.status + '). Please try again.'));
+        const _upCache = new WeakMap();
+        function _imgHostUpload(file, label) {
+            if (!file || typeof file === 'string') return _imgHostUploadImpl(file, label);
+            let e = _upCache.get(file);
+            if (!e) {
+                e = { done: false };
+                e.p = _imgHostUploadImpl(file, label).then(u => { e.done = true; return u; }, err => { _upCache.delete(file); throw err; });
+                _upCache.set(file, e);
             }
-            return data.data.url;
+            return e.p;
+        }
+        function _imgUploadDone(file) { const e = file && typeof file === 'object' && _upCache.get(file); return !!(e && e.done); }
+        async function _imgHostUploadImpl(file, label) {
+            const prepared = await prepareImageForUpload(file);
+            let lastErr = null;
+            // Up to 3 automatic tries (timeouts / network / 5xx are usually transient on ImgBB).
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const form = new FormData();
+                form.append('image', prepared);
+                const ctrl = new AbortController();
+                const to = setTimeout(() => ctrl.abort(), 70000);
+                let res, data = null;
+                try {
+                    res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form, signal: ctrl.signal });
+                } catch (e) {
+                    clearTimeout(to);
+                    lastErr = new Error('Network error while uploading your ' + label + '. Please check your connection and try again.');
+                    await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+                    continue;
+                }
+                clearTimeout(to);
+                try { data = await res.json(); } catch (e) { data = null; }
+                if (res.ok && data && data.success && data.data && data.data.url) return data.data.url;
+                lastErr = new Error((data && data.error && data.error.message) || ('Could not upload your ' + label + ' (' + res.status + '). Please try again.'));
+                if (res.status >= 400 && res.status < 500 && res.status !== 429) break; // client error: retrying won't help
+                await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+            }
+            throw lastErr || new Error('Could not upload your ' + label + '. Please try again.');
         }
 
         // Same free image host, used for the user's own profile picture.
@@ -14406,7 +14445,8 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 const payload = {
                     name: profile.name || '',
                     phone: profile.phone || '',
-                    photo: profile.photo || ''
+                    photo: profile.photo || '',
+                    contactEmail: profile.contactEmail || ''
                 };
                 // Only ever write googleEmail/facebookEmail while signed in - blanking
                 // it while signed out would erase which account this guest ID belongs
@@ -14423,7 +14463,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 const emailPatch = {};
                 if (payload.googleEmail) { emailPatch.googleEmail = payload.googleEmail; delete payload.googleEmail; }
                 if (payload.facebookEmail) { emailPatch.facebookEmail = payload.facebookEmail; delete payload.facebookEmail; }
-                await window.workerProfile({ op: 'sync', userId: gid, name: payload.name, phone: payload.phone, photo: payload.photo });
+                await window.workerProfile({ op: 'sync', userId: gid, name: payload.name, phone: payload.phone, photo: payload.photo, contactEmail: payload.contactEmail });
                 // googleEmail / facebookEmail are identity claims: still written by the browser and checked by firestore.rules.
                 const known = existing.exists() ? existing.data() : {};
                 const needEmail = Object.keys(emailPatch).some(k => String(known[k] || '').toLowerCase() !== String(emailPatch[k]).toLowerCase());
@@ -14450,7 +14490,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         async function uploadWalletReceiptToImgBB(file) {
             const statusEl = document.getElementById('wallet-receipt-upload-status');
             statusEl.style.display = 'block';
-            statusEl.innerText = 'Uploading receipt...';
+            if (!_imgUploadDone(file)) statusEl.innerText = 'Uploading receipt...'; else statusEl.style.display = 'none';
             try {
                 const url = await _imgHostUpload(file, 'receipt');
                 statusEl.innerText = 'Receipt uploaded ✓';
@@ -16344,7 +16384,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                     try {
                         const userSnap = await getDoc(doc(db, "users", linkedGid));
                         const d = userSnap.exists() ? userSnap.data() : {};
-                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '', contactEmail: d.contactEmail || '' }));
                         localStorage.setItem('gz_guest_id', linkedGid);
                         localStorage.setItem('gz_gid_owner_uid', user.uid);
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
@@ -16378,7 +16418,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                         try {
                             const userSnap = await getDoc(doc(db, "users", emailLinkedGid));
                             const d = userSnap.exists() ? userSnap.data() : {};
-                            localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                            localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '', contactEmail: d.contactEmail || '' }));
                             localStorage.setItem('gz_guest_id', emailLinkedGid);
                             localStorage.setItem('gz_gid_owner_uid', user.uid);
                             if (localStorage.getItem('gz_guest_id') !== emailLinkedGid) throw new Error('guest id did not persist');
@@ -16428,6 +16468,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const profile = {
                 name: existing.name || user.displayName || '',
                 phone: existing.phone || '',
+                contactEmail: existing.contactEmail || '',
                 photo: existing.photo || user.photoURL || ''
             };
             try { localStorage.setItem('gz_profile', JSON.stringify(profile)); } catch (e) { /* private browsing */ }
@@ -16482,7 +16523,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                     try {
                         const userSnap = await getDoc(doc(db, "users", linkedGid));
                         const d = userSnap.exists() ? userSnap.data() : {};
-                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '', contactEmail: d.contactEmail || '' }));
                         localStorage.setItem('gz_guest_id', linkedGid);
                         localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
@@ -16512,7 +16553,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                         try {
                             const userSnap = await getDoc(doc(db, "users", emailLinkedGid));
                             const d = userSnap.exists() ? userSnap.data() : {};
-                            localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                            localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '', contactEmail: d.contactEmail || '' }));
                             localStorage.setItem('gz_guest_id', emailLinkedGid);
                             localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
                             if (localStorage.getItem('gz_guest_id') !== emailLinkedGid) throw new Error('guest id did not persist');
@@ -16558,6 +16599,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const profile = {
                 name: existing.name || user.displayName || '',
                 phone: existing.phone || '',
+                contactEmail: existing.contactEmail || '',
                 photo: existing.photo || user.photoURL || ''
             };
             try { localStorage.setItem('gz_profile', JSON.stringify(profile)); } catch (e) { /* private browsing */ }
@@ -16659,7 +16701,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                     const linkedGid = linkSnap.data().guestId;
                     try {
                         const d = targetUserSnap && targetUserSnap.exists() ? targetUserSnap.data() : {};
-                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '' }));
+                        localStorage.setItem('gz_profile', JSON.stringify({ name: d.name || '', phone: d.phone || '', photo: d.photo || '', contactEmail: d.contactEmail || '' }));
                         localStorage.setItem('gz_guest_id', linkedGid);
                         localStorage.setItem('gz_gid_owner_uid_tg', user.uid);
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
@@ -16721,8 +16763,9 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const existing = window.getSavedProfile ? window.getSavedProfile() : { name: '', phone: '', photo: '' };
             const tgName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ');
             const profile = {
-                name: tgName || existing.name || '',
+                name: existing.name || tgName || '',   // a name the customer edited wins over their Telegram name
                 phone: existing.phone || '',
+                contactEmail: existing.contactEmail || '',
                 photo: tgUser.photo_url || existing.photo || ''
             };
             try {
