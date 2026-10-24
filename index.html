@@ -983,6 +983,16 @@
             -webkit-tap-highlight-color: transparent; transition: transform .12s ease;
         }
         .order-ok-again:active { transform: scale(0.97); }
+        .order-ok-confirm {
+            display: block; margin: 10px auto 0; width: 100%; padding: 13px 16px; border: 0; border-radius: 16px; cursor: pointer;
+            font: inherit; font-size: 15px; font-weight: 600; color: #0b5d2c; text-shadow: none;
+            background: linear-gradient(180deg, #ffffff, #e4fbe9);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+            -webkit-tap-highlight-color: transparent; transition: transform .12s ease; touch-action: manipulation;
+        }
+        .order-ok-confirm:active { transform: scale(0.97); }
+        .order-ok-overlay.has-again .order-ok-confirm { margin-top: 10px; }
+        .order-ok-overlay:not(.has-again) .order-ok-confirm { margin-top: 20px; }
         .order-ok-overlay.has-again .order-ok-again { display: block; }
         .order-ok-title { font-size: 20px; font-weight: 500; letter-spacing: 0.2px; }
         .order-ok-sub { margin-top: 6px; font-size: 13px; opacity: 0.95; word-break: break-word; }
@@ -7484,7 +7494,6 @@ html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)
   46%  { transform: translate3d(var(--pg-tx),0,0); opacity: 1; }
   58%, 100% { transform: translate3d(var(--pg-tx),0,0); opacity: 0; }
 }
-}
 /* keep the overlay visible while the rod collapses; only the dim layer fades out meanwhile */
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) { opacity: 1; transition: none; background: transparent !important; }
 html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)::before { content: ""; position: absolute; inset: 0; background: rgba(26,16,64,.5); pointer-events: none; animation: pgDimOut 1.1s ease-in-out both; }
@@ -9873,6 +9882,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
     <!-- Bottom navigation: the 5 main tabs. showPage() toggles .active on #btn-<page>
          and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer. -->
     <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
+        <span class="nav-shell" aria-hidden="true"><i></i></span>
         <div class="nav-item active" id="btn-dashboard" onclick="showPage('dashboard')" role="button">
             <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-home"></use></svg></div>
             <span class="nav-label" data-i18n="nav_home">Home</span>
@@ -9915,7 +9925,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
     </div>
 
     <!-- Order Success flash modal: green grid card in the middle of the screen, closes itself after 1 second -->
-    <div class="order-ok-overlay" id="order-ok-overlay" aria-live="polite" onclick="window.hideOrderSuccessModal && window.hideOrderSuccessModal()">
+    <div class="order-ok-overlay" id="order-ok-overlay" aria-live="polite" role="dialog" aria-modal="true">
         <div class="order-ok-box">
             <div class="order-ok-check">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.5 4.5L18.5 7.5"/></svg>
@@ -9923,6 +9933,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             <div class="order-ok-title" id="order-ok-title">Order Success</div>
             <div class="order-ok-sub" id="order-ok-sub" style="display:none;"></div>
             <button type="button" class="order-ok-again" id="order-ok-again" onclick="event.stopPropagation(); window.buyAgainFromSuccess && window.buyAgainFromSuccess()">Buy again</button>
+            <button type="button" class="order-ok-confirm" id="order-ok-confirm" onclick="event.stopPropagation(); window.hideOrderSuccessModal && window.hideOrderSuccessModal()">Confirm</button>
         </div>
     </div>
 
@@ -10210,7 +10221,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 success_completed_title: 'Order Completed!', success_completed_sub: 'Your top up has been delivered. Thanks for ordering with us.',
                 success_failed_title: 'Order Failed', success_failed_sub: 'Something went wrong with this order. Check the details in History or contact support.',
                 success_confirmed_title: 'Order Confirmed',
-                order_ok_title: 'Successfully', order_ok_again: 'Buy again',
+                order_ok_title: 'Successfully', order_ok_again: 'Buy again', order_ok_confirm: 'Confirm',
                 notif_tab_unread: 'Unread', notif_tab_read: 'Read', notif_mark_all: 'Mark all read',
                 notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'View in History',
                 notif_empty_unread_t: "You're all caught up", notif_empty_unread_s: 'New order updates and announcements will show up here.',
@@ -10428,7 +10439,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 success_completed_title: 'အော်ဒါ ပြီးမြောက်ပါပြီ!', success_completed_sub: 'သင့်ရဲ့ top up ကို ပေးပို့ပြီးပါပြီ။ ကျွန်ုပ်တို့နှင့် အော်ဒါတင်သည့်အတွက် ကျေးဇူးတင်ပါသည်။',
                 success_failed_title: 'အော်ဒါ မအောင်မြင်ပါ', success_failed_sub: 'ဒီအော်ဒါမှာ တစ်ခုခုမှားယွင်းသွားပါသည်။ History တွင်စစ်ဆေးပါ (သို့) Support ကိုဆက်သွယ်ပါ။',
                 success_confirmed_title: 'အော်ဒါ အတည်ပြုပြီး',
-                order_ok_title: 'Successfully', order_ok_again: 'ထပ်ဝယ်မယ်',
+                order_ok_title: 'Successfully', order_ok_again: 'ထပ်ဝယ်မယ်', order_ok_confirm: 'အတည်ပြုမည်',
                 notif_tab_unread: 'မဖတ်ရသေး', notif_tab_read: 'ဖတ်ပြီး', notif_mark_all: 'အားလုံး ဖတ်ပြီးပြုမည်',
                 notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'History တွင်ကြည့်မည်',
                 notif_empty_unread_t: 'အသစ်မရှိတော့ပါ', notif_empty_unread_s: 'အော်ဒါ အခြေအနေနှင့် ကြေညာချက်အသစ်များ ဤနေရာတွင် ပေါ်လာပါမည်။',
@@ -12832,10 +12843,34 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             list.addEventListener('dragstart', (e) => e.preventDefault());
         }
 
-        // Voucher packages (G2Bulk /products/:id/purchase) can be bought in bulk; everything else is always 1.
+        // Bulk buying: voucher packages (G2Bulk /products/:id/purchase), and normal G2Bulk game top-ups.
+        // G2Bulk's game top-up only takes ONE unit per call, so for those the Worker places the order `quantity`
+        // times (separate sub-orders, partial refund for any unit that fails). JCPlays / FazerCard packages have no
+        // such loop in the Worker, so they stay at 1 - otherwise the customer would pay N and get 1.
+        // (UPDATE: worker.js now loops JCPlays / FazerCards per unit too - fulfillJCPlaysMulti / fulfillFazerCardMulti.)
+        const GAME_QTY_CAP = 5;
+        function gameQtyOk() {
+            try {
+                if (!selectedPackage || selectedPackage.voucherId || selectedPackage.accountId) return false;
+                // G2Bulk game top-up (same test the Worker uses to pick G2Bulk)
+                if (!window.currentGameIsVoucher && selectedPackage.g2bulk && selectedGameG2BulkCode) return true;
+                // JCPlays / FazerCards have no quantity parameter at the provider: the Worker places the order
+                // once per unit (fulfillJCPlaysMulti / fulfillFazerCardMulti), so the stepper is safe here too.
+                if (selectedPackage.jcplays && selectedGameJCPlaysProduct) return true;
+                if (selectedPackage.fazercardOfferId && selectedGameFazerCardCategory) return true;
+                return false;
+            } catch (e) { return false; }
+        }
+        window.gameQtyOk = gameQtyOk;
+        window.GAME_QTY_CAP = GAME_QTY_CAP;
+        // TEMPORARY: Quantity field switched off. Set to false to bring it back.
+        window.QTY_TEMP_DISABLED = true;
         function orderQty() {
-            if (!selectedPackage || !window.currentGameIsVoucher || !selectedPackage.voucherId) return 1;
-            return Math.max(1, Math.floor(Number(window.voucherQty) || 1));
+            if (!selectedPackage) return 1;
+            if (window.QTY_TEMP_DISABLED) return 1;
+            const bulk = (window.currentGameIsVoucher && selectedPackage.voucherId) || gameQtyOk();
+            if (!bulk) return 1;
+            return Math.max(1, Math.min((window.currentGameIsVoucher && selectedPackage.voucherId) ? 1000 : GAME_QTY_CAP, Math.floor(Number(window.voucherQty) || 1)));
         }
         window.orderQty = orderQty;
         function getOrderSubtotal() {
@@ -12991,8 +13026,9 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             tesseractLoadPromise = new Promise((resolve, reject) => {
                 const s = document.createElement('script');
                 s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-                s.onload = () => resolve();
-                s.onerror = () => reject(new Error('Failed to load OCR library'));
+                const tmo = setTimeout(() => { tesseractLoadPromise = null; reject(new Error('OCR library load timeout')); }, 10000);
+                s.onload = () => { clearTimeout(tmo); resolve(); };
+                s.onerror = () => { clearTimeout(tmo); tesseractLoadPromise = null; reject(new Error('Failed to load OCR library')); };
                 document.head.appendChild(s);
             });
             return tesseractLoadPromise;
@@ -13098,7 +13134,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const statusEl = statusId ? document.getElementById(statusId) : null;
             input.value = '';
             input.placeholder = 'Reading receipt...';
-            if (statusEl) { statusEl.style.display = 'block'; statusEl.innerText = 'Reading receipt for transaction ID...'; }
+            if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = '<span class="gx-sp"></span>Reading receipt for transaction ID'; }
 
             let result = 'None';
             let amountDetected = null;
@@ -13107,10 +13143,13 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             try {
                 const [hashResult, ocrResult] = await Promise.all([
                     sha256Hex(file),
-                    (async () => { await loadTesseract(); return window.Tesseract.recognize(file, 'eng'); })()
+                    Promise.race([
+                        (async () => { await loadTesseract(); return window.Tesseract.recognize(file, 'eng'); })(),
+                        new Promise((_, rej) => setTimeout(() => rej(new Error('OCR timeout')), 15000))
+                    ]).catch(oe => { console.error('Receipt OCR skipped:', oe); return null; })
                 ]);
                 hash = hashResult;
-                const text = ocrResult.data.text;
+                const text = ocrResult && ocrResult.data ? ocrResult.data.text : '';
                 result = extractTransactionId(text) || 'None';
                 amountDetected = extractAmount(text);
                 ocrTextKept = String(text || '').slice(0, 1800);
@@ -13558,7 +13597,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             }
             // Transaction ID is auto-detected from the receipt (see previewReceiptImage);
             // wait for that to finish rather than asking the customer to type it in.
-            if (receiptOcrPromise) { try { await receiptOcrPromise; } catch (e) { /* detectTransactionId already falls back to "None" internally */ } }
+            if (receiptOcrPromise) { try { await Promise.race([receiptOcrPromise, new Promise(r => setTimeout(r, 4000))]); } catch (e) { /* detectTransactionId already falls back to "None" internally */ } }
             const transactionId = document.getElementById('detail-transaction-id').value.trim() || 'None';
 
             await doSubmitOrder(inGameId, serverId, btnElement, transactionId);
@@ -14054,7 +14093,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const saveBtn = document.getElementById('save-profile-btn');
             const originalText = saveBtn.innerText;
             saveBtn.disabled = true;
-            saveBtn.innerText = 'Saving...';
+            saveBtn.innerHTML = '<span class="gx-sp"></span>Saving';
 
             try {
                 if (editingProfilePhotoFile && window.uploadProfilePhotoToImgBB) {
@@ -14347,7 +14386,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         async function uploadReceiptToImgBB(file) {
             const statusEl = document.getElementById('receipt-upload-status');
             statusEl.style.display = 'block';
-            if (!_imgUploadDone(file)) statusEl.innerText = 'Uploading receipt...'; else statusEl.style.display = 'none';
+            if (!_imgUploadDone(file)) statusEl.innerHTML = '<span class="gx-sp"></span>Uploading receipt'; else statusEl.style.display = 'none';
 
             try {
                 const url = await _imgHostUpload(file, 'receipt');
@@ -14381,7 +14420,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 const form = new FormData();
                 form.append('image', prepared);
                 const ctrl = new AbortController();
-                const to = setTimeout(() => ctrl.abort(), 70000);
+                const to = setTimeout(() => ctrl.abort(), 25000);
                 let res, data = null;
                 try {
                     res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form, signal: ctrl.signal });
@@ -14405,7 +14444,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         async function uploadProfilePhotoToImgBB(file) {
             const statusEl = document.getElementById('profile-photo-status');
             statusEl.style.display = 'block';
-            statusEl.innerText = 'Uploading photo...';
+            statusEl.innerHTML = '<span class="gx-sp"></span>Uploading photo';
 
             try {
                 const url = await _imgHostUpload(file, 'photo');
@@ -14497,7 +14536,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         async function uploadWalletReceiptToImgBB(file) {
             const statusEl = document.getElementById('wallet-receipt-upload-status');
             statusEl.style.display = 'block';
-            if (!_imgUploadDone(file)) statusEl.innerText = 'Uploading receipt...'; else statusEl.style.display = 'none';
+            if (!_imgUploadDone(file)) statusEl.innerHTML = '<span class="gx-sp"></span>Uploading receipt'; else statusEl.style.display = 'none';
             try {
                 const url = await _imgHostUpload(file, 'receipt');
                 statusEl.innerText = 'Receipt uploaded ✓';
@@ -15092,6 +15131,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 let sendBody = body;
                 try { sendBody = { sealed: await window.sealSecurity(base, '/orders/create', u.uid, body) }; } catch (e) { sendBody = body; }
                 res = await fetch(`${base}/orders/create`, {
+                    signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(45000) : undefined,
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (attempt ? await u.getIdToken() : token), 'X-Dev': await window.devId() },
                     body: JSON.stringify(sendBody)
@@ -15462,7 +15502,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
 
             const btn = document.getElementById('crypto-topup-create-btn');
             btn.disabled = true;
-            btn.innerText = 'Creating invoice…';
+            btn.innerHTML = '<span class="gx-sp"></span>Creating invoice';
             try {
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
                 const res = await fetch(FAZERCARD_PAYMENT_CREATE_URL, {
@@ -15620,7 +15660,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
 
             const originalText = btnEl.innerText;
             btnEl.disabled = true;
-            btnEl.innerText = 'Submitting...';
+            btnEl.innerHTML = '<span class="gx-sp"></span>Submitting';
 
             try {
                 const receiptUrl = await uploadWalletReceiptToImgBB(editingWalletReceiptFile);
@@ -17183,7 +17223,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const btn = document.getElementById(btnId || 'google-signin-btn');
             const originalHTML = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = 'Signing in...';
+            btn.innerHTML = '<span class="gx-sp"></span>Signing in';
             // Popup-based sign-in relies on postMessage between the popup and this
             // window, which genuine in-app browsers (Messenger/Facebook/Instagram/
             // TikTok/WeChat webviews) frequently break or block outright - those
@@ -17225,7 +17265,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             }
             const btn = document.getElementById(btnId || 'facebook-signin-btn');
             const originalHTML = btn ? btn.innerHTML : '';
-            if (btn) { btn.disabled = true; btn.innerHTML = 'Signing in...'; }
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="gx-sp"></span>Signing in'; }
             const isInAppBrowser = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|; ?wv\)/i.test(navigator.userAgent);
             try {
                 if (isInAppBrowser) {
@@ -18696,7 +18736,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                         const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
-            btnElement.innerText = "Processing...";
+            btnElement.innerHTML = '<span class="gx-sp"></span>Processing';
             btnElement.disabled = true;
 
             if (!auth.currentUser) { await window.gzAuthReady(); }
@@ -18851,7 +18891,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                         const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
 
             const originalText = btnElement.innerText;
-            btnElement.innerText = "Processing...";
+            btnElement.innerHTML = '<span class="gx-sp"></span>Processing';
             btnElement.disabled = true;
 
             if (!auth.currentUser) { await window.gzAuthReady(); }
@@ -19335,7 +19375,8 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             window._orderOkAgain = order && order.game ? { game: order.game, itemAmount: order.itemAmount, price: order.price } : null;
             { const ov0 = document.getElementById('order-ok-overlay'), b0 = document.getElementById('order-ok-again');
               if (ov0) ov0.classList.toggle('has-again', !!window._orderOkAgain);
-              if (b0) { const tx = t('order_ok_again'); b0.textContent = (tx && tx !== 'order_ok_again') ? tx : 'Buy again'; } }
+              if (b0) { const tx = t('order_ok_again'); b0.textContent = (tx && tx !== 'order_ok_again') ? tx : 'Buy again'; }
+              const c0 = document.getElementById('order-ok-confirm'); if (c0) { const tc = t('order_ok_confirm'); c0.textContent = (tc && tc !== 'order_ok_confirm') ? tc : 'Confirm'; } }
             const ov = document.getElementById('order-ok-overlay');
             if (!ov) return;
             document.getElementById('order-ok-title').textContent = t('order_ok_title');
@@ -19349,7 +19390,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             ov.classList.add('show');
             // chime right as the tick finishes drawing (0.45s delay + 0.7s wipe)
             orderOkSoundTimer = setTimeout(() => { if (window.linnSound) window.linnSound('success'); }, 1100);
-            orderOkTimer = setTimeout(() => ov.classList.remove('show'), ORDER_OK_SHOW_MS);
+            // stays open until the customer taps "Buy again" or "Confirm" (no auto-close)
         }
 
         // Four possible order states: Pending, Processing, Success, Fail
@@ -21904,7 +21945,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const remaining = totalCount - shownCount;
             btn.style.display = remaining > 0 ? '' : 'none';
             if (remaining > 0) {
-                if (!btn.dataset.ready) { btn.innerHTML = (window.LOADER_MARKUP && window.LOADER_MARKUP.dots) || 'Loading...'; btn.dataset.ready = '1'; }
+                if (!btn.dataset.ready) { btn.innerHTML = (window.LOADER_MARKUP && window.LOADER_MARKUP.dots) || '<span class="gx-sp"></span>'; btn.dataset.ready = '1'; }
                 if ('IntersectionObserver' in window) {
                     if (!homeMoreObserver) {
                         homeMoreObserver = new IntersectionObserver((entries) => {
@@ -23240,7 +23281,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const snap = window.__authSnap;
             if (!token && snap && Date.now() < snap.exp - 30000) token = snap.t;
             if (!token) { st.textContent = 'Sign-in ကုန်သွားပါပြီ။ Page ကို refresh လုပ်ပြီး ပြန်ထပ်ကြိုးစားပါ။'; return; }
-            btn.disabled = true; st.textContent = '...';
+            btn.disabled = true; st.innerHTML = '<span class="gx-sp"></span>';
             try {
                 const res = await fetch(TELEGRAM_BOT_WORKER_URL + '/appeal/create', {
                     method: 'POST',
@@ -23437,7 +23478,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             if (!box) return;
             const note = (t) => { box.innerHTML = ''; const d = document.createElement('div'); d.className = 'sec-row'; d.style.color = 'var(--text-muted)'; d.textContent = t; box.appendChild(d); };
             if (!auth.currentUser) { note('Login to use Security Code and Authenticator.'); return; }
-            note('Loading...');
+            note(''); box.firstChild.innerHTML = '<span class="gx-sp"></span>Loading';
             let j = null;
             try { j = await secCall('/security/status'); } catch (e) { j = null; }
             if (!j || !j.ok) { note((j && j.error) || 'Could not load. Close and open again.'); return; }
@@ -24848,7 +24889,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 return;
             }
             const originalHtml = btnEl.innerHTML;
-            btnEl.innerText = 'ပို့နေသည်...';
+            btnEl.innerHTML = '<span class="gx-sp"></span>ပို့နေသည်';
             btnEl.disabled = true;
             try {
                 const guestId = window.getGuestId ? window.getGuestId() : '';
@@ -24858,9 +24899,9 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 // Optional screenshot of the error: same image host as payment receipts.
                 let screenshotUrl = '';
                 if (ticketShotFile) {
-                    btnEl.innerText = 'Screenshot တင်နေသည်...';
+                    btnEl.innerHTML = '<span class="gx-sp"></span>Screenshot တင်နေသည်';
                     screenshotUrl = await _imgHostUpload(ticketShotFile, 'screenshot');
-                    btnEl.innerText = 'ပို့နေသည်...';
+                    btnEl.innerHTML = '<span class="gx-sp"></span>ပို့နေသည်';
                 }
                 const sbase = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
                 const sres = await fetch(`${sbase}/support/create`, {
@@ -25882,7 +25923,7 @@ if (window.TELEGRAM_BOT_ID && !(window.Telegram && window.Telegram.Login)) { var
   let _pub = null;
   async function serverKey(base) {
     if (_pub) return _pub;
-    const r = await fetch(base + '/security/key');
+    const r = await fetch(base + '/security/key', { signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(8000) : undefined });
     const j = await r.json();
     if (!j.ok) throw new Error('key');
     _pub = await crypto.subtle.importKey('jwk', j.jwk, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
@@ -26077,9 +26118,11 @@ document.addEventListener('animationend', function (e) {
   var VQ_CAP=100, lastPkg=null;
   function vqEn(){ return (typeof currentLang!=='undefined' && currentLang==='en'); }
   function vqActive(){
-    try{ return !!(selectedPackage && window.currentGameIsVoucher && selectedPackage.voucherId); }catch(e){ return false; }
+    if(window.QTY_TEMP_DISABLED) return false;
+    try{ return !!(selectedPackage && ((window.currentGameIsVoucher && selectedPackage.voucherId) || (window.gameQtyOk && window.gameQtyOk()))); }catch(e){ return false; }
   }
   function vqMax(){
+    if(!(window.currentGameIsVoucher && selectedPackage && selectedPackage.voucherId)) return window.GAME_QTY_CAP||5;   // normal game top-up: small fixed cap
     var st; try{ st=voucherStockMap[String(selectedPackage.voucherId)]; }catch(e){}
     if(typeof st==='number') return Math.max(0,Math.min(st,VQ_CAP));
     return 10; // stock not loaded yet - stay conservative
@@ -26121,7 +26164,7 @@ document.addEventListener('animationend', function (e) {
     var inp=document.getElementById('vq-input'); if(document.activeElement!==inp && inp.value!==String(q)) inp.value=q;
     document.getElementById('vq-minus').disabled = q<=1;
     document.getElementById('vq-plus').disabled = q>=max;
-    document.getElementById('vq-max').textContent = (en?'Max ':'\u200b\u1021\u1019\u103b\u102c\u1038\u1006\u102f\u1036\u1038 ')+max;
+    document.getElementById('vq-max').textContent = (en?'Max ':'\u200b\u1021\u1019\u103b\u102c\u1038\u1006\u102f\u1036\u1038 ')+max + ((q>1 && !(window.currentGameIsVoucher && selectedPackage.voucherId)) ? (en?(' \u00b7 sent as '+q+' separate top-ups'):(' \u00b7 '+q+' \u1000\u103c\u102d\u1019\u103a \u1001\u103d\u1032\u1011\u100a\u103a\u1037\u1019\u100a\u103a')) : '');
     document.getElementById('vq-get-label').textContent = en?'You get':'\u101b\u1019\u100a\u1037\u103a\u1015\u1019\u102c\u100f';
     document.getElementById('vq-get').textContent = window.qtyAmount(selectedPackage.amount,q);
     document.getElementById('vq-total').textContent = (unit*q).toLocaleString()+' MMK';
@@ -26557,10 +26600,10 @@ document.addEventListener('keydown',function(e){
     var form = document.getElementById('srv-form'), sub = document.getElementById('srv-sub'), res = document.getElementById('srv-result'), bar = document.getElementById('srv-bar'), go = document.getElementById('srv-go');
     if (pid.length < 5 || !sid) { form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); sub.textContent = 'Player ID \u1014\u1032\u1037 Server ID \u1011\u100A\u1037\u103A\u1015\u102B'; (pid.length < 5 ? pidEl : sidEl).focus(); return; }
     try { localStorage.setItem('linn_srv_last', JSON.stringify({ p: pid, s: sid })); } catch (e) {}
-    var my = ++token; panel.classList.remove('is-ok', 'is-bad'); panel.classList.add('is-scan'); scanning = true; go.disabled = true; go.textContent = 'Checking...'; pidEl.blur(); sidEl.blur();
-    res.innerHTML = ''; bar.classList.add('on'); sub.textContent = 'Contacting MLBB...';
+    var my = ++token; panel.classList.remove('is-ok', 'is-bad'); panel.classList.add('is-scan'); scanning = true; go.disabled = true; go.innerHTML = '<span class="gx-sp"></span>Checking'; pidEl.blur(); sidEl.blur();
+    res.innerHTML = ''; bar.classList.add('on'); sub.innerHTML = '<span class="gx-sp"></span>Contacting MLBB';
     var list = mlbbGames(), ent = list.filter(function (x) { return x.g.g2bulkCode; })[0], code = ent ? String(ent.g.g2bulkCode) : 'mlbb';
-    var msgs = ['Verifying player...', 'Locating region...'], mi = 0, tm = setInterval(function () { if (mi < msgs.length) sub.textContent = msgs[mi++]; }, 650);
+    var msgs = ['Verifying player...', 'Locating region...'], mi = 0, tm = setInterval(function () { if (mi < msgs.length) sub.innerHTML = '<span class="gx-sp"></span>' + msgs[mi++].replace(/\.\.\.$/, ''); }, 650);
     var out = await Promise.all([window.g2bulkCheckPlayer ? window.g2bulkCheckPlayer(code, pid, sid) : Promise.resolve({ outcome: 'unknown', reason: 'unavailable' }), sleep(1300)]).then(function (a) { return a[0]; });
     clearInterval(tm); if (my !== token) return;
     bar.classList.remove('on'); sub.textContent = ''; var html = '', ok = false;
@@ -28799,6 +28842,7 @@ html.perf-low .ev-sky{display:none}html.perf-low .ev-hl,html.perf-low .ev-halo,h
 </style>
 <script type="module" id="ev-js">
 const WORKER = 'https://linnmanagebot.linngamestore.workers.dev';
+const HIDE_PRIZES = true;   // true = prizes stay secret until the player wins them (set false to show prize names again)
 const S = {
  en: { ends:'Ends in', d:'d', h:'h', last:'Last day', tap:'Join now', bannerDef:'Collect lanterns and win prizes', balT:'My lanterns', earnT:'Ways to earn lanterns', inviteT:'Invite friends', inviteS:'Each new friend who joins through your link gives you {n} lantern(s).', inviteCnt:'Invited {a} / {b}', inviteCnt0:'Invited {a}', inviteFull:'You reached the invite limit', copy:'Copy link', share:'Share', copied:'Link copied',
   shareDef:'Join me in the lantern festival and win prizes!', checkinT:'Daily check-in', checkinS:'Come back every day for free lanterns.', checkinBtn:'Collect +{n}', checkinDone:'Collected today', days:'{n} day(s) collected', missT:'Missions', go:'Open', claim:'Collect', done:'Done', daily:'Daily', once:'One time',
@@ -28851,7 +28895,9 @@ function skyHtml() {
 }
 
 let EVS = [], cur = null, st = { s: null, loading: false, err: '', sure: '', opened: {} }, gameT = null;
-const toast = (m) => { const t = document.createElement('div'); t.className = 'ev-toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); };
+const busy = (b, on) => { if (!b) return; b.classList.toggle('ev-wait', !!on); b.disabled = !!on; };
+const gain = (key, n) => { const s = st.s; if (!s || !(n > 0)) return; s.balance = (s.balance || 0) + n; if (s.earned && key in s.earned) s.earned[key] += n; };
+const toast = (m) => { if (/^\+\d/.test(m)) sfx('coin'); const t = document.createElement('div'); t.className = 'ev-toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); };
 
 async function api(route, body) {
   const u = await window.gzAuthReady();
@@ -28950,13 +28996,14 @@ function ensureOv() {
   document.body.appendChild(o);
   if (!$('bx-defs')) { const d = document.createElement('div'); d.id = 'bx-defs'; d.innerHTML = BX_DEFS; document.body.appendChild(d); }
   $('ev-x').onclick = closeEvent;
+  o.addEventListener('pointerdown', (ev) => { if (ev.target.closest && ev.target.closest('.ev-btn:not([disabled]),.ev-tab,.ev-chip,.ev-sw,.ev-seg button')) sfx('tap'); }, { passive: true });
   { let tm = 0, on = false; o.addEventListener('scroll', () => { if (!on) { on = true; o.classList.add('ev-scr'); } clearTimeout(tm); tm = setTimeout(() => { on = false; o.classList.remove('ev-scr'); }, 140); }, { passive: true }); }
   $('ev-scn').innerHTML = sceneHtml().replace('<div class="ev-scene">', '<div class="ev-scene"><i class="ev-halo"></i>');
   document.addEventListener('keydown', (k) => { if (k.key === 'Escape' && !o.hidden) closeEvent(); });
   return o;
 }
-function closeEvent() { stopGame(); document.documentElement.classList.remove('ev-open'); const o = $('ev-ov'); if (o) o.hidden = true; const fb = $('ev-fab'); if (fb) fb.style.display = ''; document.documentElement.style.overflow = ''; }
-async function openEvent(id) {
+function closeEvent() { try { if (window.calmFor) window.calmFor(700); } catch (x) {} stopGame(); document.documentElement.classList.remove('ev-open'); const o = $('ev-ov'); if (o) o.hidden = true; const fb = $('ev-fab'); if (fb) fb.style.display = ''; document.documentElement.style.overflow = ''; }
+async function openEvent(id) { try { if (window.calmFor) window.calmFor(900); } catch (x) {}
   if (!EVS.length) return;
   cur = EVS.find(x => x.id === id) || EVS[0];
   st = { s: null, loading: true, err: '', sure: '', opened: st.opened || {}, tab: st.tab || 'main', t: 0 };
@@ -28969,6 +29016,7 @@ async function refresh() {
   try { const j = await api('state', { eventId: e.id }); if (cur === e) { if (j.ok && j.open) { st.s = j; st.t = Date.now(); } else st.err = L('err'); } }
   catch (x) { if (cur === e) st.err = x && x.login ? L('login') : L('err'); }
   st.loading = false; if (cur === e && !gameT) paint();
+  if (cur === e && (!st.feedAt || Date.now() - st.feedAt > 60000)) { st.feedAt = Date.now(); loadFeed(e); }
 }
 function earnHtml(e, s) {
   const n = s ? s.balance : 0;
@@ -28981,6 +29029,7 @@ function earnHtml(e, s) {
   }
   let rows = '';
   if (s && s.checkin && s.checkin.on) rows += '<div class="ev-ms"><div class="ic">📅</div><div class="tx"><div class="tt">' + esc(L('checkinT')) + '<span class="ev-pill">+' + s.checkin.reward + '🏮</span></div><div class="ds">' + esc(s.checkin.done ? L('days', { n: s.checkin.days }) : L('checkinS')) + '</div></div><button class="ev-btn sm" id="ev-ck" type="button"' + (s.checkin.done ? ' disabled' : '') + '>' + esc(s.checkin.done ? L('checkinDone') : L('checkinBtn', { n: s.checkin.reward })) + '</button></div>';
+  if (s && s.checkin && s.checkin.on) rows += streakHtml(e, s);
   const ms = missionsOf(e);
   ms.forEach((m, i) => {
     const d = s && s.missions && s.missions.find(x => x.id === m.id), done = !!(d && d.done), op = st.opened[m.id];
@@ -28999,7 +29048,7 @@ function ladderHtml(e, s) {
     const cost = num(t.cost, 3), owned = t.perUser > 0 && p.wins >= t.perUser, sold = p.left === 0, can = bal >= cost && !owned && !sold;
     const pct = Math.min(1, cost ? bal / cost : 1);
     const label = owned ? L('owned') : sold ? L('sold') : bal < cost ? L('need', { n: cost - bal }) : (st.sure === t.id ? L('sure') : (t.mode === 'direct' ? L('getBtn') : L('playBtn')));
-    h += '<div class="ev-st' + (can ? ' ok' : '') + '"><div class="dot">' + lamp(can || owned) + '</div><div class="in"><div class="nm">' + esc(t.title) + '</div><div class="ev-prize">' + esc(t.prize) + '</div></div><div class="ev-meta"><span>🏮 ' + esc(L('cost', { n: cost })) + '</span>' + (t.mode === 'game' ? '<span>🎮 ' + esc(L('goalTxt', { g: num(t.goal, 15), s: num(t.secs, 12) })) + '</span>' : '') + (p.left != null ? '<span>' + esc(L('stock', { n: p.left })) + '</span>' : '') + '</div>' +
+    h += '<div class="ev-st' + (can ? ' ok' : '') + '"><div class="dot">' + lamp(can || owned) + '</div><div class="in"><div class="nm">' + esc(t.title) + '</div>' + (HIDE_PRIZES ? '' : '<div class="ev-prize">' + esc(t.prize) + '</div>') + '</div><div class="ev-meta"><span>🏮 ' + esc(L('cost', { n: cost })) + '</span>' + (t.mode === 'game' ? '<span>🎮 ' + esc(L('goalTxt', { g: num(t.goal, 15), s: num(t.secs, 12) })) + '</span>' : '') + (p.left != null ? '<span>' + esc(L('stock', { n: p.left })) + '</span>' : '') + '</div>' +
       (can || owned || sold ? '' : '<div class="ev-bar"><i style="transform:scaleX(' + pct.toFixed(3) + ')"></i></div>') + '<div class="ev-row"><button class="ev-btn' + (can ? '' : ' alt') + '" data-t="' + esc(t.id) + '" type="button"' + (can ? '' : ' disabled') + '>' + esc(label) + '</button></div></div>';
   });
   return h + '</div></div>';
@@ -29053,7 +29102,7 @@ function boxPageHtml(e, s) {
   }
   h += '<div class="ev-card"><h3>📦 ' + esc(L('boxSlots', { n: b.slots })) + '</h3>' + slots + '</div>';
   const lv = tiers.map(t => { const p = b.tiers.find(x => x.id === t.id), gone = p && p.left === 0;
-    return '<div class="bx-lv" style="--c:' + esc(t.color || '#9aa4b2') + (gone ? ';opacity:.45' : '') + '"><span class="bx-dot"></span><div class="tx"><div class="tt">' + esc(t.label || t.title || '') + '</div><div class="ds">' + esc(t.prize || '') + (p && p.left != null ? ' · ' + esc(L('stock', { n: p.left })) : '') + '</div></div></div>'; }).join('');
+    return '<div class="bx-lv" style="--c:' + esc(t.color || '#9aa4b2') + (gone ? ';opacity:.45' : '') + '"><span class="bx-dot"></span><div class="tx"><div class="tt">' + esc(t.label || t.title || '') + '</div><div class="ds">' + (HIDE_PRIZES ? '🎁 ???' : esc(t.prize || '')) + (!HIDE_PRIZES && p && p.left != null ? ' · ' + esc(L('stock', { n: p.left })) : '') + '</div></div></div>'; }).join('');
   h += '<div class="ev-card"><h3>' + esc(L('boxLevels')) + '</h3><p class="ev-sub" style="margin-bottom:4px">' + esc(L('boxLevelsS')) + '</p>' + lv + '</div>';
   const mine = (s.claims || []).filter(c => c.source === 'box');
   h += '<div class="ev-card"><h3>🎁 ' + esc(L('boxMine')) + '</h3>' + (mine.length ? mine.map(claimRow).join('') : '<p class="ev-sub">' + esc(L('noBox')) + '</p>') + '</div>';
@@ -29061,17 +29110,30 @@ function boxPageHtml(e, s) {
 }
 function claimRow(c) {
   const col = c.color || '#ffcf5c';
-  return '<div class="bx-pz" style="--c:' + esc(col) + '"><span class="bx-dot"' + (c.color ? '' : ' style="display:none"') + '></span><div class="tx" style="flex:1;min-width:0"><div class="tt" style="font-size:13.5px;font-weight:800;color:#fff3cf;line-height:1.5">' + esc((c.label ? c.label + ' · ' : '') + (c.title || '')) + '</div><div class="ev-prize" style="font-size:15px">' + esc(c.prize) + '</div>' + (c.note ? '<div class="ds" style="font-size:12px;color:#c9b6ea">' + esc(c.note) + '</div>' : '') + '</div>' +
+  return '<div class="bx-pz" style="--c:' + esc(col) + '"><span class="bx-dot"' + (c.color ? '' : ' style="display:none"') + '></span><div class="tx" style="flex:1;min-width:0"><div class="tt" style="font-size:13px;font-weight:600;color:#fff3cf;line-height:1.5">' + esc((c.label ? c.label + ' · ' : '') + (c.title || '')) + '</div><div class="ev-prize" style="font-size:14px">' + esc(c.prize) + '</div>' + (c.note ? '<div class="ds" style="font-size:12px;color:#c9b6ea">' + esc(c.note) + '</div>' : '') + '</div>' +
     (c.status === 'won' ? '<button class="ev-btn sm" data-redeem="' + esc(c.id) + '" type="button">' + esc(L('redeem')) + '</button>' : '<span class="ev-stat ' + esc(c.status) + '" style="margin:0">' + esc(L(c.status === 'paid' ? 'paid' : c.status === 'rejected' ? 'rejected' : 'pending')) + '</span>') + '</div>';
 }
 const claimsCard = (claims) => claims.length ? '<div class="ev-card"><h3>' + esc(L('prizesT')) + '</h3>' + claims.map(c => claimRow(Object.assign({}, c, { color: c.color || '' }))).join('') + '</div>' : '';
 function tabsHtml(e) {
-  if (!bxCfg(e) || !bxTiers(e).length) return '';
+  const hasBox = !!(bxCfg(e) && bxTiers(e).length), hasTop = e.board !== false;
+  if (!hasBox && !hasTop) return '';
   const rdy = st.s && st.s.box ? st.s.box.queue.filter(q => qLeft(q) <= 0).length : 0;
-  return '<div class="ev-tabs"><button type="button" class="ev-tab' + (st.tab !== 'box' ? ' on' : '') + '" data-tab="main">🏮 ' + esc(L('tabEv')) + '</button><button type="button" class="ev-tab' + (st.tab === 'box' ? ' on' : '') + '" data-tab="box">🎁 ' + esc(L('tabBox')) + (rdy ? '<i>' + rdy + '</i>' : '') + '</button></div>';
+  const tab = (id, label, extra) => '<button type="button" class="ev-tab' + ((st.tab || 'main') === id ? ' on' : '') + '" data-tab="' + id + '">' + label + (extra || '') + '</button>';
+  return '<div class="ev-tabs">' + tab('main', '🏮 ' + esc(L('tabEv'))) + (hasBox ? tab('box', '🎁 ' + esc(L('tabBox')), rdy ? '<i>' + rdy + '</i>' : '') : '') + (hasTop ? tab('top', '🏆 ' + esc(L('tabTop'))) : '') + '</div>';
 }
 function bindBox(e) {
-  document.querySelectorAll('.ev-tab').forEach(b => b.onclick = () => { st.tab = b.dataset.tab; paint(); const o = $('ev-ov'); if (o) o.scrollTop = 0; });
+  document.querySelectorAll('.ev-tab').forEach(b => b.onclick = () => {
+    st.tab = b.dataset.tab; const o = $('ev-ov');
+    if (st.tab === 'top' && (!st.board || Date.now() - (st.boardAt || 0) > 30000)) { st.boardAt = Date.now(); loadBoard(e); if (o) o.scrollTop = 0; return; }
+    paint(); if (o) o.scrollTop = 0;
+  });
+  document.querySelectorAll('[data-bm]').forEach(b => b.onclick = () => { if (st.board) { st.board.mode = b.dataset.bm; paint(); } });
+  document.querySelectorAll('[data-set]').forEach(b => b.onclick = async () => {
+    const k = b.dataset.set, was = !!getSet()[k];
+    if (k === 'ntf' && !was) { let pm = window.Notification ? Notification.permission : 'denied'; if (pm === 'default') { try { pm = await Notification.requestPermission(); } catch (x) {} } if (pm !== 'granted') { toast(L('ntfDeny')); return; } }
+    setSet(k, was ? 0 : 1); b.classList.toggle('on', !was);
+    if (!was && k === 'snd') sfx('coin'); if (!was && k === 'vib') vib(40);
+  });
   const sb = $('bx-start'); if (sb) sb.onclick = () => confirmBox(e);
   document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openBoxSeq(b.dataset.open));
   document.querySelectorAll('[data-redeem]').forEach(b => b.onclick = () => redeemClaim(b.dataset.redeem, b));
@@ -29086,14 +29148,14 @@ function confirmBox(e) {
   o.onclick = (x) => { if (x.target === o) close(); };
   o.querySelector('#bx-no').onclick = close;
   o.querySelector('#bx-yes').onclick = async () => {
-    const y = o.querySelector('#bx-yes'); y.disabled = true;
+    const y = o.querySelector('#bx-yes'); if (y.disabled) return; busy(y, true);
     try { const j = await api('boxstart', { eventId: e.id }); if (j.ok) toast(L('boxOk')); else toast(boxErr(j)); }
     catch (x) { toast(x && x.login ? L('login') : L('err')); }
     close(); await refresh();
   };
 }
 async function redeemClaim(id, btn) {
-  const e = cur; if (!e) return; if (btn) btn.disabled = true;
+  const e = cur; if (!e) return; if (btn) { if (btn.disabled) return; busy(btn, true); }
   try { const j = await api('prize', { eventId: e.id, claimId: id }); if (j.ok) toast(L('redeemOk')); else toast(j.error || L('err')); }
   catch (x) { toast(x && x.login ? L('login') : L('err')); }
   await refresh();
@@ -29140,32 +29202,31 @@ async function openBoxSeq(boxId) {
   const end = async () => { FX.stop(); ov.remove(); bxBusy = false; document.documentElement.style.overflow = $('ev-ov') && !$('ev-ov').hidden ? 'hidden' : ''; await refresh(); };
   let name = ''; try { name = (window.getSavedProfile && window.getSavedProfile().name) || ''; } catch (x) {}
   const req = api('boxopen', { eventId: e.id, boxId, name }).catch(x => ({ ok: false, login: x && x.login }));
-  ov.classList.add('shake'); try { navigator.vibrate && navigator.vibrate([30, 40, 30, 40, 30]); } catch (x) {}
-  await sleep(1800);
-  const j = await req;
+  ov.classList.add('shake'); sfx('shake'); try { vib([30, 40, 30, 40, 30]); } catch (x) {}
+  const [j] = await Promise.all([req, sleep(750)]);
   if (!j || !j.ok || !j.tier) { toast(j && j.login ? L('login') : boxErr(j || {})); return end(); }
   const t = j.tier, col = /^#[0-9a-fA-F]{6}$/.test(t.color || '') ? t.color : '#ffd36b';
   ov.style.setProperty('--c', col);
   /* rarity 0..1 from the configured weights (smaller share = bigger show) */
   const ts = bxTiers(e), tot = ts.reduce((a, x) => a + (Number(x.weight) || 0), 0), me2 = ts.find(x => x.id === t.id);
   const share = tot && me2 ? (Number(me2.weight) || 0) / tot : .3, power = Math.max(0, Math.min(1, 1 - share * 1.6));
-  ov.classList.remove('shake'); ov.classList.add('open', 'flash'); try { navigator.vibrate && navigator.vibrate(120); } catch (x) {}
-  await sleep(520);
+  ov.classList.remove('shake'); ov.classList.add('open', 'flash'); sfx('open'); try { vib(120); } catch (x) {}
+  await sleep(380);
   ov.classList.add('reveal'); ov.querySelector('.bx-lbl b').textContent = t.label || '';
   FX.burst(innerWidth / 2, innerHeight * .42, [col, '#fff', col, '#ffd36b'], 70);
-  await sleep(1500);
-  FX.show(col, power);
+  await sleep(950);
+  FX.show(col, power); sfx('win', power);
   const pp = ov.querySelector('.bx-pp');
   pp.innerHTML = '<span class="bx-chip">' + esc(t.label || '') + '</span><div class="gift">🎁</div><h2>' + esc(L('congrats') + ' ' + L('youGot')) + (t.title ? ' · ' + esc(t.title) : '') + '</h2><div class="pz">' + esc(t.prize || '') + '</div><p>' + esc(L('redeemHint')) + '</p><div class="ev-row"><button class="ev-btn alt" type="button" id="bx-later">' + esc(L('later')) + '</button><button class="ev-btn go" type="button" id="bx-redeem">' + esc(L('redeem')) + '</button></div>';
   ov.classList.add('pop');
   ov.querySelector('#bx-later').onclick = end;
   ov.querySelector('#bx-redeem').onclick = async () => {
-    const b = ov.querySelector('#bx-redeem'); b.disabled = true;
+    const b = ov.querySelector('#bx-redeem'); if (b.disabled) return; busy(b, true);
     try {
       const r = await api('prize', { eventId: e.id, claimId: j.claimId });
       if (r && r.ok) { pp.querySelector('p').textContent = L('redeemOk'); pp.querySelector('.ev-row').innerHTML = '<button class="ev-btn go" type="button" id="bx-done">OK</button>'; ov.querySelector('#bx-done').onclick = end; FX.burst(innerWidth / 2, innerHeight * .4, [col, '#fff', '#ffd36b'], 60); }
-      else { toast((r && r.error) || L('err')); b.disabled = false; }
-    } catch (x) { toast(x && x.login ? L('login') : L('err')); b.disabled = false; }
+      else { toast((r && r.error) || L('err')); busy(b, false); }
+    } catch (x) { toast(x && x.login ? L('login') : L('err')); busy(b, false); }
   };
 }
 
@@ -29185,14 +29246,15 @@ function paint() {
   $('ev-body').innerHTML =
     '<h1 class="ev-h1">' + esc(e.name) + '</h1><div class="ev-orn">' + lotus + '</div>' + (e.desc ? '<div class="ev-desc">' + esc(e.desc) + '</div>' : '') +
     (st.err ? '<div class="ev-card"><p style="text-align:center">' + esc(st.err) + '</p></div>' : '') +
-    tabsHtml(e) + '<div class="ev-card ev-bal"><h3>' + esc(L('balT')) + '</h3><div class="num">' + (st.loading && !s ? '…' : n) + '</div><div class="ev-row5">' + jar + '</div>' +
+    soonHtml(e) + tickerHtml() + tabsHtml(e) + '<div class="ev-card ev-bal"' + (st.tab === 'top' ? ' style="display:none"' : '') + '><h3>' + esc(L('balT')) + '</h3><div class="num">' + (st.loading && !s ? '<i class="gx-sp only"></i>' : n) + '</div><div class="ev-row5">' + jar + '</div>' +
     (s ? '<div class="ev-split"><span>👥 <b>' + s.earned.invite + '</b></span><span>📅 <b>' + s.earned.checkin + '</b></span><span>🎯 <b>' + (s.earned.mission + s.earned.bonus) + '</b></span></div>' : '') + goalHtml(e, s) + '</div>' +
-    (st.tab === 'box' && bxOn(e) ? boxPageHtml(e, s) : resume + earnHtml(e, s) + ladderHtml(e, s)) +
-    (st.tab === 'box' && bxOn(e) ? '' : claimsCard(claims)) +
-    (st.tab === 'box' && bxOn(e) ? '' : (rules.length ? '<div class="ev-card"><h3>' + esc(L('rulesT')) + '</h3><ol class="ev-steps">' + rules.map(r => '<li>' + esc(r) + '</li>').join('') + '</ol></div>' : '')) ;
+    (st.tab === 'top' ? boardHtml(e) : st.tab === 'box' && bxOn(e) ? boxPageHtml(e, s) : resume + earnHtml(e, s) + ladderHtml(e, s)) +
+    ((st.tab === 'box' && bxOn(e)) || st.tab === 'top' ? '' : claimsCard(claims)) +
+    ((st.tab === 'box' && bxOn(e)) || st.tab === 'top' ? '' : (rules.length ? '<div class="ev-card"><h3>' + esc(L('rulesT')) + '</h3><ol class="ev-steps">' + rules.map(r => '<li>' + esc(r) + '</li>').join('') + '</ol></div>' : '')) + settingsHtml();
   bind(e); bindBox(e); startBxTick();
   const nEl = document.querySelector('.ev-bal .num');
   if (nEl && s && !st.cu) { st.cu = 1; const t0 = performance.now(), f = (t) => { const k = Math.min(1, (t - t0) / 700); nEl.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1 && nEl.isConnected) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+  tickClock();
 }
 function goalHtml(e, s) {
   if (!s) return '';
@@ -29206,7 +29268,12 @@ function goalHtml(e, s) {
 }
 function bind(e) {
   const on = (id, fn) => { const b = $(id); if (b) b.onclick = fn; };
-  on('ev-copy', async () => { const t = inviteLink(e); try { await navigator.clipboard.writeText(t); } catch (x) { const r = document.createRange(); r.selectNodeContents($('ev-link')); const q = getSelection(); q.removeAllRanges(); q.addRange(r); try { document.execCommand('copy'); } catch (y) {} } toast(L('copied')); });
+  on('ev-copy', async () => {
+    const t = inviteLink(e); let ok = false;
+    try { ok = await Promise.race([navigator.clipboard.writeText(t).then(() => true), new Promise(r => setTimeout(() => r(false), 500))]); } catch (x) { ok = false; }
+    if (!ok) { try { const r = document.createRange(); r.selectNodeContents($('ev-link')); const q = getSelection(); q.removeAllRanges(); q.addRange(r); document.execCommand('copy'); } catch (y) {} }
+    toast(L('copied'));
+  });
   on('ev-share', async () => {
     const t = inviteLink(e), txt = e.shareText || L('shareDef');
     try {
@@ -29216,20 +29283,37 @@ function bind(e) {
       await navigator.clipboard.writeText(txt + '\n' + t); toast(L('copied'));
     } catch (x) { /* share sheet dismissed */ }
   });
-  on('ev-ck', async () => { try { const j = await api('checkin', { eventId: e.id }); if (j.ok && !j.already) toast('+' + j.reward + ' 🏮'); else if (!j.ok) toast(L('err')); } catch (x) { toast(x && x.login ? L('login') : L('err')); } await refresh(); });
+  on('ev-ck', async () => {
+    const b = $('ev-ck'); if (!b || b.disabled) return; busy(b, true);
+    try {
+      const j = await api('checkin', { eventId: e.id });
+      if (j.ok && !j.already) { toast('+' + j.reward + ' 🏮'); if (st.s && st.s.checkin) { st.s.checkin.done = true; if (j.days != null) st.s.checkin.days = j.days; } gain('checkin', Number(j.reward) || 0); }
+      else if (!j.ok) toast(L('err'));
+    } catch (x) { toast(x && x.login ? L('login') : L('err')); }
+    if (cur === e && !gameT) paint(); refresh();
+  });
   document.querySelectorAll('[data-ms]').forEach(b => b.onclick = async () => {
-    const m = missionsOf(e)[Number(b.dataset.ms)]; if (!m) return;
+    const m = missionsOf(e)[Number(b.dataset.ms)]; if (!m || b.disabled) return;
     if (m.url && !st.opened[m.id]) {
       try { const tg = window.Telegram && Telegram.WebApp; if (tg && tg.initData && /^https:\/\/t\.me\//.test(m.url) && tg.openTelegramLink) tg.openTelegramLink(m.url); else window.open(m.url, '_blank'); } catch (x) {}
-      st.opened[m.id] = Date.now(); b.disabled = true; setTimeout(paint, 4000); return;
+      st.opened[m.id] = Date.now(); b.disabled = true; setTimeout(() => { if (cur === e && !gameT) paint(); }, 1200); return;
     }
-    if (m.url && Date.now() - st.opened[m.id] < 4000) return;
-    try { const j = await api('mission', { eventId: e.id, missionId: m.id }); if (j.ok && !j.already) toast('+' + j.reward + ' 🏮'); else if (j.notYet) toast(L('notYet', { a: j.progress || 0, b: j.target })); else if (!j.ok) toast(L('err')); } catch (x) { toast(x && x.login ? L('login') : L('err')); } await refresh();
+    busy(b, true);
+    try {
+      const j = await api('mission', { eventId: e.id, missionId: m.id });
+      if (j.ok && !j.already) {
+        toast('+' + j.reward + ' 🏮');
+        const d = st.s && st.s.missions && st.s.missions.find(x => x.id === m.id);
+        if (d) d.done = true; else if (st.s && st.s.missions) st.s.missions.push({ id: m.id, done: true });
+        gain('mission', Number(j.reward) || 0);
+      } else if (j.notYet) toast(L('notYet', { a: j.progress || 0, b: j.target })); else if (!j.ok) toast(L('err'));
+    } catch (x) { toast(x && x.login ? L('login') : L('err')); }
+    if (cur === e && !gameT) paint(); refresh();
   });
   document.querySelectorAll('.ev-st [data-t]').forEach(b => b.onclick = async () => {
     const id = b.dataset.t, t = tiersOf(e).find(x => x.id === id); if (!t) return;
     if (st.sure !== id) { st.sure = id; paint(); setTimeout(() => { if (st.sure === id) { st.sure = ''; if (!gameT && cur === e) paint(); } }, 3500); return; }
-    st.sure = ''; b.disabled = true;
+    st.sure = ''; busy(b, true);
     try {
       let name = ''; try { name = (window.getSavedProfile && window.getSavedProfile().name) || ''; } catch (x) {}
       const j = await api('redeem', { eventId: e.id, tierId: id, name });
@@ -29253,7 +29337,7 @@ function startGame(t, tok, goal, secs, secsLeft) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ev-fl';
     b.style.left = (Math.random() * Math.max(10, arena.clientWidth - 54)) + 'px'; b.style.setProperty('--d', (2.5 + Math.random() * 1.7).toFixed(2) + 's');
     b.innerHTML = lantern(COLORS[Math.floor(Math.random() * COLORS.length)]);
-    b.addEventListener('pointerdown', (ev) => { ev.preventDefault(); if (b.classList.contains('hit') || !gameT) return; b.classList.add('hit'); score++; $('ev-sc').textContent = score; setTimeout(() => b.remove(), 320); if (score >= goal) finish(true); });
+    b.addEventListener('pointerdown', (ev) => { ev.preventDefault(); if (b.classList.contains('hit') || !gameT) return; b.classList.add('hit'); sfx('tap'); score++; $('ev-sc').textContent = score; setTimeout(() => b.remove(), 320); if (score >= goal) finish(true); });
     b.addEventListener('animationend', (a) => { if (a.animationName === 'evRise') b.remove(); });
     arena.appendChild(b);
   };
@@ -29261,7 +29345,7 @@ function startGame(t, tok, goal, secs, secsLeft) {
   gameT.tick = setInterval(() => { const r = secsLeft - (Date.now() - t0) / 1000; $('ev-tm').textContent = Math.max(0, Math.ceil(r)); $('ev-bar').style.transform = 'scaleX(' + Math.max(0, r / secs).toFixed(3) + ')'; if (r <= 0) finish(false); }, 100);
 }
 async function report(e, t, tok, score, goal, won) {
-  $('ev-body').innerHTML = '<div class="ev-res"><div class="big">🏮</div><p>' + esc(L('loading')) + '</p></div>';
+  $('ev-body').innerHTML = '<div class="ev-res"><div class="big">🏮</div><p><i class="gx-sp only"></i></p></div>';
   let j = null;
   try { j = await api('finish', { eventId: e.id, tok, score }); } catch (x) { j = null; }
   const back = async () => { st.s = null; paint(); await refresh(); };
@@ -29274,6 +29358,111 @@ async function report(e, t, tok, score, goal, won) {
   }
   $('ev-bk').onclick = back;
 }
+
+
+/* ================= EXTRAS: sound/vibration, winners ticker, leaderboard, streak, countdown, box-ready alert ================= */
+Object.assign(S.en, { tabTop: 'Top', boardT: 'Leaderboard', byInv: 'Invites', byLan: 'Lanterns', you: 'You', noBoard: 'The leaderboard is not available yet.', rankYou: 'Your rank: #{n}', tickWon: '{n} won {p}', tickWonL: '{n} won a {l} prize', streakT: 'Streak', streakD: 'Day {n} of {m}', streakB: 'Day {m} bonus: +{b} 🏮', setT: 'Settings', sndT: 'Sound', vibT: 'Vibration', ntfT: 'Box ready alert', ntfBox: '🎁 Your box is ready to open!', ntfDeny: 'Notifications are blocked in your browser.', endSoon: 'Ending soon!' });
+Object.assign(S.my, { tabTop: 'အဆင့်', boardT: 'ထိပ်တန်းဇယား', byInv: 'ဖိတ်ခေါ်မှု', byLan: 'မီးပုံး', you: 'သင်', noBoard: 'ဇယားကို မကြာမီ ဖွင့်ပါမည်။', rankYou: 'သင့်အဆင့် #{n}', tickWon: '{n} က {p} ရလိုက်ပါပြီ', tickWonL: '{n} က {l} ဆု ရလိုက်ပါပြီ', streakT: 'ဆက်တိုက်လာရက်', streakD: '{m} ရက်အနက် {n} ရက်', streakB: '{m} ရက်ပြည့်ရင် ဘောနပ်စ် +{b} 🏮', setT: 'ချိန်ညှိချက်', sndT: 'အသံ', vibT: 'တုန်ခါမှု', ntfT: 'Box အဆင်သင့်ဖြစ်ရင် အသိပေးမယ်', ntfBox: '🎁 သင့် box ဖွင့်လို့ရပါပြီ!', ntfDeny: 'Browser မှာ notification ပိတ်ထားပါတယ်။', endSoon: 'မကြာမီ ပြီးဆုံးပါတော့မည်!' });
+
+/* settings (sound / vibration / box alert) - per device */
+const SET_KEY = 'ev_set';
+const getSet = () => { try { return Object.assign({ snd: 1, vib: 1, ntf: 0 }, JSON.parse(localStorage.getItem(SET_KEY) || '{}')); } catch (x) { return { snd: 1, vib: 1, ntf: 0 }; } };
+const setSet = (k, v) => { const g = getSet(); g[k] = v; try { localStorage.setItem(SET_KEY, JSON.stringify(g)); } catch (x) {} };
+const vib = (p) => { try { if (getSet().vib && navigator.vibrate) navigator.vibrate(p); } catch (x) {} };
+let _ac = null;
+function sfx(kind, power) {
+  if (!getSet().snd) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    _ac = _ac || new AC(); if (_ac.state === 'suspended') _ac.resume();
+    const t = _ac.currentTime;
+    const tone = (f, d, at, type, vol) => { const o = _ac.createOscillator(), g = _ac.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t + at); g.gain.setValueAtTime(0.0001, t + at); g.gain.exponentialRampToValueAtTime(vol || 0.1, t + at + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + at + d); o.connect(g); g.connect(_ac.destination); o.start(t + at); o.stop(t + at + d + 0.03); };
+    if (kind === 'tap') tone(660, 0.07, 0, 'triangle', 0.06);
+    else if (kind === 'coin') { tone(988, 0.09, 0, 'square', 0.04); tone(1319, 0.18, 0.08, 'square', 0.04); }
+    else if (kind === 'shake') { for (let i = 0; i < 6; i++) tone(90 + (i % 2) * 25, 0.09, i * 0.11, 'sawtooth', 0.05); }
+    else if (kind === 'open') { tone(220, 0.35, 0, 'sawtooth', 0.06); tone(440, 0.35, 0.05, 'triangle', 0.07); }
+    else if (kind === 'ready') { tone(784, 0.15, 0, 'sine', 0.09); tone(1047, 0.3, 0.14, 'sine', 0.09); }
+    else if (kind === 'win') { const n = [523, 659, 784, 1047, 1319], k = Math.min(5, 3 + Math.round((power || 0) * 2)); for (let i = 0; i < k; i++) tone(n[i], 0.28, i * 0.09, 'triangle', 0.1); }
+  } catch (x) {}
+}
+function settingsHtml() {
+  const g = getSet();
+  const sw = (k, ic, t) => '<button type="button" class="ev-sw' + (g[k] ? ' on' : '') + '" data-set="' + k + '"><span>' + ic + ' ' + esc(L(t)) + '</span><i></i></button>';
+  return '<div class="ev-card ev-set"><h3>⚙ ' + esc(L('setT')) + '</h3>' + sw('snd', '🔊', 'sndT') + sw('vib', '📳', 'vibT') + (window.Notification ? sw('ntf', '🔔', 'ntfT') : '') + '</div>';
+}
+
+/* winners ticker (route: feed) */
+const maskN = (n) => { n = String(n == null ? '' : n).trim(); return n ? [...n].slice(0, 2).join('') + '***' : '***'; };
+async function loadFeed(e) {
+  try { const j = await api('feed', { eventId: e.id }); if (cur === e && j && j.ok && Array.isArray(j.items) && j.items.length) { st.feed = j.items.slice(0, 20); if (!gameT && $('ev-ov') && !$('ev-ov').hidden) paint(); } } catch (x) {}
+}
+function tickerHtml() {
+  const it = st.feed || []; if (!it.length) return '';
+  const row = it.map(i => '<span class="ev-tk-i">🎉 ' + esc(HIDE_PRIZES || !i.p ? L('tickWonL', { n: maskN(i.n), l: i.l || '🎁' }) : L('tickWon', { n: maskN(i.n), p: i.p })) + '</span>').join('');
+  return '<div class="ev-tk"><div class="ev-tk-t" style="--n:' + it.length + '">' + row + row + '</div></div>';
+}
+
+/* leaderboard (route: board) */
+async function loadBoard(e) {
+  const mode = (st.board && st.board.mode) || 'inv';
+  st.board = { loading: true, mode }; paint();
+  let nb = { mode, ok: false };
+  try { const j = await api('board', { eventId: e.id }); if (j && j.ok) nb = { mode, ok: true, inv: j.byInvite || [], lan: j.byLantern || [], me: j.me || {} }; } catch (x) {}
+  if (cur !== e) return; st.board = nb; if (st.tab === 'top' && !gameT) paint();
+}
+function boardHtml(e) {
+  const b = st.board;
+  if (!b || b.loading) return '<div class="ev-card"><p style="text-align:center;margin:6px 0"><i class="gx-sp only"></i></p></div>';
+  if (!b.ok) return '<div class="ev-card"><p class="ev-sub" style="text-align:center">' + esc(L('noBoard')) + '</p></div>';
+  const rows = (b.mode === 'lan' ? b.lan : b.inv) || [], medal = ['🥇', '🥈', '🥉'];
+  const rk = b.me && (b.mode === 'lan' ? b.me.rankLantern : b.me.rankInvite);
+  let h = '<div class="ev-card"><h3>🏆 ' + esc(L('boardT')) + '</h3><div class="ev-seg"><button type="button" data-bm="inv" class="' + (b.mode !== 'lan' ? 'on' : '') + '">👥 ' + esc(L('byInv')) + '</button><button type="button" data-bm="lan" class="' + (b.mode === 'lan' ? 'on' : '') + '">🏮 ' + esc(L('byLan')) + '</button></div>';
+  h += rows.slice(0, 10).map((r, i) => '<div class="ev-bd' + (r.me ? ' me' : '') + '"><span class="rk">' + (medal[i] || '#' + (i + 1)) + '</span><span class="nm">' + esc(r.me ? L('you') : maskN(r.n)) + '</span><b>' + num(r.v, 0) + '</b></div>').join('');
+  if (!rows.length) h += '<p class="ev-sub" style="text-align:center">—</p>';
+  if (rk) h += '<p class="ev-sub" style="text-align:center;margin-top:8px"><b>' + esc(L('rankYou', { n: rk })) + '</b></p>';
+  return h + '</div>';
+}
+
+/* check-in streak */
+function streakHtml(e, s) {
+  const m = Math.max(2, Math.min(14, Number(e.streakEvery) || 7)), d = Number(s.checkin.days) || 0, c = d > 0 ? ((d - 1) % m) + 1 : 0, bo = Number(e.streakBonus) || 0;
+  let dots = ''; for (let i = 1; i <= m; i++) dots += '<i class="' + (i <= c ? 'on' : '') + (i === m ? ' end' : '') + '">' + (i === m ? '🎁' : i) + '</i>';
+  return '<div class="ev-streak"><div class="hd"><span>🔥 ' + esc(L('streakT')) + '</span><b>' + esc(L('streakD', { n: c, m })) + '</b></div><div class="dots">' + dots + '</div>' + (bo > 0 ? '<div class="ev-sub" style="text-align:left;margin-top:6px">' + esc(L('streakB', { m, b: bo })) + '</div>' : '') + '</div>';
+}
+
+/* last-24h countdown */
+const HOT_MS = 864e5;
+const fmtHMS = (ms) => { const t = Math.max(0, Math.floor(ms / 1000)), p = (n) => ('0' + n).slice(-2); return p(Math.floor(t / 3600)) + ':' + p(Math.floor(t % 3600 / 60)) + ':' + p(t % 60); };
+const isHot = (e) => { if (!e || !e.ed) return false; const ms = endMs(e) - Date.now(); return ms > 0 && ms < HOT_MS; };
+const soonHtml = (e) => isHot(e) ? '<div class="ev-soon">🔥 ' + esc(L('endSoon')) + '</div>' : '';
+function tickClock() {
+  const e = cur || EVS[0]; if (!e || !e.ed) return;
+  const ms = endMs(e) - Date.now(), hot = ms > 0 && ms < HOT_MS;
+  const t = $('ev-time'); if (t) { t.classList.toggle('hot', hot); if (hot && cur) t.textContent = '⏳ ' + fmtHMS(ms); }
+  const fb = $('ev-fab'); if (fb) { fb.classList.toggle('hot', hot); const l = fb.querySelector('.ev-fb-t'); if (l && hot) l.textContent = fmtHMS(ms); }
+}
+setInterval(() => { if (!document.hidden) tickClock(); }, 1000);
+
+/* box-ready alert (works while the store is open; also a red dot on the event button) */
+const NT_KEY = 'ev_nt';
+const ntSet = () => { try { return new Set(JSON.parse(localStorage.getItem(NT_KEY) || '[]')); } catch (x) { return new Set(); } };
+function watchBox() {
+  const s2 = st.s; if (!s2 || !s2.box || !Array.isArray(s2.box.queue)) return;
+  const seen = ntSet(); let any = false, fresh = false;
+  s2.box.queue.forEach(q => { if (qLeft(q) <= 0) { any = true; if (!seen.has(q.id)) { seen.add(q.id); fresh = true; } } });
+  const fb = $('ev-fab'); if (fb) fb.classList.toggle('rdy', any);
+  if (!fresh) return;
+  try { localStorage.setItem(NT_KEY, JSON.stringify([...seen].slice(-40))); } catch (x) {}
+  sfx('ready'); vib([60, 60, 60]);
+  if (document.hidden && getSet().ntf && window.Notification && Notification.permission === 'granted') { try { new Notification((EVS[0] && EVS[0].name) || 'Event', { body: L('ntfBox') }); } catch (x) {} }
+  else toast(L('ntfBox'));
+}
+setInterval(watchBox, 4000);
+async function peek() {
+  if (cur || !EVS.length || document.hidden) return;
+  try { const j = await api('state', { eventId: EVS[0].id }); if (!cur && j && j.ok && j.open) { st.s = j; st.t = Date.now(); watchBox(); } } catch (x) {}
+}
+setTimeout(peek, 3000); setInterval(peek, 300000);
 
 /* ---------- config entry point (called from the branding snapshot) + re-check schedule ---------- */
 function apply(cfg) {
@@ -29420,6 +29609,36 @@ html:not(#_):not(#__) .pg-mini .ui-icon{stroke:url(#gxgP)!important}
 html:not(#_):not(#__) .mini-profile-avatar{border-radius:14px!important;overflow:hidden;background:var(--gs-front);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,2px -2px 0 -1px #cfdcff,0 5px 8px -4px var(--gs-glow)}
 html:not(#_):not(#__) .mini-profile-avatar .ui-icon{stroke:url(#gxgP)}
 </style>
+<style id="nav-notch-css">
+/* Wallet sits in a curved notch cut into the nav bar (KBZPay style). The bar's fill + glow move into .nav-shell so the
+   notch can be cut out of it with a mask; the tabs, icons and labels themselves are untouched. */
+:root{--nn-fill:#fff;--nn-ring:rgba(124,134,255,.18);--nn-glow:rgba(91,63,240,.26)}
+html[data-theme="dark"]{--nn-fill:#121a30;--nn-ring:rgba(255,255,255,.12);--nn-glow:rgba(0,0,0,.6)}
+html:not(#_):not(#__):not(#___) .bottom-nav{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.nav-shell{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0;pointer-events:none;filter:drop-shadow(0 10px 10px var(--nn-glow))}
+.nav-shell i{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:24px;background:var(--nn-fill);box-shadow:inset 0 0 0 1px var(--nn-ring);
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 48'%3E%3Cpath d='M0 0H6.06A8 8 0 0 1 14.05 8.44A28 28 0 1 0 69.95 8.44A8 8 0 0 1 77.94 0H84V48H0Z'/%3E%3C/svg%3E"),linear-gradient(#000,#000),linear-gradient(#000,#000),linear-gradient(#000,#000);
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 48'%3E%3Cpath d='M0 0H6.06A8 8 0 0 1 14.05 8.44A28 28 0 1 0 69.95 8.44A8 8 0 0 1 77.94 0H84V48H0Z'/%3E%3C/svg%3E"),linear-gradient(#000,#000),linear-gradient(#000,#000),linear-gradient(#000,#000);
+  -webkit-mask-size:84px 48px,84px calc(100% - 47px),calc(50% - 41px) 100%,calc(50% - 41px) 100%;
+  mask-size:84px 48px,84px calc(100% - 47px),calc(50% - 41px) 100%,calc(50% - 41px) 100%;
+  -webkit-mask-position:50% 0,50% 100%,0 0,100% 0;
+  mask-position:50% 0,50% 100%,0 0,100% 0;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+html[data-thadi] .nav-shell i{box-shadow:inset 0 0 0 1px rgba(255,205,120,.5)}
+.bottom-nav .nav-item{position:relative;z-index:1}
+/* the round Wallet button: same icon + gradient, now a circle that rests in the notch */
+html:not(#_):not(#__):not(#___) .nav-item .nav-icon-wrap.nav-icon-wrap-wallet,
+html:not(#_):not(#__):not(#___) .nav-item.nav-item-wallet.active .nav-icon-wrap.nav-icon-wrap-wallet{
+  width:46px;height:46px;border-radius:50%!important;margin-bottom:-8px;transform:translateY(-21px) scale(1)}
+html:not(#_):not(#__):not(#___) .nav-item.nav-item-wallet.nav-peek .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(-23px) scale(1.06)}
+html:not(#_):not(#__):not(#___) .nav-item.nav-item-wallet:active .nav-icon-wrap.nav-icon-wrap-wallet{transform:translateY(-19px) scale(.94)}
+@keyframes walletBtnSink{0%{transform:translateY(-21px) scale(1)}35%{transform:translateY(-16px) scale(.78)}100%{transform:translateY(-21px) scale(1)}}
+/* the little active-tab lamp would float inside the notch when Wallet is the active tab */
+.nav-item-wallet.active ~ .nav-lamp{opacity:0!important}
+/* the ball pokes above the bar, so the hide-on-scroll slide needs a little more travel */
+html:not(#_):not(#__) .bottom-nav.nav-hidden{transform:translate3d(0,calc(100% + 44px),0)}
+</style>
+
 <style id="gx-wide">
 /* wider game / voucher grids: less outer margin, tighter gap, bigger tiles */
 .gx-card{margin:10px 6px}
@@ -29428,6 +29647,167 @@ html:not(#_):not(#__) .cards-grid{gap:10px}
 html:not(#_):not(#__) .game-card{padding:5px 5px 7px}
 .gx-card .cat-filter-scroll{padding:0 8px 6px}.gx-card .all-games-title-row{margin:0 8px 10px!important}
 .popular-card{flex-basis:100px}.popular-voucher-card{flex-basis:104px}.popular-scroll-wrap{gap:10px}
+/* smaller cards (4 per row) + wider grid area on phones */
+@media (max-width:699px){
+  .gx-card{margin:8px 2px}
+  .gx-card .games-grid-scroll{padding:2px 2px 0!important}
+  .gx-card .cat-filter-scroll{padding:0 4px 6px}
+  .gx-card .all-games-title-row{margin:0 4px 10px!important}
+  html:not(#_):not(#__) .games-grid-scroll .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  html:not(#_):not(#__) .games-grid-scroll .game-card{padding:3px 3px 5px;border-radius:14px}
+  html:not(#_):not(#__) .games-grid-scroll .game-card .game-card-img-wrap{border-radius:11px}
+  html:not(#_):not(#__) .games-grid-scroll .game-card .game-card-name{font-size:9.5px;padding:3px 2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+</style>
+<style id="gx-ev-tune">
+/* ===== Banner: show the whole picture (no top/bottom crop) ===== */
+html:not(#_):not(#__) .home-banner-slide{aspect-ratio:16 / 9}
+html:not(#_):not(#__) .home-banner-slide img{object-fit:cover;object-position:center}
+html:not(#_):not(#__) .home-banner-carousel{margin-left:0;margin-right:0}
+
+/* ===== Event page: smoother open + smaller, lighter text ===== */
+@keyframes evOpenIn{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes evTopIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.ev-ov:not([hidden]){animation:evOpenIn .36s cubic-bezier(.22,.9,.3,1) both}
+.ev-ov:not([hidden]) .ev-top{animation:evTopIn .4s .12s ease-out both}
+.ev-ov .ev-wrap{max-width:480px;padding:0 14px max(30px,env(safe-area-inset-bottom))}
+.ev-ov .ev-x{width:36px;height:36px;font-size:20px;transition:transform .15s,background .2s}
+.ev-ov .ev-x:active{transform:scale(.9)}
+.ev-ov .ev-time{font-size:11.5px;font-weight:600;padding:5px 12px}
+.ev-ov .ev-h1{font-size:20px;font-weight:700;line-height:1.5;letter-spacing:0}
+.ev-ov .ev-desc{font-size:13px;line-height:1.75}
+.ev-ov .ev-chip{font-size:12px;padding:5px 12px}.ev-ov .ev-chip.on{font-weight:600}
+.ev-ov .ev-card{margin-top:10px;padding:13px 13px;border-radius:18px}
+.ev-ov .ev-card h3{font-size:14px;font-weight:600;margin:0 0 6px}
+.ev-ov .ev-card p{font-size:12.5px;line-height:1.7}
+.ev-ov .ev-sub{font-size:12px}
+.ev-ov .ev-bal .num{font-size:42px;font-weight:700}
+.ev-ov .ev-split{font-size:11.5px}.ev-ov .ev-split b{font-weight:600}
+.ev-ov .ev-btn{min-height:42px;font-size:13px;font-weight:600;border-radius:13px}
+.ev-ov .ev-btn.sm{min-height:34px;padding:5px 12px;font-size:12px;border-radius:11px}
+.ev-ov .ev-linkbox{font-size:11.5px}
+.ev-ov .ev-tabs{margin-top:10px}
+.ev-ov .ev-tab{min-height:36px;font-size:13px;font-weight:600}
+.ev-ov .ev-tab i{font-size:10.5px;font-weight:600}
+.ev-ov .ev-ms{padding:9px 0}
+.ev-ov .ev-ms .ic{width:34px;height:34px;font-size:17px}
+.ev-ov .ev-ms .tt{font-size:13px;font-weight:600}.ev-ov .ev-ms .ds{font-size:11.5px}
+.ev-ov .ev-pill{font-size:11px;font-weight:600;padding:0 8px}
+.ev-ov .ev-st{padding:10px}
+.ev-ov .ev-st .nm{font-size:13px;font-weight:600}
+.ev-ov .ev-st .ev-prize{font-size:14.5px;font-weight:700}
+.ev-ov .ev-meta{font-size:11px}
+.ev-ov .ev-stat{font-size:11px;font-weight:600;padding:2px 10px}
+.ev-ov .ev-steps li{font-size:12.5px;line-height:1.7}.ev-ov .ev-steps li::before{font-weight:700}
+.ev-ov .ev-goal .gt{font-size:12px}.ev-ov .ev-goal .gt b{font-weight:600}
+.ev-ov .ev-hud{font-size:13.5px;font-weight:600}.ev-ov .ev-hud b{font-size:16px;font-weight:700}
+.ev-ov .ev-res .big{font-size:48px}.ev-ov .ev-res h2{font-size:19px;font-weight:700}.ev-ov .ev-res p{font-size:13px}
+.ev-ov .bx-rule{font-size:11px}
+.ev-ov .bx-slot{padding:9px 11px}
+.ev-ov .bx-slot .tt{font-size:13px;font-weight:600}.ev-ov .bx-slot .ds{font-size:12px}
+.ev-ov .bx-lv .tt{font-size:12.5px;font-weight:600}.ev-ov .bx-lv .ds{font-size:11.5px}
+.ev-toast{font-size:12.5px;font-weight:600}
+/* mystery-box opening screens + confirm dialog */
+.bx-lbl b{font-size:clamp(26px,9vw,42px);font-weight:700;letter-spacing:.04em}
+.bx-lbl small{font-size:11.5px}
+.bx-hint{font-size:13px;font-weight:600}
+.bx-chip{font-size:11.5px;font-weight:700;padding:2px 14px}
+.bx-pp{width:min(84vw,330px);padding:22px 18px 16px}
+.bx-pp .gift{font-size:46px}
+.bx-pp h2{font-size:13.5px;font-weight:600}
+.bx-pp .pz{font-size:20px;font-weight:700}
+.bx-pp p{font-size:12px}
+.bx-cf h3{font-size:16px;font-weight:700}.bx-cf p{font-size:12.5px}
+/* floating event button: lighter label */
+#ev-fab .ev-fb-t{font-size:9.5px;font-weight:500}
+#ev-fab .ev-fb-tip{font-size:12px}
+@media (prefers-reduced-motion:reduce){.ev-ov:not([hidden]),.ev-ov:not([hidden]) .ev-top{animation:none}}
+html.perf-low .ev-ov:not([hidden]),html.perf-low .ev-ov:not([hidden]) .ev-top{animation:none}
+/* instant tap feedback + faster box */
+.ev-ov button,.bx-ov button,.bx-cf button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.ev-ov .ev-btn{transition:transform .08s,opacity .15s}
+.ev-ov .ev-btn:active:not([disabled]){transform:scale(.96)}
+.ev-ov .ev-btn.ev-wait,.bx-cf .ev-btn.ev-wait,.bx-ov .ev-btn.ev-wait{opacity:.7;pointer-events:none}
+.ev-ov .ev-tab:active{transform:scale(.97)}
+@keyframes bxShakeFast{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-6px,2px) rotate(-7deg)}40%{transform:translate(6px,-2px) rotate(7deg)}60%{transform:translate(-4px,1px) rotate(-5deg)}80%{transform:translate(4px,0) rotate(5deg)}}
+.bx-ov.shake .bx-bw{animation:bxShakeFast .32s ease-in-out infinite}
+.bx-lid{transition:transform .4s cubic-bezier(.2,.9,.3,1),opacity .4s}
+.bx-ov{animation-duration:.18s}
+/* ===== one spinner for the whole store (replaces "..." text) ===== */
+.gx-sp{display:inline-block;box-sizing:border-box;width:14px;height:14px;margin-right:7px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:lgSpin .7s linear infinite;flex:0 0 auto}
+.gx-sp.only{margin:0}
+.ev-bal .num .gx-sp{width:30px;height:30px;border-width:3px;border-color:#ffd36b;border-right-color:transparent;vertical-align:middle}
+.ev-res p .gx-sp{width:22px;height:22px;border-color:#ffd36b;border-right-color:transparent}
+.ev-ov .ev-btn.ev-wait::before,.bx-cf .ev-btn.ev-wait::before,.bx-ov .ev-btn.ev-wait::before{content:"";display:inline-block;box-sizing:border-box;width:13px;height:13px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:lgSpin .7s linear infinite}
+@media (prefers-reduced-motion:reduce){.gx-sp,.ev-btn.ev-wait::before{animation-duration:1.6s!important}}
+/* ===== extras: ticker, streak, leaderboard, settings, countdown ===== */
+.ev-tk{margin:10px 0 0;overflow:hidden;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid rgba(255,207,92,.22);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ev-tk-t{display:flex;width:max-content;padding:7px 0;animation:evTk calc(var(--n,4) * 6s) linear infinite;will-change:transform}
+.ev-tk-i{white-space:nowrap;font-size:12px;color:#ffe9b0;padding-right:30px}
+@keyframes evTk{to{transform:translateX(-50%)}}
+.ev-streak{margin-top:4px;padding:10px 0 4px;border-top:1px solid rgba(255,207,92,.16)}
+.ev-streak .hd{display:flex;justify-content:space-between;font-size:12px;color:#ffe29a}.ev-streak .hd b{font-weight:600}
+.ev-streak .dots{display:flex;gap:5px;margin-top:8px}
+.ev-streak .dots i{flex:1;aspect-ratio:1;max-width:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;background:rgba(255,255,255,.08);color:#cdb8ee;border:1px solid rgba(255,207,92,.2)}
+.ev-streak .dots i.on{background:linear-gradient(180deg,#ffe28f,#ffb62e);color:#3b1d00;font-weight:600;border-color:#ffd36b}
+.ev-streak .dots i.end{border-style:dashed;font-size:14px}
+.ev-seg{display:flex;gap:4px;padding:3px;border-radius:99px;background:rgba(0,0,0,.3);margin:6px 0 10px}
+.ev-seg button{flex:1;border:0;border-radius:99px;min-height:32px;background:none;color:var(--ev-cream);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.ev-seg button.on{background:linear-gradient(180deg,#ffe28f,#ffb62e);color:#3b1d00}
+.ev-bd{display:flex;align-items:center;gap:10px;padding:8px 6px;border-top:1px solid rgba(255,207,92,.14);font-size:13px}
+.ev-bd:first-of-type{border-top:0}
+.ev-bd .rk{width:30px;text-align:center;font-size:16px;color:#ffe29a;font-variant-numeric:tabular-nums}
+.ev-bd .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff3cf}
+.ev-bd b{font-weight:700;color:#ffd96a;font-variant-numeric:tabular-nums}
+.ev-bd.me{background:rgba(255,207,92,.13);border-radius:10px;border-top-color:transparent}
+.ev-sw{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 2px;border:0;border-top:1px solid rgba(255,207,92,.14);background:none;color:var(--ev-cream);font:inherit;font-size:13px;cursor:pointer;touch-action:manipulation}
+.ev-sw i{position:relative;flex:0 0 auto;width:38px;height:22px;border-radius:99px;background:rgba(255,255,255,.2);transition:background .2s}
+.ev-sw i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.ev-sw.on i{background:#f5a623}.ev-sw.on i::after{transform:translateX(16px)}
+.ev-set h3{margin-bottom:2px!important}
+.ev-soon{margin:8px auto 0;width:max-content;max-width:100%;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(90deg,#ef4444,#f97316)}
+.ev-ov .ev-time.hot{background:rgba(239,68,68,.2);color:#ffb4a8;border-color:rgba(239,68,68,.6);font-variant-numeric:tabular-nums}
+#ev-fab.hot{border-color:#ef4444;animation:evHot 1.6s ease-in-out infinite}
+#ev-fab.rdy .ev-fb-dot{display:block}
+@keyframes evHot{50%{box-shadow:0 0 0 6px rgba(239,68,68,.28)}}
+html.perf-low #ev-fab.hot,html.perf-low .ev-tk-t{animation:none!important}
+@media (prefers-reduced-motion:reduce){#ev-fab.hot,.ev-tk-t{animation:none!important}}
+/* ===== Sidebar v4: one layer only, shorter rod, clean step-by-step close ===== */
+.drawer-overlay{--pg-rb:27%}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .pg-panel{top:0;bottom:0;left:0;width:100%;padding-left:18px;padding-right:20px;border-radius:0;background:transparent!important;border:0!important;box-shadow:none!important}
+@keyframes pgMorph{
+  0%,5%{clip-path:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:cubic-bezier(.3,0,.2,1)}
+  28%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2))}
+  42%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:cubic-bezier(.22,1,.36,1)}
+  66%,100%{clip-path:inset(0px 0px 0px 0px round 34px 0px 0px 34px)}
+}
+@keyframes pgClose{
+  0%{clip-path:inset(0px 0px 0px 0px round 34px 0px 0px 34px);opacity:1;animation-timing-function:cubic-bezier(.5,0,.2,1)}
+  40%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:linear}
+  50%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:cubic-bezier(.5,0,.2,1)}
+  94%{clip-path:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));opacity:1}
+  100%{clip-path:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));opacity:0}
+}
+@keyframes pgPanelOut{
+  0%{transform:translate3d(0,0,0);opacity:1;animation-timing-function:cubic-bezier(.5,0,.2,1)}
+  40%{transform:translate3d(var(--pg-tx),0,0);opacity:1}
+  52%,100%{transform:translate3d(var(--pg-tx),0,0);opacity:0}
+}
+@keyframes pgLabelOut{to{opacity:0;transform:translate3d(12px,0,0)}}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-label{animation:pgLabelOut .22s ease both}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(8) .pg-label{animation-delay:0s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(7) .pg-label{animation-delay:.02s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(6) .pg-label{animation-delay:.04s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(5) .pg-label{animation-delay:.06s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(4) .pg-label{animation-delay:.08s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(3) .pg-label{animation-delay:.10s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(2) .pg-label{animation-delay:.12s}
+html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(1) .pg-label{animation-delay:.14s}
+/* snappier taps everywhere on the store */
+a,button,[role="button"],label,select,summary,.game-card,.pg-item{touch-action:manipulation}
+/* order-success popup: a little more body behind the text so the buttons stay readable over busy pages */
+html:not(#_) .order-ok-overlay{background:rgba(8,18,14,.55)}
+html:not(#_) .order-ok-box{background-color:rgba(10,46,30,.62)}
 </style>
 </body>
 </html>
