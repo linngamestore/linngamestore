@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script id="hidden-timer-guard">
+/* Fast timers (<=1s) skip their work while the tab/app is in the background. */
+(function(){var si=window.setInterval;window.setInterval=function(f,ms){var a=[].slice.call(arguments,2);if(typeof f==='function'&&ms<=1000){return si.apply(window,[function(){if(document.hidden)return;return f.apply(this,arguments)},ms].concat(a))}return si.apply(window,[f,ms].concat(a))}})();
+</script>
+
 <script id="lg-btn-js">
 (function () {
   'use strict';
@@ -1341,13 +1346,13 @@
            that slide becomes the active one (swipe or auto-advance) — not
            a continuous idle loop. Triggered by adding .slide-enter in JS. */
         .home-banner-slide::after {
-            content: ''; position: absolute; top: 0; left: -60%; width: 50%; height: 100%;
+            content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%; transform: translate3d(-120%,0,0);
             background: linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent);
             opacity: 0; pointer-events: none; mix-blend-mode: overlay;
         }
         .home-banner-slide.slide-enter::after { animation: bannerSweepOnce 0.7s ease-out; }
         .home-banner-slide.slide-enter img { animation: bannerPopOnce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes bannerSweepOnce { 0% { left: -60%; opacity: 1; } 70% { opacity: 1; } 100% { left: 120%; opacity: 0; } }
+        @keyframes bannerSweepOnce { 0% { transform: translate3d(-120%,0,0); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate3d(240%,0,0); opacity: 0; } }
         @keyframes bannerPopOnce { 0% { transform: scale(0.94); } 55% { transform: scale(1.03); } 100% { transform: scale(1); } }
         @media (prefers-reduced-motion: reduce) { .home-banner-slide { animation: none; } .home-banner-slide.slide-enter::after, .home-banner-slide.slide-enter img { animation: none; } }
         .home-banner-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
@@ -1873,7 +1878,7 @@
         .vip-stat span { font-size: 11px; color: var(--text-muted); }
         .vip-progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-top: 14px; margin-bottom: 6px; }
         .vip-progress-track { height: 8px; background: var(--bg); border-radius: 6px; overflow: hidden; }
-        .vip-progress-fill { height: 100%; border-radius: 6px; background: var(--tier-color, var(--accent)); transition: width 0.4s ease; }
+        .vip-progress-fill { height: 100%; width: 100%; border-radius: 6px; background: var(--tier-color, var(--accent)); transform: scaleX(var(--p, 0)); transform-origin: 0 50%; transition: transform 0.4s ease; will-change: transform; }
 
         /* Leaderboard rows */
         .lb-row { display: flex; align-items: center; gap: 12px; padding: 12px 10px; margin-bottom: 8px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform .15s ease; }
@@ -2027,14 +2032,15 @@
             display: flex; align-items: center; justify-content: center;
         }
         .slide-confirm-fill {
-            position: absolute; top: 0; left: 0; height: 100%; width: 0;
+            position: absolute; top: 0; left: 0; height: 100%; width: 100%;
+            transform: scaleX(0); transform-origin: 0 50%; will-change: transform; transition: transform 0.25s ease;
             background: linear-gradient(90deg, rgba(255,255,255,0.28), rgba(255,255,255,0.1));
             pointer-events: none; z-index: 1;
         }
         .slide-confirm-thumb.dragging ~ .slide-confirm-fill { transition: none; }
         .slide-confirm-wrap.completed .slide-confirm-fill {
-            width: 100% !important; background: linear-gradient(90deg, rgba(52,211,153,0.4), rgba(22,163,74,0.22));
-            transition: width 0.3s ease, background 0.3s ease;
+            transform: scaleX(1) !important; background: linear-gradient(90deg, rgba(52,211,153,0.4), rgba(22,163,74,0.22));
+            transition: transform 0.3s ease, background 0.3s ease;
         }
         /* Idle affordance: three chevrons pulsing in sequence to hint "swipe
            this way" — fades out the moment a drag starts. */
@@ -2082,7 +2088,7 @@
             border: 1px solid rgba(255,255,255,0.4);
         }
         .slide-confirm-wrap.completed:has(> .btn:disabled) .slide-confirm-fill {
-            width: 100% !important;
+            transform: scaleX(1) !important;
             background: linear-gradient(100deg, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.05) 70%);
             background-size: 220% 100%;
             animation: liquidGlassShimmer 1.7s linear infinite;
@@ -2114,7 +2120,7 @@
         /* Toast — pastel status card: icon circle, message, dismiss ×.
            Colors per-type are applied inline by showToast() so light/dark
            theme both get a tint that reads clearly against their surface. */
-        #toast { position: fixed; top: 14px; left: 14px; right: 14px; max-width: 480px; margin: 0 auto; border: 1px solid transparent; padding: 12px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; z-index: 1000; transform: translateY(-150%); box-shadow: 0 8px 24px rgba(0,0,0,0.16); }
+        #toast { position: fixed; top: 14px; left: 14px; right: 14px; max-width: 480px; margin: 0 auto; border: 1px solid transparent; padding: 12px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: transform .3s ease, opacity .3s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease; z-index: 1000; transform: translateY(-150%); box-shadow: 0 8px 24px rgba(0,0,0,0.16); }
         #toast.show { transform: translateY(0); }
         #toast .toast-icon-circle { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         #toast .toast-icon-circle svg { width: 11px; height: 11px; color: #fff; }
@@ -2156,7 +2162,7 @@
         @keyframes ldFlip { 0% { transform: perspective(120px) rotateX(0) rotateY(0); } 50% { transform: perspective(120px) rotateX(-180deg) rotateY(0); } 100% { transform: perspective(120px) rotateX(-180deg) rotateY(-180deg); } }
         .ld-bar { position: relative; width: 70px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
         .ld-bar i { position: absolute; top: 0; left: 0; height: 100%; width: 35%; border-radius: 3px; background: var(--accent); animation: ldSlide 1.2s ease-in-out infinite; }
-        @keyframes ldSlide { 0% { left: -35%; } 100% { left: 100%; } }
+        @keyframes ldSlide { 0% { transform: translate3d(-100%,0,0); } 100% { transform: translate3d(285.714%,0,0); } }
         .ld-ripple { position: relative; display: inline-block; width: 44px; height: 44px; margin: 10px 0; }
         .ld-ripple i { position: absolute; inset: 0; border: 2px solid var(--accent); border-radius: 8px; opacity: 0; animation: ldRipple 1.6s ease-out infinite; }
         .ld-ripple i:nth-child(2) { animation-delay: .8s; }
@@ -2518,11 +2524,11 @@
             background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.04));
         }
         .game-desc-redeem-btn::after {
-            content: ''; position: absolute; top: 0; bottom: 0; left: -45%; width: 28%; z-index: -1; pointer-events: none;
-            transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%; z-index: -1; pointer-events: none;
+            transform: translate3d(-160.714%,0,0) skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
             animation: redeemSweep 3.6s ease-in-out infinite;
         }
-        @keyframes redeemSweep { 0%, 55% { left: -45%; } 100% { left: 130%; } }
+        @keyframes redeemSweep { 0%, 55% { transform: translate3d(-160.714%,0,0) skewX(-20deg); } 100% { transform: translate3d(464.286%,0,0) skewX(-20deg); } }
         .game-desc-redeem-btn .rb-lead { width: 16px; height: 16px; flex-shrink: 0; }
         .game-desc-redeem-btn .rb-go {
             position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
@@ -2787,12 +2793,12 @@
             pointer-events: none;
         }
         .wallet-balance-card::after {
-            content: ''; position: absolute; top: -10%; left: -70%; width: 55%; height: 120%; z-index: 1;
+            content: ''; position: absolute; top: -10%; left: 0; width: 55%; height: 120%; z-index: 1;
             background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.10) 30%, rgba(255,255,255,0.34) 44%, transparent 46%, transparent 52%, rgba(255,255,255,0.55) 54%, rgba(255,255,255,0.55) 56%, transparent 58%, rgba(255,255,255,0.12) 72%, transparent 100%);
-            transform: skewX(-18deg); pointer-events: none; mix-blend-mode: soft-light;
+            transform: translate3d(-127.273%,0,0) skewX(-18deg); pointer-events: none; mix-blend-mode: soft-light;
             animation: walletCardShine 5s ease-in-out 0.6s infinite;
         }
-        @keyframes walletCardShine { 0% { left: -70%; } 45%, 100% { left: 140%; } }
+        @keyframes walletCardShine { 0% { transform: translate3d(-127.273%,0,0) skewX(-18deg); } 45%, 100% { transform: translate3d(254.545%,0,0) skewX(-18deg); } }
         html.perf-low .wallet-balance-card::after { animation: none; display: none; }
         @media (prefers-reduced-motion: reduce) { .wallet-balance-card::after { animation: none; display: none; } }
         .wallet-balance-card-glow {
@@ -3083,7 +3089,7 @@
         .pc-avatar-wrap .avatar-upload-badge svg { width: 10px; height: 10px; }
         .pc-id-block { flex: 1; min-width: 0; }
         .pc-name-row { display: flex; align-items: center; gap: 5px; min-width: 0; }
-        .profile-hero-name { font-size: 16px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-hero-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .pc-id-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
         .profile-hero-id { font-size: 12px; color: var(--text-muted); }
         .profile-id-copy-btn { width: 22px; height: 22px; border-radius: 6px; }
@@ -3378,13 +3384,13 @@
         .tier-badge.tier-badge-conqueror::before,
         .tier-badge.tier-badge-mythical::before,
         .tier-badge.tier-badge-immortal::before {
-            content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+            content: ''; position: absolute; top: 0; left: 0; width: 40%; height: 100%; transform: translate3d(-150%,0,0);
             animation: tierBadgeShimmer 2.4s ease-in-out infinite;
         }
         @keyframes tierBadgeShimmer {
-            0%   { left: -60%; }
-            60%  { left: 130%; }
-            100% { left: 130%; }
+            0%   { transform: translate3d(-150%,0,0); }
+            60%  { transform: translate3d(325%,0,0); }
+            100% { transform: translate3d(325%,0,0); }
         }
         /* Legend — deep amethyst obsidian, violet shimmer. */
         .tier-badge.tier-badge-legend {
@@ -3714,8 +3720,8 @@
            fill-mode is 'backwards' (not 'both') so the finished card is free to take :active / long-press transforms. */
         .game-card.card-pop, .voucher-card.card-pop { animation: cardPop 0.5s var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * 55ms); }
         .game-card.card-wave { animation: cardWave 1s var(--ease-out) backwards; animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 170ms), 1400ms); }
-        @keyframes cardPop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
-        @keyframes cardWave { from { opacity: 0; transform: translateY(30px) scale(0.92); } to { opacity: 1; transform: none; } }
+        
+        
         @media (prefers-reduced-motion: reduce) { .card-pop, .card-wave { animation: none !important; } }
 
         /* Game / Voucher detail page: sections fade up one after another when the page opens
@@ -3731,7 +3737,7 @@
         #game-detail.active .detail-layout > :nth-child(n+2) { animation-delay: 140ms; }
         @keyframes fadeUpIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
         .package-card.card-zoom { animation: cardZoom 0.6s var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 60ms); }
-        @keyframes cardZoom { from { opacity: 0; transform: scale(1.25); } to { opacity: 1; transform: none; } }
+        
         @media (prefers-reduced-motion: reduce) { #game-detail.active > *, #game-detail.active .detail-layout > *, .package-card.card-zoom { animation: none !important; } }
 
         /* Tab entrance motion (class .tab-enter is set for ~1.6s each time the tab is opened, see
@@ -5118,14 +5124,13 @@ html[data-theme="dark"] .home-live-stat .home-live-stat-label { color: rgb(var(-
 /* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
 function gameNameStyle(name) {
     var n = Array.from(String(name == null ? '' : name)).length;
-    var px = Math.max(6, Math.min(9.25, 140 / Math.max(n, 1)));
-    return 'font-size:' + (Math.round(px * 4) / 4) + 'px';
+    return 'font-size:10.5px'; /* one size for every card; long names scroll (auto-marquee) instead of shrinking */
 }
 </script>
 <style id="linn-fix-css">
 /* ===== Game card: shorter name pill + running rainbow border on card and pill ===== */
 @property --linn-a { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
-@keyframes linnSpin { to { --linn-a: 360deg; } }
+
 
 /* shorter name pill (was ~22px tall, now ~16px) */
 html .game-card .game-card-name {
@@ -5371,7 +5376,7 @@ html.perf-low .game-card.card-wave { animation: cardWave 1s var(--ease-out) back
 .pc-star.t8  { top: 84%; left: 22%; animation-delay: -1.9s; }
 .pc-star.t9  { top: 90%; left: 66%; animation-delay: -2.4s; }
 .pc-star.t10 { top: 38%; left: 70%; animation-delay: -1.7s; }
-@keyframes pcTwinkle { 0%, 100% { opacity: 0.15; transform: scale(0.8); } 50% { opacity: 0.95; transform: scale(1.3); } }
+
 /* Always animated (even on low-end phones / "remove animations" mode) - only transform+opacity, so it stays cheap.
    On weak devices just drop the glow filter. */
 html.perf-low .pc-meteor { filter: none; }
@@ -5407,17 +5412,17 @@ html.perf-low .pc-star { box-shadow: none; }
         /* ===== Compact wallet pay box + glass top-up amount (override) ===== */
         .wallet-pay-box.wp-low, .wallet-pay-box.wp-ok { padding: 12px 14px !important; border-radius: 18px !important; }
         .wp { gap: 8px; }
-        .wp-head { gap: 9px; }
+        
         .wp-ic { width: 32px; height: 32px; border-radius: 10px; }
         .wp-ic svg { width: 17px; height: 17px; }
         .wp-lbl { font-size: 11px; }
         .wp-bal { font-size: 17px; }
-        .wp-chip { font-size: 11px; padding: 3px 8px; }
-        .wp-rows { gap: 4px; }
-        .wp-rows > div { font-size: 12px; }
-        .wp-res > span { font-size: 12.5px; }
-        .wp-res strong { font-size: 22px; }
-        .wp-res strong small { font-size: 12px; }
+        
+        
+        
+        
+        
+        
         .wp .btn.btn-primary { width: auto; align-self: stretch; padding: 8px 14px; font-size: 13px; font-weight: 500; min-height: 0; height: auto; border-radius: 999px; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.25); }
 
         .wallet-topup-amount-input {
@@ -5450,13 +5455,13 @@ html.perf-low .pc-star { box-shadow: none; }
 
         /* ===== Lighter weights, green after count, running-colour search bar ===== */
         .wp-bal { font-weight: 500; }
-        .wp-res strong { font-weight: 500; }
-        .wp-res > span, .wp-rows b { font-weight: 500; }
-        .wp-chip { font-weight: 500; }
+        
+        
+        
         .wp .btn.btn-primary { font-weight: 500; }
-        .wp-rows b .wp-count, .wp-rows b { transition: color .35s ease; }
-        .wp-rows b:has(.wp-count.done) { color: #1f8a3d; }
-        html[data-theme="dark"] .wp-rows b:has(.wp-count.done) { color: #5fd88a; }
+        
+        
+        
         .wallet-section-title { font-weight: 500; }
         .wallet-amount-presets .wallet-preset-chip.active { font-weight: 500; }
         .pay-type-tab b { font-weight: 500; }
@@ -5819,7 +5824,7 @@ html[data-theme="dark"] #name-check-card select:focus, html[data-theme="dark"] #
 html.maint-locked,html.maint-locked body{overflow:hidden!important}
 @keyframes mtIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes mtSpin{to{transform:rotate(360deg)}}
-@keyframes mtWrench{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+
 @keyframes mtSpinR{to{transform:rotate(-360deg)}}
 @keyframes mtLed{0%,100%{opacity:1}50%{opacity:.2}}
 @keyframes mtRise{0%{opacity:0;transform:translateY(10px)}25%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
@@ -5859,7 +5864,7 @@ html.maint-locked,html.maint-locked body{overflow:hidden!important}
 :root{--g-selected:rgba(var(--accent-rgb),.12);--g-selected-line:var(--accent);--text-faint:#6B7078}
 html[data-theme="dark"]{--text-faint:#8293B5;--g-selected:rgba(var(--accent-rgb),.18)}
 body{line-height:1.65}
-.pc-price,.pc-row-price,.pc-cur,.od-total b,.hc-price{font-variant-numeric:tabular-nums}
+.pc-price,.pc-row-price,.pc-cur,.od-total b{font-variant-numeric:tabular-nums}
 /* Order steps — solid card, line-fill + pop + pulse motion */
 .ord-steps{display:flex;align-items:flex-start;margin:2px 0 16px;padding:16px 8px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,.10)}
 .ord-step{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
@@ -5898,9 +5903,9 @@ body{line-height:1.65}
 .topup-short .btn{width:auto;flex:0 0 auto;min-height:44px;padding:0 14px;font-size:13px;white-space:nowrap}
 .buy-bar{position:sticky;bottom:0;z-index:20;display:flex;flex-direction:column;gap:8px;margin-top:20px;padding:14px 0 calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 72%,color-mix(in srgb,var(--bg) 0%,transparent))}
 .vq-box{margin-top:16px;padding:14px;border-radius:var(--g-r-md,16px);background:var(--surface);border:1px solid var(--border)}
-.vq-head{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--text-secondary)}
+
 .vq-each{font-variant-numeric:tabular-nums}
-.vq-row{display:flex;gap:10px;align-items:center;margin:10px 0}
+
 .vq-btn{width:48px;height:48px;border-radius:14px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);font-size:22px;font-weight:500;line-height:1;cursor:pointer}
 .vq-btn:disabled{opacity:.4;cursor:not-allowed}
 .vq-btn:active:not(:disabled){background:var(--g-selected)}
@@ -6507,10 +6512,10 @@ html[data-theme="dark"] #history-container .history-date-chip:not(.active) { fil
 .pc-topup-btn:active { transform: scale(.94); }
 .pc-topup-btn svg { width: 26px !important; height: 26px !important; padding: 6px; box-sizing: border-box; border-radius: 50%; background: #fff; color: #3b6df0; stroke-width: 3; flex-shrink: 0; box-shadow: 0 3px 8px rgba(0,0,0,.25); }
 .pc-topup-btn span { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
-.pc-topup-btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; z-index: 0; pointer-events: none; transform: skewX(-20deg);
+.pc-topup-btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 45%; z-index: 0; pointer-events: none; transform: translate3d(-155.556%,0,0) skewX(-20deg);
     background: linear-gradient(100deg, rgba(255,255,255,0), rgba(255,255,255,.7), rgba(255,255,255,0)); animation: tuShine 3.4s ease-in-out infinite; }
 @keyframes tuGrad { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-@keyframes tuShine { 0%,55% { left: -70%; } 100% { left: 140%; } }
+@keyframes tuShine { 0%,55% { transform: translate3d(-155.556%,0,0) skewX(-20deg); } 100% { transform: translate3d(311.111%,0,0) skewX(-20deg); } }
 html.perf-low .pc-topup-btn, html.perf-low .pc-topup-btn::after, html.is-scrolling .pc-topup-btn::after { animation: none; }
 @media (prefers-reduced-motion: reduce) { .pc-topup-btn, .pc-topup-btn::after { animation: none; } }
 
@@ -6663,7 +6668,7 @@ html[data-theme="dark"] .side-drawer.drawer-sliding .drawer-nav-item.active { co
 <style id="flow-redesign-css">
 /* ===== Order flow redesign: morphing step bar + numbered sections + auto-reveal price cards ===== */
 #game-detail .ord-steps{display:flex;align-items:center;gap:4px;padding:5px;margin:0 0 14px;border-radius:22px;border:1px solid var(--border);background:var(--glass-bg-strong,var(--surface));box-shadow:0 8px 24px rgba(0,0,0,.10);overflow:hidden}
-#game-detail .ord-steps::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--ord-p,0) * 100%);border-radius:0 3px 3px 0;background:linear-gradient(90deg,var(--accent),#34D27B);transition:width .7s cubic-bezier(.22,1,.36,1)}
+#game-detail .ord-steps::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;transform:scaleX(var(--ord-p,0));transform-origin:0 50%;border-radius:0 3px 3px 0;background:linear-gradient(90deg,var(--accent),#34D27B);transition:transform .7s cubic-bezier(.22,1,.36,1)}
 #game-detail .ord-step+.ord-step::before,#game-detail .ord-step+.ord-step::after{display:none}
 #game-detail .ord-step{flex:1 1 0;min-width:0;flex-direction:row;justify-content:center;gap:0;padding:6px 4px;border-radius:17px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:flex-grow .5s cubic-bezier(.22,1,.36,1),gap .35s ease,background .35s ease,box-shadow .35s ease}
 #game-detail .ord-step.active{flex-grow:2.6;gap:7px;background:linear-gradient(135deg,rgba(var(--accent-rgb),.20),rgba(var(--accent-rgb),.07));box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.38)}
@@ -6895,8 +6900,8 @@ html #srv-check-btn:active { transform: scale(.94); }
 html #srv-check-btn svg { width: 20px; height: 20px; display: block; }
 html #srv-check-btn.on, html[data-theme="dark"] #srv-check-btn.on { color: #fff !important; background: var(--accent) !important; border-color: transparent !important; }
 /* Game cards: no endless rainbow-border repaint, light fade-up entrance only (first visit) */
-@keyframes cardPop { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
-@keyframes cardWave { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
+
+
 html .game-card:not(.card-pop):not(.card-wave), html .game-card .game-card-name, html .popular-card:not(.card-pop), html .game-search-wrap.expanded, html .bullet-chat-wrapper::before { animation: none !important; }
 html .game-card.card-pop { animation: cardPop .26s ease-out backwards !important; animation-delay: calc(var(--i, 0) * 18ms) !important; }
 html .game-card.card-wave { animation: cardWave .26s ease-out backwards !important; animation-delay: min(calc((var(--r, 0) + var(--c, 0)) * 30ms), 180ms) !important; }
@@ -7225,25 +7230,6 @@ html.is-scrolling .pc-topup-btn, html.is-scrolling #header-logo .logo-icon-wrap 
 <style id="peach-glide-css">
 /* ===== Sidebar (purple + white): floating strip drops in, unfolds sideways, then docks to the edge ===== */
 .drawer-overlay { --pg-w: min(268px, 72vw); --pg-rail: 70px; --pg-ink: #2A1F5C; --pg-sub: #6B5FA8; --pg-pur: #6C4DF6; }
-html:not(#_):not(#__) .drawer-overlay { background: rgba(26,16,64,.5) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-html:not(#_):not(#__) .side-drawer.pg-drawer {
-  position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); bottom: 12px; right: 12px; height: auto;
-  width: var(--pg-rail); max-width: none; min-width: 0; padding: 0; overflow: hidden;
-  background: linear-gradient(170deg, #F3EEFF 0%, #E9E1FF 100%) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
-  border: 1px solid rgba(255,255,255,.85) !important; border-radius: 32px;
-  box-shadow: 0 22px 50px -18px rgba(76,48,200,.55);
-  font-family: Poppins, "Noto Sans Myanmar", sans-serif; color: var(--pg-ink) !important;
-  transform: translate3d(0,-115%,0);
-  transition: width .3s cubic-bezier(.4,0,.2,1), top .3s cubic-bezier(.4,0,.2,1), bottom .3s cubic-bezier(.4,0,.2,1), right .3s cubic-bezier(.4,0,.2,1), border-radius .3s ease, transform .42s cubic-bezier(.4,0,.2,1) .05s;
-}
-/* open: first the floating strip drops in (transform), then it widens and docks flush to the screen edge */
-html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer {
-  width: var(--pg-w); top: 0; bottom: 0; right: 0; border-radius: 34px 0 0 34px; border-right-color: transparent !important;
-  transform: translate3d(0,0,0);
-  transition: transform .45s cubic-bezier(.22,1,.36,1),
-              width .5s cubic-bezier(.22,1,.36,1) .34s, top .45s cubic-bezier(.22,1,.36,1) .34s, bottom .45s cubic-bezier(.22,1,.36,1) .34s,
-              right .45s cubic-bezier(.22,1,.36,1) .34s, border-radius .45s ease .34s;
-}
 .pg-orb { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
 .pg-orb1 { right: -50px; top: 40px; width: 250px; height: 250px; background: radial-gradient(circle,var(--fz-g,#A78BFA),transparent 68%); animation: pgO1 9s ease-in-out infinite alternate; }
 .pg-orb2 { right: 40px; top: 380px; width: 270px; height: 270px; background: radial-gradient(circle,#C4B5FD,transparent 68%); animation: pgO2 11s ease-in-out infinite alternate; }
@@ -7271,7 +7257,7 @@ html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer {
 .pg-close:active { background: rgba(108,77,246,.12) !important; transform: scale(.9); }
 .pg-rule { height: 1px; background: rgba(108,77,246,.16); flex: none; }
 .pg-nav { position: relative; flex: none; }
-.pg-glider { position: absolute; left: 0; right: 0; top: 0; height: 46px; border-radius: 16px; background: #fff; box-shadow: 0 8px 18px -10px rgba(108,77,246,.55), inset 0 0 0 1px rgba(108,77,246,.1); transition: transform .42s cubic-bezier(.6,0,.25,1), height .3s ease, opacity .2s; pointer-events: none; will-change: transform; }
+.pg-glider { position: absolute; left: 0; right: 0; top: 0; height: 46px; border-radius: 16px; background: #fff; box-shadow: 0 8px 18px -10px rgba(108,77,246,.55), inset 0 0 0 1px rgba(108,77,246,.1); transition: transform .42s cubic-bezier(.6,0,.25,1), opacity .2s; pointer-events: none; will-change: transform; }
 .pg-glider.no-anim { transition: none; }
 .pg-glider::after { content: ""; position: absolute; right: 12px; top: 50%; margin-top: -3.5px; width: 7px; height: 7px; border-radius: 50%; background: #6C4DF6; }
 .pg-item { position: relative; display: flex; align-items: center; gap: 12px; height: 46px; margin-bottom: 2px; padding: 0 8px; border-radius: 16px; cursor: pointer; color: var(--pg-ink) !important; font-size: 14px; font-weight: 500; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; transition: transform .12s ease; }
@@ -7291,32 +7277,7 @@ html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer {
 .pg-cta { margin-top: auto; flex: none; height: 44px; border: 0; border-radius: 22px; background: linear-gradient(135deg,#8B6CFA,#6C4DF6) !important; color: #fff !important; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 18px -10px #6C4DF6; -webkit-tap-highlight-color: transparent; transition: transform .12s; white-space: nowrap; }
 .pg-cta:active { transform: scale(.97); }
 
-/* each tab shows up as a cloud of tiny purple specks, then clears into the sharp tab */
-@keyframes pgGrain { 0% { opacity: 0; filter: blur(9px); transform: scale(.93); } 55% { opacity: .85; filter: blur(3px); } 100% { opacity: 1; filter: blur(0); transform: none; } }
-@keyframes pgDust { 0% { opacity: 1; } 70% { opacity: .55; } 100% { opacity: 0; } }
-.pg-item::before, .pg-mini::before, .pg-cta::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
-  background: radial-gradient(circle, rgba(108,77,246,.75) 1.1px, transparent 1.7px) 0 0 / 6px 6px, radial-gradient(circle, rgba(167,139,250,.8) 1px, transparent 1.6px) 3px 3px / 6px 6px; }
-.pg-cta { position: relative; }
-.drawer-overlay:not(.show) .pg-head, .drawer-overlay:not(.show) .pg-item, .drawer-overlay:not(.show) .pg-more, .drawer-overlay:not(.show) .pg-cta { opacity: 0; }
-.drawer-overlay.show .pg-head, .drawer-overlay.show .pg-item, .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-cta { animation: pgGrain .55s ease-out both; }
-.drawer-overlay.show .pg-item::before, .drawer-overlay.show .pg-mini::before, .drawer-overlay.show .pg-cta::before { animation: pgDust .6s ease-out both; }
-.drawer-overlay.show .pg-head { animation-delay: .72s; }
-.drawer-overlay.show .pg-item:nth-of-type(1), .drawer-overlay.show .pg-item:nth-of-type(1)::before { animation-delay: .8s; }
-.drawer-overlay.show .pg-item:nth-of-type(2), .drawer-overlay.show .pg-item:nth-of-type(2)::before { animation-delay: .86s; }
-.drawer-overlay.show .pg-item:nth-of-type(3), .drawer-overlay.show .pg-item:nth-of-type(3)::before { animation-delay: .92s; }
-.drawer-overlay.show .pg-item:nth-of-type(4), .drawer-overlay.show .pg-item:nth-of-type(4)::before { animation-delay: .98s; }
-.drawer-overlay.show .pg-item:nth-of-type(5), .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: 1.04s; }
-.drawer-overlay.show .pg-item:nth-of-type(6), .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: 1.1s; }
-.drawer-overlay.show .pg-item:nth-of-type(7), .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: 1.16s; }
-.drawer-overlay.show .pg-more, .drawer-overlay.show .pg-more .pg-mini::before { animation-delay: 1.22s; }
-.drawer-overlay.show .pg-cta, .drawer-overlay.show .pg-cta::before { animation-delay: 1.28s; }
-@media (prefers-reduced-motion: reduce) {
-  .pg-orb { animation: none; }
-  html:not(#_):not(#__) .side-drawer.pg-drawer, html:not(#_):not(#__) .drawer-overlay.show .side-drawer.pg-drawer { transition: none; }
-  .drawer-overlay.show .pg-head, .drawer-overlay.show .pg-item, .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-cta { animation: none; opacity: 1; }
-  .drawer-overlay.show .pg-item::before, .drawer-overlay.show .pg-mini::before, .drawer-overlay.show .pg-cta::before { animation: none; opacity: 0; }
-  .pg-glider { transition: none; }
-}
+@media (prefers-reduced-motion: reduce) { .pg-orb { animation: none; } .pg-glider { transition: none; } }
 @media (max-height: 640px) { .pg-item { height: 42px; } .pg-panel { gap: 7px; } }
 </style>
 <style id="header-motion-css">
@@ -7378,7 +7339,7 @@ html body .pay-type-tab:active { transform: scale(.97); }
 .pay-type-tab .ptt-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; width: 100%; }
 html body .pay-type-tab b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.2; color: var(--text); }
 html body .pay-type-tab small { display: block; font-size: 11px; font-weight: 500; line-height: 1.3; color: var(--text-secondary); }
-.pay-type-tab .ptt-check { position: absolute; top: 11px; right: 11px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid rgba(128,140,160,.4); color: transparent; transition: all .2s ease; }
+.pay-type-tab .ptt-check { position: absolute; top: 11px; right: 11px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid rgba(128,140,160,.4); color: transparent; transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, opacity .2s ease; }
 .pay-type-tab .ptt-check .ui-icon { width: 11px; height: 11px; stroke-width: 3.2; }
 html body .pay-type-tab.active { border-color: var(--accent); background: rgba(var(--accent-rgb), .07); box-shadow: 0 0 0 3.5px rgba(var(--accent-rgb), .14); }
 html body .pay-type-tab.active b { color: var(--text); }
@@ -7388,41 +7349,7 @@ html body .pay-type-tab.active b { color: var(--text); }
 /* ===== mascot svg props ===== */
 .fx-p svg, .bot-acc svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.14em; display: block; }
 .bot-acc.crown svg, .bot-acc.cup svg { fill: currentColor; fill-opacity: .25; }
-/* ===== Sidebar: smooth open/close (GPU-friendly) =====
-   Before: width/top/bottom/right/border-radius were animated (re-layout every frame) while every tab ran a blur() filter
-   animation at the same time. Now the panel is laid out ONCE at its final size and only clip-path + transform animate;
-   tabs fade/rise with opacity + transform only. */
-html:not(#_):not(#__):not(#___) .side-drawer.pg-drawer {
-  top: 0; bottom: 0; right: 0; left: auto; height: auto; width: var(--pg-w);
-  border: 0 !important; border-radius: 0; box-shadow: none;
-  clip-path: inset(calc(12px + env(safe-area-inset-top, 0px)) 12px 12px calc(var(--pg-w) - var(--pg-rail) - 12px) round 32px);
-  transform: translate3d(0,-115%,0);
-  will-change: transform, clip-path;
-  transition: clip-path .42s cubic-bezier(.4,0,.2,1), transform .42s cubic-bezier(.4,0,.2,1) .05s;
-}
-html:not(#_):not(#__):not(#___) .drawer-overlay.show .side-drawer.pg-drawer {
-  clip-path: inset(0 0 0 0 round 34px 0 0 34px);
-  transform: translate3d(0,0,0);
-  transition: transform .42s cubic-bezier(.22,1,.36,1), clip-path .46s cubic-bezier(.22,1,.36,1) .3s;
-}
-html:not(#_):not(#__):not(#___) .drawer-overlay { transition: opacity .3s ease; }
-@keyframes pgGrain { 0% { opacity: 0; transform: translate3d(0,8px,0) scale(.97); } 100% { opacity: 1; transform: none; } }
-.drawer-overlay.show .pg-head, .drawer-overlay.show .pg-item, .drawer-overlay.show .pg-more, .drawer-overlay.show .pg-cta { animation-duration: .4s; }
-.drawer-overlay.show .pg-head { animation-delay: .6s; }
-.drawer-overlay.show .pg-item:nth-of-type(1), .drawer-overlay.show .pg-item:nth-of-type(1)::before { animation-delay: .66s; }
-.drawer-overlay.show .pg-item:nth-of-type(2), .drawer-overlay.show .pg-item:nth-of-type(2)::before { animation-delay: .70s; }
-.drawer-overlay.show .pg-item:nth-of-type(3), .drawer-overlay.show .pg-item:nth-of-type(3)::before { animation-delay: .74s; }
-.drawer-overlay.show .pg-item:nth-of-type(4), .drawer-overlay.show .pg-item:nth-of-type(4)::before { animation-delay: .78s; }
-.drawer-overlay.show .pg-item:nth-of-type(5), .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: .82s; }
-.drawer-overlay.show .pg-item:nth-of-type(6), .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: .86s; }
-.drawer-overlay.show .pg-item:nth-of-type(7), .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: .90s; }
-.drawer-overlay.show .pg-item:nth-of-type(8), .drawer-overlay.show .pg-item:nth-of-type(8)::before { animation-delay: .94s; }
-.drawer-overlay.show .pg-more, .drawer-overlay.show .pg-more .pg-mini::before { animation-delay: .94s; }
-.drawer-overlay.show .pg-cta, .drawer-overlay.show .pg-cta::before { animation-delay: .98s; }
 .pg-orb { contain: strict; }
-@media (prefers-reduced-motion: reduce) {
-  html:not(#_):not(#__):not(#___) .side-drawer.pg-drawer, html:not(#_):not(#__):not(#___) .drawer-overlay.show .side-drawer.pg-drawer { transition: none; }
-}
 /* ===== Order page: tidy wallet box + one clean buy bar ===== */
 html body .wallet-pay-box.wp-low, html body .wallet-pay-box.wp-ok {
   background: var(--surface) !important; border: 1.5px solid var(--border-glass, rgba(128,140,160,.28)) !important;
@@ -7465,99 +7392,6 @@ html body .buy-bar .buy-sel { background: transparent !important; border: 0 !imp
 html body .buy-bar .buy-sel-name { font-size: 13px; font-weight: 500; color: var(--text); }
 html body .buy-bar .buy-sel-price { font-size: 16px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
 html body .buy-bar .eta-hint { padding: 0 6px; background: transparent; font-size: 12px; text-align: left; }
-</style>
-<style id="pg-morph-css">
-/* ===== Sidebar v3: 3-line button -> circle -> grows down into a tall pill -> icons -> widens sideways -> text emerges -> blur clears -> each tab forms its own tiny grid ===== */
-.drawer-overlay { --pg-d: 44px; --pg-cr: 16px; --pg-ct: 12px; --pg-tx: calc(var(--pg-w) - var(--pg-cr) - var(--pg-d) / 2 - 42px); }
-html:not(#_):not(#__):not(#___):not(#____) .side-drawer.pg-drawer {
-  top: 0; bottom: 0; right: 0; left: auto; height: auto; width: var(--pg-w);
-  border: 0 !important; border-radius: 0; box-shadow: none; transform: none; transition: none; animation: none;
-  clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); will-change: clip-path;
-}
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); transform: none; transition: none; animation: pgMorph 2.2s both; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .side-drawer.pg-drawer { animation: pgClose 1.3s linear both; }
-@keyframes pgMorph {
-  0%, 5% { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.3,0,.2,1); }
-  28% { clip-path: inset(var(--pg-ct) var(--pg-cr) 12px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); }
-  42% { clip-path: inset(var(--pg-ct) var(--pg-cr) 12px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.22,1,.36,1); }
-  66%, 100% { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); }
-}
-@keyframes pgClose {
-  0%   { clip-path: inset(0px 0px 0px 0px round 34px 0px 0px 34px); opacity: 1; animation-timing-function: cubic-bezier(.45,0,.2,1); }
-  46%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: linear; }
-  54%  { clip-path: inset(0px var(--pg-cr) 0px calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); animation-timing-function: cubic-bezier(.45,0,.2,1); }
-  96%  { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 1; }
-  100% { clip-path: inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2)); opacity: 0; }
-}
-@keyframes pgPanelOut {
-  0%   { transform: translate3d(0,0,0); opacity: 1; animation-timing-function: cubic-bezier(.45,0,.2,1); }
-  46%  { transform: translate3d(var(--pg-tx),0,0); opacity: 1; }
-  58%, 100% { transform: translate3d(var(--pg-tx),0,0); opacity: 0; }
-}
-/* keep the overlay visible while the rod collapses; only the dim layer fades out meanwhile */
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) { opacity: 1; transition: none; background: transparent !important; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show)::before { content: ""; position: absolute; inset: 0; background: rgba(26,16,64,.5); pointer-events: none; animation: pgDimOut 1.1s ease-in-out both; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show):not(.pg-closing) { transition: none; }
-@keyframes pgDimOut { from { opacity: 1; } to { opacity: 0; } }
-/* panel content starts shifted so the icon column sits inside the narrow pill, then slides home while the pill widens */
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel { animation: pgPanelSlide 2.2s both; }
-@keyframes pgPanelSlide {
-  0%, 42% { transform: translate3d(var(--pg-tx), 0, 0); animation-timing-function: cubic-bezier(.22,1,.36,1); }
-  66%, 100% { transform: translate3d(0, 0, 0); }
-}
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-panel { animation: pgPanelOut 1.3s linear both; transition: none; }
-/* icons pop in once the pill has grown */
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay .pg-item { opacity: 1; animation: none; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item { animation: none; opacity: 1; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-chip { animation: pgChipIn .4s cubic-bezier(.2,1.25,.4,1) both; }
-@keyframes pgChipIn { 0% { opacity: 0; transform: scale(.35); } 100% { opacity: 1; transform: scale(1); } }
-/* text emerges from the icons, blurred, then clears */
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-label { animation: pgTextIn .6s cubic-bezier(.22,1,.36,1) both; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta { animation: pgTextIn .6s cubic-bezier(.22,1,.36,1) 1.2s both; }
-@keyframes pgTextIn { 0% { opacity: 0; transform: translate3d(-14px,0,0); } 100% { opacity: 1; transform: none; } }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay:not(.show) .pg-cta { opacity: 0; }
-/* no more permanent dots: each tab forms a small grid of tiles that dissolves away (ends fully transparent) */
-.pg-item::before, .pg-mini::before, .pg-cta::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
-  background: linear-gradient(135deg, rgba(139,108,250,.16), rgba(108,77,246,.08));
-}
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation: pgGridIn .55s ease-out both; }
-@keyframes pgGridIn { 0% { opacity: 0; } 38% { opacity: 1; } 100% { opacity: 0; } }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(1) .pg-chip { animation-delay: 0.660s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(1) .pg-label { animation-delay: 1.000s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(1)::before { animation-delay: 1.750s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(2) .pg-chip { animation-delay: 0.705s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(2) .pg-label { animation-delay: 1.040s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(2)::before { animation-delay: 1.810s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(3) .pg-chip { animation-delay: 0.750s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(3) .pg-label { animation-delay: 1.080s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(3)::before { animation-delay: 1.870s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(4) .pg-chip { animation-delay: 0.795s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(4) .pg-label { animation-delay: 1.120s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(4)::before { animation-delay: 1.930s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(5) .pg-chip { animation-delay: 0.840s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(5) .pg-label { animation-delay: 1.160s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(5)::before { animation-delay: 1.990s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(6) .pg-chip { animation-delay: 0.885s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(6) .pg-label { animation-delay: 1.200s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(6)::before { animation-delay: 2.050s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7) .pg-chip { animation-delay: 0.930s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7) .pg-label { animation-delay: 1.240s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(7)::before { animation-delay: 2.110s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(8) .pg-chip { animation-delay: 0.975s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(8) .pg-label { animation-delay: 1.280s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item:nth-of-type(8)::before { animation-delay: 2.170s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more .pg-mini:nth-child(1)::before { animation-delay: 2.15s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more .pg-mini:nth-child(2)::before { animation-delay: 2.2s; }
-html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation-delay: 2.28s; }
-/* the 3-line button melts into the circle */
-.header-menu-btn svg { transition: opacity .14s ease, transform .2s ease; }
-.header-menu-btn.pg-burger-away svg { opacity: 0; transform: scale(.4) rotate(90deg); }
-@media (prefers-reduced-motion: reduce) {
-  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-chip, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-label,
-  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-head, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta { animation: none; opacity: 1; }
-  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini::before, html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before { animation: none; opacity: 0; }
-}
 </style>
 <style id="pg-dark-css">
 /* ===== Sidebar in dark mode: same layout, dark glass panel + light text (was always the light purple/white one) ===== */
@@ -7602,7 +7436,7 @@ html:not(#_) .nav-item.active .nav-icon-wrap-wallet{
   55%{opacity:1;filter:blur(0)}
   100%{opacity:1;transform:none;filter:none}
 }
-@keyframes walletBtnSink{0%{transform:translateY(-8px) scale(1)}35%{transform:translateY(-3px) scale(.78)}100%{transform:translateY(-8px) scale(1)}}
+
 html:not(#_) #wallet.page-section.wallet-dive{animation:walletDive .5s cubic-bezier(.22,1,.36,1) both!important;transform-origin:var(--wd-x,50%) var(--wd-y,100%);will-change:transform,opacity}
 html:not(#_) .nav-item-wallet.wallet-sink .nav-icon-wrap-wallet{animation:walletBtnSink .45s cubic-bezier(.34,1.3,.64,1)!important}
 @media (prefers-reduced-motion:reduce){html:not(#_) #wallet.page-section.wallet-dive{animation:none!important}}
@@ -7631,14 +7465,14 @@ html:not(#_) .mini-profile-bar.mpb-ready{animation:mpbSlideIn .55s cubic-bezier(
   to{opacity:1;transform:none}
 }
 @keyframes navBgIn{
-  from{background:transparent;border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+  from{opacity:0;transform:scaleX(.55)}
 }
 html:not(.nav-go) .bottom-nav{opacity:0!important;pointer-events:none!important}
-html.nav-go .bottom-nav{animation:navBgIn .6s ease-out 1.6s backwards}
+html.nav-go .bottom-nav .nav-shell{animation:navBgIn .7s cubic-bezier(.22,1,.36,1) 1.8s backwards}
 html.nav-go .bottom-nav .nav-item-wallet{animation:navWalletRise .62s cubic-bezier(.22,1.2,.36,1) backwards}
-html.nav-go .bottom-nav #btn-game,html.nav-go .bottom-nav #btn-history{animation:navStepOut .55s cubic-bezier(.22,1,.36,1) .6s backwards}
-html.nav-go .bottom-nav #btn-dashboard,html.nav-go .bottom-nav #btn-profile{animation:navStepOut .55s cubic-bezier(.22,1,.36,1) 1.12s backwards}
-@media (prefers-reduced-motion:reduce){html.nav-go .bottom-nav,html.nav-go .bottom-nav .nav-item{animation:none!important}}
+html.nav-go .bottom-nav #btn-game,html.nav-go .bottom-nav #btn-history{animation:navStepOut .55s cubic-bezier(.22,1,.36,1) .7s backwards}
+html.nav-go .bottom-nav #btn-dashboard,html.nav-go .bottom-nav #btn-profile{animation:navStepOut .55s cubic-bezier(.22,1,.36,1) 1.2s backwards}
+@media (prefers-reduced-motion:reduce){html.nav-go .bottom-nav,html.nav-go .bottom-nav .nav-item,html.nav-go .bottom-nav .nav-shell{animation:none!important}}
 </style>
 <style id="polish-pack-css">
 /* 1) Wallet / Profile login cards - same look as the new Home card */
@@ -7786,9 +7620,7 @@ html:not(#_) .history-card .badge{background:color-mix(in srgb,var(--st,#94a3b8)
 html:not(#_) .history-card.st-pending::after,html:not(#_) .history-card.st-processing::after{content:"";position:absolute;right:12px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--st);animation:stPulse 1.4s ease-out infinite}
 html[data-theme="dark"]:not(#_) .history-card .badge{background:color-mix(in srgb,var(--st,#94a3b8) 24%,transparent)}
 
-/* 4) Side drawer: items cascade in, chips get a lifted icon box */
-@keyframes pgItemIn{from{opacity:0;transform:translate3d(-26px,0,0)}to{opacity:1;transform:none}}
-html:not(#_):not(#__):not(#___):not(#____):not(#_____) .drawer-overlay.show .pg-item{opacity:1;animation:pgItemIn .45s cubic-bezier(.22,1,.36,1) backwards;animation-delay:calc(.12s + var(--pi,0) * 45ms)}
+/* 4) Side drawer: chips get a lifted icon box (entrance motion lives in the single sidebar block near the end of the file) */
 html:not(#_) .pg-item .pg-chip{box-shadow:0 3px 0 rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.6);border-radius:13px;transition:transform .25s cubic-bezier(.34,1.5,.64,1)}
 html:not(#_) .pg-item:active .pg-chip{transform:translateY(2px) scale(.94);box-shadow:0 1px 0 rgba(0,0,0,.12)}
 
@@ -7801,7 +7633,7 @@ html:not(#_) .pg-item:active .pg-chip{transform:translateY(2px) scale(.94);box-s
   transform:translate3d(0,-60px,0);opacity:0;pointer-events:none;transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .2s ease}
 .ptr svg{width:22px;height:22px;color:var(--accent)}
 .ptr.spin svg{animation:ptrSpin .8s linear infinite}
-@keyframes ptrSpin{to{transform:rotate(360deg)}}
+
 html[data-theme="dark"] .ptr{background:#16213a;border-color:rgba(255,255,255,.12)}
 
 /* 7) dark mode tuning for the new pieces */
@@ -7855,7 +7687,7 @@ html:not(#_) .title-header::after{content:"";flex:1;height:2px;border-radius:2px
   background:linear-gradient(90deg,rgba(var(--accent-rgb),.28),transparent)}
 
 /* 4) banner + profile strip */
-html:not(#_) .home-banner-carousel,html:not(#_) .home-banner-track,html:not(#_) .home-banner-slide{border-radius:28px}
+html:not(#_) .home-banner-carousel,html:not(#_) .home-banner-track,html:not(#_) .home-banner-slide{border-radius:12px}
 html:not(#_) .home-banner-carousel{box-shadow:0 22px 38px -20px rgba(var(--accent-rgb),.55),0 6px 14px -8px rgba(20,30,60,.3)}
 html:not(#_) .mini-profile-bar{border-radius:22px;border:1px solid var(--glass-border,var(--border));
   background:var(--glass-bg-strong,var(--surface));box-shadow:0 10px 22px -14px rgba(20,30,60,.35)}
@@ -7981,6 +7813,17 @@ html :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-card){animat
 html :is(#home,#voucher,#software) .voucher-card.card-pop{animation:gcDropIn .75s cubic-bezier(.22,.9,.3,1) backwards;animation-delay:calc(var(--i,0)*70ms)}
 html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-card){animation:gcDropIn .6s ease-out backwards;animation-delay:calc(var(--i,0)*45ms)}
 @media (prefers-reduced-motion:reduce){html :is(#home,#voucher,#software) :is(.game-card,.voucher-card).card-pop{animation:none}}
+</style>
+<style id="nav-dim-vs-bright">
+/* Bottom nav: resting tabs are dim + washed out, the pressed/active tab is bright, fully saturated and glowing (opacity/filter/transform only) */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet) .nav-icon-wrap{transition:transform .25s ease,box-shadow .25s ease,opacity .25s ease,filter .25s ease!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap{opacity:.8;filter:saturate(.62) brightness(.98);box-shadow:inset 0 1px 1px rgba(255,255,255,.85),0 6px 10px -8px rgba(91,63,240,.35)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap::after{opacity:.4}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-label{opacity:.75}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item.active:not(.nav-item-wallet) .nav-icon-wrap,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item.nav-peek:not(.nav-item-wallet) .nav-icon-wrap,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):active .nav-icon-wrap{opacity:1;filter:saturate(1.25) brightness(1.04);box-shadow:inset 0 1.5px 1px #fff,inset 0 -7px 12px -8px rgba(122,140,255,.5),0 0 0 2px rgba(var(--accent-rgb),.28),0 14px 20px -8px rgba(91,63,240,.85)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item.active:not(.nav-item-wallet) .nav-icon-wrap::after,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item.nav-peek:not(.nav-item-wallet) .nav-icon-wrap::after,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):active .nav-icon-wrap::after{opacity:1}
+html[data-theme="dark"] html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap{opacity:.7}
+html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item .nav-icon-wrap{filter:none}
 </style>
 </head>
 <body>
@@ -9406,7 +9249,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                     </div>
                     <div id="vip-progress-wrap">
                         <div class="vip-progress-label"><span id="vip-progress-text">-</span></div>
-                        <div class="vip-progress-track"><div class="vip-progress-fill" id="vip-progress-fill" style="width:0%;"></div></div>
+                        <div class="vip-progress-track"><div class="vip-progress-fill" id="vip-progress-fill" style="--p:0;"></div></div>
                     </div>
                 </div>
             </div>
@@ -9502,11 +9345,11 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                     <div class="profile-edit-grid">
                         <div class="profile-edit-field">
                             <label data-i18n="pm_name">Name</label>
-                            <input type="text" id="profile-name" placeholder="Enter your name">
+                            <input type="text" id="profile-name" placeholder="Enter your name" autocomplete="name" autocapitalize="words" maxlength="40">
                         </div>
                         <div class="profile-edit-field">
                             <label data-i18n="pf_phone">Phone Number</label>
-                            <input type="text" id="profile-phone" placeholder="+95 9 123 456 789">
+                            <input type="text" id="profile-phone" placeholder="+95 9 123 456 789" inputmode="tel" autocomplete="tel" maxlength="20">
                         </div>
                         <div class="profile-edit-field" style="grid-column: 1 / -1;">
                             <label>Email</label>
@@ -9883,24 +9726,25 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
          and hides the bar on sub-pages (see MAIN_TAB_PAGES). Everything else is in the drawer. -->
     <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
         <span class="nav-shell" aria-hidden="true"><i></i></span>
+        <svg class="gl-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="glG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--gl-a,#9fe3ff)"/><stop offset=".52" style="stop-color:var(--gl-b,#7f90ff)"/><stop offset="1" style="stop-color:var(--gl-c,#6d3cf2)"/></linearGradient><linearGradient id="glG2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7aa6ff"/><stop offset="1" stop-color="#5326d8"/></linearGradient><linearGradient id="glH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs></svg>
         <div class="nav-item active" id="btn-dashboard" onclick="showPage('dashboard')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-home"></use></svg></div>
+            <div class="nav-icon-wrap"><svg class="gl-ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 10 L8.5 22.5 V35.5 Q8.5 39.5 12.5 39.5 H35.5 Q39.5 39.5 39.5 35.5 V22.5 Z" fill="url(#glG)" stroke="url(#glG)" stroke-width="4" stroke-linejoin="round"/><path d="M24 10 L8.5 22.5 V35.5 Q8.5 39.5 12.5 39.5 H35.5 Q39.5 39.5 39.5 35.5 V22.5 Z" fill="url(#glH)" stroke="url(#glH)" stroke-width="4" stroke-linejoin="round"/><path d="M13 23.6 L24 14.6 L35 23.6" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="19.5" y="28" width="9" height="12" rx="3.2" fill="#fff" fill-opacity=".92"/></svg></div>
             <span class="nav-label" data-i18n="nav_home">Home</span>
         </div>
         <div class="nav-item" id="btn-game" onclick="showPage(window.lastGameSubTab || 'home')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-gamepad-nav"></use></svg></div>
+            <div class="nav-icon-wrap"><svg class="gl-ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M15.5 12 H32.5 C36.5 12 38.5 14.5 39.2 18 L41.3 30.5 C41.9 34.2 39.2 36.5 36.2 35.6 C34.4 35.1 33.3 34 32 32.6 C31 31.5 29.9 30.5 28.2 30.5 H19.8 C18.1 30.5 17 31.5 16 32.6 C14.7 34 13.6 35.1 11.8 35.6 C8.8 36.5 6.1 34.2 6.7 30.5 L8.8 18 C9.5 14.5 11.5 12 15.5 12 Z" fill="url(#glG2)" opacity=".6" transform="translate(1.8 1.6)"/><path d="M15.5 12 H32.5 C36.5 12 38.5 14.5 39.2 18 L41.3 30.5 C41.9 34.2 39.2 36.5 36.2 35.6 C34.4 35.1 33.3 34 32 32.6 C31 31.5 29.9 30.5 28.2 30.5 H19.8 C18.1 30.5 17 31.5 16 32.6 C14.7 34 13.6 35.1 11.8 35.6 C8.8 36.5 6.1 34.2 6.7 30.5 L8.8 18 C9.5 14.5 11.5 12 15.5 12 Z" fill="url(#glG)"/><path d="M15.5 12 H32.5 C36.5 12 38.5 14.5 39.2 18 L41.3 30.5 C41.9 34.2 39.2 36.5 36.2 35.6 C34.4 35.1 33.3 34 32 32.6 C31 31.5 29.9 30.5 28.2 30.5 H19.8 C18.1 30.5 17 31.5 16 32.6 C14.7 34 13.6 35.1 11.8 35.6 C8.8 36.5 6.1 34.2 6.7 30.5 L8.8 18 C9.5 14.5 11.5 12 15.5 12 Z" fill="url(#glH)"/><rect x="12" y="20" width="9.4" height="3.2" rx="1.6" fill="#fff" fill-opacity=".95"/><rect x="15.1" y="16.9" width="3.2" height="9.4" rx="1.6" fill="#fff" fill-opacity=".95"/><g fill="#fff" fill-opacity=".92"><circle cx="31" cy="19.2" r="2"/><circle cx="34.6" cy="22.8" r="2"/><circle cx="31" cy="26.4" r="2"/><circle cx="27.4" cy="22.8" r="2"/></g></svg></div>
             <span class="nav-label" data-i18n="nav_game">Game</span>
         </div>
         <div class="nav-item nav-item-wallet" id="btn-wallet" onclick="showPage('wallet')" role="button">
-            <div class="nav-icon-wrap nav-icon-wrap-wallet"><svg class="ui-icon"><use href="#icon-wallet"></use></svg></div>
+            <div class="nav-icon-wrap nav-icon-wrap-wallet"><svg class="gl-ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M11 15 L30 9.5 Q33.2 8.7 34 11.8 L35 15 Z" fill="url(#glG2)" opacity=".75"/><rect x="7" y="14" width="34" height="26" rx="7.5" fill="url(#glG)"/><rect x="7" y="14" width="34" height="26" rx="7.5" fill="url(#glH)"/><rect x="26.5" y="22" width="14.5" height="11" rx="5.5" fill="#fff" fill-opacity=".93"/><circle cx="32.4" cy="27.5" r="2.1" fill="url(#glG2)"/></svg></div>
             <span class="nav-label" data-i18n="nav_wallet">Wallet</span>
         </div>
         <div class="nav-item" id="btn-history" onclick="showPage('history')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-history-nav"></use></svg></div>
+            <div class="nav-icon-wrap"><svg class="gl-ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16.5" fill="url(#glG)"/><circle cx="24" cy="24" r="16.5" fill="url(#glH)"/><circle cx="24" cy="24" r="11.6" fill="#fff" fill-opacity=".2"/><path d="M24 16.2 V24.4 L29.8 28" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="24.2" r="1.9" fill="#fff"/></svg></div>
             <span class="nav-label" data-i18n="nav_history">History</span>
         </div>
         <div class="nav-item" id="btn-profile" onclick="showPage('profile')" role="button">
-            <div class="nav-icon-wrap"><svg class="ui-icon"><use href="#icon-user"></use></svg></div>
+            <div class="nav-icon-wrap"><svg class="gl-ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16.5" r="8" fill="url(#glG)"/><circle cx="24" cy="16.5" r="8" fill="url(#glH)"/><path d="M8.5 40 Q8.5 28 24 28 Q39.5 28 39.5 40 Q39.5 41.5 38 41.5 H10 Q8.5 41.5 8.5 40 Z" fill="url(#glG)"/><path d="M8.5 40 Q8.5 28 24 28 Q39.5 28 39.5 40 Q39.5 41.5 38 41.5 H10 Q8.5 41.5 8.5 40 Z" fill="url(#glH)"/><circle cx="21.4" cy="14" r="2.6" fill="#fff" fill-opacity=".38"/></svg></div>
             <span class="nav-label" data-i18n="nav_profile">Profile</span>
         </div>
     </nav>
@@ -10281,7 +10125,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 terms_l_orders: 'Order နှင့် ပေးပို့မှု',
                 terms_b_orders: 'ငွေပေးချေမှု အတည်ပြုပြီးသည်နှင့် Order များကို အလိုအလျောက် လုပ်ဆောင်ပါသည်။ ပေးပို့ချိန်မှာ game/voucher provider ပေါ်မူတည်ပြီး များသောအားဖြင့် ချက်ချင်းမှ မိနစ်အနည်းငယ်အထိ ကြာနိုင်ပါသည်၊ တချို့ order များကို admin မှ manual စစ်ဆေးရန် လိုအပ်နိုင်ပါသည်။',
                 terms_l_payments: 'ငွေပေးချေမှု',
-                terms_b_payments: 'Kpay/Wave/etc (ပြေစာတင်ရန်)၊ Wallet လက်ကျန်ငွေ၊ Crypto/USDT top-up အပါအဝင် manual ငွေပေးချေမှု နည်းလမ်းများကို လက်ခံပါသည်။ ငွေပေးချေရာတွင် မှန်ကန်သော အချက်အလက်များကို အသုံးပြုရပါမည်။ In-Game ID၊ Server ID၊ သို့မဟုတ် ငွေပေးချေမှု အထောက်အထားများ မှားယွင်းစွာ တင်ထားသော order များကို နှောင့်နှေးခြင်း သို့မဟုတ် ပယ်ချခြင်း ဖြစ်နိုင်ပါသည် — ထိုသို့ဖြစ်ပါက ဘာဖြစ်မည်ကို Refund tab တွင် ကြည့်ပါ။',
+                terms_b_payments: 'Kpay/Wave/etc (ပြေစာတင်ရန်)၊ Wallet လက်ကျန်ငွေ၊ Crypto/USDT top-up အပါအဝင် manual ငွေပေးချေမှု နည်းလမ်းများကို လက်ခံပါသည်။ ငွေပေးချေရာတွင် မှန်ကန်သော အချက်အလက်များကို အသုံးပြုရပါမည်။ In-Game ID၊ Server ID၊ သို့မဟုတ် ငွေပေးချေမှု အထောက်အထားများ မှားယွင်းစွာ တင်ထားသော order များကို နှောင့်နှေးခြင်း သို့မဟုတ် ပယ်ချခြင်း ဖြစ်နိုင်ပါသည် — ထိုသို့ဖြစ်ပါက ဆောင်ရွက်မည့်ပုံစံကို Refund tab တွင် ကြည့်ပါ။',
                 terms_l_account: 'Account နှင့် Wallet',
                 terms_b_account: 'သင်၏ account အချက်အလက်များကို မှန်ကန်စွာ ထားရှိရန် သင့်တွင် တာဝန်ရှိပါသည်။ Wallet လက်ကျန်ငွေသည် သင်၏ account/guest ID နှင့် ချိတ်ဆက်ထားပြီး account တစ်ခုမှ တစ်ခုသို့ လွှဲပြောင်း၍ မရပါ၊ ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပါသည်။',
                 terms_l_fairuse: 'တရားမျှတသော အသုံးပြုမှု',
@@ -10316,11 +10160,11 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 refund_l_cancel: 'Order တစ်ခု ပယ်ဖျက်ခြင်း',
                 refund_b_cancel: 'Pending အခြေအနေရှိနေသေးသော order များကို Support ကို ဆက်သွယ်ခြင်းဖြင့် ပုံမှန်အားဖြင့် ပယ်ဖျက်၍ ရပါသည်။ Order တစ်ခု Processing (game/voucher provider ထံ ပို့ပြီးသား) အခြေအနေသို့ ရောက်သွားပါက နောက်ထပ် ပယ်ဖျက်၍ မရတော့ပါ။',
                 refund_l_manual: 'Manual Top-Up များ (Kpay/Wave/etc.)',
-                refund_b_manual: 'Manual top-up တောင်းဆိုမှုတစ်ခုကို ပယ်ချခံရပါက (ဥပမာ ပြေစာ မရှင်းလင်းခြင်း သို့မဟုတ် မမှန်ကန်ခြင်းကြောင့်) Wallet လက်ကျန်ငွေ ဘာမှ ထည့်ပေးမည် မဟုတ်ပါ — ငွေသည် ကျွန်ုပ်တို့၏ Wallet စနစ်ကို ဘယ်တော့မှ ဖြတ်မသွားခဲ့ပါ၊ ကျေးဇူးပြု၍ သင်၏ ငွေပေးချေမှု app ၏ transaction မှတ်တမ်းကို ထားရှိပြီး ပယ်ချမှုသည် အမှားဖြစ်သည်ဟု ယုံကြည်ပါက Support ကို ဆက်သွယ်ပါ။',
+                refund_b_manual: 'Manual top-up တောင်းဆိုမှုတစ်ခုကို ပယ်ချခံရပါက (ဥပမာ ပြေစာ မရှင်းလင်းခြင်း သို့မဟုတ် မမှန်ကန်ခြင်းကြောင့်) Wallet လက်ကျန်ငွေထဲသို့ ငွေထည့်ပေးမည် မဟုတ်ပါ — ငွေသည် ကျွန်ုပ်တို့၏ Wallet စနစ်ထဲသို့ ဝင်ရောက်ခြင်း မရှိခဲ့သောကြောင့် ဖြစ်ပါသည်။ သင်၏ ငွေပေးချေမှု app ရှိ transaction မှတ်တမ်းကို သိမ်းထားပြီး ပယ်ချမှုသည် အမှားဟု ယူဆပါက Support ကို ဆက်သွယ်ပါ။',
                 refund_l_crypto: 'Crypto/USDT Top-Up များ',
                 refund_b_crypto: 'Blockchain transaction များသည် ပြန်ပြင်၍ မရပါ။ App ထဲတွင် ပြသထားသော မှန်ကန်သော ပမာဏနှင့် မှန်ကန်သော network ပေါ်တွင် ပေးပို့ကြောင်း ကျေးဇူးပြု၍ အတည်ပြုပါ။ လိပ်စာမှား၊ network မှား၊ သို့မဟုတ် ပမာဏမှား ပေးပို့မိသော ငွေများကို ကျွန်ုပ်တို့ ပြန်ယူပေး၍ မရနိုင်ပါ။',
                 refund_l_wallet: 'Wallet လက်ကျန်ငွေ',
-                refund_b_wallet: 'Wallet လက်ကျန်ငွေကို ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပြီး ငွေသားအဖြစ် ထုတ်ယူ၍ မရ၊ အခြား account သို့ လွှဲပြောင်း၍ မရပါ — ကျွန်ုပ်တို့ ဖြေရှင်းလိုသော ပြဿနာအတွက် သီးခြား ရွေးချယ်သည့်အခါမှလွဲ၍။',
+                refund_b_wallet: 'Wallet လက်ကျန်ငွေကို ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပြီး ငွေသားအဖြစ် ထုတ်ယူခြင်း၊ အခြား account သို့ လွှဲပြောင်းခြင်း မပြုလုပ်နိုင်ပါ — တိကျသော ပြဿနာတစ်ခုကို ကျွန်ုပ်တို့ကိုယ်တိုင် ထိုနည်းဖြင့် ဖြေရှင်းပေးသည့် အခြေအနေမှလွဲ၍ ဖြစ်ပါသည်။',
                 refund_l_dispute: 'အငြင်းပွားမှုတစ်ခု ဖော်ပြနည်း',
                 refund_b_dispute_pre: 'သင်၏ Order ID သို့မဟုတ် Top-Up ID ဖြင့် Telegram ',
                 refund_b_dispute_post: ' ကို အမြန်ဆုံး ဆက်သွယ်ပါ — ၇ ရက်အတွင်း ဆက်သွယ်ရန် အကောင်းဆုံးဖြစ်ပါသည်၊ အကြောင်းမှာ ၇ ရက်ထက်ကြာသော order/top-up မှတ်တမ်းများကို ကျွန်ုပ်တို့၏ မှတ်တမ်းများမှ အလိုအလျောက် ဖျက်ပစ်လိုက်ပါသည်။',
@@ -10328,8 +10172,8 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 biz_identity_pre: 'လုပ်ငန်းရှင်: Linn Game Store \u00a0\u00b7\u00a0 ဝက်ဘ်ဆိုက်: linngamestore.com \u00a0\u00b7\u00a0 အကူအညီ: ',
                 title_favorites: 'အနှစ်သက်ဆုံးများ', title_popular_games: 'ခေတ်စားနေသောဂိမ်းများ',
                 prov_name_p1: 'Provider 1', prov_name_p2: 'Provider 2', prov_name_p3: 'Provider 3', prov_other: 'အခြား',
-                prov_new_badge: 'NEW', p2w_title: 'P2 မှ ကြိုဆိုပါတယ်', p2w_text: 'Provider 2 server ကို စတင်ဖွင့်လှစ်လိုက်ပါပြီ။ ဂိမ်းအသစ်တွေ၊ package တွေကို P2 tab မှာ ကြည့်ရှုဝယ်ယူနိုင်ပါပြီ။', p2w_btn: 'စတင်ကြည့်မည်',
-                prov_soon_badge: 'Soon', prov_soon_bot: 'AI BOT ပြင်ဆင်နေပါတယ်', prov_soon_title: 'Coming Soon', prov_soon_text: 'ဒီ server ကို မဖွင့်သေးပါဘူး။ မကြာခင် ဖွင့်ပေးပါမယ် — ခုလောလောဆယ် Provider 1 ကို အသုံးပြုပေးပါ။', prov_soon_btn: 'Provider 1 သို့သွားမည်',
+                prov_new_badge: 'အသစ်', p2w_title: 'P2 မှ ကြိုဆိုပါတယ်', p2w_text: 'Provider 2 server ကို စတင်ဖွင့်လှစ်လိုက်ပါပြီ။ ဂိမ်းအသစ်တွေ၊ package တွေကို P2 tab မှာ ကြည့်ရှုဝယ်ယူနိုင်ပါပြီ။', p2w_btn: 'စတင်ကြည့်မည်',
+                prov_soon_badge: 'မကြာမီ', prov_soon_bot: 'AI BOT ပြင်ဆင်နေပါတယ်', prov_soon_title: 'မကြာမီ ဖွင့်မည်', prov_soon_text: 'ဒီ server ကို မဖွင့်သေးပါဘူး။ မကြာခင် ဖွင့်ပေးပါမယ် — ခုလောလောဆယ် Provider 1 ကို အသုံးပြုပေးပါ။', prov_soon_btn: 'Provider 1 သို့သွားမည်',
                 prov_desc_p3: 'Provider 3 server (JCPlays) — Redeem code voucher များ။',
                 title_all_games: 'ဂိမ်းအားလုံး', title_popular: 'ခေတ်စားနေသော',
                 title_vouchers: 'ဗောက်ချာနှင့် လက်ဆောင်ကတ်များ', title_software: 'ဆော့ဖ်ဝဲ',
@@ -10337,30 +10181,30 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 dash_step1: 'ဂိမ်းနှင့် Package ရွေးပါ', dash_step2: 'သင့် In-Game ID ရိုက်ထည့်ပါ',
                 dash_step3: 'Wallet ဖြင့်ဖြစ်စေ Receipt တင်ပြီးဖြစ်စေ ပေးချေပါ', dash_step4: 'အော်ဒါကို ချက်ချင်းလက်ခံရယူပါ',
                 stat_direct: 'Direct Top Up', stat_direct_desc: 'ကစားနိုင်သော ဂိမ်းများ', stat_vouchers: 'Gift Card နှင့် Voucher', stat_vouchers_desc: 'ရယူနိုင်ပါပြီ',
-                stat_users: 'အသင်းဝင်များ', stat_users_desc: 'ပါဝင်လာသော ကစားသမားများ',
-                stat_products: 'ကတလောက်', stat_products_desc: 'ငွေဖြည့်ရွေးစရာများ',
+                stat_users: 'အသိုင်းအဝိုင်း', stat_users_desc: 'ပါဝင်လာသော ကစားသမားများ',
+                stat_products: 'ပစ္စည်းစာရင်း', stat_products_desc: 'ငွေဖြည့် ပက်ကေ့ချ်များ',
                 stat_sales: 'ပြီးဆုံးအော်ဒါများ', stat_sales_desc: 'စုစုပေါင်း ပြီးမြောက်ခဲ့သည်',
-                stat_delivered: 'လွှဲပြောင်းပြီးငွေ', stat_delivered_desc: 'Wallet ထဲသို့ တိုက်ရိုက်',
-                stat_updated_now: 'ယခုလေးတင် update လုပ်ပြီး', stat_updated_min: 'မိနစ် {n} က update လုပ်ခဲ့သည်', stat_updated_hr: 'နာရီ {n} က update လုပ်ခဲ့သည်',
+                stat_delivered: 'ပို့ဆောင်ပြီး Top Up များ', stat_delivered_desc: 'Wallet ထဲသို့ တိုက်ရိုက်ဝင်သည်',
+                stat_updated_now: 'ယခုလေးတင် update လုပ်ပြီး', stat_updated_min: '{n} မိနစ်က update လုပ်ခဲ့သည်', stat_updated_hr: '{n} နာရီက update လုပ်ခဲ့သည်',
                 btn_sell_tab: 'ရောင်းမည်',
-                sell_modal_title: 'သင့်အကောင့် ရောင်းလိုက်ပါ',
+                sell_modal_title: 'သင့်အကောင့်ကို ရောင်းချမည်',
                 sell_modal_sub: 'ရောင်းလိုသော အကောင့်အကြောင်း ပြောပြပါ။ ကျွန်ုပ်တို့အဖွဲ့မှ စစ်ဆေးပြီး ဆက်သွယ်ပါမည်။',
                 sell_l_game: 'ဂိမ်း', sell_ph_game: 'ဥပမာ - Mobile Legends',
                 sell_l_title: 'အကောင့်ခေါင်းစဉ်', sell_ph_title: 'ဥပမာ - Mythic rank, skin 50',
                 sell_l_price: 'ရောင်းလိုသောစျေးနှုန်း (MMK)', sell_ph_price: 'ဥပမာ - 150000',
                 sell_l_contact: 'သင့်ဆက်သွယ်ရန် (ဖုန်း/Telegram)', sell_ph_contact: 'ဥပမာ - 09xxxxxxxxx သို့မဟုတ် @yourhandle',
-                sell_l_desc: 'ဖော်ပြချက်', sell_ph_desc: 'အဆင့်၊ ဆာဗာ၊ skin များ၊ ဘာကြောင့်ရောင်းချင်တာလဲ…',
+                sell_l_desc: 'ဖော်ပြချက်', sell_ph_desc: 'အဆင့်၊ ဆာဗာ၊ skin များ၊ ရောင်းချရသည့် အကြောင်းရင်း…',
                 sell_l_photo: 'အကောင့် Screenshot',
                 sell_upload_label: 'Screenshot တင်ပါ', sell_upload_hint: 'Rank/profile screenshot ရှိရင် ပိုမြန်စွာစစ်ဆေးနိုင်ပါသည်',
                 sell_submit_btn: 'စစ်ဆေးရန် ပို့ပါ',
                 sell_err_game: 'ဂိမ်းအမည်ထည့်ပါ။', sell_err_title: 'အကောင့်ခေါင်းစဉ်ထည့်ပါ။',
                 sell_err_price: 'ရောင်းလိုသောစျေးနှုန်းထည့်ပါ။', sell_err_contact: 'ဆက်သွယ်ရန်အချက်အလက်ထည့်ပါ။',
                 sell_success: 'ပို့ပြီးပါပြီ! ကျွန်ုပ်တို့အဖွဲ့မှ စစ်ဆေးပြီး ဆက်သွယ်ပါမည်။',
-                title_history: 'ငွေလွှဲမှတ်တမ်း', logo_connecting: 'Connecting…', logo_updating: 'Updating…', hist_status_all: 'အားလုံး', hist_no_status_t: '{status} အော်ဒါ မရှိပါ', hist_no_status_s: 'တခြား status သို့မဟုတ် ရက်စွဲကို ရွေးကြည့်ပါ။', title_leaderboard: 'အများဆုံးသုံးစွဲသူများ',
+                title_history: 'ငွေလွှဲမှတ်တမ်း', logo_connecting: 'ချိတ်ဆက်နေသည်…', logo_updating: 'အပ်ဒိတ်လုပ်နေသည်…', hist_status_all: 'အားလုံး', hist_no_status_t: '{status} အော်ဒါ မရှိပါ', hist_no_status_s: 'တခြား status သို့မဟုတ် ရက်စွဲကို ရွေးကြည့်ပါ။', title_leaderboard: 'အများဆုံးသုံးစွဲသူများ',
                 status_pending: 'စောင့်ဆိုင်းနေဆဲ', status_processing: 'လုပ်ဆောင်နေဆဲ', status_success: 'ပြီးမြောက်ပြီ', status_fail: 'မအောင်မြင်ပါ',
-                od_package: 'ပက်ကေ့ခ်ျ', od_payment_method: 'ငွေပေးချေမှုနည်း', od_transaction_id: 'ငွေလွှဲ ID', od_ingame_id: 'ဂိမ်း ID',
+                od_package: 'ပက်ကေ့ချ်', od_payment_method: 'ငွေပေးချေမှုနည်း', od_transaction_id: 'ငွေလွှဲ ID', od_ingame_id: 'ဂိမ်း ID',
                 od_ingame_name: 'ဂိမ်းထဲက အမည်', od_server_id: 'ဆာဗာ ID', od_server: 'ဆာဗာ', od_ordered_at: 'အော်ဒါတင်ချိန်',
-                od_success_at: 'ပြီးမြောက်ချိန်', od_order_id: 'အော်ဒါ ID', od_confirmed_in: 'ပြီးမြောက်ရန်ကြာချိန်', st_account: 'အကောင့်', st_package: 'Package', st_payment: 'ငွေပေးချေ', st_confirm: 'အတည်ပြု', ot_avg: 'ပျှမ်းမျှ', ot_waiting: 'တန်းစီစောင့်နေသည်', ot_inprogress: 'ပို့ဆောင်နေသည်', ot_elapsed: 'ကြာပြီ', ot_done_hint: 'အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ', ot_fail_hint: 'အော်ဒါ မအောင်မြင်ပါ', ot_placed: 'အော်ဒါတင်ပြီး', ot_processing: 'လုပ်ဆောင်နေ', ot_success: 'အောင်မြင်', ot_failed: 'မအောင်မြင်', od_amount_paid: 'ပေးချေငွေပမာဏ',
+                od_success_at: 'ပြီးမြောက်ချိန်', od_order_id: 'အော်ဒါ ID', od_confirmed_in: 'ပြီးစီးရန် ကြာချိန်', st_account: 'အကောင့်', st_package: 'Package', st_payment: 'ငွေပေးချေ', st_confirm: 'အတည်ပြု', ot_avg: 'ပုံမှန် ပို့ဆောင်ချိန်', ot_waiting: 'တန်းစီစောင့်နေသည်', ot_inprogress: 'ပို့ဆောင်နေသည်', ot_elapsed: 'ကြာပြီ', ot_done_hint: 'အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ', ot_fail_hint: 'အော်ဒါ မအောင်မြင်ပါ', ot_placed: 'အော်ဒါတင်ပြီး', ot_processing: 'လုပ်ဆောင်နေ', ot_success: 'အောင်မြင်', ot_failed: 'မအောင်မြင်', od_amount_paid: 'ပေးချေငွေပမာဏ',
                 od_payment_receipt: 'ငွေလွှဲပြေစာ', od_reason: 'အကြောင်းရင်း', od_note: 'မှတ်ချက်', od_download_receipt: 'ပြေစာ ဒေါင်းလုဒ်ဆွဲမည်', pm_save_qr: 'QR သိမ်းရန်', vr_button: 'အတည်ပြုပြေစာ (QR)', vr_title: 'အတည်ပြုပြေစာ', vr_dark: 'Dark', vr_light: 'Light', vr_save: 'ပုံသိမ်းမည်', vr_verify_title: 'ပြေစာ စစ်ဆေးခြင်း', vr_ok_title: 'Order အစစ်ဖြစ်ပါသည်', vr_ok_sub: 'ဒီပြေစာဟာ ကျွန်ုပ်တို့စနစ်ထဲက ပြီးစီးထားတဲ့ order နဲ့ ကိုက်ညီပါတယ်။', vr_bad_title: 'စစ်ဆေး၍ မရပါ', vr_bad_sub: 'ဒီပြေစာနဲ့ ကိုက်ညီတဲ့ ပြီးစီးထားသော order ကို ရှာမတွေ့ပါ။',
                 title_wallet: 'ကျွန်ုပ်၏ပိုက်ဆံအိတ်', title_profile: 'ကျွန်ုပ်၏ပရိုဖိုင်',
                 sec_account_info: 'အကောင့်အချက်အလက်', lbl_rank: 'အဆင့်', lbl_server: 'ဆာဗာ', sec_description: 'ဖော်ပြချက်',
@@ -10425,7 +10269,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 guide_q_historyfull: 'Order History ကြည့်နည်းနှင့် ပြဿနာ ဖြစ်ရင်',
                 guide_a_historyfull: 'ဖန်သားပြင် ဘယ်ဘက်အပေါ် icon ကို နှိပ်ပြီး Drawer ဖွင့်ပါ၊ "History" ကို ရွေးပါ။ Order တစ်ခုချင်းစီရဲ့ Status ကို ဒီနေရာမှာ ကြည့်နိုင်ပါတယ် - "Pending" (စောင့်ဆိုင်းနေဆဲ)၊ "Processing" (လုပ်ဆောင်နေဆဲ)၊ "Success" (ပြီးမြောက်ပြီ) သို့မဟုတ် "Fail" (မအောင်မြင်)။ Order တစ်ခုကို နှိပ်ရင် အသေးစိတ် အချက်အလက်တွေ ဖြစ်တဲ့ ID, ပမာဏ, အချိန် စတာတွေ ပြပါလိမ့်မယ်။ Processing မှာ အချိန်ကြာနေရင် (သို့) တခြား ပြဿနာ ရှိရင် Support widget ထဲက "Ticket" tab ကနေ အကြောင်းကြားနိုင်ပါတယ်၊ Admin က လက်ခံပြီး ပြန်ကြည့်ပေးပါလိမ့်မယ်။ တိုက်ရိုက် အမြန်ဆက်သွယ်ချင်ရင် "Telegram" tab ကို အသုံးပြုနိုင်ပါတယ်။',
                 guide_q_otherfeatures: 'App ထဲက အခြား features တွေ ဘာတွေရှိလဲ',
-                guide_a_otherfeatures: '"Voucher" tab - Gift card နှင့် Top-up voucher များကို ချက်ချင်း ဝယ်ယူနိုင်ပါတယ်။ Drawer ထဲက "Name Check" - Order မတင်ခင် ဂိမ်းနဲ့ ID ရိုက်ထည့်ပြီး Account နာမည် မှန်မမှန် ကြိုတင်စစ်ကြည့်နိုင်ပါတယ်။ "Leaderboard" - အများဆုံး ဝယ်ယူသူများကို ကြည့်ရှုနိုင်ပါတယ်။ "Profile" ထဲမှာ VIP Tier, စုစုပေါင်း သုံးငွေ တွေကို တွေ့နိုင်ပါတယ်။ Theme (Dark/Light Mode) နှင့် ဘာသာစကား ကိုလည်း Drawer ထဲကနေ ပြောင်းလို့ရပါတယ်။',
+                guide_a_otherfeatures: '"Voucher" tab - Gift card နှင့် Top-up voucher များကို ချက်ချင်း ဝယ်ယူနိုင်ပါတယ်။ Drawer ထဲက "Name Check" - Order မတင်ခင် ဂိမ်းနဲ့ ID ရိုက်ထည့်ပြီး Account နာမည် မှန်မမှန် ကြိုတင်စစ်ကြည့်နိုင်ပါတယ်။ "Leaderboard" - အများဆုံး ဝယ်ယူသူများကို ကြည့်ရှုနိုင်ပါတယ်။ "Profile" ထဲမှာ VIP Tier, စုစုပေါင်း သုံးစွဲငွေကို တွေ့နိုင်ပါတယ်။ Theme (Dark/Light Mode) နှင့် ဘာသာစကား ကိုလည်း Drawer ထဲကနေ ပြောင်းလို့ရပါတယ်။',
                 btn_confirm_id: 'Confirm ID', btn_confirmed_id: 'Confirmed ✓', btn_checking_id: 'စစ်ဆေးနေသည်...',
                 checking_id_text: 'ID စစ်ဆေးနေသည်...', id_not_found: 'ID မတွေ့ပါ — ပြန်စစ်ကြည့်ပါ။',
                 verified_prefix: 'အတည်ပြုပြီး', player_verified: 'ကစားသမား အတည်ပြုပြီး',
@@ -10433,23 +10277,23 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                 id_nf_body_srv: 'ID {id} ကို Server {srv} မှာ မတွေ့ပါ။ ID နဲ့ Server ID နှစ်ခုလုံး မှန်မမှန် ပြန်စစ်ပါ။',
                 id_srv_title: 'Server မကိုက်ပါ', id_srv_body: 'ID {id} သည် Server {srv} နှင့် မကိုက်ပါ။ Server ID ကို ပြန်စစ်ပါ။',
                 id_srv_missing: 'Server ID ကို အရင်ထည့်ပြီးမှ Confirm ID နှိပ်ပါ။',
-                id_unavail_title: 'အခု စစ်လို့မရသေးပါ', id_unavail_body: 'ID စစ်ဆေးတဲ့ service အလုပ်များနေ/ပိတ်နေပါတယ်။ Confirm ID ကို ပြန်နှိပ်ကြည့်ပါ — မှာယူလို့ ရနေပါသေးတယ်။',
+                id_unavail_title: 'အခု စစ်လို့မရသေးပါ', id_unavail_body: 'ID စစ်ဆေးတဲ့ service အလုပ်များနေပါတယ် သို့မဟုတ် ခေတ္တပိတ်ထားပါတယ်။ Confirm ID ကို ပြန်နှိပ်ကြည့်ပါ — မှာယူလို့ ရနေပါသေးတယ်။',
                 id_net_title: 'အင်တာနက် မရပါ', id_net_body: 'ID စစ်ဆေးတဲ့ service ကို ချိတ်ဆက်မရပါ။ အင်တာနက်စစ်ပြီး Confirm ID ပြန်နှိပ်ပါ။',
                 success_processing_title: 'အော်ဒါ လုပ်ဆောင်နေသည်', success_processing_sub: 'ကျွန်ုပ်တို့အဖွဲ့ လက်ရှိလုပ်ဆောင်နေပါသည် — မကြာမီပြီးပါမည်။',
                 success_completed_title: 'အော်ဒါ ပြီးမြောက်ပါပြီ!', success_completed_sub: 'သင့်ရဲ့ top up ကို ပေးပို့ပြီးပါပြီ။ ကျွန်ုပ်တို့နှင့် အော်ဒါတင်သည့်အတွက် ကျေးဇူးတင်ပါသည်။',
                 success_failed_title: 'အော်ဒါ မအောင်မြင်ပါ', success_failed_sub: 'ဒီအော်ဒါမှာ တစ်ခုခုမှားယွင်းသွားပါသည်။ History တွင်စစ်ဆေးပါ (သို့) Support ကိုဆက်သွယ်ပါ။',
                 success_confirmed_title: 'အော်ဒါ အတည်ပြုပြီး',
-                order_ok_title: 'Successfully', order_ok_again: 'ထပ်ဝယ်မယ်', order_ok_confirm: 'အတည်ပြုမည်',
+                order_ok_title: 'အောင်မြင်ပါပြီ', order_ok_again: 'ထပ်ဝယ်မယ်', order_ok_confirm: 'အတည်ပြုမည်',
                 notif_tab_unread: 'မဖတ်ရသေး', notif_tab_read: 'ဖတ်ပြီး', notif_mark_all: 'အားလုံး ဖတ်ပြီးပြုမည်',
-                notif_order_success: 'Successfully', notif_order_failed: 'Failure', notif_view_history: 'History တွင်ကြည့်မည်',
+                notif_order_success: 'အောင်မြင်ပါပြီ', notif_order_failed: 'မအောင်မြင်ပါ', notif_view_history: 'History တွင်ကြည့်မည်',
                 notif_empty_unread_t: 'အသစ်မရှိတော့ပါ', notif_empty_unread_s: 'အော်ဒါ အခြေအနေနှင့် ကြေညာချက်အသစ်များ ဤနေရာတွင် ပေါ်လာပါမည်။',
                 notif_empty_read_t: 'ဖတ်ပြီးသားမရှိသေးပါ', notif_empty_read_s: 'ဖွင့်ကြည့်ပြီးသော အသိပေးချက်များ ဤနေရာတွင် သိမ်းထားပါမည်။',
                 welcome_new: 'ကြိုဆိုပါတယ်', welcome_back: 'ပြန်လည်ကြိုဆိုပါတယ်',
                 gz_buy_login_t: 'Login ဝင်ပြီး ဝယ်ယူရန်',
                 gz_banner_sub: 'Top up, Voucher ဈေးတွေကို ကြည့်နိုင်ပါတယ်။ ဝယ်ယူရန် Login လိုပါတယ်။',
                 gz_wallet_login_t: 'Wallet သုံးရန် Login ဝင်ပါ',
-                gz_wallet_login_p: 'Balance၊ Top Up နဲ့ ငွေလွှဲမှတ်တမ်းတွေကို Login ဝင်ထားမှ မြင်ရမှာပါ။',
-                gz_wallet_login_p2: 'Wallet နဲ့ ဝယ်ရန်နှင့် Top Up လုပ်ရန် Login ဝင်ပါ။',
+                gz_wallet_login_p: 'လက်ကျန်ငွေ၊ ငွေဖြည့်မှုနဲ့ ငွေလွှဲမှတ်တမ်းတွေကို Login ဝင်ထားမှသာ မြင်ရပါမယ်။',
+                gz_wallet_login_p2: 'Wallet ဖြင့် ဝယ်ယူရန်နှင့် ငွေဖြည့်ရန် Login ဝင်ပါ။',
                 gz_profile_login_t: 'Profile ကြည့်ရန် Login ဝင်ပါ',
                 gz_sheet_t: 'ဝယ်ယူရန် Login ဝင်ရပါမယ်',
                 gz_sheet_p: 'ဈေးနှုန်းတွေကို Login မဝင်ဘဲ ကြည့်လို့ရပါတယ်။ ဒါပေမယ့် Order တင်ဖို့ Account လိုအပ်ပါတယ်။',
@@ -10656,9 +10500,10 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         function playTabEnter(pageId) {
             const el = document.getElementById(pageId);
             if (!el) return;
-            restartTabEnter(el);
             const sel = TAB_CONTENT_SEL[pageId];
-            el._enterWaitUntil = (sel && !el.querySelector(sel)) ? Date.now() + 8000 : 0;
+            const hasContent = !sel || !!el.querySelector(sel);
+            el._enterWaitUntil = hasContent ? 0 : Date.now() + 8000;
+            if (hasContent) restartTabEnter(el); else el.classList.remove('tab-enter');
         }
         window.playTabEnter = playTabEnter;
         Object.keys(TAB_CONTENT_SEL).forEach(pageId => {
@@ -10864,36 +10709,63 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
         }
         // Measures the header's 3-line button so the sidebar can grow out of exactly that spot (circle -> tall pill -> panel)
         function pgMeasure() {
-            const ov = document.getElementById('drawer-overlay'), b = document.getElementById('drawer-toggle-btn');
+            const ov = document.getElementById('drawer-overlay'), b = document.getElementById('drawer-toggle-btn'), dr = document.getElementById('side-drawer');
             if (!ov || !b) return;
-            const r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+            const r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
             let d = Math.round(Math.min(r.width, r.height)); if (d < 36) d = 40; if (d > 56) d = 56;
             let cr = Math.round(vw - (r.left + r.width / 2) - d / 2), ct = Math.round(r.top + r.height / 2 - d / 2);
             if (!isFinite(cr) || cr < 4) cr = 14; if (!isFinite(ct) || ct < 6) ct = 14;
             ov.style.setProperty('--pg-d', d + 'px'); ov.style.setProperty('--pg-cr', cr + 'px'); ov.style.setProperty('--pg-ct', ct + 'px');
+            // Measured from the real layout (any language / theme / screen): index per tab, icon-column offset and pill height
+            try {
+                const items = dr ? dr.querySelectorAll('.pg-item') : [];
+                items.forEach((it, i) => it.style.setProperty('--pi', i));
+                if (items.length) {
+                    const dw = dr.getBoundingClientRect(), chip = items[0].querySelector('.pg-chip'), lastR = items[items.length - 1].getBoundingClientRect();
+                    if (chip && dw.width) {
+                        const cb = chip.getBoundingClientRect();
+                        const tx = Math.round((dw.width - cr - d / 2) - (cb.left + cb.width / 2 - dw.left));
+                        if (isFinite(tx)) ov.style.setProperty('--pg-tx', tx + 'px');
+                    }
+                    let pb = Math.round(lastR.bottom + 14);
+                    pb = Math.max(ct + d + 40, Math.min(pb, vh - 8));
+                    ov.style.setProperty('--pg-rb', Math.max(0, vh - pb) + 'px');
+                }
+            } catch (e) {}
         }
+        // Timings mirror the CSS (open 1.2s, close 0.82s) - keep both in step if you change one.
+        const PG_CLOSE_MS = 820;
         let pgBurgerTimer = null, pgCloseTimer = null;
+        const pgReduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         function openDrawer() {
             withDrawerSlideClass();
             clearTimeout(pgBurgerTimer); clearTimeout(pgCloseTimer);
-            document.getElementById('drawer-overlay').classList.remove('pg-closing');
+            const ov = document.getElementById('drawer-overlay');
+            if (ov.classList.contains('show')) return;
+            ov.classList.remove('pg-closing');
             pgMeasure();
-            if (window.calmFor) window.calmFor(2400);
+            if (window.calmFor) window.calmFor(1500);
             const burger = document.getElementById('drawer-toggle-btn'); if (burger) burger.classList.add('pg-burger-away');
-            document.getElementById('drawer-overlay').classList.add('show');
+            ov.classList.add('show');
             document.body.style.overflow = 'hidden';
             if (window.pgGlide) window.pgGlide(true);
         }
         function closeDrawer() {
             withDrawerSlideClass();
             const ovl = document.getElementById('drawer-overlay');
+            const burger = document.getElementById('drawer-toggle-btn');
             if (ovl && ovl.classList.contains('show')) {
-                if (window.calmFor) window.calmFor(1500);
-                ovl.classList.add('pg-closing');
-                clearTimeout(pgCloseTimer); pgCloseTimer = setTimeout(() => ovl.classList.remove('pg-closing'), 1340);
-                clearTimeout(pgBurgerTimer); pgBurgerTimer = setTimeout(() => { const b = document.getElementById('drawer-toggle-btn'); if (b) b.classList.remove('pg-burger-away'); }, 1100);
+                clearTimeout(pgBurgerTimer); clearTimeout(pgCloseTimer);
+                if (pgReduced()) {
+                    if (burger) burger.classList.remove('pg-burger-away');
+                } else {
+                    if (window.calmFor) window.calmFor(1000);
+                    ovl.classList.add('pg-closing');
+                    pgCloseTimer = setTimeout(() => ovl.classList.remove('pg-closing'), PG_CLOSE_MS + 40);
+                    pgBurgerTimer = setTimeout(() => { if (burger) burger.classList.remove('pg-burger-away'); }, PG_CLOSE_MS - 150);
+                }
             }
-            document.getElementById('drawer-overlay').classList.remove('show');
+            if (ovl) ovl.classList.remove('show');
             document.body.style.overflow = '';
         }
         function drawerNavigate(pageId) {
@@ -10969,11 +10841,11 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             const content = document.querySelector('main.content-area');
             if (!content) return;
 
-            const THRESHOLD = 70;   // min horizontal px to count as a swipe
-            const RESTRAINT = 90;   // max vertical drift allowed once a horizontal drag is already locked in
-            const MAX_TIME = 600;   // ms
-            const DRAG_START_PX = 10; // horizontal px before a move counts as "dragging" vs a tap/scroll
-            const DIRECTION_LOCK_RATIO = 1.3; // |dx| must exceed |dy| by this much to claim the gesture as horizontal
+            const THRESHOLD = Math.max(130, Math.round(window.innerWidth * 0.32));   // min horizontal px to count as a swipe (a clearly long drag)
+            const RESTRAINT = 60;   // max vertical drift allowed once a horizontal drag is already locked in
+            const MAX_TIME = 800;   // ms
+            const DRAG_START_PX = 28; // horizontal px before a move counts as "dragging" vs a tap/scroll
+            const DIRECTION_LOCK_RATIO = 2.2; // |dx| must exceed |dy| by this much to claim the gesture as horizontal
             const DRAG_RESISTANCE = 0.45; // how much of the finger's motion the page follows
             const EDGE_RESISTANCE = 0.25; // extra resistance applied on top of that at the first/last tab
 
@@ -13681,7 +13553,7 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
             function setThumbX(x) {
                 currentX = x;
                 thumb.style.transform = `translateX(${x}px)`;
-                if (fill) fill.style.width = (x + thumb.offsetWidth / 2 + 3) + 'px';
+                if (fill) fill.style.transform = 'scaleX(' + Math.min(1, (x + thumb.offsetWidth / 2 + 3) / (wrap.clientWidth || 1)).toFixed(4) + ')';
                 wrap.classList.toggle('in-progress', x > 4);
             }
 
@@ -17851,10 +17723,10 @@ html.perf-low :is(#home,#voucher,#software) .game-card.card-pop:not(.popular-car
                     const span = next.min - tier.min;
                     const pct = span > 0 ? Math.min(100, Math.max(0, ((total - tier.min) / span) * 100)) : 100;
                     progressText.innerText = `${formatMMK(remaining)} more to reach ${next.label || next.name}`;
-                    progressFill.style.width = pct + '%';
+                    progressFill.style.setProperty('--p', (pct / 100).toFixed(4));
                 } else {
                     progressText.innerText = 'Highest tier reached';
-                    progressFill.style.width = '100%';
+                    progressFill.style.setProperty('--p', '1');
                 }
 
                 const avatarBox = document.getElementById('avatar-upload-box');
@@ -27088,7 +26960,7 @@ document.addEventListener('keydown',function(e){
   var iv=setInterval(function(){
     if(document.documentElement.classList.contains('nav-go')){
       clearInterval(iv);
-      setTimeout(function(){ ready=true; place(); },2250);
+      setTimeout(function(){ ready=true; place(); },2700);
     }
   },200);
   // 6) haptic tick on every tab tap (Telegram haptics inside the mini app, else plain vibrate)
@@ -27321,6 +27193,24 @@ document.addEventListener('keydown',function(e){
   window.__syncState=syncSoon;
 
   /* Reload lives in the sidebar now (it used to sit in the header) */
+  /* Reload: every part of the open sidebar (header, each tab, the two small buttons, Top Up) slides down and away on its own,
+     bottom first - transform + opacity only, no layout. Returns how many ms to wait before reloading. */
+  window.pgDropAll=function(){
+    var d=document.getElementById('side-drawer'), ov=document.getElementById('drawer-overlay');
+    var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!d||!ov||!ov.classList.contains('show')||reduced) return 650;
+    var parts=[].slice.call(d.querySelectorAll('.pg-head,.pg-item,.pg-mini,.pg-cta'));
+    if(!parts.length||!parts[0].animate) return 650;
+    var n=parts.length, step=40, dur=380;
+    parts.forEach(function(el,i){
+      el.animate([
+        {opacity:1,transform:'translate3d(0,0,0)'},
+        {opacity:0,transform:'translate3d(0,64px,0) scale(.94)'}
+      ],{duration:dur,delay:(n-1-i)*step,easing:'cubic-bezier(.5,0,.9,.4)',fill:'forwards'});
+    });
+    var g=document.getElementById('pg-glider'); if(g&&g.animate) g.animate([{opacity:1},{opacity:0}],{duration:180,fill:'forwards'});
+    return (n-1)*step+dur+60;
+  };
   window.pgReload=function(){
     var it=document.getElementById('pg-reload-item');
     if(it && it.classList.contains('busy')) return;
@@ -27331,7 +27221,8 @@ document.addEventListener('keydown',function(e){
       try{ window.loadHistory(); }catch(e){}
       setTimeout(function(){ if(it) it.classList.remove('busy'); },1400);
     } else {
-      setTimeout(function(){ location.reload(); },650);
+      var wait=650; try{ wait=window.pgDropAll?window.pgDropAll():650; }catch(e){}
+      setTimeout(function(){ location.reload(); },wait);
     }
   };
 })();
@@ -27611,8 +27502,8 @@ document.addEventListener('keydown',function(e){
 #festival-lamps i{display:block;line-height:0}
 #festival-lamps svg,#festival-gl svg{display:block;overflow:visible}
 /* flames only flicker where there are just a few of them (never in the falling shower) */
-#festival-gl .fz-fl,#festival-lamps .fz-fl,.fzprev .fz-fl{transform-box:fill-box;transform-origin:50% 100%;animation:fzfl 1.5s ease-in-out infinite alternate}
-#festival-gl .fz-gw,#festival-lamps .fz-gw,.fzprev .fz-gw{animation:fzgw 2.4s ease-in-out infinite alternate}
+#festival-gl .fz-fl,#festival-lamps .fz-fl{transform-box:fill-box;transform-origin:50% 100%;animation:fzfl 1.5s ease-in-out infinite alternate}
+#festival-gl .fz-gw,#festival-lamps .fz-gw{animation:fzgw 2.4s ease-in-out infinite alternate}
 @keyframes fzfl{0%{transform:scale(1,1) skewX(0)}35%{transform:scale(.93,1.07) skewX(-2deg)}70%{transform:scale(1.05,.95) skewX(1.5deg)}100%{transform:scale(.97,1.04) skewX(-1deg)}}
 @keyframes fzgw{from{opacity:.55}to{opacity:1}}
 #festival-strip{position:fixed;top:0;left:0;right:0;height:3px;z-index:99999;pointer-events:none}
@@ -27791,7 +27682,7 @@ html[data-theme="dark"] #pc-hang .g,html[data-theme="dark"] #pg-hang .g{opacity:
 @keyframes fzWireX{from{transform:scaleX(0)}to{transform:none}}
 @keyframes fzLit{from{opacity:0}to{opacity:.3}}
 /* sidebar lanterns re-hang every time the menu opens */
-.drawer-overlay:not(.show) #pg-hang :is(.s,.b,.g,.pw){animation:none!important;opacity:0}
+.drawer-overlay:not(.show):not(.pg-closing) #pg-hang :is(.s,.b,.g,.pw){animation:none!important;opacity:0}
 .header.header-hidden #festival-hang *,html.is-scrolling #festival-hang *{animation-play-state:paused!important}
 html.perf-low :is(#festival-hang,#pc-hang,#pg-hang) :is(.h,.s,.b,.g,.pw,.w path){animation:none!important;stroke-dashoffset:0}
 @media (prefers-reduced-motion:reduce){:is(#festival-hang,#pc-hang,#pg-hang) :is(.h,.s,.b,.g,.pw,.w path){animation:none!important;stroke-dashoffset:0}}
@@ -27810,7 +27701,7 @@ html[data-thadi][data-fpl]:not(#_):not(#__) #profile-card-main,html[data-thadi][
     linear-gradient(158deg,var(--fz-n1) 0%,var(--fz-n2) 58%,var(--fz-n3) 100%)}
 html[data-fpl] #profile-card-main::before{content:"";position:absolute;left:14px;right:14px;top:0;height:1px;z-index:2;background:linear-gradient(90deg,transparent,rgba(var(--fz-grgb),.9),transparent)}
 #profile-card-main > #pc-hang{left:10px;right:10px;top:0;height:58px;z-index:3;position:absolute}
-html[data-fpl] #profile-card-main .profile-hero-name{color:#fff;font-size:17.5px;font-weight:600;letter-spacing:.2px;text-shadow:0 0 16px rgba(var(--fz-grgb),.55),0 1px 2px rgba(0,0,0,.35)}
+html[data-fpl] #profile-card-main .profile-hero-name{color:#fff;font-size:14.5px;font-weight:600;letter-spacing:.2px;text-shadow:0 0 16px rgba(var(--fz-grgb),.55),0 1px 2px rgba(0,0,0,.35)}
 html[data-fpl] #profile-card-main .pc-id-row{margin-top:5px}
 html[data-fpl] #profile-card-main .profile-hero-id{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;letter-spacing:.4px;color:rgba(255,240,208,.92);background:rgba(var(--fz-grgb),.16);border:1px solid rgba(var(--fz-grgb),.36)}
 html[data-fpl] #profile-card-main .profile-id-copy-btn{background:rgba(var(--fz-grgb),.16);border:1px solid rgba(var(--fz-grgb),.4);color:#fff}
@@ -27829,7 +27720,7 @@ html[data-fpl] #profile-card-main .thd-wish{margin-top:12px;padding:10px 13px;bo
 
 /* ================= SIDEBAR (themed) ================= */
 html[data-fpl] .drawer-overlay{--pg-ink:var(--fz-pgi);--pg-sub:var(--fz-pgs);--pg-pur:var(--fz-c)}
-html[data-fpl]:not(#_):not(#__) .drawer-overlay{background:rgba(var(--fz-n1rgb),.58)!important}
+html[data-fpl] .drawer-overlay{--pg-dim:rgba(var(--fz-n1rgb),.58)}
 html[data-fpl]:not(#_):not(#__):not(#___):not(#____):not(#_____) .side-drawer.pg-drawer{background:linear-gradient(170deg,var(--fz-s1) 0%,var(--fz-s2) 100%)!important;border-color:rgba(var(--fz-grgb),.6)!important;box-shadow:0 22px 50px -18px rgba(var(--fz-crgb),.7),inset 0 0 0 1px rgba(var(--fz-grgb),.12)}
 html[data-fpl] .pg-orb1{background:radial-gradient(circle,var(--fz-g),transparent 68%)}
 html[data-fpl] .pg-orb2{background:radial-gradient(circle,var(--fz-c),transparent 68%);opacity:.55}
@@ -28169,7 +28060,7 @@ html[data-thadi][data-fpl] .pg-item:nth-of-type(6n+6){--lc1:#FF9A66;--lc2:#E8561
     }
     root.setAttribute('data-thadi','1');if(cur&&cur.gl===false){if(o)o.remove()}else hang(hd);tabLamps();thadiWish(true);
   }
-  var rz2;addEventListener('resize',function(){clearTimeout(rz2);rz2=setTimeout(function(){if(lastP&&lastP.thadi)thadiUI(lastP)},250)});
+  var rz2,rzW=innerWidth;addEventListener('resize',function(){clearTimeout(rz2);rz2=setTimeout(function(){if(innerWidth===rzW)return;rzW=innerWidth;if(lastP&&lastP.thadi)thadiUI(lastP)},250)});
   function clear(){
     root.removeAttribute('data-festival');root.removeAttribute('data-festival-bg');root.removeAttribute('data-fscene');root.removeAttribute('data-fbtn');
     VARS.forEach(function(v){root.style.removeProperty(v)});
@@ -28330,16 +28221,21 @@ html[data-thadi][data-fpl] .pg-item:nth-of-type(6n+6){--lc1:#FF9A66;--lc2:#E8561
 /* ---- glass folder: ONE connected outline (tall left, S-curve slope, lower right), purple-blue back tab behind,
         glass bar behind the header. Outline is drawn by JS (fold) as clip-path on .gx-bg. Contents stay untouched. ---- */
 .gx-card{position:relative;isolation:isolate;margin:12px 12px 12px;padding:0 0 18px}
-.gx-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(115deg,rgba(246,170,225,.55) 0%,rgba(218,205,250,.45) 40%,rgba(175,228,252,.55) 100%),#fff}
-html[data-theme="dark"] .gx-bg{background:linear-gradient(115deg,rgba(225,120,200,.30) 0%,rgba(140,120,230,.22) 40%,rgba(90,180,235,.30) 100%),#1a1f3a}
+.gx-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.45) 38%,rgba(190,170,255,.55) 70%,rgba(255,255,255,.9) 100%)}
+.gx-in{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.14) 30%,rgba(255,255,255,0) 60%),
+  linear-gradient(118deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,0) 22%,rgba(255,255,255,0) 70%,rgba(255,255,255,.22) 100%),
+  linear-gradient(115deg,rgba(246,170,225,.34) 0%,rgba(218,205,250,.28) 42%,rgba(175,228,252,.38) 100%),rgba(255,255,255,.30)}
+html[data-theme="dark"] .gx-bg{background:linear-gradient(135deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.12) 40%,rgba(150,130,255,.30) 72%,rgba(255,255,255,.4) 100%)}
+html[data-theme="dark"] .gx-in{background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.03) 30%,rgba(255,255,255,0) 60%),linear-gradient(115deg,rgba(225,120,200,.22) 0%,rgba(140,120,230,.16) 42%,rgba(90,180,235,.22) 100%),rgba(26,31,58,.82)}
 .gx-pill{position:absolute;z-index:-1;left:10px;right:10px;top:28px;height:52px;border-radius:26px;background:rgba(255,255,255,.55);pointer-events:none}
 html[data-theme="dark"] .gx-pill{background:rgba(255,255,255,.07)}
-.gx-tab{position:absolute;z-index:-2;left:46%;right:0;top:4px;height:24px;padding:0 22px 0 0;border-radius:10px 10px 0 0;display:flex;align-items:flex-start;justify-content:flex-end;color:#fff;font-size:11px;font-weight:700;line-height:17px;text-shadow:0 1px 2px rgba(60,20,160,.45);background:linear-gradient(90deg,#b07bff,#7a3dff);box-shadow:0 -3px 12px -3px rgba(138,77,255,.65);pointer-events:none}
+.gx-tab{position:absolute;z-index:-2;left:65%;right:0;top:4px;height:26px;padding:0 22px 0 0;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:flex-end;color:#fff;font-size:11px;font-weight:700;line-height:17px;text-shadow:0 1px 2px rgba(60,20,160,.45);background:linear-gradient(90deg,#b07bff,#7a3dff);box-shadow:0 -3px 12px -3px rgba(138,77,255,.65);pointer-events:none}
 .gx-tab b{font-weight:700}
 .gx-head{display:flex;align-items:center;gap:10px;padding:32px 22px 14px;margin:0}
-.gx-ibg{position:relative;flex:0 0 auto;width:36px;height:36px;margin:0 4px 0 0;border-radius:32%;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,rgba(255,255,255,.98) 0%,rgba(236,241,255,.9) 55%,rgba(218,228,255,.82) 100%);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,inset 0 -7px 12px -7px rgba(122,134,255,.35),4px -4px 0 -1px #4fc3ff,0 8px 14px -6px rgba(91,63,240,.5)}
+.gx-ibg{position:relative;flex:0 0 auto;width:36px;height:36px;margin:0 4px 0 0;border-radius:32%;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,rgba(255,255,255,.98) 0%,rgba(236,241,255,.9) 55%,rgba(218,228,255,.82) 100%);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,inset 0 -7px 12px -7px rgba(122,134,255,.35),0 8px 14px -6px rgba(91,63,240,.5)}
 .gx-ibg svg{width:26px!important;height:26px!important;display:block;overflow:visible;filter:drop-shadow(0 4px 4px rgba(91,63,240,.38))}
-html[data-theme="dark"] .gx-ibg{background:linear-gradient(150deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.1) 100%);border-color:rgba(255,255,255,.3);box-shadow:inset 0 1px 1px rgba(255,255,255,.35),4px -4px 0 -1px #3b82f6,0 8px 14px -6px rgba(0,0,0,.55)}
+html[data-theme="dark"] .gx-ibg{background:linear-gradient(150deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.1) 100%);border-color:rgba(255,255,255,.3);box-shadow:inset 0 1px 1px rgba(255,255,255,.35),0 8px 14px -6px rgba(0,0,0,.55)}
 .gx-ht{min-width:0;flex:1}
 .gx-ht .title-header,.gx-ht h2{margin:0!important;padding:0!important;font-size:16px!important;line-height:1.2;font-weight:700!important;background:none!important;display:block;border:0!important;opacity:1!important;transform:none!important;animation:none!important}
 .gx-ht .title-header::before,.gx-ht .title-header::after,.gx-ht h2::before,.gx-ht h2::after{display:none!important;content:none!important}
@@ -28518,9 +28414,10 @@ html[data-theme="dark"] .gx-ibg{background:linear-gradient(150deg,rgba(255,255,2
       new MutationObserver(function(){decorate(el)}).observe(el,{childList:true});decorate(el);
     });
   }
-  function pathFor(w,h){var r=10,d=22,x0=w*.5,x1=w*.69,m=(x1-x0)/2;if(h<d+2*r)h=d+2*r;return "path('M"+r+",0H"+x0+"C"+(x0+m)+",0 "+(x1-m)+","+d+" "+x1+","+d+"H"+(w-r)+"Q"+w+","+d+" "+w+","+(d+r)+"V"+(h-r)+"Q"+w+","+h+" "+(w-r)+","+h+"H"+r+"Q0,"+h+" 0,"+(h-r)+"V"+r+"Q0,0 "+r+",0Z')"}
-  var RO=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){var c=e.target,b=c.querySelector(':scope > .gx-bg');if(b&&c.offsetWidth)b.style.clipPath=pathFor(c.offsetWidth,c.offsetHeight)})}):null;
-  function fold(){document.querySelectorAll('.gx-card:not([data-fold])').forEach(function(c){c.setAttribute('data-fold','1');var b=document.createElement('i');b.className='gx-bg';var p=document.createElement('i');p.className='gx-pill';c.insertBefore(p,c.firstChild);c.insertBefore(b,c.firstChild);if(c.offsetWidth)b.style.clipPath=pathFor(c.offsetWidth,c.offsetHeight);if(RO)RO.observe(c)})}
+  function pathFor(w,h,i){i=i||0;var r=6,d=26,x0=w*.66,x1=w*.78,m=(x1-x0)/2;if(h<d+2*r+2*i)h=d+2*r+2*i;return "path('M"+(r+i)+","+i+"H"+x0+"C"+(x0+m)+","+i+" "+(x1-m)+","+(d+i)+" "+x1+","+(d+i)+"H"+(w-r-i)+"Q"+(w-i)+","+(d+i)+" "+(w-i)+","+(d+i+r)+"V"+(h-r-i)+"Q"+(w-i)+","+(h-i)+" "+(w-r-i)+","+(h-i)+"H"+(r+i)+"Q"+i+","+(h-i)+" "+i+","+(h-r-i)+"V"+(r+i)+"Q"+i+","+i+" "+(r+i)+","+i+"Z')"}
+  function paintBg(c,b){var w=c.offsetWidth,h=c.offsetHeight;b.style.clipPath=pathFor(w,h,0);var n=b.firstChild;if(n)n.style.clipPath=pathFor(w,h,1.6)}
+  var RO=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){var c=e.target,b=c.querySelector(':scope > .gx-bg');if(b&&c.offsetWidth)paintBg(c,b)})}):null;
+  function fold(){document.querySelectorAll('.gx-card:not([data-fold])').forEach(function(c){c.setAttribute('data-fold','1');var b=document.createElement('i');b.className='gx-bg';var p=document.createElement('i');p.className='gx-pill';c.insertBefore(p,c.firstChild);var n=document.createElement('i');n.className='gx-in';b.appendChild(n);c.insertBefore(b,c.firstChild);if(c.offsetWidth)paintBg(c,b);if(RO)RO.observe(c)})}
   setInterval(function(){if(!document.hidden&&!document.documentElement.classList.contains('ev-open'))fold()},2500);
   function boot(){run();buildProfile();paintSubs();watch();fold()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
@@ -28544,14 +28441,14 @@ html[data-theme="dark"] .gx-ibg{background:linear-gradient(150deg,rgba(255,255,2
  border:1px solid rgba(255,207,92,.45);box-shadow:0 10px 26px -12px rgba(60,10,70,.8),inset 0 0 0 1px rgba(255,255,255,.05);display:flex;align-items:center;gap:12px;-webkit-tap-highlight-color:transparent}
 #ev-banner::before{content:"";position:absolute;right:-18px;top:-22px;width:92px;height:92px;border-radius:50%;z-index:-1;background:radial-gradient(circle at 38% 36%,#fffbe6 0 40%,#ffe9a8 62%,#f6c453 100%);box-shadow:0 0 28px 10px rgba(255,214,110,.45);opacity:.9}
 #ev-banner:active{transform:scale(.985)}
-#ev-banner .ev-b-l{flex:0 0 auto;display:flex;gap:4px;align-items:flex-start;height:54px}
-#ev-banner .ev-b-l svg{width:24px;height:36px;transform-origin:50% 0;animation:evSway 3.4s ease-in-out infinite alternate;filter:drop-shadow(0 0 7px rgba(255,160,50,.75))}
-#ev-banner .ev-b-l svg:nth-child(2){animation-delay:-1.4s;margin-top:8px;width:20px;height:30px}
-#ev-banner .ev-b-l svg:nth-child(3){animation-delay:-.7s;margin-top:2px;width:22px;height:33px}
-#ev-banner .ev-b-t{flex:1;min-width:0}
-#ev-banner .ev-b-n{font-size:15.5px;font-weight:800;line-height:1.6;color:#fff3cf;text-shadow:0 1px 8px rgba(0,0,0,.35)}
-#ev-banner .ev-b-s{font-size:12px;line-height:1.7;color:#ecd9ff;margin-top:1px}
-#ev-banner .ev-b-go{flex:0 0 auto;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:99px;color:#3b1d00;background:linear-gradient(180deg,#ffe08a,#ffb630);box-shadow:0 4px 14px -4px rgba(255,170,40,.8)}
+
+
+
+
+
+
+
+
 @keyframes evSway{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
 /* ---------- Full page ---------- */
 .ev-ov{position:fixed;inset:0;z-index:99990;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;color:var(--ev-cream);font-family:inherit;line-height:1.75;
@@ -28651,24 +28548,29 @@ html[data-theme="dark"] .gx-ibg{background:linear-gradient(150deg,rgba(255,255,2
 @keyframes evPop{to{transform:scale(1.5);opacity:0}}@keyframes evRing{to{transform:scale(3.4);opacity:0}}
 .ev-res{text-align:center;padding:26px 8px}.ev-res .big{font-size:60px;line-height:1.2}
 .ev-res h2{margin:8px 0 6px;font-size:23px;color:#ffe29a;line-height:1.6}.ev-res p{margin:0 0 6px;font-size:14px;line-height:1.8;color:#eadcff}
-@media (prefers-reduced-motion:reduce){.ev-hl,.ev-hl svg,.ev-sky i,.ev-row5 .lit svg,#ev-banner .ev-b-l svg,.ev-moon-halo,.ev-star{animation:none}}
+@media (prefers-reduced-motion:reduce){.ev-hl,.ev-hl svg,.ev-sky i,.ev-row5 .lit svg,.ev-moon-halo,.ev-star{animation:none}}
 
 /* ---------- event button (compact, flat, draggable) ---------- */
-#ev-fab{position:fixed;left:10px;bottom:calc(118px + env(safe-area-inset-bottom,0px));z-index:140;width:44px;height:44px;padding:0;border:1px solid rgba(var(--fz-grgb,124,58,237),.28);border-radius:14px;background:var(--surface,#fff);color:var(--accent,#7C3AED);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;box-shadow:0 6px 16px -8px rgba(0,0,0,.35);transition:opacity .3s,transform .15s}
-html[data-theme="dark"] #ev-fab{background:#1b2236;border-color:rgba(255,255,255,.14);color:#ffc15a}
+#ev-fab{position:fixed;left:10px;bottom:calc(118px + env(safe-area-inset-bottom,0px));z-index:140;width:44px;height:64px;padding:0;border:0;border-radius:0;background:none;outline:0;color:var(--accent,#FF7A3D);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;box-shadow:none;transition:opacity .3s,transform .15s}
+html[data-theme="dark"] #ev-fab{background:none;border:0;box-shadow:none;color:var(--accent,#FFB02E)}
 html.gz-modal-open #ev-fab,body.no-bottom-nav #ev-fab{opacity:0;pointer-events:none}
 #ev-fab.drag{transition:none}
 #ev-fab:active{transform:scale(.94)}
-#ev-fab .ev-fb-in{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-#ev-fab .ev-fb-l{display:block;width:24px;height:24px}
-#ev-fab .ev-fb-dot{position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#ef4444;border:2px solid var(--surface,#fff);display:none}
+#ev-fab .ev-fb-in{position:absolute;left:0;right:0;top:0;height:59px;display:flex;justify-content:center;transform-origin:50% 0;animation:evSw 4.2s ease-in-out infinite alternate;will-change:transform}
+#ev-fab .ev-fb-in::before{content:"";position:absolute;left:50%;top:56%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;background:radial-gradient(circle,currentColor 0,transparent 62%);opacity:.3;animation:evGl 3.4s ease-in-out infinite alternate;pointer-events:none}
+#ev-fab .ev-fb-l{position:relative;display:block;width:30px;height:auto;overflow:visible}
+#ev-fab .ev-fb-dot{position:absolute;right:7px;top:10px;width:9px;height:9px;border-radius:50%;background:#ef4444;display:none}
 #ev-fab.new .ev-fb-dot{display:block}
-#ev-fab .ev-fb-t{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:99px;color:#fff;background:var(--accent,#7C3AED)}
-#ev-fab .ev-fb-tip{position:absolute;top:50%;width:max-content;max-width:min(62vw,220px);padding:8px 12px;border-radius:12px;font-size:12.5px;font-weight:500;line-height:1.55;text-align:left;color:var(--text,#111);background:var(--surface,#fff);border:1px solid rgba(var(--fz-grgb,124,58,237),.28);box-shadow:0 8px 20px -10px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
-#ev-fab.l .ev-fb-tip{left:52px;transform:translate(-6px,-50%)}
-#ev-fab:not(.l) .ev-fb-tip{right:52px;transform:translate(6px,-50%)}
+#ev-fab .ev-fb-t{position:absolute;left:50%;top:58px;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:99px;color:#fff;background:var(--accent,#FF7A3D);border:0}
+#ev-fab .ev-fb-tip{position:absolute;top:50%;width:max-content;max-width:min(62vw,220px);padding:8px 12px;border-radius:12px;font-size:12.5px;font-weight:500;line-height:1.55;text-align:left;color:var(--text,#111);background:var(--surface,#fff);box-shadow:0 8px 20px -10px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#ev-fab.l .ev-fb-tip{left:46px;transform:translate(-6px,-50%)}
+#ev-fab:not(.l) .ev-fb-tip{right:46px;transform:translate(6px,-50%)}
 #ev-fab.tip .ev-fb-tip{opacity:1;transform:translate(0,-50%)!important}
 @media (prefers-reduced-motion:reduce){#ev-fab,#ev-fab .ev-fb-tip{transition:none!important}}
+@keyframes evSw{from{transform:rotate(-3.5deg)}to{transform:rotate(3.5deg)}}@keyframes evGl{from{opacity:.2}to{opacity:.45}}
+html.is-scrolling #ev-fab .ev-fb-in,html.is-scrolling #ev-fab .ev-fb-in::before{animation-play-state:paused}
+html.perf-low #ev-fab .ev-fb-in,html.perf-low #ev-fab .ev-fb-in::before{animation:none}
+@media (prefers-reduced-motion:reduce){#ev-fab .ev-fb-in,#ev-fab .ev-fb-in::before{animation:none}}
 /* ---------- vivid sky: dusk by day, deep night in dark mode (lanterns released + lit) ---------- */
 .ev-ov{background:radial-gradient(1.2px 1.2px at 12% 22%,#fff9 50%,transparent 51%),radial-gradient(1.5px 1.5px at 78% 16%,#fffc 50%,transparent 51%),radial-gradient(1px 1px at 34% 8%,#fff8 50%,transparent 51%),radial-gradient(1px 1px at 90% 44%,#fff7 50%,transparent 51%),radial-gradient(1.2px 1.2px at 6% 58%,#fff7 50%,transparent 51%),radial-gradient(1px 1px at 58% 34%,#fff6 50%,transparent 51%),linear-gradient(180deg,#2a1d9a 0%,#7a2fc0 30%,#e0457f 62%,#ff9a45 88%,#ffd37a 100%);background-attachment:local}
 html[data-theme="dark"] .ev-ov{background:radial-gradient(1.2px 1.2px at 12% 22%,#fff9 50%,transparent 51%),radial-gradient(1.5px 1.5px at 78% 16%,#fffc 50%,transparent 51%),radial-gradient(1px 1px at 34% 8%,#fff8 50%,transparent 51%),radial-gradient(1px 1px at 90% 44%,#fff7 50%,transparent 51%),radial-gradient(1.2px 1.2px at 6% 58%,#fff7 50%,transparent 51%),radial-gradient(1px 1px at 58% 34%,#fff6 50%,transparent 51%),linear-gradient(180deg,#05021f 0%,#150a6a 28%,#4c1590 58%,#b02c8c 84%,#ff6a3d 100%);background-attachment:local}
@@ -28850,13 +28752,13 @@ const S = {
   gameT:'Catch the lanterns', goalTxt:'Tap {g} lanterns within {s} seconds.', score:'Caught', time:'Time', win:'You did it!', winS:'Your prize request was sent. Admin will check and send your prize.', lose:'So close!', loseS:'You caught {n} of {g}.', back:'Back', resume:'A game is running. Continue?', cont:'Continue',
   pending:'Waiting for admin check', paid:'Prize sent', rejected:'Not approved', loading:'Loading...', err:'Something went wrong. Please try again.', login:'Please sign in to join the event.', lim:'You already won this prize.', busy:'A game is already running.', soldMsg:'This prize is fully claimed.', needMsg:'Not enough lanterns.', ok:'Done!', gameEnd:'Game over' },
  my: { ends:'ကျန်ချိန်', d:'ရက်', h:'နာရီ', last:'နောက်ဆုံးရက်', tap:'ပါဝင်မယ်', bannerDef:'မီးပုံးစုပြီး ဆုရယူပါ', balT:'ကျွန်ုပ်၏ မီးပုံးများ', earnT:'မီးပုံး စုနည်းများ', inviteT:'သူငယ်ချင်း ဖိတ်ပါ', inviteS:'သင့် Link ကနေ စဝင်တဲ့ သူငယ်ချင်း တစ်ယောက်စီအတွက် မီးပုံး {n} လုံး ရပါမယ်။', inviteCnt:'ဖိတ်ပြီး {a} / {b} ယောက်', inviteCnt0:'ဖိတ်ပြီး {a} ယောက်', inviteFull:'ဖိတ်ခွင့် ပြည့်သွားပါပြီ', copy:'Link ကူးမယ်', share:'Share လုပ်မယ်', copied:'Link ကူးပြီးပါပြီ',
-  shareDef:'သီတင်းကျွတ် မီးပုံးပွဲမှာ ငါနဲ့အတူ ပါဝင်ပြီး ဆုရယူကြစို့!', checkinT:'နေ့စဉ် Check-in', checkinS:'နေ့တိုင်း ပြန်လာပြီး မီးပုံး အလကား ယူပါ။', checkinBtn:'ယူမယ် +{n}', checkinDone:'ဒီနေ့ ယူပြီးပါပြီ', days:'စုစုပေါင်း {n} ရက် ယူပြီး', missT:'လုပ်ငန်းစဉ်များ', go:'ဖွင့်မယ်', claim:'မီးပုံးယူမယ်', done:'ပြီးပါပြီ', daily:'နေ့စဉ်', once:'တစ်ခါတည်း',
+  shareDef:'သီတင်းကျွတ် မီးပုံးပွဲမှာ ငါနဲ့အတူ ပါဝင်ပြီး ဆုရယူကြစို့!', checkinT:'နေ့စဉ် Check-in', checkinS:'နေ့တိုင်း ပြန်လာပြီး မီးပုံး အခမဲ့ ယူပါ။', checkinBtn:'ယူမယ် +{n}', checkinDone:'ဒီနေ့ ယူပြီးပါပြီ', days:'စုစုပေါင်း {n} ရက် ယူပြီး', missT:'လုပ်ငန်းစဉ်များ', go:'ဖွင့်မယ်', claim:'မီးပုံးယူမယ်', done:'ပြီးပါပြီ', daily:'နေ့စဉ်', once:'တစ်ခါတည်း',
   ladT:'ဆုလှေကား', cost:'မီးပုံး {n} လုံး', need:'ကျန် {n} လုံး လိုသေးတယ်', playBtn:'ဖမ်းမယ်', getBtn:'လဲယူမယ်', sure:'သေချာရင် ထပ်နှိပ်ပါ', sold:'ကုန်သွားပါပြီ', owned:'ဆုရပြီးပါပြီ', stock:'ကျန် {n} ခု', prizesT:'ကျွန်ုပ်၏ ဆုများ', rulesT:'စည်းကမ်းချက်များ',
-  gameT:'မီးပုံးဖမ်းပွဲ', goalTxt:'{s} စက္ကန့်အတွင်း မီးပုံး {g} လုံး ထိပါ။', score:'ဖမ်းမိ', time:'အချိန်', win:'ဂုဏ်ယူပါတယ်!', winS:'ဆုတောင်းလွှာ ပို့ပြီးပါပြီ။ Admin စစ်ဆေးပြီး ဆုပေးပါမယ်။', lose:'နည်းနည်းလေး လိုသွားတယ်!', loseS:'{g} လုံးထဲက {n} လုံး ဖမ်းမိတယ်။', back:'နောက်သို့', resume:'ကစားနေတဲ့ ပွဲ ရှိနေပါတယ်။ ဆက်ကစားမလား?', cont:'ဆက်ကစားမယ်',
+  gameT:'မီးပုံးဖမ်းပွဲ', goalTxt:'{s} စက္ကန့်အတွင်း မီးပုံး {g} လုံး ထိပါ။', score:'ဖမ်းမိ', time:'အချိန်', win:'ဂုဏ်ယူပါတယ်!', winS:'ဆုလဲတောင်းဆိုမှု ပို့ပြီးပါပြီ။ Admin စစ်ဆေးပြီး ဆုပေးပါမယ်။', lose:'နည်းနည်းလေး လိုသွားတယ်!', loseS:'{g} လုံးထဲက {n} လုံး ဖမ်းမိတယ်။', back:'နောက်သို့', resume:'ကစားနေတဲ့ ပွဲ ရှိနေပါတယ်။ ဆက်ကစားမလား?', cont:'ဆက်ကစားမယ်',
   pending:'Admin စစ်ဆေးနေဆဲ', paid:'ဆု ပေးပြီးပါပြီ', rejected:'အတည်မပြုပါ', loading:'ခဏစောင့်ပါ...', err:'အမှားဖြစ်သွားပါတယ်။ ပြန်စမ်းကြည့်ပါ။', login:'Event ပါဝင်ဖို့ အရင် Login ဝင်ပါ။', lim:'ဒီဆုကို ရပြီးသားပါ။', busy:'ကစားနေတဲ့ ပွဲ ရှိနေပါတယ်။', soldMsg:'ဒီဆု ကုန်သွားပါပြီ။', needMsg:'မီးပုံး မလောက်သေးပါ။', ok:'ပြီးပါပြီ!', gameEnd:'ပွဲပြီးပါပြီ' }
 };
 Object.assign(S.en, { boxT:'Mystery Box', tabEv:'Event', tabBox:'Box', boxStart:'Start a box', boxCost:'🏮 {n} per box', boxWaitI:'Opens after {t}', boxSlots:'{n} slot(s)', boxDayI:'Today {a}/{b}', boxSlot:'Box {n}', boxEmpty:'Empty slot', boxOpen:'Open', boxReady:'Ready to open!', boxLevels:'Prize levels', boxLevelsS:'Colour shows the level you win. The prize is revealed when the box opens.', boxMine:'My box prizes', cf:'Confirm', cancel:'Cancel', cfT:'Start a box?', cfS:'{n} lantern(s) will be used. The box opens after {t}. This cannot be undone.', boxOk:'Box started!', redeem:'Redeem', later:'Later', redeemOk:'Request sent! Admin will check and send your prize.', wonSt:'Won · tap Redeem', opening:'Opening the box…', congrats:'Congratulations!', youGot:'You won', redeemHint:'Tap Redeem to send your prize request to admin.', mBoxFull:'All box slots are busy.', mBoxDay:'Daily box limit reached.', mBoxLim:'Box limit reached.', mBoxNone:'No prizes left in this box.', mBoxWait:'The box is not ready yet.', noBox:'No box prizes yet.' });
-Object.assign(S.my, { boxT:'ဆု Box', tabEv:'Event', tabBox:'Box', boxStart:'Box စတင်မယ်', boxCost:'🏮 {n} လုံး / Box', boxWaitI:'{t} စောင့်ရင် ပွင့်မယ်', boxSlots:'{n} ခု တပြိုင်နက်', boxDayI:'ဒီနေ့ {a}/{b}', boxSlot:'Box {n}', boxEmpty:'နေရာလွတ်', boxOpen:'ဖွင့်မယ်', boxReady:'ဖွင့်လို့ရပါပြီ!', boxLevels:'ဆုအဆင့်များ', boxLevelsS:'အရောင်က ရမယ့် ဆုအဆင့်ကို ပြပါတယ်။ ဆုကို Box ပွင့်မှ သိရပါမယ်။', boxMine:'ကျွန်ုပ်၏ Box ဆုများ', cf:'အတည်ပြုမယ်', cancel:'မလုပ်တော့ဘူး', cfT:'Box စတင်မလား?', cfS:'မီးပုံး {n} လုံး သုံးပါမယ်။ {t} စောင့်ပြီးရင် Box ပွင့်ပါမယ်။ ပြန်မရနိုင်ပါ။', boxOk:'Box စတင်ပြီးပါပြီ!', redeem:'ဆုလဲမယ်', later:'နောက်မှ', redeemOk:'ဆုတောင်းလွှာ ပို့ပြီးပါပြီ။ Admin စစ်ဆေးပြီး ဆုပေးပါမယ်။', wonSt:'ရပြီ · ဆုလဲပါ', opening:'Box ဖွင့်နေပါတယ်…', congrats:'ဂုဏ်ယူပါတယ်!', youGot:'သင်ရတဲ့ဆု', redeemHint:'ဆုလဲမယ် ကိုနှိပ်ပြီး Admin ဆီ ဆုတောင်းလွှာ ပို့ပါ။', mBoxFull:'Box နေရာ အားလုံး အလုပ်လုပ်နေပါတယ်။', mBoxDay:'ဒီနေ့ Box ကန့်သတ်ချက် ပြည့်သွားပါပြီ။', mBoxLim:'Box အရေအတွက် ပြည့်သွားပါပြီ။', mBoxNone:'ဒီ Box အတွက် ဆု မကျန်တော့ပါ။', mBoxWait:'Box မပွင့်သေးပါ။', noBox:'Box ဆု မရသေးပါ။' });
+Object.assign(S.my, { boxT:'လျှို့ဝှက်ဆု Box', tabEv:'Event', tabBox:'Box', boxStart:'Box စတင်မယ်', boxCost:'🏮 {n} လုံး / Box', boxWaitI:'{t} စောင့်ရင် ပွင့်မယ်', boxSlots:'{n} ခု တပြိုင်နက်', boxDayI:'ဒီနေ့ {a}/{b}', boxSlot:'Box {n}', boxEmpty:'နေရာလွတ်', boxOpen:'ဖွင့်မယ်', boxReady:'ဖွင့်လို့ရပါပြီ!', boxLevels:'ဆုအဆင့်များ', boxLevelsS:'အရောင်က ရမယ့် ဆုအဆင့်ကို ပြပါတယ်။ ဆုကို Box ပွင့်မှ သိရပါမယ်။', boxMine:'ကျွန်ုပ်၏ Box ဆုများ', cf:'အတည်ပြုမယ်', cancel:'မလုပ်တော့ဘူး', cfT:'Box စတင်မလား?', cfS:'မီးပုံး {n} လုံး သုံးပါမယ်။ {t} စောင့်ပြီးရင် Box ပွင့်ပါမယ်။ ပြန်မရနိုင်ပါ။', boxOk:'Box စတင်ပြီးပါပြီ!', redeem:'ဆုလဲမယ်', later:'နောက်မှ', redeemOk:'ဆုလဲတောင်းဆိုမှု ပို့ပြီးပါပြီ။ Admin စစ်ဆေးပြီး ဆုပေးပါမယ်။', wonSt:'ရပြီ · ဆုလဲပါ', opening:'Box ဖွင့်နေပါတယ်…', congrats:'ဂုဏ်ယူပါတယ်!', youGot:'သင်ရတဲ့ဆု', redeemHint:'"ဆုလဲမယ်" ကို နှိပ်ပြီး Admin ဆီ ဆုလဲတောင်းဆိုမှု ပို့ပါ။', mBoxFull:'Box နေရာ အားလုံး အလုပ်လုပ်နေပါတယ်။', mBoxDay:'ဒီနေ့ Box ကန့်သတ်ချက် ပြည့်သွားပါပြီ။', mBoxLim:'Box အရေအတွက် ပြည့်သွားပါပြီ။', mBoxNone:'ဒီ Box အတွက် ဆု မကျန်တော့ပါ။', mBoxWait:'Box မပွင့်သေးပါ။', noBox:'Box ဆု မရသေးပါ။' });
 const lang = () => { try { return localStorage.getItem('gz_lang') === 'my' ? 'my' : 'en'; } catch (e) { return 'en'; } };
 Object.assign(S.en, { notYet: 'Not completed yet ({a} / {b})' }); Object.assign(S.my, { notYet: 'မပြီးသေးပါ ({a} / {b})' }); Object.assign(S.en, { goalOk: 'You can redeem a prize now!' }); Object.assign(S.my, { goalOk: 'ဆုလဲလို့ ရပါပြီ!' });
 const L = (k, v) => { let s = (S[lang()][k] !== undefined ? S[lang()][k] : S.en[k]) || k; if (v) for (const x in v) s = s.split('{' + x + '}').join(v[x]); return s; };
@@ -28984,7 +28886,7 @@ function paintBanner() {
     if (seen !== ymd(new Date())) { b.classList.add('new'); setTimeout(() => b.classList.add('tip'), 1800); setTimeout(() => b.classList.remove('tip'), 9000); }
   }
   b.setAttribute('aria-label', e.name || 'Event');
-  const LANT = '<svg class="ev-fb-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 3h5M12 3v2"/><path d="M8.5 5h7c2.2 2 3.2 4.6 3.2 7.5S17.700 18 15.500 20h-7C6.300 18 5.300 15.400 5.300 12.500S6.300 7 8.500 5z"/><path d="M12 5v15M7 20.500h10"/></svg>';
+  const LANT = '<svg class="ev-fb-l" viewBox="0 -10 40 78" aria-hidden="true"><defs><radialGradient id="evfb-rg"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><line x1="20" y1="-10" x2="20" y2="0.6" stroke="#E7B84B" stroke-width="1"/><circle cx="20" cy="3" r="2.4" fill="none" stroke="#E7B84B" stroke-width="1.2"/><rect x="12" y="5" width="16" height="4.2" rx="2" fill="#E7B84B"/><rect x="10.1" y="9.0" width="19.7" height="6" rx="2.4" fill="currentColor"/><rect x="11.6" y="9.7" width="16.7" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="11.1" y="13.8" width="17.7" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="7.6" y="14.2" width="24.8" height="6" rx="2.4" fill="currentColor"/><rect x="9.1" y="14.9" width="21.8" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="8.6" y="19.1" width="22.8" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="5.7" y="19.5" width="28.6" height="6" rx="2.4" fill="currentColor"/><rect x="7.2" y="20.2" width="25.6" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="6.7" y="24.3" width="26.6" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="4.6" y="24.8" width="30.7" height="6" rx="2.4" fill="currentColor"/><rect x="6.1" y="25.4" width="27.7" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="5.6" y="29.6" width="28.7" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="4.6" y="30.0" width="30.7" height="6" rx="2.4" fill="currentColor"/><rect x="6.1" y="30.7" width="27.7" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="5.6" y="34.8" width="28.7" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="5.7" y="35.2" width="28.6" height="6" rx="2.4" fill="currentColor"/><rect x="7.2" y="36.0" width="25.6" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="6.7" y="40.0" width="26.6" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="7.6" y="40.5" width="24.8" height="6" rx="2.4" fill="currentColor"/><rect x="9.1" y="41.2" width="21.8" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="8.6" y="45.3" width="22.8" height="1" rx=".5" fill="#000" opacity=".18"/><rect x="10.1" y="45.8" width="19.7" height="6" rx="2.4" fill="currentColor"/><rect x="11.6" y="46.5" width="16.7" height="1.8" rx=".9" fill="#fff" opacity=".3"/><rect x="11.1" y="50.5" width="17.7" height="1" rx=".5" fill="#000" opacity=".18"/><ellipse cx="20" cy="30" rx="9" ry="17" fill="url(#evfb-rg)"/><rect x="12" y="51" width="16" height="3.6" rx="1.8" fill="#E7B84B"/><line x1="20" y1="54.6" x2="20" y2="58" stroke="#E7B84B" stroke-width="1"/><circle cx="20" cy="59.6" r="2.2" fill="#E7B84B"/><path d="M20 61.5L16.5 67M20 61.5V68M20 61.5L23.5 67" stroke="#E8453C" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>';
   b.innerHTML = '<span class="ev-fb-tip">' + esc(e.bannerSub || L('bannerDef')) + '</span><span class="ev-fb-in">' + LANT + '<span class="ev-fb-dot"></span></span>' + (left(e) ? '<span class="ev-fb-t">' + esc(left(e)) + '</span>' : '');
 }
 
@@ -29514,13 +29416,13 @@ html:not(#_):not(#__) .nav-item.nav-item-wallet:active .nav-icon-wrap.nav-icon-w
 html:not(#_):not(#__) .header{background:#fff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border:1px solid var(--gs-ring);box-shadow:0 12px 24px -14px rgba(91,63,240,.35),inset 0 1.5px 1px #fff}
 html[data-theme="dark"]:not(#_):not(#__) .header{background:#121a2e!important;border-color:rgba(255,255,255,.1);box-shadow:0 12px 24px -14px rgba(0,0,0,.7),inset 0 1px 1px rgba(255,255,255,.07)}
 html:not(#_):not(#__) .header-icon{width:38px;height:38px;border-radius:14px;background:var(--gs-front);color:var(--gs-ink);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid rgba(255,255,255,.95);
-  box-shadow:inset 0 1.5px 1px #fff,inset 0 -6px 10px -6px rgba(122,134,255,.35),3px -3px 0 -1px #cfdcff,0 8px 12px -6px var(--gs-glow)}
-html[data-theme="dark"]:not(#_):not(#__) .header-icon{border-color:rgba(255,255,255,.25);box-shadow:inset 0 1px 1px rgba(255,255,255,.3),3px -3px 0 -1px #3b4a8a,0 8px 12px -6px rgba(0,0,0,.6)}
+  box-shadow:inset 0 1.5px 1px #fff,inset 0 -6px 10px -6px rgba(122,134,255,.35),0 8px 12px -6px var(--gs-glow)}
+html[data-theme="dark"]:not(#_):not(#__) .header-icon{border-color:rgba(255,255,255,.25);box-shadow:inset 0 1px 1px rgba(255,255,255,.3),0 8px 12px -6px rgba(0,0,0,.6)}
 html:not(#_):not(#__) .header-icon .ui-icon{stroke:url(#gxgP);filter:drop-shadow(0 3px 3px rgba(91,63,240,.3))}
 html[data-theme="dark"]:not(#_):not(#__) .header-icon .ui-icon{stroke:#c4b5fd}
 html:not(#_):not(#__) .header-social-btn{width:30px;height:30px;border-radius:10px;background:var(--gs-front);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid rgba(255,255,255,.95);
-  box-shadow:inset 0 1px 1px #fff,2px -2px 0 -1px #cfdcff,0 5px 8px -4px var(--gs-glow)}
-html[data-theme="dark"]:not(#_):not(#__) .header-social-btn{border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 1px rgba(255,255,255,.25),2px -2px 0 -1px #3b4a8a}
+  box-shadow:inset 0 1px 1px #fff,0 5px 8px -4px var(--gs-glow)}
+html[data-theme="dark"]:not(#_):not(#__) .header-social-btn{border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 1px rgba(255,255,255,.25)}
 
 /* ---------- game / voucher cards ---------- */
 html:not(#_):not(#__) .game-card,html:not(#_):not(#__) .voucher-card{border-radius:16px;background:var(--gs-card);border:1px solid rgba(255,255,255,.95);-webkit-backdrop-filter:none;backdrop-filter:none;
@@ -29541,7 +29443,7 @@ html:not(#_):not(#__) .payment-option{border:1px solid rgba(255,255,255,.95);bor
 html[data-theme="dark"]:not(#_):not(#__) .payment-option{border-color:rgba(255,255,255,.1);box-shadow:0 0 0 1px var(--gs-ring),0 8px 16px -10px rgba(0,0,0,.6),inset 0 1px 1px rgba(255,255,255,.08)}
 html:not(#_):not(#__) .payment-option.selected{border-color:rgba(255,255,255,.95);background:linear-gradient(160deg,#fff 0%,color-mix(in srgb,var(--accent) 14%,#fff) 100%);box-shadow:0 0 0 2.5px var(--accent),0 10px 18px -10px rgba(var(--accent-rgb),.5),inset 0 1.5px 1px #fff}
 html[data-theme="dark"]:not(#_):not(#__) .payment-option.selected{background:linear-gradient(160deg,#1f2a5a 0%,#151d40 100%)}
-html:not(#_):not(#__) .payment-option-icon{width:40px;height:40px;border-radius:14px;background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 40%,#8fd6ff) 0%,var(--accent) 55%,var(--accent-dark) 100%);border:1px solid rgba(255,255,255,.75);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.7),3px -3px 0 -1px #4fc3ff,0 6px 10px -5px rgba(var(--accent-rgb),.55)}
+html:not(#_):not(#__) .payment-option-icon{width:40px;height:40px;border-radius:14px;background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 40%,#8fd6ff) 0%,var(--accent) 55%,var(--accent-dark) 100%);border:1px solid rgba(255,255,255,.75);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.7),0 6px 10px -5px rgba(var(--accent-rgb),.55)}
 html:not(#_):not(#__) .pay-type-tab{border-radius:12px}
 html:not(#_):not(#__) .pay-type-tab.active{background:var(--gs-card);border:1px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--gs-ring),0 6px 10px -6px rgba(91,63,240,.4),inset 0 1.5px 1px #fff}
 
@@ -29550,7 +29452,7 @@ html:not(#_):not(#__) .upload-shot-box,html:not(#_):not(#__) #wallet-topup-overl
 html[data-theme="dark"]:not(#_):not(#__) .upload-shot-box{border-color:rgba(167,139,250,.5);box-shadow:inset 0 1px 1px rgba(255,255,255,.07),0 0 0 1px var(--gs-ring)}
 html:not(#_):not(#__) .upload-shot-box.has-image{border-style:solid;border-color:var(--accent)}
 html:not(#_):not(#__) .upload-shot-icon{width:46px;height:46px;border-radius:16px;background:var(--gs-front);color:var(--gs-ink);border:1px solid rgba(255,255,255,.95);
-  box-shadow:inset 0 1.5px 1px #fff,inset 0 -6px 10px -6px rgba(122,134,255,.35),4px -4px 0 -1px #4fc3ff,0 8px 12px -6px var(--gs-glow)}
+  box-shadow:inset 0 1.5px 1px #fff,inset 0 -6px 10px -6px rgba(122,134,255,.35),0 8px 12px -6px var(--gs-glow)}
 html:not(#_):not(#__) .upload-shot-icon svg{stroke:url(#gxgP)}
 html[data-theme="dark"]:not(#_):not(#__) .upload-shot-icon svg{stroke:#c4b5fd}
 
@@ -29559,8 +29461,8 @@ html:not(#_):not(#__) .profile-card:not([class*="rank1"]):not(#profile-card-main
   box-shadow:0 0 0 1px var(--gs-ring),0 12px 22px -12px rgba(91,63,240,.38),inset 0 1.5px 1px #fff}
 html[data-theme="dark"]:not(#_):not(#__) .profile-card:not([class*="rank1"]):not(#profile-card-main){border-color:rgba(255,255,255,.1);box-shadow:0 0 0 1px var(--gs-ring),0 12px 22px -12px rgba(0,0,0,.65),inset 0 1px 1px rgba(255,255,255,.08)}
 html:not(#_):not(#__) .prefs-row-icon{width:36px;height:36px;border-radius:12px;background:var(--gs-front);color:var(--gs-ink);border:1px solid rgba(255,255,255,.95);
-  box-shadow:inset 0 1.5px 1px #fff,inset 0 -5px 8px -5px rgba(122,134,255,.35),3px -3px 0 -1px #cfdcff,0 6px 10px -5px var(--gs-glow)}
-html[data-theme="dark"]:not(#_):not(#__) .prefs-row-icon{border-color:rgba(255,255,255,.25);box-shadow:inset 0 1px 1px rgba(255,255,255,.3),3px -3px 0 -1px #3b4a8a}
+  box-shadow:inset 0 1.5px 1px #fff,inset 0 -5px 8px -5px rgba(122,134,255,.35),0 6px 10px -5px var(--gs-glow)}
+html[data-theme="dark"]:not(#_):not(#__) .prefs-row-icon{border-color:rgba(255,255,255,.25);box-shadow:inset 0 1px 1px rgba(255,255,255,.3)}
 html:not(#_):not(#__) .prefs-row-icon svg{stroke:url(#gxgP)}
 html[data-theme="dark"]:not(#_):not(#__) .prefs-row-icon svg{stroke:#c4b5fd}
 /* ---------- profile: tapped tile opens its card alone (its own header row just repeated the tile) ---------- */
@@ -29572,14 +29474,14 @@ html:not(#_):not(#__) #profile .gx-back{background:var(--gs-front);color:var(--g
 html:not(#_):not(#__) .detail-form-card{background:var(--gs-card);border:1px solid rgba(255,255,255,.95);border-radius:18px;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 1px var(--gs-ring),0 10px 18px -12px rgba(91,63,240,.35),inset 0 1.5px 1px #fff}
 html[data-theme="dark"]:not(#_):not(#__) .detail-form-card{border-color:rgba(255,255,255,.1);box-shadow:0 0 0 1px var(--gs-ring),0 10px 18px -12px rgba(0,0,0,.65),inset 0 1px 1px rgba(255,255,255,.07)}
 html:not(#_):not(#__) .social-link-btn{background:var(--gs-card);border:1px solid rgba(255,255,255,.95);border-radius:16px;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 1px var(--gs-ring),0 8px 14px -10px rgba(91,63,240,.35),inset 0 1.5px 1px #fff}
-html:not(#_):not(#__) .social-link-icon{border-radius:14px!important;border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.55),3px -3px 0 -1px #cfdcff,0 6px 10px -5px rgba(91,63,240,.45)}
+html:not(#_):not(#__) .social-link-icon{border-radius:14px!important;border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.55),0 6px 10px -5px rgba(91,63,240,.45)}
 
 /* ---------- side drawer (profile menu) ---------- */
-html:not(#_):not(#__) .pg-chip{border-radius:12px;background:var(--gs-front)!important;border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,2px -2px 0 -1px #cfdcff,0 5px 8px -4px var(--gs-glow)}
+html:not(#_):not(#__) .pg-chip{border-radius:12px;background:var(--gs-front)!important;border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,0 5px 8px -4px var(--gs-glow)}
 html:not(#_):not(#__) .pg-chip .ui-icon{stroke:url(#gxgP)!important;filter:drop-shadow(0 2px 2px rgba(91,63,240,.3))}
-html:not(#_):not(#__) .pg-item.active .pg-chip{background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 40%,#8fd6ff) 0%,var(--accent) 55%,var(--accent-dark) 100%)!important;border-color:rgba(255,255,255,.75);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.7),2px -2px 0 -1px #4fc3ff,0 6px 10px -5px rgba(var(--accent-rgb),.6)}
+html:not(#_):not(#__) .pg-item.active .pg-chip{background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 40%,#8fd6ff) 0%,var(--accent) 55%,var(--accent-dark) 100%)!important;border-color:rgba(255,255,255,.75);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.7),0 6px 10px -5px rgba(var(--accent-rgb),.6)}
 html:not(#_):not(#__) .pg-item.active .pg-chip .ui-icon{stroke:#fff!important;filter:none}
-html[data-theme="dark"]:not(#_):not(#__) .pg-chip{border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 1px rgba(255,255,255,.28),2px -2px 0 -1px #3b4a8a}
+html[data-theme="dark"]:not(#_):not(#__) .pg-chip{border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 1px rgba(255,255,255,.28)}
 html[data-theme="dark"]:not(#_):not(#__) .pg-chip .ui-icon{stroke:#c4b5fd!important}
 html[data-theme="dark"]:not(#_):not(#__) .pg-item.active .pg-chip .ui-icon{stroke:#fff!important}
 html:not(#_):not(#__) .pg-mini{border-radius:13px;background:var(--gs-card);border:1px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--gs-ring),0 6px 10px -8px rgba(91,63,240,.35),inset 0 1.5px 1px #fff}
@@ -29598,15 +29500,15 @@ html:not(#_):not(#__) .game-search-wrap.expanded .game-search-icon{stroke:var(--
 html:not(#_):not(#__) .pg-panel{background:linear-gradient(170deg,#fff 0%,#f4f6ff 100%);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--gs-ring),0 16px 34px -24px rgba(76,48,200,.5),inset 0 1.5px 1px #fff}
 html[data-theme="dark"]:not(#_):not(#__) .pg-panel{background:linear-gradient(170deg,#161e3d 0%,#0f1630 100%);border-color:rgba(255,255,255,.1);box-shadow:0 0 0 1px var(--gs-ring),0 16px 34px -24px rgba(0,0,0,.7)}
 html:not(#_):not(#__) .pg-chip{width:34px;height:34px;color:var(--gs-ink)}
-html:not(#_):not(#__) .pg-avatar{width:44px;height:44px;border-radius:15px;padding:3px;background:var(--gs-front);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,3px -3px 0 -1px #4fc3ff,0 6px 10px -5px var(--gs-glow)}
+html:not(#_):not(#__) .pg-avatar{width:44px;height:44px;border-radius:15px;padding:3px;background:var(--gs-front);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,0 6px 10px -5px var(--gs-glow)}
 html:not(#_):not(#__) .pg-avatar-in{border-radius:12px;background:transparent}
 html:not(#_):not(#__) .pg-avatar-in .ui-icon{stroke:url(#gxgP)!important;filter:drop-shadow(0 2px 2px rgba(91,63,240,.3))}
-html:not(#_):not(#__) .pg-close{width:38px;height:38px;border-radius:13px;background:var(--gs-front)!important;border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,2px -2px 0 -1px #cfdcff,0 5px 8px -4px var(--gs-glow)!important}
+html:not(#_):not(#__) .pg-close{width:38px;height:38px;border-radius:13px;background:var(--gs-front)!important;border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,0 5px 8px -4px var(--gs-glow)!important}
 html:not(#_):not(#__) .pg-close .ui-icon{stroke:url(#gxgP)!important}
-html[data-theme="dark"]:not(#_):not(#__) .pg-close{border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 1px rgba(255,255,255,.28),2px -2px 0 -1px #3b4a8a!important}
+html[data-theme="dark"]:not(#_):not(#__) .pg-close{border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 1px rgba(255,255,255,.28)!important}
 html[data-theme="dark"]:not(#_):not(#__) .pg-close .ui-icon,html[data-theme="dark"]:not(#_):not(#__) .pg-mini .ui-icon,html[data-theme="dark"]:not(#_):not(#__) .pg-avatar-in .ui-icon{stroke:#c4b5fd!important}
 html:not(#_):not(#__) .pg-mini .ui-icon{stroke:url(#gxgP)!important}
-html:not(#_):not(#__) .mini-profile-avatar{border-radius:14px!important;overflow:hidden;background:var(--gs-front);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,2px -2px 0 -1px #cfdcff,0 5px 8px -4px var(--gs-glow)}
+html:not(#_):not(#__) .mini-profile-avatar{border-radius:14px!important;overflow:hidden;background:var(--gs-front);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1.5px 1px #fff,0 5px 8px -4px var(--gs-glow)}
 html:not(#_):not(#__) .mini-profile-avatar .ui-icon{stroke:url(#gxgP)}
 </style>
 <style id="nav-notch-css">
@@ -29617,10 +29519,10 @@ html[data-theme="dark"]{--nn-fill:#121a30;--nn-ring:rgba(255,255,255,.12);--nn-g
 html:not(#_):not(#__):not(#___) .bottom-nav{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 .nav-shell{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0;pointer-events:none;filter:drop-shadow(0 10px 10px var(--nn-glow))}
 .nav-shell i{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:24px;background:var(--nn-fill);box-shadow:inset 0 0 0 1px var(--nn-ring);
-  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 48'%3E%3Cpath d='M0 0H6.06A8 8 0 0 1 14.05 8.44A28 28 0 1 0 69.95 8.44A8 8 0 0 1 77.94 0H84V48H0Z'/%3E%3C/svg%3E"),linear-gradient(#000,#000),linear-gradient(#000,#000),linear-gradient(#000,#000);
-  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 48'%3E%3Cpath d='M0 0H6.06A8 8 0 0 1 14.05 8.44A28 28 0 1 0 69.95 8.44A8 8 0 0 1 77.94 0H84V48H0Z'/%3E%3C/svg%3E"),linear-gradient(#000,#000),linear-gradient(#000,#000),linear-gradient(#000,#000);
-  -webkit-mask-size:84px 48px,84px calc(100% - 47px),calc(50% - 41px) 100%,calc(50% - 41px) 100%;
-  mask-size:84px 48px,84px calc(100% - 47px),calc(50% - 41px) 100%,calc(50% - 41px) 100%;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 52'%3E%3Cpath d='M0 0H7.11A8 8 0 0 1 15.1 8.44A31 31 0 1 0 76.9 8.44A8 8 0 0 1 84.89 0H92V52H0Z'/%3E%3C/svg%3E"),linear-gradient(#000,#000),linear-gradient(#000,#000),linear-gradient(#000,#000);
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 52'%3E%3Cpath d='M0 0H7.11A8 8 0 0 1 15.1 8.44A31 31 0 1 0 76.9 8.44A8 8 0 0 1 84.89 0H92V52H0Z'/%3E%3C/svg%3E"),linear-gradient(#000,#000),linear-gradient(#000,#000),linear-gradient(#000,#000);
+  -webkit-mask-size:92px 52px,92px calc(100% - 51px),calc(50% - 45px) 100%,calc(50% - 45px) 100%;
+  mask-size:92px 52px,92px calc(100% - 51px),calc(50% - 45px) 100%,calc(50% - 45px) 100%;
   -webkit-mask-position:50% 0,50% 100%,0 0,100% 0;
   mask-position:50% 0,50% 100%,0 0,100% 0;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
@@ -29646,17 +29548,19 @@ html:not(#_):not(#__) .bottom-nav.nav-hidden{transform:translate3d(0,calc(100% +
 html:not(#_):not(#__) .cards-grid{gap:10px}
 html:not(#_):not(#__) .game-card{padding:5px 5px 7px}
 .gx-card .cat-filter-scroll{padding:0 8px 6px}.gx-card .all-games-title-row{margin:0 8px 10px!important}
-.popular-card{flex-basis:100px}.popular-voucher-card{flex-basis:104px}.popular-scroll-wrap{gap:10px}
+.popular-card{flex-basis:84px}.popular-voucher-card{flex-basis:88px}.popular-scroll-wrap{gap:8px}
+.skel-popular-card{flex-basis:84px}.skel-popular-voucher-card{flex-basis:88px}
+.popular-card .game-card-name{font-size:10px}
 /* smaller cards (4 per row) + wider grid area on phones */
 @media (max-width:699px){
   .gx-card{margin:8px 2px}
   .gx-card .games-grid-scroll{padding:2px 2px 0!important}
   .gx-card .cat-filter-scroll{padding:0 4px 6px}
   .gx-card .all-games-title-row{margin:0 4px 10px!important}
-  html:not(#_):not(#__) .games-grid-scroll .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  html:not(#_):not(#__) .games-grid-scroll .cards-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   html:not(#_):not(#__) .games-grid-scroll .game-card{padding:3px 3px 5px;border-radius:14px}
   html:not(#_):not(#__) .games-grid-scroll .game-card .game-card-img-wrap{border-radius:11px}
-  html:not(#_):not(#__) .games-grid-scroll .game-card .game-card-name{font-size:9.5px;padding:3px 2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  html:not(#_):not(#__) .games-grid-scroll .game-card .game-card-name{font-size:10.5px;padding:3px 2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 </style>
 <style id="gx-ev-tune">
@@ -29767,47 +29671,434 @@ html.perf-low .ev-ov:not([hidden]),html.perf-low .ev-ov:not([hidden]) .ev-top{an
 .ev-set h3{margin-bottom:2px!important}
 .ev-soon{margin:8px auto 0;width:max-content;max-width:100%;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(90deg,#ef4444,#f97316)}
 .ev-ov .ev-time.hot{background:rgba(239,68,68,.2);color:#ffb4a8;border-color:rgba(239,68,68,.6);font-variant-numeric:tabular-nums}
-#ev-fab.hot{border-color:#ef4444;animation:evHot 1.6s ease-in-out infinite}
+#ev-fab.hot .ev-fb-t{background:#ef4444}#ev-fab.hot .ev-fb-in::before{color:#ef4444;opacity:.5;animation-duration:1.2s}
 #ev-fab.rdy .ev-fb-dot{display:block}
-@keyframes evHot{50%{box-shadow:0 0 0 6px rgba(239,68,68,.28)}}
+
 html.perf-low #ev-fab.hot,html.perf-low .ev-tk-t{animation:none!important}
 @media (prefers-reduced-motion:reduce){#ev-fab.hot,.ev-tk-t{animation:none!important}}
-/* ===== Sidebar v4: one layer only, shorter rod, clean step-by-step close ===== */
-.drawer-overlay{--pg-rb:27%}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .pg-panel{top:0;bottom:0;left:0;width:100%;padding-left:18px;padding-right:20px;border-radius:0;background:transparent!important;border:0!important;box-shadow:none!important}
+/* ===== Sidebar - ONE layer (replaces the old v1/v2/v3/v4 stacks that fought each other) =====
+   Open  (~1.25s): 3-line button -> circle -> grows DOWN into a pill (icons pop in as it grows) -> widens SIDEWAYS into the panel
+                   (labels emerge from the icons, blur clears) -> header / buttons rise in -> each tab flashes its own little cell.
+   Close (~0.8s) : the same thing backwards: text leaves -> panel narrows to the pill -> pill shrinks to the circle -> circle melts into the button.
+   Every stage starts exactly when the one before it ends, so there is no dead pause and no jump.
+   The clip-path and the content slide share the same stops + the same easing, so the icons stay glued inside the shape. */
+.drawer-overlay{
+  --pg-d:44px; --pg-cr:16px; --pg-ct:12px; --pg-rb:27%;
+  --pg-tx:calc(var(--pg-w) - var(--pg-cr) - var(--pg-d) / 2 - 43px);
+  --pg-dim:rgba(26,16,64,.5);
+  --pg-circ:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));
+  --pg-pill:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));
+  --pg-full:inset(0px 0px 0px 0px round 34px 0px 0px 34px);
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay{
+  background:transparent !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  opacity:0; visibility:hidden; pointer-events:none; transition:none;
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show{opacity:1; visibility:visible; pointer-events:auto}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show){opacity:1; visibility:visible}
+/* dim layer: own pseudo-element so it can fade on its own schedule */
+.drawer-overlay::before{content:""; position:absolute; inset:0; background:var(--pg-dim); opacity:0; pointer-events:none}
+.drawer-overlay.show::before{opacity:1; animation:pgDimIn .5s ease-out backwards}
+.drawer-overlay.pg-closing:not(.show)::before{opacity:0; animation:pgDimOut .6s ease-in-out .12s backwards}
+@keyframes pgDimIn{from{opacity:0}to{opacity:1}}
+@keyframes pgDimOut{from{opacity:1}to{opacity:0}}
+
+/* the panel itself: laid out once at final size, only clip-path / transform / opacity ever animate (no re-layout) */
+html:not(#_):not(#__):not(#___):not(#____) .side-drawer.pg-drawer{
+  position:fixed; top:0; bottom:0; right:0; left:auto; height:auto; width:var(--pg-w); max-width:none; min-width:0; padding:0; overflow:hidden;
+  background:linear-gradient(170deg,#F3EEFF 0%,#E9E1FF 100%) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  border:0 !important; border-radius:0; box-shadow:none; font-family:Poppins,"Noto Sans Myanmar",sans-serif; color:var(--pg-ink) !important;
+  transform:none; transition:none; animation:none; will-change:auto;
+  clip-path:var(--pg-circ);
+  transform-origin:calc(100% - var(--pg-cr) - var(--pg-d) / 2) calc(var(--pg-ct) + var(--pg-d) / 2);
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer{
+  clip-path:var(--pg-full); will-change:clip-path;
+  animation:pgPop .26s cubic-bezier(.2,1.25,.4,1) backwards, pgMorph 1.2s linear backwards;
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .side-drawer.pg-drawer{
+  clip-path:var(--pg-circ); will-change:clip-path;
+  animation:pgCloseMorph .82s linear both;
+}
+html:not(#_):not(#__):not(#___):not(#____) .pg-panel{
+  top:0; bottom:0; left:0; width:100%; box-sizing:border-box; padding-left:18px; padding-right:20px; border-radius:0;
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel{animation:pgSlideIn 1.2s linear backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-panel{animation:pgSlideOut .82s linear both}
+
+/* stage 1: the circle pops out of the button */
+@keyframes pgPop{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:none}}
+/* stage 2 (0.20 -> 0.62s) grow down into the pill, stage 3 (0.62 -> 1.10s) widen sideways into the panel */
 @keyframes pgMorph{
-  0%,5%{clip-path:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:cubic-bezier(.3,0,.2,1)}
-  28%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2))}
-  42%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:cubic-bezier(.22,1,.36,1)}
-  66%,100%{clip-path:inset(0px 0px 0px 0px round 34px 0px 0px 34px)}
+  0%,16%{clip-path:var(--pg-circ);animation-timing-function:cubic-bezier(.3,.8,.25,1)}
+  52%{clip-path:var(--pg-pill);animation-timing-function:cubic-bezier(.45,0,.1,1)}
+  92%,100%{clip-path:var(--pg-full)}
 }
-@keyframes pgClose{
-  0%{clip-path:inset(0px 0px 0px 0px round 34px 0px 0px 34px);opacity:1;animation-timing-function:cubic-bezier(.5,0,.2,1)}
-  40%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:linear}
-  50%{clip-path:inset(var(--pg-ct) var(--pg-cr) var(--pg-rb) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));animation-timing-function:cubic-bezier(.5,0,.2,1)}
-  94%{clip-path:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));opacity:1}
-  100%{clip-path:inset(var(--pg-ct) var(--pg-cr) calc(100% - var(--pg-ct) - var(--pg-d)) calc(var(--pg-w) - var(--pg-cr) - var(--pg-d)) round calc(var(--pg-d) / 2));opacity:0}
+/* content starts shifted so the icon column sits in the middle of the pill, then slides home in lock-step with the widening */
+@keyframes pgSlideIn{
+  0%,52%{transform:translate3d(var(--pg-tx),0,0);animation-timing-function:cubic-bezier(.45,0,.1,1)}
+  92%,100%{transform:none}
 }
-@keyframes pgPanelOut{
-  0%{transform:translate3d(0,0,0);opacity:1;animation-timing-function:cubic-bezier(.5,0,.2,1)}
-  40%{transform:translate3d(var(--pg-tx),0,0);opacity:1}
-  52%,100%{transform:translate3d(var(--pg-tx),0,0);opacity:0}
+/* close: text out (0-0.1s) -> panel narrows to the pill (0.10-0.39s) -> pill shrinks to the circle (0.39-0.72s) -> circle fades into the button */
+@keyframes pgCloseMorph{
+  0%,12%{clip-path:var(--pg-full);opacity:1;animation-timing-function:cubic-bezier(.55,0,.2,1)}
+  48%{clip-path:var(--pg-pill);animation-timing-function:cubic-bezier(.55,0,.2,1)}
+  88%{clip-path:var(--pg-circ);opacity:1}
+  100%{clip-path:var(--pg-circ);opacity:0}
 }
+@keyframes pgSlideOut{
+  0%,12%{transform:none;animation-timing-function:cubic-bezier(.55,0,.2,1)}
+  48%,100%{transform:translate3d(var(--pg-tx),0,0)}
+}
+
+/* icons pop in one by one while the pill grows; labels emerge from them once it widens; blur clears */
+@keyframes pgChipIn{0%{opacity:0;transform:scale(.3)}55%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes pgLabelIn{0%{opacity:0;transform:translate3d(-14px,0,0);filter:blur(5px)}100%{opacity:1;transform:none;filter:blur(0)}}
+@keyframes pgLabelInLite{0%{opacity:0;transform:translate3d(-14px,0,0)}100%{opacity:1;transform:none}}
+@keyframes pgRiseIn{0%{opacity:0;transform:translate3d(0,10px,0)}100%{opacity:1;transform:none}}
+@keyframes pgCell{0%{opacity:0;transform:scale(.92)}35%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes pgFadeIn{from{opacity:0}to{opacity:1}}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay .pg-item{opacity:1;animation:none}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-chip{animation:pgChipIn .42s cubic-bezier(.2,1.3,.4,1) calc(.24s + var(--pi,0) * .05s) backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-label{animation:pgLabelIn .5s cubic-bezier(.22,1,.36,1) calc(.68s + var(--pi,0) * .045s) backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-glider{animation:pgFadeIn .4s ease .85s backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-head{animation:pgRiseIn .45s cubic-bezier(.22,1,.36,1) .8s backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-more{animation:pgRiseIn .45s cubic-bezier(.22,1,.36,1) .94s backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta{animation:pgRiseIn .45s cubic-bezier(.22,1,.36,1) 1s backwards}
+/* each tab / small button flashes its own soft cell (no dots) */
+.pg-item::before,.pg-mini::before,.pg-cta::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0;
+  background:linear-gradient(135deg,rgba(139,108,250,.18),rgba(108,77,246,.07)); box-shadow:inset 0 0 0 1px rgba(139,108,250,.28);
+}
+.pg-cta{position:relative}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-item::before{animation:pgCell .6s ease-out calc(.92s + var(--pi,0) * .05s) backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini:nth-child(1)::before{animation:pgCell .6s ease-out 1.1s backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-mini:nth-child(2)::before{animation:pgCell .6s ease-out 1.16s backwards}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-cta::before{animation:pgCell .6s ease-out 1.22s backwards}
+
+/* close: text leaves first (bottom to top), icons drop out while the pill shortens */
 @keyframes pgLabelOut{to{opacity:0;transform:translate3d(12px,0,0)}}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-label{animation:pgLabelOut .22s ease both}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(8) .pg-label{animation-delay:0s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(7) .pg-label{animation-delay:.02s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(6) .pg-label{animation-delay:.04s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(5) .pg-label{animation-delay:.06s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(4) .pg-label{animation-delay:.08s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(3) .pg-label{animation-delay:.10s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(2) .pg-label{animation-delay:.12s}
-html:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_) .drawer-overlay.pg-closing:not(.show) .pg-item:nth-of-type(1) .pg-label{animation-delay:.14s}
+@keyframes pgChipOut{to{opacity:0;transform:scale(.4)}}
+@keyframes pgFadeOut{to{opacity:0}}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-label{animation:pgLabelOut .16s ease-in calc((7 - var(--pi,0)) * .01s) both}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) :is(.pg-head,.pg-more,.pg-cta,.pg-glider,#pg-hang){animation:pgFadeOut .14s ease-in both}
+html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.pg-closing:not(.show) .pg-chip{animation:pgChipOut .24s ease-in calc(.36s + (7 - var(--pi,0)) * .03s) both}
+
+/* the 3-line button melts into the circle and comes back at the end of the close */
+.header-menu-btn svg{transition:opacity .16s ease,transform .24s cubic-bezier(.3,.8,.25,1)}
+.header-menu-btn.pg-burger-away svg{opacity:0;transform:scale(.4) rotate(90deg)}
+
+html.perf-low .drawer-overlay.show .pg-label{animation-name:pgLabelInLite}
+@media (prefers-reduced-motion:reduce){
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .side-drawer.pg-drawer,
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show .pg-panel,
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show :is(.pg-chip,.pg-label,.pg-glider,.pg-head,.pg-more,.pg-cta),
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show :is(.pg-item,.pg-mini,.pg-cta)::before,
+  .drawer-overlay.show::before{animation:none}
+  html:not(#_):not(#__):not(#___):not(#____) .drawer-overlay.show :is(.pg-item,.pg-mini,.pg-cta)::before{opacity:0}
+}
 /* snappier taps everywhere on the store */
 a,button,[role="button"],label,select,summary,.game-card,.pg-item{touch-action:manipulation}
 /* order-success popup: a little more body behind the text so the buttons stay readable over busy pages */
 html:not(#_) .order-ok-overlay{background:rgba(8,18,14,.55)}
 html:not(#_) .order-ok-box{background-color:rgba(10,46,30,.62)}
+</style>
+<style id="gx-solid">
+@keyframes gxFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+html:not(#_):not(#__):not(#___) .game-card{
+  border:.5px solid var(--border)!important;
+  background:var(--surface)!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.10)!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  animation:gxFade .35s ease-out backwards!important;
+  animation-delay:calc(var(--i,0)*30ms)!important;
+  will-change:auto!important;
+}
+html[data-theme="dark"]:not(#_):not(#__):not(#___) .game-card{
+  border-color:rgba(255,255,255,.08)!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.35)!important;
+}
+html:not(#_):not(#__):not(#___) .page-section.revisit .game-card{animation:none!important;opacity:1!important}
+html:not(#_):not(#__):not(#___) .game-card .game-card-name{
+  border:0!important;box-shadow:none!important;animation:none!important;
+  background:rgba(127,127,127,.10)!important;border-radius:10px!important;color:var(--text);
+}
+html:not(#_):not(#__):not(#___) .game-card .game-card-img-wrap.img-ready{animation:none!important}
+html:not(#_):not(#__):not(#___) #popular-games-scroll .game-card{
+  border:1.5px solid transparent!important;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#ff9a3c,#ff4f81) border-box!important;
+}
+</style>
+<style id="gx-pagefix">
+html:not(#_):not(#__):not(#___):not(#____) .page-section.active:not(.tx-r):not(.tx-l):not(.wallet-dive){animation:none!important}
+html[data-thadi]:not(:has(#festival-hang)):not(#_):not(#__):not(#___) body:not(.no-bottom-nav){padding-top:calc(70px + env(safe-area-inset-top,0px) + var(--tg-top-inset,0px))}
+</style>
+<style id="gx-nav">
+html:not(#_):not(#__):not(#___) .nav-item:not(.nav-item-wallet){min-height:50px;justify-content:center}
+html:not(#_):not(#__):not(#___) .nav-item:not(.nav-item-wallet) .nav-icon-wrap{
+  width:38px;height:38px;
+  transition:background .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease!important;
+}
+html:not(#_):not(#__):not(#___) .nav-item:not(.nav-item-wallet) .nav-icon-wrap .ui-icon{transition:stroke .25s ease,opacity .25s ease,filter .25s ease}
+html:not(#_):not(#__):not(#___) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap{
+  background:transparent!important;border:1.5px solid transparent!important;box-shadow:none!important;transform:none!important;
+}
+html:not(#_):not(#__):not(#___) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap .ui-icon{
+  stroke:var(--text-secondary)!important;color:var(--text-secondary)!important;opacity:.5;filter:none!important;
+}
+html:not(#_):not(#__):not(#___) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-label{display:none}
+html:not(#_):not(#__):not(#___) .nav-item.active:not(.nav-item-wallet) .nav-icon-wrap,
+html:not(#_):not(#__):not(#___) .nav-item.nav-peek:not(.nav-item-wallet) .nav-icon-wrap{
+  background:rgba(var(--accent-rgb),.14)!important;
+  border:1.5px solid var(--accent)!important;
+  box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12),0 6px 14px -4px rgba(var(--accent-rgb),.55)!important;
+  transform:translateY(-1px)!important;
+}
+html:not(#_):not(#__):not(#___) .nav-item.active:not(.nav-item-wallet) .nav-icon-wrap .ui-icon,
+html:not(#_):not(#__):not(#___) .nav-item.nav-peek:not(.nav-item-wallet) .nav-icon-wrap .ui-icon{
+  stroke:var(--accent)!important;color:var(--accent)!important;opacity:1;
+  filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),.65))!important;
+}
+html:not(#_):not(#__):not(#___) .nav-item.active:not(.nav-item-wallet) .nav-label,
+html:not(#_):not(#__):not(#___) .nav-item.nav-peek:not(.nav-item-wallet) .nav-label{display:block;color:var(--accent);font-weight:600}
+</style>
+<style id="gx-glass-nav">
+/* Glass icons: frosted squircle + gradient glyph + soft glow underneath. No borders - the edge is an inner highlight only. */
+:root{--gl-a:#9fe3ff;--gl-b:#7f90ff;--gl-c:#6d3cf2}
+.gl-defs{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;width:40px;height:40px;border:0!important;border-radius:15px!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.98) 0%,rgba(238,243,255,.88) 50%,rgba(212,225,255,.8) 100%)!important;
+  box-shadow:inset 0 1.5px 1px #fff,inset 0 -7px 12px -8px rgba(122,140,255,.38),0 9px 14px -9px rgba(91,63,240,.5)!important;
+  opacity:1;transition:transform .25s ease,box-shadow .25s ease,opacity .25s ease!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap::before{display:none!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap::after{content:"";position:absolute;left:12%;right:12%;bottom:-6%;height:46%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 60%,rgba(109,92,255,.5),rgba(109,92,255,0) 70%);opacity:.75;transition:opacity .25s ease}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .gl-ic{position:relative;z-index:1;display:block;width:29px;height:29px;overflow:visible;filter:drop-shadow(0 3px 3px rgba(91,63,240,.35))}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap{transform:scale(.88)!important;opacity:.86}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap::after{opacity:.5}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item.active:not(.nav-item-wallet) .nav-icon-wrap,html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item.nav-peek:not(.nav-item-wallet) .nav-icon-wrap{transform:translateY(-2px) scale(1.04)!important;opacity:1;
+  box-shadow:inset 0 1.5px 1px #fff,inset 0 -7px 12px -8px rgba(122,140,255,.45),0 12px 18px -8px rgba(91,63,240,.7)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item.active:not(.nav-item-wallet) .nav-icon-wrap::after,html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item.nav-peek:not(.nav-item-wallet) .nav-icon-wrap::after{opacity:1}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap.nav-icon-wrap-wallet{width:46px;height:46px;border-radius:50%!important;
+  background:linear-gradient(155deg,#fff 0%,#e8eeff 50%,#c9d8ff 100%)!important;
+  box-shadow:inset 0 2px 1px #fff,inset 0 -9px 14px -8px rgba(110,130,255,.5),0 12px 18px -8px rgba(91,63,240,.65)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap-wallet .gl-ic{width:34px;height:34px}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap{background:linear-gradient(155deg,rgba(255,255,255,.28),rgba(255,255,255,.1) 55%,rgba(150,170,255,.16))!important;
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.5),inset 0 -7px 12px -8px rgba(140,160,255,.45),0 9px 14px -9px rgba(0,0,0,.75)!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap.nav-icon-wrap-wallet{background:linear-gradient(155deg,rgba(255,255,255,.34),rgba(255,255,255,.14) 55%,rgba(150,170,255,.22))!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap::after{background:radial-gradient(ellipse at 50% 60%,rgba(140,125,255,.6),rgba(140,125,255,0) 70%)}
+html.perf-low .nav-item .gl-ic{filter:none}
+/* Wallet: rainbow light travelling round the button + soft coloured aura */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap.nav-icon-wrap-wallet{overflow:visible}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap.nav-icon-wrap-wallet::before{display:block!important;content:"";position:absolute;inset:-3px;top:-3px;left:-3px;right:-3px;bottom:-3px;height:auto;z-index:-1;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#fff27a,#5df2a3,#4fd8ff,#7b8cff,#c46bff,#ff5fb8,#ff5f6d)!important;opacity:1!important;transition:none;
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));
+  animation:walSpin 3.2s linear infinite;will-change:transform}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .nav-item .nav-icon-wrap.nav-icon-wrap-wallet::after{content:"";position:absolute;inset:-8px;left:-8px;right:-8px;bottom:-8px;height:auto;z-index:-2;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#fff27a,#5df2a3,#4fd8ff,#7b8cff,#c46bff,#ff5fb8,#ff5f6d);opacity:.7;filter:blur(6px);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 8px),#000 calc(100% - 6px));mask:radial-gradient(farthest-side,transparent calc(100% - 8px),#000 calc(100% - 6px));
+  animation:walSpin 3.2s linear infinite;will-change:transform}
+@keyframes walSpin{to{transform:rotate(360deg)}}
+html.is-scrolling .nav-icon-wrap-wallet::before,html.is-scrolling .nav-icon-wrap-wallet::after{animation-play-state:paused}
+html.perf-low .nav-icon-wrap-wallet::before,html.perf-low .nav-icon-wrap-wallet::after{animation:none}
+html.perf-low .nav-icon-wrap-wallet::after{display:none}
+@media (prefers-reduced-motion:reduce){.nav-icon-wrap-wallet::before,.nav-icon-wrap-wallet::after{animation:none!important}}
+</style>
+<style id="gx-mini-profile">
+/* Home profile strip: fixed compact height. Long names / greeting / tier chip can no longer make the card taller. */
+html:not(#_):not(#__):not(#___) .mini-profile-bar{box-sizing:border-box;height:58px;min-height:58px;max-height:58px;padding:0 12px;align-items:center}
+html:not(#_):not(#__):not(#___) .mini-profile-info{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px}
+html:not(#_):not(#__):not(#___) .mini-profile-info > div:first-child{min-width:0;overflow:hidden;white-space:nowrap}
+html:not(#_):not(#__):not(#___) #mini-profile-name{flex:0 1 auto;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+html:not(#_):not(#__):not(#___) #mini-profile-greeting{flex:0 1000 auto;min-width:0}
+html:not(#_):not(#__):not(#___) #mini-profile-tier{max-width:100%;height:18px;margin:0;line-height:1;white-space:nowrap}
+html:not(#_):not(#__):not(#___) .mini-profile-info .tier-badge{margin-top:0;padding:1px 8px 1px 5px;font-size:10px;line-height:16px;max-width:100%}
+html:not(#_):not(#__):not(#___) .mini-profile-info .tier-badge svg{width:12px;height:12px;flex:0 0 auto}
+html:not(#_):not(#__):not(#___) #mini-profile-hint{display:block;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.3}
+</style>
+<style id="layout-unify-css">
+/* Even layout: every package card in a grid gets the same height (price row sits at the bottom), and game-name pills share one font size. */
+html:not(#_):not(#__):not(#___) .package-grid:not(.layout-list){grid-auto-rows:1fr;align-items:stretch}
+html:not(#_):not(#__):not(#___) .package-grid:not(.layout-list) .package-card{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
+html:not(#_):not(#__):not(#___) .package-grid:not(.layout-list) .package-card .pc-price-bar,html:not(#_):not(#__):not(#___) .package-grid:not(.layout-list) .package-card .pc-row-info{margin-top:auto}
+html:not(#_):not(#__):not(#___) .package-grid:not(.layout-list) .package-card .pc-label-wrap{flex:1 1 auto}
+html:not(#_):not(#__):not(#___) .history-card .hc-right{flex:0 0 116px;min-width:116px;justify-content:flex-end}
+html:not(#_):not(#__):not(#___) .history-card .hc-left{flex:1 1 0;min-width:0}
+html:not(#_):not(#__):not(#___) .history-card .list-amount{display:flex;flex-direction:column;align-items:flex-end;text-align:right;min-width:0}
+</style>
+<style id="pay-info-v2-css">
+/* Payment transfer details: stacked, full-width Name / Number rows with a big readable value and a clear Copy button.
+   The QR (when present) is centred on top; with no QR the empty column disappears. */
+html:not(#_):not(#__):not(#___) .pm-qr-info-row{flex-direction:column;align-items:stretch;gap:10px;margin:10px 0 6px}
+html:not(#_):not(#__):not(#___) .pm-qr-col{width:100%;flex-direction:column;align-items:center;gap:8px}
+html:not(#_):not(#__):not(#___) .pm-qr-col:has(.pm-qr-img[src=""]){display:none}
+html:not(#_):not(#__):not(#___) .pm-qr-info-row .pm-qr-img{width:132px;height:132px}
+html:not(#_):not(#__):not(#___) .pm-qr-save{width:auto;min-width:132px;padding:7px 14px}
+html:not(#_):not(#__):not(#___) .pm-qr-info-row .pm-info-grid{flex:none;width:100%;gap:8px}
+html:not(#_):not(#__):not(#___) .pm-info-box{position:relative;display:flex;flex-direction:column;gap:3px;padding:10px 12px 10px 15px;border-radius:14px;overflow:hidden}
+html:not(#_):not(#__):not(#___) .pm-info-box::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+html:not(#_):not(#__):not(#___) .pm-info-box-label{margin:0;font-size:10.5px;letter-spacing:.6px;line-height:1.2}
+html:not(#_):not(#__):not(#___) .pm-info-box-row{gap:10px;min-width:0}
+html:not(#_):not(#__):not(#___) .pm-name-wrap{flex:1 1 auto;min-width:0;gap:6px}
+html:not(#_):not(#__):not(#___) .pm-name-wrap p{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;font-size:15.5px;font-weight:600;line-height:1.35}
+html:not(#_):not(#__):not(#___) .pm-info-box-row>p{flex:1 1 auto;min-width:0;white-space:nowrap;font-size:19px;font-weight:700;letter-spacing:.8px;line-height:1.3;font-variant-numeric:tabular-nums}
+html:not(#_):not(#__):not(#___) .pm-name-verified{width:18px;height:18px}
+html:not(#_):not(#__):not(#___) .pm-info-box .pm-copy-btn{flex:0 0 auto;width:34px;height:34px;border-radius:11px}
+html:not(#_):not(#__):not(#___) .pm-info-box .pm-copy-btn svg{width:15px;height:15px}
+html:not(#_):not(#__):not(#___) .pm-verify-note{border-radius:12px;padding:10px 12px;margin-top:8px}
+html:not(#_):not(#__):not(#___) #detail-payment-info>label:not([class]){display:block;margin-top:16px;margin-bottom:6px}
+</style>
+<style id="profile-edit-v2-css">
+/* Edit Profile: one field per row (the phone number used to be cut off beside Name), taller inputs, clear focus ring. */
+html:not(#_):not(#__):not(#___) .profile-edit-grid{grid-template-columns:1fr;gap:14px;margin-top:12px}
+html:not(#_):not(#__):not(#___) .profile-edit-field{min-width:0}
+html:not(#_):not(#__):not(#___) .profile-edit-field label{font-size:12px;font-weight:600;letter-spacing:.4px;color:var(--text-secondary);margin:0 2px 6px}
+html:not(#_):not(#__):not(#___) .profile-edit-field input[type="text"]{box-sizing:border-box;height:50px;padding:0 14px;border-radius:14px;font-size:16px;font-weight:500;color:var(--text);background:var(--surface-alt);border:1.5px solid var(--border)}
+html:not(#_):not(#__):not(#___) #profile-phone{font-variant-numeric:tabular-nums;letter-spacing:.4px}
+html:not(#_):not(#__):not(#___) .profile-edit-field input[type="text"]:focus{background:var(--surface);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+html:not(#_):not(#__):not(#___) .profile-edit-field input::placeholder{font-weight:400;color:var(--text-muted)}
+</style>
+<style id="player-card-v2-css">
+/* Player verified card: the account Name is the hero row (own line, larger); other details share one aligned label column. */
+html:not(#_):not(#__):not(#___) .pd{border-radius:16px}
+html:not(#_):not(#__):not(#___) .pd-banner{padding:10px 14px;font-weight:600}
+html:not(#_):not(#__):not(#___) .pd-row{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:10px;padding:10px 14px}
+html:not(#_):not(#__):not(#___) .pd-k{font-size:12px;letter-spacing:.3px}
+html:not(#_):not(#__):not(#___) .pd-v{font-size:13.5px;white-space:nowrap;overflow:hidden;word-break:normal;font-variant-numeric:tabular-nums}
+html:not(#_):not(#__):not(#___) .pd-banner+.pd-row{grid-template-columns:minmax(0,1fr);gap:2px;padding:12px 14px}
+html:not(#_):not(#__):not(#___) .pd-banner+.pd-row .pd-k{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+html:not(#_):not(#__):not(#___) .pd-banner+.pd-row .pd-v{font-size:17px;font-weight:700;text-align:left;line-height:1.35}
+</style>
+<style id="breathing-room-css">
+/* Site-wide spacing: one 16px page gutter, one 16px gap between blocks, and padding inside panels so cards no longer touch the panel edge. */
+@media (max-width:699px){
+html:not(#_):not(#__):not(#___):not(#____) main.content-area{padding-left:16px;padding-right:16px}
+html:not(#_):not(#__):not(#___):not(#____) .title-header{margin-top:22px;margin-bottom:14px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-card{margin:0 0 16px!important}
+html:not(#_):not(#__):not(#___):not(#____) .gx-card .games-grid-scroll{padding:4px 10px 8px!important}
+html:not(#_):not(#__):not(#___):not(#____) .gx-card .cat-filter-scroll{padding:0 12px 10px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-card .all-games-title-row{margin:0 12px 12px!important}
+html:not(#_):not(#__):not(#___):not(#____) .gx-hub{margin-top:16px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-hub .gx-card{margin:0 0 14px!important}
+html:not(#_):not(#__):not(#___):not(#____) .home-banner-carousel{margin-bottom:16px}
+html:not(#_):not(#__):not(#___):not(#____) .botb{margin:0 0 16px!important}
+html:not(#_):not(#__):not(#___):not(#____) .home-live-stats-wrap{margin-top:16px}
+html:not(#_):not(#__):not(#___):not(#____) #wallet-seg{margin:14px 0}
+html:not(#_):not(#__):not(#___):not(#____) .game-subtab-bar{margin-bottom:16px}
+html:not(#_):not(#__):not(#___):not(#____) #app-version-footer{margin-top:22px;padding-bottom:12px}
+html:not(#_):not(#__):not(#___):not(#____) .list-card{margin-bottom:10px}
+html:not(#_):not(#__):not(#___):not(#____) .detail-form-card{padding:16px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-head{padding:34px 20px 16px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-card{padding-bottom:20px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-grid{gap:12px 6px;padding:8px 14px 2px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-tile{gap:6px;padding:6px 2px}
+html:not(#_):not(#__):not(#___):not(#____) .gx-tile span.gx-tl{font-size:11.5px;line-height:1.3}
+html:not(#_):not(#__):not(#___):not(#____) .botb-foot{flex-wrap:wrap;gap:8px 12px}
+html:not(#_):not(#__):not(#___):not(#____) .botb-handle{margin-left:auto;text-overflow:clip;overflow:visible;font-size:12px}
+}
+</style>
+<style id="auto-marquee-css">
+html:not(#_):not(#__):not(#___) .package-card.type-software .pc-row-name{display:block;white-space:nowrap;overflow:hidden;min-width:0;max-width:100%}
+html:not(#_):not(#__):not(#___) .package-card.type-software .pc-row-info{min-width:0;flex:1 1 0}
+/* Text that does not fit scrolls (looping) instead of being cut with "...". Only elements that really overflow are animated. */
+@keyframes mqRun{0%,14%{transform:translate3d(0,0,0)}100%{transform:translate3d(calc(-1 * var(--mq-d,0px)),0,0)}}
+.mq-in{display:inline-block;white-space:nowrap;vertical-align:top;max-width:none}
+html:not(#_):not(#__):not(#___):not(#____) .mq-on{text-overflow:clip!important;text-align:left!important;overflow:hidden!important;white-space:nowrap!important}
+.mq-on .mq-in::after{content:attr(data-t);margin-left:28px}
+.mq-on .mq-in{animation:mqRun var(--mq-t,8s) linear infinite;will-change:transform}
+.mq-on:not(.mq-vis) .mq-in,html.is-scrolling .mq-in{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.mq-on .mq-in{animation:none}}
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-name{font-size:14px!important;font-weight:600;letter-spacing:0;flex:0 1 auto;min-width:0;max-width:100%}
+</style>
+<script id="auto-marquee-js">
+(function(){
+  var SEL='.profile-hero-name,#drawer-profile-name,#mini-profile-name,#mini-profile-greeting,#mini-profile-hint,.drawer-profile-info span,.game-card-name,.lb-name,.lb-podium-name,.lb-st-name,.list-info h5,.vp-name,.id-result-name,.nc-meta,.wtx-title,.wtx-sub,.payment-option-name,.pg-who b,.pg-label,.gss-name,.buy-sel-name,.rc-name,.csel-val,.notif-order-head p,#google-account-name,.google-account-details small,.wallet-topup-meta,.pc-balance,.pc-stat b,.mini-profile-info span,.wallet-topup-toast-msg,.pg-mini span,.ev-bd .nm,#notif-detail-title,.package-card.type-software .pc-row-name,#pm-name,#wallet-pm-name,.pd-v';
+  var root=document.documentElement, GAP=28;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var seen=new WeakSet(), vis=new WeakSet(), queue=new Set(), timer=0, mo=null, io=null;
+  function calm(){ return reduce; }
+  // returns the .mq-in wrapper (creating it when the element only holds text), or null if the element is not a plain text leaf
+  function wrapper(el){
+    var c=el.firstElementChild;
+    if(c&&c.classList.contains('mq-in')&&el.childElementCount===1&&el.childNodes.length===1) return c;
+    if(el.childElementCount) { if(c&&c.classList.contains('mq-in')) { el.textContent=c.textContent; } else return null; }
+    var t=el.textContent; if(!t||!t.trim()) return null;
+    var w=document.createElement('span'); w.className='mq-in'; w.textContent=t;
+    el.textContent=''; el.appendChild(w); return w;
+  }
+  function measure(list){
+    var items=[];
+    list.forEach(function(el){ if(el.isConnected&&vis.has(el)) items.push(el); });
+    if(!items.length) return;
+    if(calm()){ items.forEach(function(el){ el.classList.remove('mq-on'); }); return; }
+    var info=[];
+    items.forEach(function(el){ el.classList.remove('mq-on'); });            // writes
+    items.forEach(function(el){ var w=wrapper(el); if(w) w.setAttribute('data-t',w.textContent); }); // wrap + sync text
+    items.forEach(function(el){                                              // reads
+      var w=el.firstElementChild; if(!w||!w.classList.contains('mq-in')) return;
+      var cs=getComputedStyle(el);
+      var cw=el.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0);
+      var tw=w.offsetWidth;
+      if(cw>0&&tw>cw+1) info.push([el,tw+GAP]);
+    });
+    info.forEach(function(x){                                                // writes
+      var el=x[0], d=x[1], w=el.firstElementChild;
+      w.style.setProperty('--mq-d',d+'px');
+      w.style.setProperty('--mq-t',Math.max(5,(d/32+1.2)).toFixed(1)+'s');
+      el.classList.add('mq-on','mq-vis');
+    });
+    if(mo) mo.takeRecords();                                                 // ignore our own DOM changes
+  }
+  function flush(){ timer=0; var l=Array.from(queue); queue.clear(); measure(l); }
+  function sched(el){ if(el) queue.add(el); if(!timer) timer=setTimeout(function(){ requestAnimationFrame(flush); },120); }
+  function onVis(es){
+    es.forEach(function(e){
+      var el=e.target;
+      if(e.isIntersecting){ vis.add(el); el.classList.add('mq-vis'); sched(el); }
+      else { vis.delete(el); el.classList.remove('mq-vis'); }
+    });
+  }
+  function add(el){
+    if(seen.has(el)) return; seen.add(el);
+    if(io) io.observe(el); else { vis.add(el); sched(el); }
+  }
+  function scan(node){
+    if(node.nodeType!==1) return;
+    if(node.matches&&node.matches(SEL)) add(node);
+    var l=node.querySelectorAll?node.querySelectorAll(SEL):[];
+    for(var i=0;i<l.length;i++) add(l[i]);
+  }
+  function init(){
+    if('IntersectionObserver' in window) io=new IntersectionObserver(onVis,{rootMargin:'40px'});
+    scan(document.body);
+    mo=new MutationObserver(function(ms){
+      for(var i=0;i<ms.length;i++){
+        var m=ms[i], t=m.target;
+        if(m.type==='childList'){
+          for(var k=0;k<m.addedNodes.length;k++){ var n=m.addedNodes[k]; if(n.nodeType===1){ if(n.classList.contains('mq-in')) continue; scan(n); } }
+          var host=t.nodeType===1&&t.closest?t.closest(SEL):null;
+          if(host&&seen.has(host)) sched(host);
+        } else if(m.type==='characterData'){
+          var p=t.parentNode, h=p&&p.closest?p.closest(SEL):null;
+          if(h&&seen.has(h)) sched(h);
+        }
+      }
+    });
+    mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+    var rt=0; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ document.querySelectorAll('.mq-in').forEach(function(w){ var h=w.parentNode; if(h&&vis.has(h)) sched(h); }); },200); });
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ document.querySelectorAll(SEL).forEach(function(el){ if(vis.has(el)) sched(el); }); });
+  }
+  if(document.body) init(); else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+<style id="motion-safety-net">
+/* Global safety net: people who ask their phone for less motion get (near-)instant transitions everywhere, infinite loops stop. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+/* tap feedback never waits on a long transition */
+.pg-item,.pg-mini,.pg-cta,.nav-item{-webkit-tap-highlight-color:transparent}
 </style>
 </body>
 </html>
