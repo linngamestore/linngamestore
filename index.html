@@ -20463,12 +20463,17 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                         window.showToast('Preparing download...', 'success');
                         const safeName = String(filename).replace(/\.[^.]+$/, '').replace(/[^A-Za-z0-9_-]/g, '_') || 'receipt';
                         let hostedUrl = null;
-                        for (let k = 0; k < 2 && !hostedUrl; k++) {
+                        let upErr = null;
+                        for (let k = 0; k < 3 && !hostedUrl; k++) {
                             try {
-                                hostedUrl = await cloudinaryUpload(blob, 'receipt-downloads', 25000, { download_name: safeName + '.png' });
-                            } catch (eUp) { console.warn('Cloudinary upload failed:', eUp); }
+                                // 3rd try: plain upload with no extra form field, in case the worker rejects it
+                                hostedUrl = await cloudinaryUpload(blob, 'receipt-downloads', 30000, k < 2 ? { download_name: safeName + '.png' } : null);
+                            } catch (eUp) { upErr = eUp; console.warn('Receipt upload failed:', eUp); if (eUp && eUp.status === 401) break; }
                         }
-                        if (!hostedUrl) throw new Error('upload failed');
+                        if (!hostedUrl) {
+                            window.showToast('Download failed: ' + ((upErr && upErr.message) || 'upload error') + '. Press and hold the receipt image to save it.', 'fail');
+                            throw new Error('upload failed');
+                        }
                         const tg = window.Telegram && window.Telegram.WebApp;
                         if (tgMini && tg && typeof tg.downloadFile === 'function' && (!tg.isVersionAtLeast || tg.isVersionAtLeast('8.0'))) {
                             tg.downloadFile({ url: hostedUrl, file_name: filename });
