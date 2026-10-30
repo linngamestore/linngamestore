@@ -14308,27 +14308,28 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
         // ---- Cloudinary (free, no Firebase Storage / Blaze plan) ----
         // 1) cloudinary.com -> Settings -> Upload -> Upload presets -> Add: Signing mode = UNSIGNED
         // 2) paste your Cloud name + that preset name below. No API key / secret in the browser.
-        const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME';
-        const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UNSIGNED_PRESET';
+        // ---- R2 image upload (Cloudflare Worker -> R2 bucket linn-images -> img.linngamestore.com) ----
+        const IMAGE_UPLOAD_URL = 'https://imgbb-function.linngamestore.workers.dev';
         async function cloudinaryUpload(file, folder, timeoutMs, extraFields) {
-            if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME.indexOf('YOUR_') === 0) throw new Error('Cloudinary is not configured (cloud name / upload preset).');
+            const u = auth.currentUser;
+            if (!u) { const e0 = new Error('Login required'); e0.status = 401; throw e0; }
+            const token = await u.getIdToken();
             const fd = new FormData();
-            fd.append('file', file);
-            fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            if (folder) fd.append('folder', folder);
+            fd.append('image', file, (file && file.name) || 'image');
+            fd.append('folder', folder || 'uploads/img');
             if (extraFields) Object.keys(extraFields).forEach(k => fd.append(k, extraFields[k]));
             const ctl = new AbortController();
             const t = setTimeout(() => ctl.abort(), timeoutMs || 40000);
             try {
-                const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload', { method: 'POST', body: fd, signal: ctl.signal });
+                const res = await fetch(IMAGE_UPLOAD_URL, { method: 'POST', body: fd, headers: { 'Authorization': 'Bearer ' + token }, signal: ctl.signal });
                 let j = null;
                 try { j = await res.json(); } catch (e) { /* non-JSON reply */ }
-                if (!res.ok || !j || !j.secure_url) {
+                if (!res.ok || !j || !j.success || !j.data || !j.data.url) {
                     const err = new Error((j && j.error && j.error.message) || ('HTTP ' + res.status));
                     err.status = res.status;
                     throw err;
                 }
-                return j.secure_url;
+                return j.data.url;
             } finally { clearTimeout(t); }
         }
 
@@ -20464,8 +20465,7 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                         let hostedUrl = null;
                         for (let k = 0; k < 2 && !hostedUrl; k++) {
                             try {
-                                const up = await cloudinaryUpload(blob, 'receipt-downloads', 25000);
-                                hostedUrl = up.replace('/upload/', '/upload/fl_attachment:' + safeName + '/');
+                                hostedUrl = await cloudinaryUpload(blob, 'receipt-downloads', 25000, { download_name: safeName + '.png' });
                             } catch (eUp) { console.warn('Cloudinary upload failed:', eUp); }
                         }
                         if (!hostedUrl) throw new Error('upload failed');
