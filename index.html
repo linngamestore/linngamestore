@@ -14290,8 +14290,6 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
             }
         }
 
-        const IMGBB_UPLOAD_URL = 'https://imgbb-function.linngamestore.workers.dev';
-
         async function uploadReceiptToImgBB(file) {
             const statusEl = document.getElementById('receipt-upload-status');
             statusEl.style.display = 'block';
@@ -14305,6 +14303,33 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                 statusEl.innerText = 'Receipt upload failed - please try again.';
                 throw e;
             }
+        }
+
+        // ---- Cloudinary (free, no Firebase Storage / Blaze plan) ----
+        // 1) cloudinary.com -> Settings -> Upload -> Upload presets -> Add: Signing mode = UNSIGNED
+        // 2) paste your Cloud name + that preset name below. No API key / secret in the browser.
+        const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME';
+        const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UNSIGNED_PRESET';
+        async function cloudinaryUpload(file, folder, timeoutMs, extraFields) {
+            if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME.indexOf('YOUR_') === 0) throw new Error('Cloudinary is not configured (cloud name / upload preset).');
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            if (folder) fd.append('folder', folder);
+            if (extraFields) Object.keys(extraFields).forEach(k => fd.append(k, extraFields[k]));
+            const ctl = new AbortController();
+            const t = setTimeout(() => ctl.abort(), timeoutMs || 40000);
+            try {
+                const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload', { method: 'POST', body: fd, signal: ctl.signal });
+                let j = null;
+                try { j = await res.json(); } catch (e) { /* non-JSON reply */ }
+                if (!res.ok || !j || !j.secure_url) {
+                    const err = new Error((j && j.error && j.error.message) || ('HTTP ' + res.status));
+                    err.status = res.status;
+                    throw err;
+                }
+                return j.secure_url;
+            } finally { clearTimeout(t); }
         }
 
         // One shared uploader: network failures, non-JSON replies (413 / 5xx pages) and a missing url all become a
@@ -14323,28 +14348,20 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
         function _imgUploadDone(file) { const e = file && typeof file === 'object' && _upCache.get(file); return !!(e && e.done); }
         async function _imgHostUploadImpl(file, label) {
             const prepared = await prepareImageForUpload(file);
+            const type = (prepared && prepared.type && /^image\//i.test(prepared.type)) ? prepared.type : 'image/jpeg';
+            const ext = (type.split('/')[1] || 'jpg').replace(/[^a-z0-9]/gi, '').slice(0, 5) || 'jpg';
+            const folder = String(label || 'img').replace(/[^A-Za-z0-9_-]/g, '') || 'img';
             let lastErr = null;
-            // Up to 3 automatic tries (timeouts / network / 5xx are usually transient on ImgBB).
+            // Cloudinary (unsigned preset). Up to 3 tries for timeouts / network blips.
             for (let attempt = 0; attempt < 3; attempt++) {
-                const form = new FormData();
-                form.append('image', prepared);
-                const ctrl = new AbortController();
-                const to = setTimeout(() => ctrl.abort(), 25000);
-                let res, data = null;
                 try {
-                    res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form, signal: ctrl.signal });
+                    return await cloudinaryUpload(prepared, 'uploads/' + folder, 30000);
                 } catch (e) {
-                    clearTimeout(to);
-                    lastErr = new Error('Network error while uploading your ' + label + '. Please check your connection and try again.');
-                    await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
-                    continue;
+                    console.warn('Cloudinary upload failed:', e);
+                    lastErr = new Error('Could not upload your ' + label + '. Please check your connection and try again.');
+                    if (e && e.status >= 400 && e.status < 500) break; // bad preset / file: retrying won't help
+                    await new Promise(r2 => setTimeout(r2, 800 * (attempt + 1)));
                 }
-                clearTimeout(to);
-                try { data = await res.json(); } catch (e) { data = null; }
-                if (res.ok && data && data.success && data.data && data.data.url) return data.data.url;
-                lastErr = new Error((data && data.error && data.error.message) || ('Could not upload your ' + label + ' (' + res.status + '). Please try again.'));
-                if (res.status >= 400 && res.status < 500 && res.status !== 429) break; // client error: retrying won't help
-                await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
             }
             throw lastErr || new Error('Could not upload your ' + label + '. Please try again.');
         }
@@ -20439,28 +20456,19 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                     }
                 }
                 if (tgMini || inApp) {
-                    // Telegram's WebView can't save blob: files. Host the PNG, then hand the real URL to
-                    // Telegram's native downloader (Bot API 8.0+) or the external browser (Chrome).
+                    // Telegram's WebView can't save blob: files. Host the PNG on Cloudinary, then hand the
+                    // real URL (fl_attachment = forced download) to Telegram's native downloader or the external browser.
                     try {
                         window.showToast('Preparing download...', 'success');
-                        // Original PNG goes up untouched (no re-compression), 2 tries with a 25s timeout each.
-                        let upData = null;
-                        for (let k = 0; k < 2 && !(upData && upData.success && upData.data && upData.data.url); k++) {
-                            const form = new FormData();
-                            form.append('image', new File([blob], filename, { type: 'image/png' }));
-                            const ctrl = new AbortController();
-                            const to = setTimeout(() => ctrl.abort(), 25000);
-                            try {
-                                const up = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: form, signal: ctrl.signal });
-                                upData = await up.json();
-                            } catch (eUp) { upData = null; }
-                            clearTimeout(to);
-                        }
-                        if (!upData || !upData.success || !upData.data || !upData.data.url) throw new Error('upload failed');
-                        let hostedUrl = upData.data.url;
-                        // Cloudinary: fl_attachment makes the link download as a file instead of opening a viewer page.
                         const safeName = String(filename).replace(/\.[^.]+$/, '').replace(/[^A-Za-z0-9_-]/g, '_') || 'receipt';
-                        hostedUrl = hostedUrl.replace(/(res\.cloudinary\.com\/[^\/]+\/image\/upload\/)/, '$1fl_attachment:' + safeName + '/');
+                        let hostedUrl = null;
+                        for (let k = 0; k < 2 && !hostedUrl; k++) {
+                            try {
+                                const up = await cloudinaryUpload(blob, 'receipt-downloads', 25000);
+                                hostedUrl = up.replace('/upload/', '/upload/fl_attachment:' + safeName + '/');
+                            } catch (eUp) { console.warn('Cloudinary upload failed:', eUp); }
+                        }
+                        if (!hostedUrl) throw new Error('upload failed');
                         const tg = window.Telegram && window.Telegram.WebApp;
                         if (tgMini && tg && typeof tg.downloadFile === 'function' && (!tg.isVersionAtLeast || tg.isVersionAtLeast('8.0'))) {
                             tg.downloadFile({ url: hostedUrl, file_name: filename });
