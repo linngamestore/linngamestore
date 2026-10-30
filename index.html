@@ -20471,7 +20471,7 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                             } catch (eUp) { upErr = eUp; console.warn('Receipt upload failed:', eUp); if (eUp && eUp.status === 401) break; }
                         }
                         if (!hostedUrl) {
-                            window.showToast('Download failed: ' + ((upErr && upErr.message) || 'upload error') + '. Press and hold the receipt image to save it.', 'fail');
+                            window.__rcErr = 'Upload failed: ' + ((upErr && upErr.message) || 'unknown error');
                             throw new Error('upload failed');
                         }
                         const tg = window.Telegram && window.Telegram.WebApp;
@@ -20482,7 +20482,7 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                         if (tgMini && tg && typeof tg.openLink === 'function') { tg.openLink(hostedUrl, { try_instant_view: false }); return; }
                         window.open(hostedUrl, '_blank');
                         return;
-                    } catch (e3) { console.warn('Hosted download failed, falling back:', e3); }
+                    } catch (e3) { console.warn('Hosted download failed, falling back:', e3); if (!window.__rcErr) window.__rcErr = 'Download error: ' + ((e3 && e3.message) || e3); }
                 }
                 if (restricted) {
                     try {
@@ -20494,7 +20494,8 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                     } catch (e2) { /* ignore */ }
                     // Share unavailable: the preview image is already on screen, so tell the
                     // person how to save it (long-press -> Save Image) instead of a fake "Downloading...".
-                    window.showToast('Press and hold the receipt image, then choose "Save Image".', 'success');
+                    if (window.__rcErr) { window.showToast(window.__rcErr, 'fail'); window.__rcErr = null; }
+                    else window.showToast('Press and hold the receipt image, then choose "Save Image".', 'success');
                     return;
                 }
                 // Desktop + Android Chrome: a real file download.
@@ -30378,5 +30379,134 @@ html:not(#_):not(#__):not(#___) .history-card.st-fail{--st:#EF4444}
 html:not(#_):not(#__):not(#___) .history-card::before{width:4px;box-shadow:none}
 html:not(#_):not(#__):not(#___) .history-card .badge{font-weight:500}
 </style>
+
+<!-- ===== HALLOWEEN THEME (self-contained; delete this whole block to remove) =====
+     Auto-on Oct 24 - Nov 1. Force with ?halloween=1 / ?halloween=0 (remembered in this browser). -->
+<style id="halloween-css">
+html[data-halloween] { --accent:#FF7518; --accent-dark:#E65F00; --accent-soft:rgba(255,117,24,.16); --accent-rgb:255,117,24; }
+html[data-halloween][data-theme="light"], html[data-halloween]:not([data-theme]) {
+  --bg-gradient: radial-gradient(circle at 15% 0%, #FFE9D2 0%, #FFF6EC 45%), radial-gradient(circle at 100% 30%, #EBDDFF 0%, transparent 40%); --accent-soft:#FFEBDA; }
+html[data-halloween][data-theme="dark"] {
+  --bg:#0B0710; --bg-gradient: radial-gradient(circle at 15% 0%, #2A1236 0%, #0B0710 45%), radial-gradient(circle at 100% 25%, #3A1A05 0%, transparent 45%);
+  --surface:#170E22; --surface-alt:#1D1229; --glass-bg:rgba(40,20,58,.42); --glass-bg-strong:rgba(48,24,68,.6);
+  --accent:#FF8A2B; --accent-dark:#FF7518; --accent-rgb:255,138,43; --text-secondary:#C9B3DD; }
+html[data-halloween] .btn-primary { background:linear-gradient(135deg,#FF8A2B,#B84DFF)!important; border-color:transparent!important; }
+
+#hw-deco, #hw-deco * { pointer-events:none!important; box-sizing:border-box; }
+#hw-deco { position:fixed; inset:0; z-index:99; overflow:hidden; --hb:72px; --hl:17px; --hw:356px; --nt:720px; --nl:30px; --nw:330px; --web:rgba(90,60,130,.45); }
+html[data-halloween][data-theme="dark"] #hw-deco { --web:rgba(255,255,255,.5); }
+
+/* cobwebs in the screen corners */
+.hw-web { position:fixed; top:0; width:92px; height:92px; color:var(--web); z-index:101; transform-origin:0 0; animation:hw-breeze 7s ease-in-out infinite; }
+.hw-web.l { left:0; } .hw-web.r { right:0; transform:scaleX(-1); transform-origin:50% 0; animation-name:hw-breeze-r; }
+@keyframes hw-breeze { 50% { transform:skew(-1.2deg,.6deg) scale(1.02); } }
+@keyframes hw-breeze-r { 50% { transform:scaleX(-1) skew(-1.2deg,.6deg) scale(1.02); } }
+
+/* spider: drops from behind the header on a thread, hangs, then climbs back up */
+.hw-spider { position:fixed; left:calc(var(--hl) + var(--hw) * .6); top:calc(var(--hb) - 236px); width:36px; margin-left:-18px; height:236px; z-index:99; animation:hw-drop 16s cubic-bezier(.45,0,.3,1) infinite; opacity:0; }
+.hw-spider .thread { position:absolute; left:17.2px; top:0; width:1.6px; height:200px; background:linear-gradient(#fff3,#fffd); box-shadow:0 0 2px #0006; }
+html[data-halloween]:not([data-theme="dark"]) .hw-spider .thread { background:linear-gradient(#5a3c823a,#5a3c82); }
+.hw-spider svg { position:absolute; left:0; top:198px; width:36px; height:36px; transform-origin:50% 0; animation:hw-sway 2.6s ease-in-out infinite; overflow:visible; }
+.hw-spider .legs { transform-origin:50% 55%; animation:hw-wiggle .5s ease-in-out infinite alternate; }
+@keyframes hw-drop {
+  0%,6%   { transform:translateY(0); opacity:0; }
+  8%      { opacity:1; }
+  26%     { transform:translateY(112px); }
+  31%     { transform:translateY(100px); }
+  36%     { transform:translateY(110px); }
+  62%     { transform:translateY(106px); opacity:1; }
+  64%     { transform:translateY(106px); }
+  84%     { transform:translateY(0); opacity:1; }
+  88%,100%{ transform:translateY(0); opacity:0; } }
+@keyframes hw-sway { 0%,100% { transform:rotate(-5deg); } 50% { transform:rotate(5deg); } }
+@keyframes hw-wiggle { to { transform:scale(1.06,.94) rotate(1.5deg); } }
+
+/* bats hanging upside down from the header's bottom edge */
+.hw-bat { position:fixed; top:calc(var(--hb) - 12px); width:34px; height:50px; z-index:99; transform-origin:50% 0; animation:hw-swing 4.5s ease-in-out infinite; filter:drop-shadow(0 3px 3px rgba(0,0,0,.35)); }
+.hw-bat .wing { transform-origin:50% 40%; animation:hw-breathe 3s ease-in-out infinite; }
+.hw-bat .eye { animation:hw-blink 5s infinite; }
+@keyframes hw-swing { 0%,100% { transform:rotate(-7deg); } 50% { transform:rotate(7deg); } }
+@keyframes hw-breathe { 0%,100% { transform:scaleX(1); } 50% { transform:scaleX(.9); } }
+@keyframes hw-blink { 0%,90%,100% { opacity:1; } 94% { opacity:.1; } }
+
+/* glowing jack-o'-lanterns sitting on the bottom nav */
+.hw-pump { position:fixed; z-index:101; animation:hw-bob 5s ease-in-out infinite; }
+.hw-pump svg { display:block; width:100%; height:auto; overflow:visible; filter:drop-shadow(0 0 7px rgba(255,150,20,.85)); animation:hw-glow 2.4s ease-in-out infinite; }
+.hw-pump::before { content:""; position:absolute; left:-40%; right:-40%; top:-20%; bottom:-30%; background:radial-gradient(closest-side,rgba(255,160,40,.45),transparent 72%); animation:hw-aura 2.4s ease-in-out infinite; z-index:-1; }
+.hw-pump .face { animation:hw-flicker 1.9s steps(1) infinite; }
+@keyframes hw-glow { 0%,100% { filter:drop-shadow(0 0 6px rgba(255,150,20,.7)); } 50% { filter:drop-shadow(0 0 14px rgba(255,190,50,1)); } }
+@keyframes hw-aura { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+@keyframes hw-flicker { 0%{opacity:1} 18%{opacity:.78} 22%{opacity:1} 55%{opacity:.88} 60%{opacity:1} 83%{opacity:.7} 87%{opacity:1} }
+@keyframes hw-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-1.5px); } }
+
+@media (prefers-reduced-motion:reduce) { #hw-deco *, .hw-web, .hw-pump, .hw-pump * { animation:none!important; } .hw-spider { opacity:0; } }
+</style>
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search).get('halloween');
+    if (q === '1' || q === '0') { try { localStorage.setItem('halloween', q); } catch (e) {} }
+    var pref = null; try { pref = localStorage.getItem('halloween'); } catch (e) {}
+    var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+    var on = pref === '1' || (pref !== '0' && ((m === 10 && day >= 24) || (m === 11 && day <= 1)));
+    if (!on) return;
+    document.documentElement.setAttribute('data-halloween', '1');
+
+    var WEB = '<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M0 0L100.0 0.0M0 0L92.4 38.3M0 0L70.7 70.7M0 0L38.3 92.4M0 0L0.0 100.0M24.0 0.0Q20.2 4.0 22.2 9.2M22.2 9.2Q17.2 11.5 17.0 17.0M17.0 17.0Q11.5 17.2 9.2 22.2M9.2 22.2Q4.0 20.2 0.0 24.0M46.0 0.0Q38.8 7.7 42.5 17.6M42.5 17.6Q32.9 22.0 32.5 32.5M32.5 32.5Q22.0 32.9 17.6 42.5M17.6 42.5Q7.7 38.8 0.0 46.0M70.0 0.0Q59.0 11.7 64.7 26.8M64.7 26.8Q50.1 33.4 49.5 49.5M49.5 49.5Q33.4 50.1 26.8 64.7M26.8 64.7Q11.7 59.0 0.0 70.0M98.0 0.0Q82.7 16.4 90.5 37.5M90.5 37.5Q70.1 46.8 69.3 69.3M69.3 69.3Q46.8 70.1 37.5 90.5M37.5 90.5Q16.4 82.7 0.0 98.0"/></svg>';
+    var SPIDER = '<svg viewBox="0 0 40 40"><g class="legs" stroke="#150a1f" stroke-width="2" fill="none" stroke-linecap="round">'
+      + '<path d="M17 22 7 14 3 20M17 25 5 24 2 31M18 28 8 35 6 39M19 30 14 38"/><path d="M23 22 33 14 37 20M23 25 35 24 38 31M22 28 32 35 34 39M21 30 26 38"/></g>'
+      + '<ellipse cx="20" cy="26" rx="8" ry="9.5" fill="#1c0f2b" stroke="#6a3fa0" stroke-width="1"/><circle cx="20" cy="14" r="5.5" fill="#1c0f2b" stroke="#6a3fa0" stroke-width="1"/>'
+      + '<path d="M20 20v12" stroke="#FF7518" stroke-width="1.6"/><circle cx="17.8" cy="13" r="1.4" fill="#ff3b3b"/><circle cx="22.2" cy="13" r="1.4" fill="#ff3b3b"/></svg>';
+    function bat() {
+      return '<svg viewBox="0 0 34 50"><path d="M17 0v8" stroke="#7a4cb0" stroke-width="1.5"/>'
+        + '<g class="wing"><path d="M17 14C6 12 0 24 4 42 8 35 11 36 14 40 14 30 15 22 17 14Z" fill="#2d1745" stroke="#8d5cc8" stroke-width=".8"/>'
+        + '<path d="M17 14c11-2 17 10 13 28-4-7-7-6-10-2 0-10-1-18-3-26Z" fill="#2d1745" stroke="#8d5cc8" stroke-width=".8"/></g>'
+        + '<ellipse cx="17" cy="22" rx="5" ry="8" fill="#3b1f5a" stroke="#8d5cc8" stroke-width=".8"/>'
+        + '<circle cx="17" cy="33" r="5" fill="#3b1f5a" stroke="#8d5cc8" stroke-width=".8"/><path d="M13 31.5 12 37l3.5-3ZM21 31.5 22 37l-3.5-3Z" fill="#3b1f5a" stroke="#8d5cc8" stroke-width=".8"/>'
+        + '<g class="eye"><circle cx="15.3" cy="32.5" r="1.1" fill="#ffd34d"/><circle cx="18.7" cy="32.5" r="1.1" fill="#ffd34d"/></g></svg>';
+    }
+    function pumpkin(id) {
+      return '<svg viewBox="0 0 64 56"><defs><radialGradient id="pg' + id + '" cx="50%" cy="45%" r="65%"><stop offset="0" stop-color="#ffa63d"/><stop offset=".7" stop-color="#ff7518"/><stop offset="1" stop-color="#c24a00"/></radialGradient></defs>'
+        + '<path d="M30 11c0-5 2-8 6-9" stroke="#4a7a1f" stroke-width="4" stroke-linecap="round" fill="none"/>'
+        + '<ellipse cx="18" cy="33" rx="16" ry="20" fill="url(#pg' + id + ')"/><ellipse cx="46" cy="33" rx="16" ry="20" fill="url(#pg' + id + ')"/><ellipse cx="32" cy="32" rx="17" ry="22" fill="url(#pg' + id + ')"/>'
+        + '<path d="M32 11v43M20 14c-6 10-6 26 0 38M44 14c6 10 6 26 0 38" stroke="#c24a00" stroke-width="1" fill="none" opacity=".55"/>'
+        + '<g class="face" fill="#fff0a6"><path d="M18 26 28 29 20 36Z"/><path d="M46 26 36 29 44 36Z"/><path d="M32 34 36 41H28Z"/>'
+        + '<path d="M17 43 22 47 26 44 32 48 38 44 42 47 47 43C42 54 22 54 17 43Z"/></g></svg>';
+    }
+    function el(cls, html, style) { var e = document.createElement('div'); e.className = cls; e.innerHTML = html || ''; if (style) e.style.cssText = style; return e; }
+
+    var deco;
+    function layout() {
+      if (!deco) return;
+      var h = document.querySelector('header.header, header'), n = document.getElementById('bottom-nav'), W = window.innerWidth;
+      if (h) { var r = h.getBoundingClientRect(); if (r.width) {
+        var l = Math.max(0, r.left), rr = Math.min(W, r.right);
+        deco.style.setProperty('--hb', r.bottom + 'px'); deco.style.setProperty('--hl', l + 'px'); deco.style.setProperty('--hw', (rr - l) + 'px'); } }
+      var show = false;
+      if (n) { var b = n.getBoundingClientRect(); if (b.height && b.top < innerHeight && b.left >= -1 && parseFloat(getComputedStyle(n).opacity) > .5 && getComputedStyle(n).visibility !== 'hidden') {
+        show = true; deco.style.setProperty('--nt', b.top + 'px'); deco.style.setProperty('--nl', b.left + 'px'); deco.style.setProperty('--nw', b.width + 'px'); } }
+      deco.querySelectorAll('.hw-pump').forEach(function (p) { p.style.display = show ? '' : 'none'; });
+    }
+    function build() {
+      if (document.getElementById('hw-deco')) return;
+      deco = el('', '', ''); deco.id = 'hw-deco'; deco.setAttribute('aria-hidden', 'true');
+      deco.appendChild(el('hw-web l', WEB)); deco.appendChild(el('hw-web r', WEB));
+      deco.appendChild(el('hw-spider', '<div class="thread"></div>' + SPIDER));
+      [[.10, 1, '0s'], [.19, .72, '-1.6s'], [.9, .9, '-3s']].forEach(function (b) {
+        deco.appendChild(el('hw-bat', bat(), 'left:calc(var(--hl) + var(--hw) * ' + b[0] + ');transform:scale(' + b[1] + ');animation-delay:' + b[2] + ';margin-left:-17px'));
+      });
+      deco.appendChild(el('hw-pump', pumpkin(1), 'width:50px;left:calc(var(--nl) + 4px);top:calc(var(--nt) - 40px)'));
+      deco.appendChild(el('hw-pump', pumpkin(2), 'width:30px;left:calc(var(--nl) + 52px);top:calc(var(--nt) - 21px);animation-delay:-2s'));
+      deco.appendChild(el('hw-pump', pumpkin(3), 'width:44px;left:calc(var(--nl) + var(--nw) - 48px);top:calc(var(--nt) - 35px);animation-delay:-1s'));
+      document.body.appendChild(deco);
+      layout(); [400, 1200, 3000].forEach(function (t) { setTimeout(layout, t); });
+      addEventListener('resize', layout); addEventListener('orientationchange', layout);
+      setInterval(layout, 2000);
+    }
+    if (document.body) build(); else document.addEventListener('DOMContentLoaded', build);
+  } catch (e) { /* cosmetic only - never break the app */ }
+})();
+</script>
+
 </body>
 </html>
