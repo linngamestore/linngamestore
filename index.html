@@ -174,6 +174,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Fonts: preconnect + <link> (an @import inside <style> blocks rendering behind a second request).
          Noto Sans Myanmar is unicode-range subset by Google, so it only downloads when Burmese text is on screen. -->
+    <!-- Start the connections / module downloads the store needs for its first data load as early as possible -->
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://img.linngamestore.com" crossorigin>
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&family=Noto+Sans+Myanmar:wght@400;500&display=swap">
@@ -7989,6 +7996,24 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
 </div>
 
 
+<style id="maint-pre-css">html.maint-pre #maint-overlay{display:flex!important}</style>
+<script id="maint-pre-js">
+/* Maintenance: the real state comes from Firestore (a moment later). Until then use the last state this device saw,
+   so a closed store shows the maintenance screen at once instead of flashing the Home page first. */
+(function () {
+  try {
+    var c = JSON.parse(localStorage.getItem('gz_maint') || 'null');
+    if (!c || Date.now() - (c.t || 0) > 24 * 3600 * 1000) return;
+    var closed = c.enabled === true || (c.at > 0 && Date.now() >= c.at);
+    if (!closed) return;
+    var root = document.documentElement;
+    root.classList.add('maint-pre', 'maint-locked');
+    window.__MAINT_CLOSED = true;
+    var rs = document.getElementById('maint-reason');
+    if (rs && c.reason) { rs.textContent = String(c.reason).slice(0, 300); rs.hidden = false; }
+  } catch (e) {}
+})();
+</script>
     <!-- Onboarding gate: Google sign-in (or Guest), then straight into the
          app. Shown once per device; completing it sets
          localStorage['linn_onboarded']='1' so it's skipped on every later
@@ -14197,9 +14222,25 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
         // the customer changes pages (games, game accounts, ...). With the
         // default in-memory cache every restart re-downloads (and re-bills) the WHOLE
         // collection; with a persistent cache a restart only bills docs that changed.
+        // Long polling is forced: on Myanmar ISPs the default streaming (WebChannel) connection is often throttled,
+        // and 'auto-detect' only falls back to long polling after waiting ~10s for it to fail = the slow first data load.
         let db;
         try {
-            db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }), experimentalAutoDetectLongPolling: true });
+            // Optional Firestore proxy through your own domain (see firestore-proxy-worker.js).
+            // DEFAULT_FS_PROXY = '' keeps it OFF. Test on one phone first by opening the site once with ?fsproxy=fs.linngamestore.com
+            // (remembered on that phone); ?fsproxy=off turns it off again.
+            const DEFAULT_FS_PROXY = '';
+            let fsProxy = DEFAULT_FS_PROXY;
+            try {
+                const qp = new URLSearchParams(location.search).get('fsproxy');
+                if (qp === 'off') localStorage.removeItem('gz_fs_proxy');
+                else if (qp && /^[a-z0-9.-]+$/i.test(qp)) localStorage.setItem('gz_fs_proxy', qp);
+                const saved = localStorage.getItem('gz_fs_proxy');
+                if (saved) fsProxy = saved;
+            } catch (e) {}
+            const fsSettings = { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }), experimentalForceLongPolling: true };
+            if (fsProxy) { fsSettings.host = fsProxy; fsSettings.ssl = true; }
+            db = initializeFirestore(app, fsSettings);
         } catch (e) {
             console.warn('Persistent cache unavailable, using default:', e);
             db = getFirestore(app);
@@ -14291,6 +14332,7 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
             const closed = m.enabled === true || (!isNaN(at) && Date.now() >= at);
             const pending = !closed && !isNaN(at) && at > Date.now();
             window.__MAINT_CLOSED = closed;
+            document.documentElement.classList.remove('maint-pre'); // the live state now decides
             ov.style.display = closed ? 'flex' : 'none';
             const rsEl = document.getElementById('maint-reason');
             if (rsEl) { rsEl.textContent = m.reason || ''; rsEl.hidden = !m.reason; }
@@ -14306,6 +14348,10 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
         try {
             onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
                 __maintState = snap.exists() ? snap.data() : {};
+                try {
+                    const _m = __maintState, _at = maintMs(_m.scheduledAt);
+                    localStorage.setItem('gz_maint', JSON.stringify({ enabled: _m.enabled === true, at: isNaN(_at) ? 0 : _at, reason: _m.reason || '', t: Date.now() }));
+                } catch (e) {}
                 renderMaintenance();
             }, (err) => console.error('maintenance listener error:', err));
         } catch (e) { console.error('maintenance listener setup failed:', e); }
@@ -22304,7 +22350,7 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                             rerenderAll();
                             window.__gzDataReady = true; try { window.gzSyncAuthUI && window.gzSyncAuthUI(); } catch (e) {}
                             if (window.onSiteDataReady) window.onSiteDataReady();
-                        }, 350);
+                        }, 3500); /* was 350ms: the old cached games/prices painted first and the new ones trickled in after. Now wait (up to 3.5s) for the fresh server data; the cache is only the fallback. */
                         return;
                     }
                     // Server-confirmed data arrived (either first, or before
