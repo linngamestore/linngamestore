@@ -31001,5 +31001,55 @@ html, body { scroll-behavior: auto !important; }
   }, { passive: true, capture: true });
 })();
 </script>
+<style id="flat-ui">
+/* FLAT UI: no glass / blur / colour-mesh background. Solid white cards on a plain background.
+   Radii, sizes and layout are untouched - only fills, blur and shadows are flattened. */
+html:not(#_):not(#__) {
+  --bg-gradient: none;
+  --glass-bg: #ffffff; --glass-bg-strong: #ffffff; --glass-border: var(--border);
+  --glass-shadow: 0 2px 10px rgba(31,45,90,.07); --glass-shadow-sm: 0 1px 6px rgba(31,45,90,.06);
+  --blur: none;
+  --g-surface: #ffffff; --g-surface-press: #F3F4F6; --g-track: #ffffff; --g-card: #ffffff; --g-panel: #F8F9FA;
+  --g-border: var(--border); --g-sheen: transparent; --g-hi: 0 0 0 0 transparent;
+  --g-shadow: 0 2px 10px rgba(31,45,90,.07); --g-active-sheen: none; --g-active-edge: transparent;
+}
+html[data-theme="dark"]:not(#_):not(#__) {
+  --glass-bg: #0D1830; --glass-bg-strong: #101E3B; --glass-border: rgba(255,255,255,.09);
+  --glass-shadow: 0 2px 10px rgba(0,0,10,.35); --glass-shadow-sm: 0 1px 6px rgba(0,0,10,.3);
+  --g-surface: #0D1830; --g-surface-press: #132446; --g-track: #0D1830; --g-card: #0D1830; --g-panel: #101E3B;
+  --g-border: rgba(255,255,255,.09); --g-shadow: 0 2px 10px rgba(0,0,10,.35);
+}
+/* background: plain solid, no mesh */
+html:not(#_):not(#__) body { background: var(--bg) !important; }
+html:not(#_):not(#__) body::before { display: none !important; background: none !important; }
+/* blur off everywhere */
+html:not(#_):not(#__) *, html:not(#_):not(#__) *::before, html:not(#_):not(#__) *::after {
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+/* translucent shells -> solid (header, bottom nav, sheets) */
+html:not(#_):not(#__) .header, html:not(#_):not(#__) .glass-panel,
+html:not(#_):not(#__) .bottom-nav, html:not(#_):not(#__) nav.bottom-nav,
+html:not(#_):not(#__) .sec-sheet, html:not(#_):not(#__) .p2w-card,
+html:not(#_):not(#__) .modal-box, html:not(#_):not(#__) .drawer { background: var(--surface) !important; }
+html:not(#_):not(#__) .glass-panel::before, html:not(#_):not(#__) .glass-panel::after,
+html:not(#_):not(#__) .modal-box::before, html:not(#_):not(#__) .modal-box::after { background: none !important; }
+html:not(#_):not(#__) { --gs-front: #ffffff; --gs-card: #ffffff; --gs-ring: rgba(31,45,90,.08); --gs-glow: rgba(31,45,90,.12); }
+html[data-theme="dark"]:not(#_):not(#__) { --gs-front: #101E3B; --gs-card: #0D1830; --gs-ring: rgba(255,255,255,.09); --gs-glow: rgba(0,0,0,.4); }
+/* bottom bar shell + soft shadows: plain */
+html:not(#_):not(#__) .nav-shell { filter: drop-shadow(0 4px 10px rgba(31,45,90,.12)) !important; }
+html:not(#_):not(#__) .header { box-shadow: 0 2px 10px rgba(31,45,90,.07) !important; }
+/* NAV BAR ONLY: liquid glass (translucent + blur). filter on .nav-shell removed so the blur can see the page behind it. */
+html:not(#_):not(#__):not(#___) .nav-shell { filter: none !important; }
+html:not(#_):not(#__):not(#___) .nav-shell i {
+  background: linear-gradient(180deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,.26) 55%, rgba(255,255,255,.36) 100%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(190%) !important; backdrop-filter: blur(18px) saturate(190%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.75), inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -8px 14px rgba(255,255,255,.18) !important;
+}
+html[data-theme="dark"]:not(#_):not(#__):not(#___) .nav-shell i {
+  background: linear-gradient(180deg, rgba(60,90,160,.38) 0%, rgba(22,38,74,.34) 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), inset 0 1.5px 1px rgba(255,255,255,.22) !important;
+}
+html:not(#_):not(#__):not(#___) .bottom-nav { box-shadow: 0 12px 26px -10px rgba(31,45,90,.28) !important; }
+</style>
 </body>
 </html>
