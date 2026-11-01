@@ -10711,10 +10711,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             // (the old per-card read/write/reflow loop re-laid-out the whole Profile page once per card).
             const els = Array.from(document.querySelectorAll('#profile .profile-card-anim'));
             let n = 0;
-            const left = els.map(el => el.offsetParent !== null && (n++ % 2 === 0));
+            const left = els.map(() => (n++ % 2 === 0)); /* no offsetParent read: it forced a full Profile-page layout on every tab open */
             els.forEach((el, i) => { el.classList.remove('in-view'); el.classList.toggle('from-left', left[i]); });
-            if (els.length) void els[0].offsetWidth;
-            els.forEach(el => el.classList.add('in-view'));
+            /* no forced reflow: restart the animation on the next frame instead */
+            requestAnimationFrame(() => requestAnimationFrame(() => els.forEach(el => el.classList.add('in-view'))));
         }
         window.playProfileCardsIn = playProfileCardsIn;
 
@@ -26559,11 +26559,7 @@ document.addEventListener('keydown',function(e){
     if (left > 8) { tm = setTimeout(check, left); return; }
     on = false; root.classList.remove('is-scrolling');
   }
-  function onScroll() {
-    last = performance.now();
-    if (!on) { on = true; root.classList.add('is-scrolling'); }
-    if (!tm) tm = setTimeout(check, 140);
-  }
+  function onScroll() { /* disabled: toggling html.is-scrolling forced a full-page style recalc at every scroll start/stop */ }
   window.addEventListener('scroll', onScroll, { passive: true, capture: true });
   window.addEventListener('touchmove', onScroll, { passive: true });
 })();
@@ -27374,18 +27370,20 @@ document.addEventListener('keydown',function(e){
   var nav=document.getElementById('bottom-nav'); if(!nav) return;
   var lamp=document.createElement('span'); lamp.className='nav-lamp'; nav.appendChild(lamp);
   var ready=false;
-  var placing=false;
+  var placing=false, lastA=null;
   function placeSoon(){ if(placing) return; placing=true; requestAnimationFrame(function(){ placing=false; place(); }); }
   function place(){
     if(window.__navDragging) return;
     var a=nav.querySelector('.nav-item.active');
     if(!a||!ready){ lamp.classList.remove('on'); return; }
+    if(a===lastA&&lamp.classList.contains('on')&&!window.__lampDirty) return;
+    window.__lampDirty=false; lastA=a;
     var x=a.offsetLeft+a.offsetWidth/2-lamp.offsetWidth/2;
     lamp.style.transform='translateX('+x+'px)';
     lamp.classList.add('on');
   }
   new MutationObserver(placeSoon).observe(nav,{attributes:true,attributeFilter:['class'],subtree:true});
-  window.addEventListener('resize',place);
+  window.addEventListener('resize',function(){window.__lampDirty=true;place();});
   // start the lamp once the nav intro has finished
   var iv=setInterval(function(){
     if(document.documentElement.classList.contains('nav-go')){
@@ -30918,6 +30916,7 @@ html, body { scroll-behavior: auto !important; }
     resume();
   }
   function hold(ms) {
+    if (!document.getElementById('lnSplash')) return;   /* only freeze loops behind the splash; pausing/resuming on scroll or tab switch caused the stutter */
     var t = performance.now() + ms;
     if (t > until) until = t;
     if (!paused.length || !tm) sweep();
@@ -31236,5 +31235,11 @@ html:not(#_):not(#__):not(#___):not(#____) .gz-login-tab .gz-btn { background: #
   setInterval(paint,2500);
 })();
 </script>
+<style id="perf-profile-fix">
+/* Profile tab: remove decorative effects that are re-rasterised constantly (SVG drop-shadows, meteor/star field, shield glow) */
+#profile .gx-ibg svg, #profile .verified-badge, #profile .lb-crown, #profile .rank1-shield, .rank1-shield { filter: none !important; }
+.pc-meteor, .pc-star { animation: none !important; display: none !important; }
+.gz-orb { animation: none !important; filter: none !important; opacity: .35; }
+</style>
 </body>
 </html>
