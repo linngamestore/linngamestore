@@ -31241,5 +31241,28 @@ html:not(#_):not(#__):not(#___):not(#____) .gz-login-tab .gz-btn { background: #
 .pc-meteor, .pc-star { animation: none !important; display: none !important; }
 .gz-orb { animation: none !important; filter: none !important; opacity: .35; }
 </style>
+<style id="wallet-vivid-blue">
+/* Wallet Balance card: vivid saturated blue, solid white text, solid white Add Balance button with blue label */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-card{
+  background:linear-gradient(160deg,#2f8cff 0%,#1673ff 45%,#0a5cf0 100%)!important;
+  box-shadow:0 14px 30px -10px rgba(10,92,240,.65),inset 0 1px 0 rgba(255,255,255,.45)!important;border:0!important;opacity:1!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-card-glow{background:linear-gradient(168deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 40%),radial-gradient(circle at 50% 130%,rgba(0,40,140,.30),transparent 60%)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-pattern{background:radial-gradient(circle 150px at 94% -2%,rgba(255,255,255,.12) 98%,transparent 100%),radial-gradient(circle 110px at -4% 104%,rgba(0,40,140,.18) 98%,transparent 100%)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-card::after{opacity:.35!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-label,html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-amount,html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-icon{color:#fff!important;opacity:1!important;text-shadow:0 1px 6px rgba(0,30,110,.35)}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-amount{font-weight:700!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-label{font-weight:600!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-balance-pad{stroke:rgba(255,255,255,.35)!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-topup-btn{background:#fff!important;color:#0a5cf0!important;font-weight:700!important;font-size:14px!important;min-height:42px!important;border:0!important;
+  box-shadow:0 8px 20px -6px rgba(0,30,110,.45)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;text-shadow:none!important;opacity:1!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-topup-btn:active{background:#eaf3ff!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-topup-btn-icon{background:#1673ff!important;color:#fff!important;box-shadow:none!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-min-hint{color:#fff!important;opacity:.95!important;font-weight:500!important;text-shadow:0 1px 4px rgba(0,30,110,.35)}
+</style>
+<style id="perf-hidden-layers">
+/* Closed overlays were opacity:0 but still painted + GPU-composited (13 full-screen layers = hundreds of MB on a phone). visibility:hidden drops them; the delay keeps the fade-out animation. */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .modal-overlay:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .success-overlay:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .order-ok-overlay:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gz-sheet:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .drawer-overlay:not(.show){visibility:hidden!important;transition:opacity .28s ease,visibility 0s linear .55s!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .modal-overlay.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .success-overlay.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .order-ok-overlay.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gz-sheet.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .drawer-overlay.show{visibility:visible!important;transition-delay:0s!important}
+</style>
 </body>
 </html>
