@@ -207,12 +207,12 @@
          uploads a custom app logo in Dashboard → Settings, at which point
          renderHeaderLogo() below swaps this href for that image instead. -->
     <!-- Bump ?v= whenever the icon files change: browsers cache favicons very aggressively. -->
-    <link rel="icon" href="/favicon.ico?v=2" sizes="any">
-    <link rel="shortcut icon" href="/favicon.ico?v=2">
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=2">
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2" id="favicon-link">
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png?v=2">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+    <link rel="icon" href="/favicon.ico?v=4" sizes="any">
+    <link rel="shortcut icon" href="/favicon.ico?v=4">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=4">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=4" id="favicon-link">
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png?v=4">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#060B18">
     <script>
@@ -7832,6 +7832,64 @@ html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item.ac
 html[data-theme="dark"] html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item:not(.nav-item-wallet):not(.active):not(.nav-peek) .nav-icon-wrap{opacity:.7}
 html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-item .nav-icon-wrap{filter:none}
 </style>
+
+<style id="pwa-promo-css">
+.pwa-promo{position:relative;display:none;align-items:center;gap:14px;margin:0 0 16px;padding:16px 14px 16px 16px;border-radius:22px;overflow:hidden;color:#fff;
+  background:linear-gradient(135deg,#1B6BFF 0%,#2F4FE0 52%,#6A3DE8 100%);
+  box-shadow:0 18px 34px -16px rgba(37,99,235,.65),inset 0 1px 0 rgba(255,255,255,.28);animation:pwaIn .6s cubic-bezier(.22,.8,.3,1) both}
+.pwa-promo.pwa-on{display:flex}
+@keyframes pwaIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.pwa-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.pwa-orb.a{width:150px;height:150px;right:-44px;top:-60px;background:radial-gradient(circle,rgba(255,255,255,.30),transparent 68%)}
+.pwa-orb.b{width:120px;height:120px;left:-40px;bottom:-60px;background:radial-gradient(circle,rgba(120,200,255,.35),transparent 68%)}
+.pwa-promo::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-18deg);animation:pwaSweep 5.5s ease-in-out 1.2s infinite}
+@keyframes pwaSweep{0%{left:-60%}38%,100%{left:130%}}
+.pwa-ico{position:relative;z-index:1;flex:0 0 auto;width:68px;height:68px;border-radius:19px;background:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 22px rgba(8,20,70,.38),0 0 0 3px rgba(255,255,255,.22);animation:pwaFloat 3.4s ease-in-out infinite}
+.pwa-ico img{width:84%;height:84%;object-fit:contain;display:block}
+@keyframes pwaFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+.pwa-body{position:relative;z-index:1;min-width:0;flex:1}
+.pwa-kicker{font-size:10px;font-weight:500;letter-spacing:.14em;opacity:.8}
+.pwa-title{font-size:18px;font-weight:500;line-height:1.2;margin-top:1px}
+.pwa-sub{font-size:12px;line-height:1.5;opacity:.9;margin-top:4px}
+.pwa-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pwa-chip{font-size:10.5px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.pwa-btn{display:inline-flex;align-items:center;gap:7px;margin-top:11px;padding:9px 16px;border:0;border-radius:99px;background:#fff;color:#1F46D6;font-size:13px;font-weight:500;cursor:pointer;
+  box-shadow:0 8px 18px rgba(8,20,70,.3);transition:transform .15s}
+.pwa-btn:active{transform:scale(.95)}
+.pwa-btn svg{width:15px;height:15px}
+.pwa-x{position:absolute;z-index:2;top:8px;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pwa-x svg{width:12px;height:12px}
+.pwa-sheet-ov{position:fixed;inset:0;z-index:10050;display:none;align-items:flex-end;justify-content:center;background:rgba(6,11,24,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.pwa-sheet-ov.on{display:flex;animation:pwaFade .25s ease both}
+@keyframes pwaFade{from{opacity:0}to{opacity:1}}
+.pwa-sheet{width:100%;max-width:520px;background:var(--surface,#fff);color:var(--text,#111);border-radius:24px 24px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px));
+  animation:pwaUp .35s cubic-bezier(.22,.8,.3,1) both}
+@keyframes pwaUp{from{transform:translateY(100%)}to{transform:none}}
+.pwa-sheet h3{margin:0 0 12px;font-size:17px;font-weight:500;text-align:center}
+.pwa-note{display:none;margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:12.5px;line-height:1.5;background:rgba(245,158,11,.14);color:#B45309}
+.pwa-steps{display:flex;flex-direction:column;gap:9px}
+.pwa-step{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;background:var(--bg,rgba(0,0,0,.04));border:1px solid var(--border,rgba(0,0,0,.08));font-size:13.5px}
+.pwa-step b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent,#1877F2);color:#fff;font-weight:500;font-size:13px;display:flex;align-items:center;justify-content:center}
+.pwa-ok{display:block;width:100%;margin-top:14px;padding:12px;border:0;border-radius:14px;background:var(--accent,#1877F2);color:#fff;font-size:14.5px;font-weight:500;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.pwa-promo,.pwa-promo::after,.pwa-ico,.pwa-sheet,.pwa-sheet-ov.on{animation:none}}
+html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-state:paused}
+</style>
+
+<style id="pwa-upd-css">
+.pwa-upd{display:none;gap:12px;align-items:flex-start;margin:0 0 14px;padding:13px 14px;border-radius:18px;background:var(--surface,#fff);color:var(--text,#111);
+  border:1px solid rgba(var(--accent-rgb,24,119,242),.35);box-shadow:0 12px 26px -16px rgba(var(--accent-rgb,24,119,242),.6);animation:pwaIn .5s cubic-bezier(.22,.8,.3,1) both}
+.pwa-upd.on{display:flex}
+.pwa-upd-ico{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.14)}
+.pwa-upd-ico img{width:84%;height:84%;object-fit:contain}
+.pwa-upd-b{min-width:0;flex:1}
+.pwa-upd-t{font-size:14px;font-weight:500}
+.pwa-upd-d{font-size:12.5px;line-height:1.55;color:var(--text-muted,#667);margin-top:3px}
+.pwa-upd-r{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.pwa-upd-r button{padding:7px 14px;border:0;border-radius:99px;font-size:12.5px;font-weight:500;cursor:pointer;background:var(--accent,#1877F2);color:#fff}
+.pwa-upd-r button.g{background:rgba(var(--accent-rgb,24,119,242),.12);color:var(--accent,#1877F2)}
+</style>
 </head>
 <body>
 <!-- ===== SPLASH SCREEN (self-contained; delete this whole block to remove) ===== -->
@@ -8476,12 +8534,35 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
              then flash-sale banner, wallet/order summary, popular games and
              the 4-step "how it works" guide, all live here. -->
         <div id="dashboard" class="page-section active">
+            <!-- Shown only inside the installed app when the admin changed the logo after it was installed -->
+            <div class="pwa-upd" id="pwa-upd">
+                <div class="pwa-upd-ico"><img id="pwa-upd-img" src="/favicon-192.png?v=4" alt=""></div>
+                <div class="pwa-upd-b">
+                    <div class="pwa-upd-t" data-i18n="pwa_upd_title">New app icon available</div>
+                    <div class="pwa-upd-d" id="pwa-upd-d"></div>
+                    <div class="pwa-upd-r"><button type="button" onclick="pwaReinstallHelp()" data-i18n="pwa_upd_how">Show me how</button><button type="button" class="g" onclick="pwaUpdAck()" data-i18n="pwa_upd_ok">Got it</button></div>
+                </div>
+            </div>
             <!-- HOME BANNER CAROUSEL (admin-uploaded slides from settings/homeBanners are loaded into the track by loadHomeBanners) -->
             <div class="home-banner-carousel" id="home-banner-carousel">
                 <div class="home-banner-track" id="home-banner-track">
                     <div class="home-banner-slide"></div>
                 </div>
                 <div class="home-banner-dots" id="home-banner-dots"></div>
+            </div>
+
+            <!-- INSTALL APP promo (shown only in a normal browser, never inside the installed app) -->
+            <div class="pwa-promo" id="pwa-promo">
+                <span class="pwa-orb a"></span><span class="pwa-orb b"></span>
+                <button class="pwa-x" type="button" onclick="pwaDismiss()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                <div class="pwa-ico"><img id="pwa-promo-img" src="/favicon-192.png?v=4" alt="" width="64" height="64"></div>
+                <div class="pwa-body">
+                    <div class="pwa-kicker" data-i18n="pwa_kicker">OFFICIAL APP</div>
+                    <div class="pwa-title" data-i18n="pwa_title">Linn Game Store</div>
+                    <div class="pwa-sub" data-i18n="pwa_sub">Install the app: faster top-ups, one tap from your home screen.</div>
+                    <div class="pwa-chips"><span class="pwa-chip" data-i18n="pwa_chip1">Game Top Up</span><span class="pwa-chip" data-i18n="pwa_chip2">Voucher</span><span class="pwa-chip" data-i18n="pwa_chip3">Wallet</span></div>
+                    <button class="pwa-btn" type="button" onclick="installApp()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 20h16"/></svg><span data-i18n="pwa_btn">Install App</span></button>
+                </div>
             </div>
 
             <!-- Guest-only Login tab (hidden once signed in) -->
@@ -10057,6 +10138,19 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
         ===================================================================== */
         const I18N = {
             en: {
+                pwa_kicker: 'OFFICIAL APP', pwa_title: 'Linn Game Store',
+                pwa_sub: 'Install the app: faster top-ups, one tap from your home screen.',
+                pwa_chip1: 'Game Top Up', pwa_chip2: 'Voucher', pwa_chip3: 'Wallet',
+                pwa_btn: 'Install App', pwa_sheet_title: 'Add to Home Screen',
+                pwa_ios1: 'Tap the Share button at the bottom of Safari', pwa_ios2: 'Choose "Add to Home Screen"', pwa_ios3: 'Tap "Add" at the top right',
+                pwa_and1: 'Tap the ⋮ menu at the top right of Chrome', pwa_and2: 'Choose "Install app" or "Add to Home screen"', pwa_and3: 'Tap "Install"',
+                pwa_inapp: "You're inside another app's browser. Open this page in Chrome or Safari first.",
+                pwa_gotit: 'Got it', pwa_installed: 'App installed!',
+                pwa_upd_title: 'New app icon available', pwa_upd_and: 'Your app icon will update by itself within a few days. To get it right now, remove the app and install it again.',
+                pwa_upd_ios: 'iPhone does not update home-screen icons automatically. Remove the app and add it again to get the new icon.',
+                pwa_upd_how: 'Show me how', pwa_upd_ok: 'Got it', pwa_re_title: 'Get the new icon',
+                pwa_re_ios1: 'Press and hold the app icon, then tap "Remove App"', pwa_re_ios2: 'Open linngamestore.com in Safari again', pwa_re_ios3: 'Tap Share, then "Add to Home Screen"',
+                pwa_re_and1: 'Press and hold the app icon, then tap "Uninstall"', pwa_re_and2: 'Open linngamestore.com in Chrome and tap "Install App" again',
                 link_hint: 'Telegram, Email and Google can all be linked to one account.',
                 link_connected: 'Connected', link_connected_check: 'Connected ✓', link_connect: 'Connect',
                 link_not_yet: 'Not connected yet', link_via: 'Connected via {x}',
@@ -10275,6 +10369,19 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                 gz_sheet_w3: 'Log in with Google, Telegram or Email in about 10 seconds.',
             },
             my: {
+                pwa_kicker: 'OFFICIAL APP', pwa_title: 'Linn Game Store',
+                pwa_sub: 'App ကို Install လုပ်ပါ။ Home screen ကနေ တစ်ချက်နှိပ်ရုံနဲ့ ပိုမြန်မြန် Top-Up လုပ်နိုင်ပါပြီ။',
+                pwa_chip1: 'ဂိမ်း Top Up', pwa_chip2: 'ဗောက်ချာ', pwa_chip3: 'Wallet',
+                pwa_btn: 'App ထည့်သွင်းမည်', pwa_sheet_title: 'Home Screen သို့ ထည့်ပါ',
+                pwa_ios1: 'Safari အောက်ခြေက Share ခလုတ်ကို နှိပ်ပါ', pwa_ios2: '"Add to Home Screen" ကို ရွေးပါ', pwa_ios3: 'ညာအပေါ်ထောင့်က "Add" ကို နှိပ်ပါ',
+                pwa_and1: 'Chrome ညာအပေါ်ထောင့်က ⋮ ကို နှိပ်ပါ', pwa_and2: '"Install app" သို့မဟုတ် "Add to Home screen" ကို ရွေးပါ', pwa_and3: '"Install" ကို နှိပ်ပါ',
+                pwa_inapp: 'ဒီစာမျက်နှာကို တခြား app ထဲက browser နဲ့ ဖွင့်ထားပါတယ်။ Chrome (သို့) Safari မှာ အရင်ဖွင့်ပါ။',
+                pwa_gotit: 'နားလည်ပါပြီ', pwa_installed: 'App ထည့်သွင်းပြီးပါပြီ!',
+                pwa_upd_title: 'App icon အသစ် ရှိပါပြီ', pwa_upd_and: 'သင့် app icon က ရက်အနည်းငယ်အတွင်း အလိုအလျောက် ပြောင်းသွားပါမယ်။ ယခုချက်ချင်း လိုချင်ရင် app ကို ဖျက်ပြီး ပြန် install လုပ်ပါ။',
+                pwa_upd_ios: 'iPhone မှာ Home screen icon ကို အလိုအလျောက် မပြောင်းပေးနိုင်ပါဘူး။ icon အသစ်ရဖို့ app ကို ဖျက်ပြီး ပြန်ထည့်ပါ။',
+                pwa_upd_how: 'လမ်းညွှန်ကြည့်မည်', pwa_upd_ok: 'နားလည်ပါပြီ', pwa_re_title: 'Icon အသစ် ရယူရန်',
+                pwa_re_ios1: 'App icon ကို ဖိထားပြီး "Remove App" ကို နှိပ်ပါ', pwa_re_ios2: 'Safari မှာ linngamestore.com ကို ပြန်ဖွင့်ပါ', pwa_re_ios3: 'Share ကိုနှိပ်ပြီး "Add to Home Screen" ကို ရွေးပါ',
+                pwa_re_and1: 'App icon ကို ဖိထားပြီး "Uninstall" ကို နှိပ်ပါ', pwa_re_and2: 'Chrome မှာ linngamestore.com ကို ဖွင့်ပြီး "Install App" ကို ပြန်နှိပ်ပါ',
                 link_hint: 'Telegram, Email, Google — အားလုံးကို account တစ်ခုတည်းအတွက် ချိတ်ဆက်ထားနိုင်ပါသည်။',
                 link_connected: 'ချိတ်ဆက်ပြီး', link_connected_check: 'ချိတ်ဆက်ပြီး ✓', link_connect: 'ချိတ်ဆက်မည်',
                 link_not_yet: 'မချိတ်ဆက်ရသေးပါ', link_via: '{x} ဖြင့် ချိတ်ဆက်ပြီး',
@@ -18515,6 +18622,19 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
             return data.logoUrl || '';
         }
 
+        // Keeps the iOS apple-touch-icon in sync with the admin-uploaded logo.
+        // (Android's icon comes from /manifest.json, which the manifest Worker builds from the same logo.)
+        let __installIconUrl = '';
+        function applyInstallIcon(url) {
+            if (!url || url === __installIconUrl) return;
+            __installIconUrl = url;
+            const abs = new URL(url, location.href).href;
+            const apple = document.querySelector('link[rel="apple-touch-icon"]');
+            if (apple) apple.href = abs;
+            const pimg = document.getElementById('pwa-promo-img'); if (pimg) pimg.src = abs;
+            try { localStorage.setItem('lg_install_logo', abs); } catch (e) {} // used by offline.html
+        }
+
         function renderHeaderLogo(data) {
             lastBrandingData = data || null;
             applyLogoScale(data && data.logoScale);
@@ -18532,6 +18652,9 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
                 document.querySelectorAll('link[rel~="icon"]').forEach(l => { if (l !== favicon) l.remove(); });
                 favicon.removeAttribute('type'); favicon.removeAttribute('sizes'); favicon.href = url;
             }
+            try { applyInstallIcon(url); } catch (e) {} // home-screen / install icon follows the admin logo too
+            // the manifest Worker always uses the light-mode logo, so compare that one (not the dark-mode variant)
+            try { if (window.pwaCheckIconUpdate && data && data.logoUrl) window.pwaCheckIconUpdate(new URL(data.logoUrl, location.href).href); } catch (e) {}
             if (url === logoAppliedUrl) { setLogoLoading(null); return; } // same logo already showing (e.g. an unrelated branding edit)
             setLogoLoading('updating');
             const probe = new Image();
@@ -22891,34 +23014,96 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
         // once firebase-messaging-sw.js is actually uploaded to the site
         // root — until then this only costs the PWA "install as app"
         // prompt and background push notifications, nothing else.
-        /*
+        // Service worker (PWA install). /sw.js is a tiny network-first worker - see sw.js
         const inTgMiniAppForSw = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
         if (!isNativeApp() && !inTgMiniAppForSw && 'serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .catch(err => console.error('Service worker registration error:', err));
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js')
+                    .catch(err => console.warn('Service worker registration error:', err));
+            });
         }
-        */
 
         let deferredInstallPrompt = null;
+        const __pwaUA = navigator.userAgent || '';
+        const __pwaIOS = /iPad|iPhone|iPod/.test(__pwaUA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const __pwaInApp = /FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|Telegram|TikTok|; wv\)/i.test(__pwaUA);
+        function __pwaInstalled() {
+            return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+        }
+        function __pwaShouldShow() {
+            if (__pwaInstalled()) return false;
+            try { if (isNativeApp()) return false; } catch (e) {}
+            try { if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) return false; } catch (e) {}
+            try { const d = parseInt(localStorage.getItem('lg_pwa_dismiss') || '0', 10); if (d && Date.now() - d < 7 * 864e5) return false; } catch (e) {}
+            return true;
+        }
+        function pwaRefresh() {
+            const el = document.getElementById('pwa-promo');
+            if (el) el.classList.toggle('pwa-on', __pwaShouldShow());
+        }
+        window.pwaDismiss = function () {
+            try { localStorage.setItem('lg_pwa_dismiss', String(Date.now())); } catch (e) {}
+            pwaRefresh();
+        };
+        window.pwaCloseSheet = function () { const o = document.getElementById('pwa-sheet'); if (o) o.classList.remove('on'); };
+        function pwaOpenSheet(mode) {
+            const re = mode === 'reinstall';
+            const show = (id, on) => { const e = document.getElementById(id); if (e) e.style.display = on ? 'flex' : 'none'; };
+            show('pwa-steps-ios', !re && __pwaIOS); show('pwa-steps-and', !re && !__pwaIOS);
+            show('pwa-steps-re-ios', re && __pwaIOS); show('pwa-steps-re-and', re && !__pwaIOS);
+            const note = document.getElementById('pwa-note'); if (note) note.style.display = (!re && __pwaInApp) ? 'block' : 'none';
+            const h = document.getElementById('pwa-sheet-title'); if (h) h.textContent = t(re ? 'pwa_re_title' : 'pwa_sheet_title');
+            const o = document.getElementById('pwa-sheet'); if (o) o.classList.add('on');
+        }
+        window.pwaReinstallHelp = function () { pwaOpenSheet('reinstall'); };
+
+        // ---- "new icon available" notice for people who already installed the app ----
+        // The page cannot read which icon the phone is showing, so it remembers which logo version the app
+        // was running when it was installed/first opened (lg_icon_seen) and compares it with the logo now.
+        function __pwaHash(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0; return h.toString(36); }
+        let __pwaIconHash = '';
+        window.pwaCheckIconUpdate = function (logoUrl) {
+            try {
+                if (!logoUrl) return;
+                __pwaIconHash = __pwaHash(logoUrl);
+                const force = /[?&]pwaupd=1/.test(location.search);
+                if (!__pwaInstalled() && !force) return;
+                const seen = localStorage.getItem('lg_icon_seen');
+                if (!seen && !force) { localStorage.setItem('lg_icon_seen', __pwaIconHash); return; }
+                if (seen === __pwaIconHash && !force) return;
+                // Android refreshes the icon by itself; stop nagging after a few days
+                let since = parseInt(localStorage.getItem('lg_icon_new_since') || '0', 10);
+                if (!since) { since = Date.now(); localStorage.setItem('lg_icon_new_since', String(since)); }
+                if (!__pwaIOS && !force && Date.now() - since > 4 * 864e5) { pwaUpdAck(); return; }
+                const d = document.getElementById('pwa-upd-d'); if (d) d.textContent = t(__pwaIOS ? 'pwa_upd_ios' : 'pwa_upd_and');
+                const img = document.getElementById('pwa-upd-img'); if (img) img.src = new URL(logoUrl, location.href).href;
+                const c = document.getElementById('pwa-upd'); if (c) c.classList.add('on');
+            } catch (e) {}
+        };
+        window.pwaUpdAck = function () {
+            try { if (__pwaIconHash) localStorage.setItem('lg_icon_seen', __pwaIconHash); localStorage.removeItem('lg_icon_new_since'); } catch (e) {}
+            const c = document.getElementById('pwa-upd'); if (c) c.classList.remove('on');
+        };
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); // stop Chrome's default mini-infobar; we show our own button instead
+            e.preventDefault(); // we show our own banner instead of Chrome's mini-infobar
             deferredInstallPrompt = e;
-            const btn = document.getElementById('install-app-btn');
-            if (btn) btn.style.display = 'flex';
+            pwaRefresh();
         });
         async function installApp() {
-            if (!deferredInstallPrompt) return;
+            if (!deferredInstallPrompt) { pwaOpenSheet(); return; } // iPhone / browsers without a native install prompt: show the steps
             deferredInstallPrompt.prompt();
-            await deferredInstallPrompt.userChoice; // resolves once the user taps Install or Cancel
+            const choice = await deferredInstallPrompt.userChoice; // resolves once the user taps Install or Cancel
             deferredInstallPrompt = null;
-            const btn = document.getElementById('install-app-btn');
-            if (btn) btn.style.display = 'none';
+            if (choice && choice.outcome === 'accepted') pwaRefresh();
         }
         window.installApp = installApp;
         window.addEventListener('appinstalled', () => {
-            const btn = document.getElementById('install-app-btn');
-            if (btn) btn.style.display = 'none';
+            deferredInstallPrompt = null;
+            try { localStorage.setItem('lg_pwa_dismiss', String(Date.now())); } catch (e) {}
+            pwaRefresh();
+            if (window.showToast) window.showToast(t('pwa_installed'), 'success');
         });
+        pwaRefresh();
         window.renderPushToggleUI = renderPushToggleUI;
 
         messagingReady.then(() => {
@@ -25229,9 +25414,32 @@ html.perf-low html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______
          install criteria: manifest + registered service worker over HTTPS).
          Lets a visitor install straight from the website itself, no Play
          Store needed. Hidden by default; JS toggles it visible. -->
-    <button id="install-app-btn" onclick="installApp()" style="display:none;position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:9999;padding:13px 16px;border:none;border-radius:14px;background:#2563EB;color:#fff;font-size:15px;font-weight:500;box-shadow:0 8px 24px rgba(37,99,235,0.35);align-items:center;justify-content:center;gap:8px;">
-        ⬇️ App ကို Download လုပ်ပါ
-    </button>
+    <div class="pwa-sheet-ov" id="pwa-sheet" onclick="if(event.target===this)pwaCloseSheet()">
+        <div class="pwa-sheet" role="dialog" aria-modal="true">
+            <h3 id="pwa-sheet-title" data-i18n="pwa_sheet_title">Add to Home Screen</h3>
+            <div class="pwa-note" id="pwa-note" data-i18n="pwa_inapp"></div>
+            <div class="pwa-steps" id="pwa-steps-ios" style="display:none">
+                <div class="pwa-step"><b>1</b><span data-i18n="pwa_ios1"></span></div>
+                <div class="pwa-step"><b>2</b><span data-i18n="pwa_ios2"></span></div>
+                <div class="pwa-step"><b>3</b><span data-i18n="pwa_ios3"></span></div>
+            </div>
+            <div class="pwa-steps" id="pwa-steps-and" style="display:none">
+                <div class="pwa-step"><b>1</b><span data-i18n="pwa_and1"></span></div>
+                <div class="pwa-step"><b>2</b><span data-i18n="pwa_and2"></span></div>
+                <div class="pwa-step"><b>3</b><span data-i18n="pwa_and3"></span></div>
+            </div>
+            <div class="pwa-steps" id="pwa-steps-re-ios" style="display:none">
+                <div class="pwa-step"><b>1</b><span data-i18n="pwa_re_ios1"></span></div>
+                <div class="pwa-step"><b>2</b><span data-i18n="pwa_re_ios2"></span></div>
+                <div class="pwa-step"><b>3</b><span data-i18n="pwa_re_ios3"></span></div>
+            </div>
+            <div class="pwa-steps" id="pwa-steps-re-and" style="display:none">
+                <div class="pwa-step"><b>1</b><span data-i18n="pwa_re_and1"></span></div>
+                <div class="pwa-step"><b>2</b><span data-i18n="pwa_re_and2"></span></div>
+            </div>
+            <button class="pwa-ok" type="button" onclick="pwaCloseSheet()" data-i18n="pwa_gotit">Got it</button>
+        </div>
+    </div>
 
     <!-- HIDDEN DEV TOOL: Eruda mobile console, not loaded by default.
          Tapping "Version ..." in Profile 7 times (see handleVersionTap()

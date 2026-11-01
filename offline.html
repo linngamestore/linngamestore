@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060B18">
+<title>Linn Game Store</title>
+<style>
+:root{--bg:#F1F6FF;--card:#fff;--text:#0F1B3D;--sub:#5B6B8F;--accent:#1B6BFF;--ring:rgba(27,107,255,.18)}
+@media (prefers-color-scheme:dark){:root{--bg:#060B18;--card:#0E1730;--text:#EAF0FF;--sub:#8FA0C8;--accent:#4C93FF;--ring:rgba(76,147,255,.22)}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);color:var(--text);
+  font-family:'Noto Sans Myanmar','Myanmar Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background-image:radial-gradient(circle at 50% 18%,var(--ring),transparent 55%)}
+.card{width:100%;max-width:380px;text-align:center;padding:34px 24px 26px;border-radius:28px;background:var(--card);
+  box-shadow:0 24px 50px -22px rgba(20,50,140,.45),0 0 0 1px rgba(127,150,200,.14);animation:up .6s cubic-bezier(.22,.8,.3,1) both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.logo{position:relative;width:96px;height:96px;margin:0 auto 20px}
+.logo img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;border-radius:26px;background:#fff;padding:8px;animation:fl 3.2s ease-in-out infinite}
+.logo::before,.logo::after{content:"";position:absolute;inset:0;border-radius:30px;border:2px solid var(--accent);opacity:0;animation:rp 2.6s ease-out infinite}
+.logo::after{animation-delay:1.3s}
+@keyframes rp{0%{transform:scale(.9);opacity:.5}100%{transform:scale(1.55);opacity:0}}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+h1{font-size:20px;font-weight:500;line-height:1.35}
+p{margin-top:8px;font-size:14px;line-height:1.7;color:var(--sub)}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:8px 14px;border-radius:99px;font-size:12.5px;background:rgba(245,158,11,.14);color:#B45309}
+.status i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:bl 1.2s ease-in-out infinite}
+@keyframes bl{50%{opacity:.25}}
+.status.ok{background:rgba(16,185,129,.15);color:#047857}
+button{display:block;width:100%;margin-top:20px;padding:14px;border:0;border-radius:16px;background:var(--accent);color:#fff;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;box-shadow:0 12px 24px -10px var(--accent)}
+button:active{transform:scale(.97)}
+small{display:block;margin-top:14px;font-size:11.5px;color:var(--sub);opacity:.8}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="logo"><img id="logo" src="/favicon-192.png?v=4" alt=""></div>
+  <h1 id="t"></h1>
+  <p id="d"></p>
+  <div class="status" id="st"><i></i><span id="stt"></span></div>
+  <button id="b" type="button"></button>
+  <small>Linn Game Store</small>
+</main>
+<script>
+(function () {
+  var my = false;
+  try { my = localStorage.getItem('gz_lang') === 'my'; } catch (e) {}
+  var T = my ? {
+    t: 'အင်တာနက် ချိတ်ဆက်မှု မရှိပါ',
+    d: 'Wi-Fi သို့မဟုတ် Mobile Data ကို စစ်ပြီး ပြန်ကြိုးစားပါ။ ချိတ်ဆက်မိတာနဲ့ အလိုအလျောက် ပြန်ဖွင့်ပေးပါမယ်။',
+    w: 'ချိတ်ဆက်မှုကို စောင့်ကြည့်နေပါတယ်...', ok: 'ချိတ်ဆက်မိပါပြီ၊ ပြန်ဖွင့်နေပါတယ်...', b: 'ပြန်ကြိုးစားမည်'
+  } : {
+    t: "You're offline",
+    d: 'Check your Wi-Fi or mobile data and try again. We will reload automatically as soon as you are back online.',
+    w: 'Waiting for a connection...', ok: 'Back online, reloading...', b: 'Try again'
+  };
+  document.documentElement.lang = my ? 'my' : 'en';
+  var $ = function (id) { return document.getElementById(id); };
+  $('t').textContent = T.t; $('d').textContent = T.d; $('stt').textContent = T.w; $('b').textContent = T.b;
+
+  // use the store's own logo if the main page saved it earlier
+  try {
+    var l = localStorage.getItem('lg_install_logo');
+    if (l) { var img = $('logo'); img.onerror = function () { img.onerror = null; img.src = '/favicon-192.png?v=4'; }; img.src = l; }
+  } catch (e) {}
+
+  var busy = false;
+  function check() {
+    if (busy) return; busy = true;
+    var ctl = new AbortController(); var to = setTimeout(function () { ctl.abort(); }, 6000);
+    fetch('/favicon-48.png?ping=' + Date.now(), { cache: 'no-store', signal: ctl.signal })
+      .then(function (r) { clearTimeout(to); if (r && r.ok) back(); else busy = false; })
+      .catch(function () { clearTimeout(to); busy = false; });
+  }
+  function back() {
+    var st = $('st'); st.className = 'status ok'; $('stt').textContent = T.ok;
+    setTimeout(function () { location.replace('/'); }, 600);
+  }
+  $('b').addEventListener('click', check);
+  window.addEventListener('online', check);
+  setInterval(check, 5000);
+})();
+</script>
+</body>
+</html>
