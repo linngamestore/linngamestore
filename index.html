@@ -310,6 +310,78 @@
             } catch (e) { /* storage blocked - just reload */ }
             location.reload();
         };
+        // Full-screen lock used while an account is being created / switched: nothing underneath can be tapped.
+        // show(msg) = spinner while the Worker works; count(sec, done) = visible seconds countdown, then done().
+        window.__lockScreen = (function () {
+            var el = null, numEl = null, msgEl = null, ringEl = null, timer = null, CIRC = 2 * Math.PI * 34;
+            function block(e) { e.preventDefault(); e.stopPropagation(); }
+            function build() {
+                if (el) return;
+                el = document.createElement('div');
+                el.setAttribute('role', 'alertdialog');
+                el.setAttribute('aria-live', 'assertive');
+                el.style.cssText = 'position:fixed;inset:0;z-index:2147483600;background:#0b1020;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none;';
+                el.innerHTML = '<div style="position:relative;width:88px;height:88px;">' +
+                    '<svg viewBox="0 0 80 80" width="88" height="88" style="transform:rotate(-90deg);">' +
+                    '<circle cx="40" cy="40" r="34" fill="none" stroke="#26304f" stroke-width="6"></circle>' +
+                    '<circle class="lk-ring" cx="40" cy="40" r="34" fill="none" stroke="#8b7bff" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + CIRC + '" stroke-dashoffset="0"></circle>' +
+                    '</svg>' +
+                    '<div class="lk-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 30px/1 system-ui,sans-serif;color:#fff;"></div>' +
+                    '</div>' +
+                    '<div class="lk-msg" style="font:600 16px/1.5 system-ui,sans-serif;color:#fff;max-width:280px;"></div>' +
+                    '<div style="font:400 13px/1.5 system-ui,sans-serif;color:#9aa6c9;max-width:280px;">ခဏစောင့်ပါ — ဘာမှ မနှိပ်ပါနှင့်</div>';
+                numEl = el.querySelector('.lk-num'); msgEl = el.querySelector('.lk-msg'); ringEl = el.querySelector('.lk-ring');
+                ['click', 'touchstart', 'touchmove', 'pointerdown', 'wheel', 'contextmenu'].forEach(function (t) { el.addEventListener(t, block, { passive: false }); });
+                document.body.appendChild(el);
+            }
+            function keyBlock(e) { if (el) { e.preventDefault(); e.stopPropagation(); } }
+            function show(msg) {
+                build();
+                if (timer) { clearInterval(timer); timer = null; }
+                msgEl.textContent = msg || 'အကောင့်ဖွင့်နေပါသည်...';
+                numEl.innerHTML = '<span style="width:26px;height:26px;border-radius:50%;border:3px solid #26304f;border-top-color:#8b7bff;display:inline-block;animation:lkspin .8s linear infinite;"></span>';
+                if (!document.getElementById('lk-style')) {
+                    var st = document.createElement('style'); st.id = 'lk-style';
+                    st.textContent = '@keyframes lkspin{to{transform:rotate(360deg)}}';
+                    document.head.appendChild(st);
+                }
+                ringEl.style.strokeDashoffset = String(CIRC * 0.75);
+                document.addEventListener('keydown', keyBlock, true);
+                try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) { /* ignore */ }
+            }
+            function hide() {
+                if (timer) { clearInterval(timer); timer = null; }
+                document.removeEventListener('keydown', keyBlock, true);
+                if (el && el.parentNode) el.parentNode.removeChild(el);
+                el = null;
+            }
+            function count(sec, done, msg) {
+                sec = Math.max(1, Math.floor(sec || 5));
+                show(msg || 'အကောင့်အသစ် ပြင်ဆင်နေပါသည်');
+                var left = sec, total = sec;
+                function paint() {
+                    numEl.textContent = String(left);
+                    ringEl.style.transition = 'stroke-dashoffset 1s linear';
+                    ringEl.style.strokeDashoffset = String(CIRC * (1 - left / total));
+                }
+                ringEl.style.strokeDashoffset = '0'; paint();
+                timer = setInterval(function () {
+                    left--;
+                    if (left <= 0) {
+                        clearInterval(timer); timer = null;
+                        numEl.textContent = '0';
+                        try { if (done) done(); } catch (e) { console.error(e); }
+                        // If the reload was refused (loop guard) never leave the screen locked.
+                        setTimeout(hide, 3500);
+                        return;
+                    }
+                    paint();
+                }, 1000);
+            }
+            return { show: show, hide: hide, count: count };
+        })();
+        window.LOCK_SECONDS = 5;
+        window.__lockCountdown = function (done, sec) { window.__lockScreen.count(sec || window.LOCK_SECONDS, done); };
         (function () {
             // Pages restored from the back/forward cache (bfcache) come back
             // with all JS state frozen mid-way — force a fresh navigation.
@@ -8440,7 +8512,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                Add ?pwa=1 to the address to clear an old "closed" flag and show the banner again. */
             (function () {
                 var el = document.getElementById('pwa-promo'); if (!el) return;
-                try { if (/[?&]pwa=1\b/.test(location.search)) localStorage.removeItem('lg_pwa_dismiss'); localStorage.removeItem('lg_pwa_top'); localStorage.removeItem('lg_pwa_until'); localStorage.removeItem('lg_bot_until'); localStorage.removeItem('lg_pwa_installed'); sessionStorage.removeItem('lg_pwa_top_seen'); } catch (e) {}
+                try { if (/[?&]pwa=1\b/.test(location.search)) { localStorage.removeItem('lg_pwa_dismiss'); localStorage.removeItem('lg_pwa_top'); localStorage.removeItem('lg_pwa_until'); localStorage.removeItem('lg_bot_until'); localStorage.removeItem('lg_pwa_installed'); sessionStorage.removeItem('lg_pwa_top_seen'); } } catch (e) {}
                 function installed() { return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true; }
                 function inTg() { try { return !!(window.Telegram && Telegram.WebApp && Telegram.WebApp.initData); } catch (e) { return false; } }
                 function native() { try { return !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform()); } catch (e) { return false; } }
@@ -9112,7 +9184,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             </div>
         </div>
 
-        <!-- PROFILE PAGE (saved locally on this device, photo hosted on ImgBB) -->
+        <!-- PROFILE PAGE (saved locally on this device, photo hosted on R2 image storage) -->
         <div id="profile" class="page-section">
 
             <div class="gz-login-card gz-only-guest" data-gz="profile">
@@ -13148,6 +13220,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (p.qrImage) { qrEl.src = p.qrImage; qrEl.style.display = 'block'; } else { qrEl.src = ''; qrEl.style.display = 'none'; }
             { const sb = document.getElementById('pm-qr-save'); if (sb) sb.style.display = p.qrImage ? 'flex' : 'none'; }
             document.getElementById('detail-payment-info').style.display = 'flex';
+            // bring the Name / No. box into view (only scrolls when it is off-screen)
+            try { const infoEl = document.getElementById('detail-payment-info'); requestAnimationFrame(() => { try { infoEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ } }); } catch (e) { /* ignore */ }
         }
 
         // ---------- Auto-detect Transaction ID from the uploaded receipt (OCR) ----------
@@ -13372,8 +13446,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // Copies just the user's ID itself (e.g. "LINN-1234"), not the "ID: "
         // label shown next to it in the profile hero card.
         function copyProfileId(btnEl) {
-            const text = getGuestId();
-            if (!text) return;
+            const text = hasAccountOnDevice() ? getGuestId() : '';
+            if (!text) { window.showToast('အကောင့်ဖွင့်ပြီးမှ ID ကို ကူးယူနိုင်ပါမည်', 'fail'); return; }
 
             const onCopied = () => {
                 window.showToast('ID copied!');
@@ -14009,7 +14083,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         window.confirmPackagePurchase = confirmPackagePurchase;
         initSlideConfirm();
 
-        // ---------- Profile (saved on this device via localStorage; photo hosted on ImgBB) ----------
+        // ---------- Profile (saved on this device via localStorage; photo hosted on R2 image storage) ----------
         let editingProfilePhotoFile = null;
 
         function getSavedProfile() {
@@ -14111,6 +14185,19 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // visitor from someone who already has an account on this device,
         // so the welcome toast can say "Welcome" vs "Welcome Back".
         let guestWasJustCreated = false;
+        // The ID in localStorage is only a local placeholder until the person signs in and the Worker creates
+        // the real account. Only then may an ID be SHOWN (orders/wallet already require sign-in).
+        function hasAccountOnDevice() {
+            try {
+                if (window.__authUserPresent) return true;
+                if (localStorage.getItem('gz_gid_owner_uid') || localStorage.getItem('gz_gid_owner_uid_tg') || localStorage.getItem('gz_gid_owner_uid_fb')) return true;
+                if (localStorage.getItem('gz_telegram_profile')) return true;
+                var pr = JSON.parse(localStorage.getItem('gz_profile') || '{}');
+                if (pr && pr.email) return true;
+            } catch (e) { /* storage blocked */ }
+            return false;
+        }
+        window.hasAccountOnDevice = hasAccountOnDevice;
         function getGuestId() {
             try {
                 let gid = localStorage.getItem('gz_guest_id');
@@ -14130,7 +14217,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         function renderMiniProfile() {
             const p = getSavedProfile();
             const gid = getGuestId();
-            const displayName = (p.name && p.name.trim()) ? p.name.trim() : gid;
+            const hasAcct = hasAccountOnDevice();
+            const displayName = (p.name && p.name.trim()) ? p.name.trim() : (hasAcct ? gid : 'Guest');
             document.getElementById('mini-profile-name').innerText = displayName;
             if (window.renderMiniProfileGreeting) window.renderMiniProfileGreeting();
             const img = document.getElementById('mini-profile-avatar-img');
@@ -14166,7 +14254,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             const heroName = document.getElementById('profile-hero-name');
             const heroId = document.getElementById('profile-hero-id');
             if (heroName) heroName.innerText = displayName;
-            if (heroId && !heroId.dataset.revealing) heroId.innerText = 'ID: ' + gid;
+            if (heroId && !heroId.dataset.revealing) heroId.innerText = hasAcct ? 'ID: ' + gid : '';
         }
 
         // ---- New-account ID reveal: right after a brand-new account is created, the ID in the Profile card
@@ -14230,8 +14318,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             saveBtn.innerHTML = '<span class="gx-sp"></span>Saving';
 
             try {
-                if (editingProfilePhotoFile && window.uploadProfilePhotoToImgBB) {
-                    photoUrl = await window.uploadProfilePhotoToImgBB(editingProfilePhotoFile);
+                if (editingProfilePhotoFile && window.uploadProfilePhoto) {
+                    photoUrl = await window.uploadProfilePhoto(editingProfilePhotoFile);
                 }
                 const profile = { ...existing, name, phone, photo: photoUrl, contactEmail };
                 localStorage.setItem('gz_profile', JSON.stringify(profile));
@@ -14267,9 +14355,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         (function showWelcomeToast() {
             const p = getSavedProfile();
             const gid = getGuestId();
-            const displayName = (p.name && p.name.trim()) ? p.name.trim() : gid;
+            const named = (p.name && p.name.trim()) ? p.name.trim() : (hasAccountOnDevice() ? gid : '');
             const prefix = guestWasJustCreated ? t('welcome_new') : t('welcome_back');
-            window.showToast(`${prefix}, ${displayName}`);
+            window.showToast(named ? `${prefix}, ${named}` : prefix);
         })();
     </script>
 
@@ -14472,11 +14560,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         }
         window.generateShortNumericId = generateShortNumericId;
 
-        // Free image hosting for payment receipts (no Firebase Storage / Blaze plan needed).
-        // Uploads go through the imgbb-functions Cloudflare Worker instead of
-        // calling api.imgbb.com directly, so the ImgBB API key stays server-side
-        // and never ships in this file's client-side JS (same "key never reaches
-        // the browser" pattern as the fazercards-functions Worker).
+        // Image hosting for receipts / profile photos / support screenshots.
+        // Every upload goes to the R2 upload Worker (see IMAGE_UPLOAD_URL below), which checks the
+        // customer's Firebase login and stores the file in the R2 bucket served from img.linngamestore.com.
         // Shrinks big photos (and converts HEIC/other formats the browser can
         // decode) to a JPEG before upload, so the Worker's 10MB limit and its
         // jpeg/png/webp/gif/avif allow-list are not hit by raw phone photos.
@@ -14548,7 +14634,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
         }
 
-        async function uploadReceiptToImgBB(file) {
+        async function uploadReceiptImage(file) {
             const statusEl = document.getElementById('receipt-upload-status');
             statusEl.style.display = 'block';
             if (!_imgUploadDone(file)) statusEl.innerHTML = '<span class="gx-sp"></span>Uploading receipt'; else statusEl.style.display = 'none';
@@ -14563,12 +14649,11 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
         }
 
-        // ---- Cloudinary (free, no Firebase Storage / Blaze plan) ----
-        // 1) cloudinary.com -> Settings -> Upload -> Upload presets -> Add: Signing mode = UNSIGNED
-        // 2) paste your Cloud name + that preset name below. No API key / secret in the browser.
         // ---- R2 image upload (Cloudflare Worker -> R2 bucket linn-images -> img.linngamestore.com) ----
+        // IMAGE_UPLOAD_URL must be the URL of the Worker that runs r2-upload-worker.js (same URL as in the admin panel).
         const IMAGE_UPLOAD_URL = 'https://imgbb-function.linngamestore.workers.dev';
-        async function cloudinaryUpload(file, folder, timeoutMs, extraFields) {
+        // Folders the Worker accepts for customers: uploads/receipt, uploads/photo, uploads/img, receipt-downloads.
+        async function r2Upload(file, folder, timeoutMs, extraFields) {
             const u = auth.currentUser;
             if (!u) { const e0 = new Error('Login required'); e0.status = 401; throw e0; }
             const token = await u.getIdToken();
@@ -14587,6 +14672,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     err.status = res.status;
                     throw err;
                 }
+                if (!/^https:\/\/img\.linngamestore\.com\//.test(String(j.data.url))) console.warn('Image URL is not on img.linngamestore.com - is IMAGE_UPLOAD_URL pointing at the R2 Worker?', j.data.url);
                 return j.data.url;
             } finally { clearTimeout(t); }
         }
@@ -14609,24 +14695,26 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             const prepared = await prepareImageForUpload(file);
             const type = (prepared && prepared.type && /^image\//i.test(prepared.type)) ? prepared.type : 'image/jpeg';
             const ext = (type.split('/')[1] || 'jpg').replace(/[^a-z0-9]/gi, '').slice(0, 5) || 'jpg';
-            const folder = String(label || 'img').replace(/[^A-Za-z0-9_-]/g, '') || 'img';
+            // The Worker only accepts uploads/receipt, uploads/photo and uploads/img for customers: any other label
+            // (e.g. the support-ticket 'screenshot') used to be sent as its own folder and was rejected as "Invalid folder".
+            const folder = (label === 'receipt' || label === 'photo') ? label : 'img';
             let lastErr = null;
-            // Cloudinary (unsigned preset). Up to 3 tries for timeouts / network blips.
+            // R2 Worker. Up to 3 tries for timeouts / network blips.
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
-                    return await cloudinaryUpload(prepared, 'uploads/' + folder, 30000);
+                    return await r2Upload(prepared, 'uploads/' + folder, 30000);
                 } catch (e) {
-                    console.warn('Cloudinary upload failed:', e);
+                    console.warn('Image upload failed:', e);
                     lastErr = new Error('Could not upload your ' + label + '. Please check your connection and try again.');
-                    if (e && e.status >= 400 && e.status < 500) break; // bad preset / file: retrying won't help
+                    if (e && e.status >= 400 && e.status < 500) break; // bad file / folder / login: retrying won't help
                     await new Promise(r2 => setTimeout(r2, 800 * (attempt + 1)));
                 }
             }
             throw lastErr || new Error('Could not upload your ' + label + '. Please try again.');
         }
 
-        // Same free image host, used for the user's own profile picture.
-        async function uploadProfilePhotoToImgBB(file) {
+        // Same R2 image host, used for the user's own profile picture.
+        async function uploadProfilePhoto(file) {
             const statusEl = document.getElementById('profile-photo-status');
             statusEl.style.display = 'block';
             statusEl.innerHTML = '<span class="gx-sp"></span>Uploading photo';
@@ -14640,7 +14728,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 throw e;
             }
         }
-        window.uploadProfilePhotoToImgBB = uploadProfilePhotoToImgBB;
+        window.uploadProfilePhoto = uploadProfilePhoto;
 
         // ---------- Sync this customer's profile to Firestore so the Admin panel's
         // Users tab can list real users (photo, name/guest ID, phone) and pull up
@@ -14718,7 +14806,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         let selectedWalletPaymentMethod = null;
         let walletTopupCache = []; // most recent snapshot, for the detail modal
 
-        async function uploadWalletReceiptToImgBB(file) {
+        async function uploadWalletReceiptImage(file) {
             const statusEl = document.getElementById('wallet-receipt-upload-status');
             statusEl.style.display = 'block';
             if (!_imgUploadDone(file)) statusEl.innerHTML = '<span class="gx-sp"></span>Uploading receipt'; else statusEl.style.display = 'none';
@@ -15848,7 +15936,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             btnEl.innerHTML = '<span class="gx-sp"></span>Submitting';
 
             try {
-                const receiptUrl = await uploadWalletReceiptToImgBB(editingWalletReceiptFile);
+                const receiptUrl = await uploadWalletReceiptImage(editingWalletReceiptFile);
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
                 // Stamp the customer's Telegram id on the request so the admin
                 // bot can DM them "Top Up confirmed / rejected" via
@@ -16545,15 +16633,21 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         async function workerNewAccountId(kind, profile) {
             const u = auth.currentUser;
             if (!u) throw new Error('Please sign in first.');
-            const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
-            const res = await fetch(`${base}/account/create`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await u.getIdToken() },
-                body: JSON.stringify({ kind, name: (profile && profile.name) || '', photo: (profile && profile.photo) || '', telegramUsername: (profile && profile.telegramUsername) || '' })
-            });
-            const j = await res.json().catch(() => ({}));
-            if (!res.ok || !j.ok || !j.id) throw new Error((j && j.error) || 'Could not create the account.');
-            return j.id;
+            if (window.__lockScreen) window.__lockScreen.show('အကောင့်ဖွင့်နေပါသည်...');
+            try {
+                const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
+                const res = await fetch(`${base}/account/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await u.getIdToken() },
+                    body: JSON.stringify({ kind, name: (profile && profile.name) || '', photo: (profile && profile.photo) || '', telegramUsername: (profile && profile.telegramUsername) || '' })
+                });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok || !j.ok || !j.id) throw new Error((j && j.error) || 'Could not create the account.');
+                return j.id;
+            } catch (e) {
+                if (window.__lockScreen) window.__lockScreen.hide();   // failed -> unlock so the person can retry
+                throw e;
+            }
         }
         // The id this device remembers may have no users/{id} document yet (it was only ever a local placeholder).
         // In that case ask the Worker for a real account and switch this device to it.
@@ -16573,7 +16667,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 localStorage.setItem('gz_profile', JSON.stringify(profile));
             } catch (e) { /* private browsing */ }
             if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
-            setTimeout(() => window.__safeReload(), 900);
+            window.__lockCountdown(() => window.__safeReload());
         }
 
         // True when this device's current guest ID already belongs to a
@@ -16622,7 +16716,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
                         if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: linkedGid }, { merge: true });
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                        setTimeout(() => window.__safeReload(), 900);
+                        window.__lockCountdown(() => window.__safeReload());
                     } catch (e) {
                         console.error('Google account switch failed:', e);
                         if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -16657,7 +16751,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             await setDoc(linkRef, { guestId: emailLinkedGid, email: user.email || '' }, { merge: true });
                             await setDoc(doc(db, "users", emailLinkedGid), { googleEmail: user.email || '' }, { merge: true });
                             if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                            setTimeout(() => window.__safeReload(), 900);
+                            window.__lockCountdown(() => window.__safeReload());
                         } catch (e) {
                             console.error('Google-email reconnect failed:', e);
                             if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -16681,7 +16775,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
-                        setTimeout(() => window.__safeReload(), 900);
+                        window.__lockCountdown(() => window.__safeReload());
                         return;
                     }
                     {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
@@ -16761,7 +16855,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
                         if (user.email) await setDoc(doc(db, "emailAccounts", user.email.toLowerCase()), { guestId: linkedGid }, { merge: true });
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                        setTimeout(() => window.__safeReload(), 900);
+                        window.__lockCountdown(() => window.__safeReload());
                     } catch (e) {
                         console.error('Facebook account switch failed:', e);
                         if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -16792,7 +16886,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             await setDoc(linkRef, { guestId: emailLinkedGid, email: user.email || '' }, { merge: true });
                             await setDoc(doc(db, "users", emailLinkedGid), { facebookEmail: user.email || '' }, { merge: true });
                             if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                            setTimeout(() => window.__safeReload(), 900);
+                            window.__lockCountdown(() => window.__safeReload());
                         } catch (e) {
                             console.error('Facebook-email reconnect failed:', e);
                             if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -16812,7 +16906,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
-                        setTimeout(() => window.__safeReload(), 900);
+                        window.__lockCountdown(() => window.__safeReload());
                         return;
                     }
                     {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
@@ -16938,7 +17032,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         localStorage.setItem('gz_gid_owner_uid_tg', user.uid);
                         if (localStorage.getItem('gz_guest_id') !== linkedGid) throw new Error('guest id did not persist');
                         if (window.showToast) window.showToast('ချိတ်ဆက်ထားသော အကောင့်သို့ ပြန်ခေါ်နေသည်...', 'success');
-                        setTimeout(() => window.__safeReload(), 900);
+                        window.__lockCountdown(() => window.__safeReload());
                     } catch (e) {
                         console.error('Telegram account switch failed:', e);
                         if (window.showToast) window.showToast('အကောင့်ဟောင်းကို ပြန်ခေါ်၍မရပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် Support ကို ဆက်သွယ်ပါ။', 'fail');
@@ -16959,7 +17053,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         } catch (e) { /* private browsing */ }
                         if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
                         notifyTelegramConnected(tgUser.id, newGid, newProfile.name, 0);
-                        setTimeout(() => window.__safeReload(), 900);
+                        window.__lockCountdown(() => window.__safeReload());
                         return;
                     }
                     {   // this device's id has no account yet -> the Worker creates one (browsers cannot)
@@ -17596,6 +17690,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         window.applyLoginWall = applyLoginWall;
         onAuthStateChanged(auth, async (user) => {
             markAuthResolved();
+            window.__authUserPresent = !!user;
+            try { if (window.renderMiniProfile) window.renderMiniProfile(); } catch (e) { /* cosmetic */ }
             try { if (window.gzSetTelegramLinked) { if (!user) window.gzSetTelegramLinked(false); else if (String(user.uid || '').indexOf('tg_') === 0) window.gzSetTelegramLinked(true); } } catch (e) { /* banner only */ }
             try { applyLoginWall(user); } catch (e) { console.error('login wall error', e); }
             try { listenWalletBalance(); } catch (e) { console.error('listenWalletBalance re-attach failed:', e); }
@@ -18966,7 +19062,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     }
                 }
 
-                const receiptUrl = await uploadReceiptToImgBB(receiptFile);
+                const receiptUrl = await uploadReceiptImage(receiptFile);
 
                 // ---------- Fake-slip risk signals ----------
                 // Best-effort, computed from the OCR run at upload time (see
@@ -20733,8 +20829,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     }
                 }
                 if (tgMini || inApp) {
-                    // Telegram's WebView can't save blob: files. Host the PNG on Cloudinary, then hand the
-                    // real URL (fl_attachment = forced download) to Telegram's native downloader or the external browser.
+                    // Telegram's WebView can't save blob: files. Host the PNG on R2 (the Worker serves it
+                    // with a download file name), then hand the real URL to Telegram's native downloader or the external browser.
                     try {
                         window.showToast('Preparing download...', 'success');
                         const safeName = String(filename).replace(/\.[^.]+$/, '').replace(/[^A-Za-z0-9_-]/g, '_') || 'receipt';
@@ -20743,7 +20839,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         for (let k = 0; k < 3 && !hostedUrl; k++) {
                             try {
                                 // 3rd try: plain upload with no extra form field, in case the worker rejects it
-                                hostedUrl = await cloudinaryUpload(blob, 'receipt-downloads', 30000, k < 2 ? { download_name: safeName + '.png' } : null);
+                                hostedUrl = await r2Upload(blob, 'receipt-downloads', 30000, k < 2 ? { download_name: safeName + '.png' } : null);
                             } catch (eUp) { upErr = eUp; console.warn('Receipt upload failed:', eUp); if (eUp && eUp.status === 401) break; }
                         }
                         if (!hostedUrl) {
@@ -25474,7 +25570,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
   try { inTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData); } catch (e) {}
   function snoozed() { try { return Date.now() < parseInt(localStorage.getItem('lg_bot_until') || '0', 10); } catch (e) { return false; } }
   window.botbClose = function () { if (window.lnSnoozeAsk) window.lnSnoozeAsk('lg_bot_until', render); };
-  function render() { var show = !inTelegram && linked === false && !snoozed(); b.classList.toggle('botb-on', show); if (show) b.removeAttribute('hidden'); else b.setAttribute('hidden', ''); }
+  function ready() { return !!(window.__gzDataReady && window.authResolvedOnce); }
+  function render() { var show = ready() && !inTelegram && linked === false && !snoozed(); b.classList.toggle('botb-on', show); if (show) b.removeAttribute('hidden'); else b.setAttribute('hidden', ''); }
+  // Re-decide the moment the games data + saved-login check have both finished (until then it stays hidden).
+  (function waitReady() { if (ready()) { render(); return; } var n = 0, iv = setInterval(function () { if (ready() || ++n > 80) { clearInterval(iv); render(); } }, 250); })();
   window.gzSetTelegramLinked = function (v) { linked = !!v; render(); };
   window.openLinnBot = function () {
     var u = 'https://t.me/linngamestorebot';
@@ -27108,10 +27207,38 @@ document.addEventListener('keydown',function(e){
         var el = document.getElementById('detail-package-list');
         if (!el || window.currentStorePage !== 'game-detail') return;
         var r = el.getBoundingClientRect();
-        if (r.top > window.innerHeight * 0.62) {
-            var calm = document.documentElement.classList.contains('perf-low');
-            setTimeout(function () { try { el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }); } catch (e) {} }, 260);
-        }
+        if (r.top <= window.innerHeight * 0.62) return;
+        // Own slow eased scroll (the browser's smooth scrollIntoView is fast, can't be slowed, is instant on
+        // low-end phones and restarts/jumps when the card above is still changing height).
+        // The target is re-read every frame, so layout changes while scrolling can never cause a jump.
+        if (window.__gzScrollRaf) { cancelAnimationFrame(window.__gzScrollRaf); window.__gzScrollRaf = 0; }
+        setTimeout(function () {
+            var OFFSET = 72;
+            function target() {
+                var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+                return Math.min(max, Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - OFFSET));
+            }
+            var startY = window.pageYOffset, dist0 = target() - startY;
+            if (Math.abs(dist0) < 8) return;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { window.scrollTo(0, target()); return; }
+            var dur = Math.min(1600, Math.max(900, Math.abs(dist0) * 1.4));
+            var t0 = null, stopped = false, evs = ['touchstart', 'wheel', 'mousedown', 'keydown'];
+            function stop() {
+                stopped = true;
+                if (window.__gzScrollRaf) { cancelAnimationFrame(window.__gzScrollRaf); window.__gzScrollRaf = 0; }
+                evs.forEach(function (ev) { window.removeEventListener(ev, stop, true); });
+            }
+            evs.forEach(function (ev) { window.addEventListener(ev, stop, { capture: true, passive: true }); });
+            function ease(q) { return q < 0.5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2; }
+            function step(ts) {
+                if (stopped) return;
+                if (t0 === null) t0 = ts;
+                var q = Math.min(1, (ts - t0) / dur);
+                window.scrollTo(0, startY + (target() - startY) * ease(q));
+                if (q < 1) window.__gzScrollRaf = requestAnimationFrame(step); else stop();
+            }
+            window.__gzScrollRaf = requestAnimationFrame(step);
+        }, 380);
     };
     window.gzOpenLogin = function () {
         window.gzCloseSheet();
@@ -31263,6 +31390,35 @@ html:not(#_):not(#__):not(#___):not(#____):not(#_____) .wallet-min-hint{color:#f
 /* Closed overlays were opacity:0 but still painted + GPU-composited (13 full-screen layers = hundreds of MB on a phone). visibility:hidden drops them; the delay keeps the fade-out animation. */
 html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .modal-overlay:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .success-overlay:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .order-ok-overlay:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gz-sheet:not(.show),html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .drawer-overlay:not(.show){visibility:hidden!important;transition:opacity .28s ease,visibility 0s linear .55s!important}
 html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .modal-overlay.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .success-overlay.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .order-ok-overlay.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gz-sheet.show,html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .drawer-overlay.show{visibility:visible!important;transition-delay:0s!important}
+</style>
+<style id="pay-fix-css">
+/* ---- Payment method: clear selected state ---- */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .payment-option{position:relative}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .payment-option.selected{padding-right:46px;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,#fff);box-shadow:0 0 0 2px var(--accent),0 8px 16px -10px rgba(var(--accent-rgb),.55)}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .payment-option.selected{background:color-mix(in srgb,var(--accent) 26%,#152540);box-shadow:0 0 0 2px var(--accent),0 8px 16px -10px rgba(0,0,0,.6)}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .payment-option.selected .payment-option-name{color:var(--accent);font-weight:700}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .payment-option.selected::after{content:"";position:absolute;right:12px;top:50%;width:24px;height:24px;margin-top:-12px;border-radius:50%;background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 12.5l3.8 3.8L17.5 8.5'/%3E%3C/svg%3E") center/16px 16px no-repeat;box-shadow:0 3px 8px -2px rgba(var(--accent-rgb),.6)}
+
+/* ---- Name / No. boxes: smaller, rounder, smaller text ---- */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-info-grid{gap:5px}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-info-box{padding:4px 9px;border-radius:14px}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-info-box-label{font-size:9px;letter-spacing:.3px;margin-bottom:1px}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-info-box-row p{font-size:11px;line-height:1.2}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-info-box .pm-copy-btn{width:20px;height:20px;border-radius:999px}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-info-box .pm-copy-btn svg{width:10px;height:10px}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .pm-name-verified{width:13px;height:13px}
+
+/* ---- Top-up payment card: follow the light theme (it was always dark navy) ---- */
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card{background:var(--surface-alt,#EEF3FB);color:var(--text);border:1px solid var(--border);box-shadow:0 8px 16px -12px rgba(15,30,61,.3)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-label{color:var(--text-secondary)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-info-box{background:var(--surface,#fff);border-color:var(--border)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-info-box-label{color:var(--text-secondary)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-info-box-row p,html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-copy-row p{color:var(--text)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-copy-btn,html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-info-box .pm-copy-btn{background:var(--accent-soft);color:var(--accent);border:0}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note{background:var(--accent-soft);border-color:var(--accent)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note svg,html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note a{color:var(--accent)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note span{color:var(--text-secondary)}
+html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-qr-img{border:1px solid var(--border)!important}
 </style>
 </body>
 </html>
