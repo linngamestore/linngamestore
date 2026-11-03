@@ -313,7 +313,14 @@
         // Full-screen lock used while an account is being created / switched: nothing underneath can be tapped.
         // show(msg) = spinner while the Worker works; count(sec, done) = visible seconds countdown, then done().
         window.__lockScreen = (function () {
-            var el = null, numEl = null, msgEl = null, ringEl = null, timer = null, CIRC = 2 * Math.PI * 34;
+            var el = null, numEl = null, msgEl = null, ringEl = null, visEl = null, subEl = null, timer = null, CIRC = 2 * Math.PI * 34;
+            function cradleHtml() {
+                return '<div class="lkc"><div class="lkc-bar"></div>' +
+                    '<div class="lkc-p lkc-l"><i style="--c:46,204,113"></i></div>' +
+                    '<div class="lkc-p" style="left:24px"><i style="--c:231,76,60"></i></div>' +
+                    '<div class="lkc-p" style="left:48px"><i style="--c:55,138,221"></i></div>' +
+                    '<div class="lkc-p lkc-r"><i style="--c:241,196,15"></i></div></div>';
+            }
             function block(e) { e.preventDefault(); e.stopPropagation(); }
             function build() {
                 if (el) return;
@@ -321,16 +328,16 @@
                 el.setAttribute('role', 'alertdialog');
                 el.setAttribute('aria-live', 'assertive');
                 el.style.cssText = 'position:fixed;inset:0;z-index:2147483600;background:#0b1020;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none;';
-                el.innerHTML = '<div style="position:relative;width:88px;height:88px;">' +
-                    '<svg viewBox="0 0 80 80" width="88" height="88" style="transform:rotate(-90deg);">' +
-                    '<circle cx="40" cy="40" r="34" fill="none" stroke="#26304f" stroke-width="6"></circle>' +
-                    '<circle class="lk-ring" cx="40" cy="40" r="34" fill="none" stroke="#8b7bff" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + CIRC + '" stroke-dashoffset="0"></circle>' +
-                    '</svg>' +
-                    '<div class="lk-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 30px/1 system-ui,sans-serif;color:#fff;"></div>' +
-                    '</div>' +
+                if (!document.getElementById('lk-cradle-style')) {
+                    var cs = document.createElement('style'); cs.id = 'lk-cradle-style';
+                    cs.textContent = '.lkc{position:relative;width:96px;height:64px;margin-top:6px}.lkc-bar{position:absolute;top:-4px;left:-8px;width:112px;height:3px;border-radius:2px;background:rgba(255,255,255,.28)}.lkc-p{position:absolute;top:0;width:24px;height:64px;transform-origin:12px 0}.lkc-p::before{content:"";position:absolute;left:12px;top:0;width:1px;height:40px;background:rgba(255,255,255,.3)}.lkc-p i{position:absolute;left:0;top:40px;width:24px;height:24px;border-radius:50%;box-sizing:border-box;background:rgba(var(--c),.55);border:1px solid rgb(var(--c))}.lkc-l{left:0;animation:lkcl 2s infinite}.lkc-r{left:72px;animation:lkcr 2s infinite}@keyframes lkcl{0%{transform:rotate(38deg);animation-timing-function:ease-in}25%,75%{transform:rotate(0)}100%{transform:rotate(38deg)}}@keyframes lkcr{0%,25%{transform:rotate(0);animation-timing-function:ease-out}50%{transform:rotate(-38deg);animation-timing-function:ease-in}75%,100%{transform:rotate(0)}}@keyframes lkpop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}';
+                    document.head.appendChild(cs);
+                }
+                el.innerHTML = '<div class="lk-vis" style="min-height:88px;display:flex;align-items:center;justify-content:center;">' + cradleHtml() + '</div>' +
                     '<div class="lk-msg" style="font:600 16px/1.5 system-ui,sans-serif;color:#fff;max-width:280px;"></div>' +
-                    '<div style="font:400 13px/1.5 system-ui,sans-serif;color:#9aa6c9;max-width:280px;">ခဏစောင့်ပါ — ဘာမှ မနှိပ်ပါနှင့်</div>';
-                numEl = el.querySelector('.lk-num'); msgEl = el.querySelector('.lk-msg'); ringEl = el.querySelector('.lk-ring');
+                    '<div class="lk-sub" style="font:400 13px/1.5 system-ui,sans-serif;color:#9aa6c9;max-width:280px;">ခဏစောင့်ပါ — ဘာမှ မနှိပ်ပါနှင့်</div>';
+                visEl = el.querySelector('.lk-vis'); subEl = el.querySelector('.lk-sub');
+                msgEl = el.querySelector('.lk-msg'); numEl = document.createElement('span'); ringEl = { style: {} };
                 ['click', 'touchstart', 'touchmove', 'pointerdown', 'wheel', 'contextmenu'].forEach(function (t) { el.addEventListener(t, block, { passive: false }); });
                 document.body.appendChild(el);
             }
@@ -338,16 +345,18 @@
             function show(msg) {
                 build();
                 if (timer) { clearInterval(timer); timer = null; }
-                msgEl.textContent = msg || 'အကောင့်ဖွင့်နေပါသည်...';
-                numEl.innerHTML = '<span style="width:26px;height:26px;border-radius:50%;border:3px solid #26304f;border-top-color:#8b7bff;display:inline-block;animation:lkspin .8s linear infinite;"></span>';
-                if (!document.getElementById('lk-style')) {
-                    var st = document.createElement('style'); st.id = 'lk-style';
-                    st.textContent = '@keyframes lkspin{to{transform:rotate(360deg)}}';
-                    document.head.appendChild(st);
-                }
-                ringEl.style.strokeDashoffset = String(CIRC * 0.75);
+                msgEl.textContent = msg || 'Account Create လုပ်နေပါသည်...';
+                visEl.innerHTML = cradleHtml();
+                subEl.style.display = '';
                 document.addEventListener('keydown', keyBlock, true);
                 try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) { /* ignore */ }
+            }
+            function success(msg, sub) {
+                build();
+                msgEl.textContent = msg || 'Account Create ပြီးပါပြီ';
+                subEl.textContent = sub || '';
+                subEl.style.display = sub ? '' : 'none';
+                visEl.innerHTML = '<div style="width:72px;height:72px;border-radius:50%;background:rgba(46,204,113,.18);border:2px solid rgb(46,204,113);display:flex;align-items:center;justify-content:center;animation:lkpop .35s cubic-bezier(.34,1.56,.64,1);"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>';
             }
             function hide() {
                 if (timer) { clearInterval(timer); timer = null; }
@@ -356,29 +365,21 @@
                 el = null;
             }
             function count(sec, done, msg) {
+                // Keep the cradle + same message the whole time (no ID / text switching), then the success popup, then continue.
                 sec = Math.max(1, Math.floor(sec || 5));
-                show(msg || 'အကောင့်အသစ် ပြင်ဆင်နေပါသည်');
-                var left = sec, total = sec;
-                function paint() {
-                    numEl.textContent = String(left);
-                    ringEl.style.transition = 'stroke-dashoffset 1s linear';
-                    ringEl.style.strokeDashoffset = String(CIRC * (1 - left / total));
-                }
-                ringEl.style.strokeDashoffset = '0'; paint();
-                timer = setInterval(function () {
-                    left--;
-                    if (left <= 0) {
-                        clearInterval(timer); timer = null;
-                        numEl.textContent = '0';
+                show(msg || 'Account Create လုပ်နေပါသည်...');
+                timer = setTimeout(function () {
+                    timer = null;
+                    success('Account Create ပြီးပါပြီ', 'ခဏနေရင် ဝင်ရောက်ပါမယ်');
+                    timer = setTimeout(function () {
+                        timer = null;
                         try { if (done) done(); } catch (e) { console.error(e); }
                         // If the reload was refused (loop guard) never leave the screen locked.
                         setTimeout(hide, 3500);
-                        return;
-                    }
-                    paint();
-                }, 1000);
+                    }, 1300);
+                }, Math.max(1500, (sec - 1) * 1000));
             }
-            return { show: show, hide: hide, count: count };
+            return { show: show, hide: hide, count: count, success: success };
         })();
         window.LOCK_SECONDS = 5;
         window.__lockCountdown = function (done, sec) { window.__lockScreen.count(sec || window.LOCK_SECONDS, done); };
@@ -1504,7 +1505,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             z-index: 1;
         }
-        .game-card-pin-badge svg { width: 12px; height: 12px; }
+        .game-card-pin-badge svg { width: 13px; height: 13px; }
         .game-card.pinned .game-card-pin-badge { display: flex; animation: pinBadgePop 0.3s cubic-bezier(.4,1.6,.4,1); }
         @keyframes pinBadgePop { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
@@ -2229,10 +2230,10 @@
         /* ===================== LOADERS (one style per place) =====================
            bars: button | dots: wallet | flip: vouchers | bar: chat photo upload |
            ripple: startup | grid: games. LINN label animates letter by letter. */
-        .ld-bars { display: inline-flex; align-items: center; gap: 2px; height: 28px; }
-        .ld-bars i { width: 5px; height: 100%; border-radius: 2px; background: var(--accent); animation: ldBar 1s ease-in-out infinite; }
-        .ld-bars i:nth-child(2) { animation-delay: .15s; } .ld-bars i:nth-child(3) { animation-delay: .3s; } .ld-bars i:nth-child(4) { animation-delay: .45s; }
-        @keyframes ldBar { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+        .ld-bars { display: inline-flex; align-items: center; gap: 4px; height: 34px; }
+        .ld-bars i { width: 6px; height: 100%; border-radius: 3px; background: var(--accent); transform: scaleY(.14); will-change: transform; animation: ldBar 1.1s cubic-bezier(.45,.05,.55,.95) infinite; }
+        .ld-bars i:nth-child(2) { animation-delay: .14s; } .ld-bars i:nth-child(3) { animation-delay: .28s; } .ld-bars i:nth-child(4) { animation-delay: .42s; }
+        @keyframes ldBar { 0%, 100% { transform: scaleY(.14); opacity: .55; } 45% { transform: scaleY(1); opacity: 1; } 70% { transform: scaleY(.14); opacity: .55; } }
         .ld-dots { display: inline-flex; align-items: center; gap: 6px; height: 28px; }
         .ld-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: ldBounce .9s ease-in-out infinite; }
         .ld-dots i:nth-child(2) { animation-delay: .15s; } .ld-dots i:nth-child(3) { animation-delay: .3s; }
@@ -8153,7 +8154,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         <symbol id="icon-message-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/></symbol>
         <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z"/></symbol>
         <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M5 4.5c3-1.5 5 1.5 8 0 2-1 4-1 6 0v9c-2-1-4-1-6 0-3 1.5-5-1.5-8 0Z"/><path d="M5 21V4.5"/></symbol>
-        <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M12 21.5s6.5-5.6 6.5-11.2A6.5 6.5 0 0 0 5.5 10.3C5.5 15.9 12 21.5 12 21.5Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+        <symbol id="icon-pin" viewBox="0 0 24 24"><g transform="rotate(35 12 12)"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></g></symbol>
         <symbol id="icon-book" viewBox="0 0 24 24"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v14.5H7.5A2.5 2.5 0 0 0 5 20Z"/><path d="M5 20a2.5 2.5 0 0 0 2.5 1H19v-3.5"/><path d="M9 7.5h6"/></symbol>
         <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="m4 8 8 5.5L20 8"/></symbol>
 
@@ -8756,9 +8757,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             <div id="popular-vouchers-section">
                 <h2 class="title-header" data-i18n="title_popular">Popular</h2>
                 <div class="popular-scroll-wrap" id="popular-vouchers-scroll">
-                    <div class="skel-popular-voucher-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
-                    <div class="skel-popular-voucher-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
-                    <div class="skel-popular-voucher-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="voucher-card popular-voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card popular-voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card popular-voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
                 </div>
             </div>
             <div class="all-games-title-row" id="voucher-title-row">
@@ -8772,9 +8773,12 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             <p class="empty-msg" style="text-align:left;padding:0 2px 12px;">Instant-delivery gift cards & top-up vouchers.</p>
             <div class="games-grid-scroll">
                 <div class="cards-grid" id="voucher-games-grid">
-                    <div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
-                    <div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
-                    <div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>
+                    <div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
+                    <div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>
                 </div>
             </div>
         </div>
@@ -8812,7 +8816,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         <!-- HISTORY PAGE (Live Firebase Orders) -->
         <div id="history" class="page-section">
             <h2 class="title-header" data-i18n="title_history">Transaction History</h2>
-            <div id="history-container"><div class="sk-list" aria-hidden="true"><div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div></div></div>
+            <div id="history-container"><div class="skel-history-card"><div class="skel-hc-left"><div class="skel skel-thumb"></div><div class="skel-hc-lines"><div class="skel skel-line1"></div><div class="skel skel-line2"></div></div></div><div class="skel-hc-right"><div class="skel-hc-col"><div class="skel skel-line3"></div><div class="skel skel-line4"></div></div><div class="skel skel-chev"></div></div></div><div class="skel-history-card"><div class="skel-hc-left"><div class="skel skel-thumb"></div><div class="skel-hc-lines"><div class="skel skel-line1"></div><div class="skel skel-line2"></div></div></div><div class="skel-hc-right"><div class="skel-hc-col"><div class="skel skel-line3"></div><div class="skel skel-line4"></div></div><div class="skel skel-chev"></div></div></div><div class="skel-history-card"><div class="skel-hc-left"><div class="skel skel-thumb"></div><div class="skel-hc-lines"><div class="skel skel-line1"></div><div class="skel skel-line2"></div></div></div><div class="skel-hc-right"><div class="skel-hc-col"><div class="skel skel-line3"></div><div class="skel skel-line4"></div></div><div class="skel skel-chev"></div></div></div></div>
         </div>
 
         <!-- LEADERBOARD PAGE — ranks real customers by lifetime successful top-up
@@ -9044,36 +9048,15 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     <div id="wallet-topup-payment-methods" style="display:flex; flex-direction:column; gap:10px;"></div>
 
                     <div id="wallet-topup-payment-info" style="display:none; margin-top:12px; flex-direction:column; gap:4px;">
-                        <div class="wallet-pay-info-card">
-                            <p data-i18n="pm_transfer" class="wallet-pay-info-label">Transfer the exact amount to</p>
-                            <div class="pm-qr-info-row">
-                                <div class="pm-qr-col"><img id="wallet-pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid rgba(255,255,255,0.4);"><button type="button" id="wallet-pm-qr-save" class="pm-qr-save" onclick="downloadPaymentQr('wallet-pm-qr', 'wallet-pm-name')"><svg class="ui-icon"><use href="#icon-download"></use></svg><span data-i18n="pm_save_qr">Save QR</span></button></div>
-                                <div class="pm-info-grid">
-                                    <div class="pm-info-box">
-                                        <span data-i18n="pm_name" class="pm-info-box-label">Name</span>
-                                        <div class="pm-info-box-row">
-                                            <span class="pm-name-wrap"><p id="wallet-pm-name"></p><svg class="pm-name-verified" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                                            <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-name', this)" title="Copy name">
-                                                <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="pm-info-box">
-                                        <span data-i18n="pm_no" class="pm-info-box-label">No.</span>
-                                        <div class="pm-info-box-row">
-                                            <p id="wallet-pm-number"></p>
-                                            <button type="button" class="pm-copy-btn" onclick="copyPaymentField('wallet-pm-number', this)" title="Copy phone number">
-                                                <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="pmx pmx-ticket">
+                            <div class="pmx-head"><div class="pmx-logo" id="wallet-pm-method-logo"></div><div class="pmx-hname"><b id="wallet-pm-method-name"></b><small>Official account</small></div><span class="pmx-ver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span></div>
+                            <div class="pmx-scan" id="wallet-pm-qr-wrap"><div class="pmx-frame"><i></i><i></i><i></i><i></i><img id="wallet-pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img pmx-qr" style="display:none;"></div><button type="button" id="wallet-pm-qr-save" class="pm-qr-save pmx-save" onclick="downloadPaymentQr('wallet-pm-qr', 'wallet-pm-name')"><svg class="ui-icon"><use href="#icon-download"></use></svg><span data-i18n="pm_save_qr">Save QR</span></button></div>
+                            <div class="pmx-perf"></div>
+                            <div class="pmx-rows">
+                                <div class="pmx-row"><div class="pmx-f"><small data-i18n="pm_name">Name</small><strong><p id="wallet-pm-name"></p><svg class="pmx-tick" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="#22C55E"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></strong></div><button type="button" class="pmx-copy ghost" onclick="copyPaymentField('wallet-pm-name', this)" title="Copy name"><svg class="ui-icon"><use href="#icon-copy"></use></svg><span>Copy</span></button></div>
+                                <div class="pmx-row num"><div class="pmx-f"><small data-i18n="pm_no">No.</small><strong><p id="wallet-pm-number"></p></strong></div><button type="button" class="pmx-copy" onclick="copyPaymentField('wallet-pm-number', this)" title="Copy phone number"><svg class="ui-icon"><use href="#icon-copy"></use></svg><span>Copy</span></button></div>
                             </div>
-
-                            <div class="pm-verify-note">
-                                <svg class="ui-icon"><use href="#icon-shield"></use></svg>
-                                <span>Only send to the exact Number &amp; Name above. If it looks different from before, <a onclick="contactAdmin()">contact Support</a> before paying.</span>
-                            </div>
+                            <div class="pmx-note"><svg class="ui-icon"><use href="#icon-shield"></use></svg><span>Only send to the exact Number &amp; Name above. If it looks different from before, <a onclick="contactAdmin()">contact Support</a> before paying.</span></div>
                         </div>
 
                         <label data-i18n="pm_upload_receipt" style="display:block;font-size:13px;font-weight: 500;color:var(--text);margin-top:14px;">Upload Payment Receipt</label>
@@ -9362,15 +9345,28 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         </span>
                     </div>
                 </div>
-                <div style="margin-top:8px;">
-                    <span onclick="togglePrefsAutoInfo()" role="button" aria-label="Show auto-switch info" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);font-weight: 500;cursor:pointer;">
-                        Auto-switch info
-                        <svg class="ui-icon" id="prefs-auto-info-chevron" style="width:12px;height:12px;transition:transform 0.2s;"><use href="#icon-chevron-right"></use></svg>
-                    </span>
-                    <p id="prefs-auto-info-text" style="display:none;font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:400;line-height:1.5;">
+                <div class="pai-wrap">
+                    <style>
+                    .pai-wrap{margin-top:12px}
+                    .pai-head{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:14px;background:rgba(var(--accent-rgb,55,138,221),.08);border:1px solid rgba(var(--accent-rgb,55,138,221),.2);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .2s}
+                    .pai-head:active{background:rgba(var(--accent-rgb,55,138,221),.16)}
+                    .pai-ic{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(var(--accent-rgb,55,138,221),.16);color:var(--accent);flex-shrink:0}
+                    .pai-head .pai-t{flex:1;text-align:left}
+                    .pai-body{display:none;margin-top:8px;padding:12px 14px;border-radius:14px;background:var(--surface-alt,rgba(0,0,0,.04));border:1px solid var(--border);font-size:12.5px;line-height:1.6;color:var(--text-secondary);animation:paiIn .22s ease}
+                    @keyframes paiIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+                    .pai-body #theme-auto-text{display:block}
+                    .pai-body #theme-auto-reset-link{margin-top:10px;padding:8px 14px;border-radius:999px;background:rgba(var(--accent-rgb,55,138,221),.12);border:1px solid rgba(var(--accent-rgb,55,138,221),.35);font-size:12.5px}
+                    </style>
+                    <div class="pai-head" onclick="togglePrefsAutoInfo()" role="button" aria-label="Show auto-switch info">
+                        <span class="pai-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                        <span class="pai-t">Auto-switch info</span>
+                        <svg class="ui-icon" id="prefs-auto-info-chevron" style="width:14px;height:14px;transition:transform 0.2s;"><use href="#icon-chevron-right"></use></svg>
+                    </div>
+                    <div id="prefs-auto-info-text" class="pai-body">
                         <span id="theme-auto-text">Auto-switches: Light 7 AM–7 PM, Dark 7 PM–7 AM.</span>
                         <span id="theme-auto-reset-link" style="color:var(--accent);font-weight: 500;cursor:pointer;display:none;" onclick="resetThemeToAuto()">Switched off — tap to re-enable auto</span>
-                    </p>
+                    </div>
+                </div>
                 </div>
                 </div>
             </div>
@@ -9899,34 +9895,20 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
                     <div id="detail-payment-info" class="detail-form-card" style="display:none; margin-top:10px;">
                         <p data-i18n="pm_transfer_c" style="font-size:12px;color:var(--text-secondary);">Transfer the exact amount to:</p>
-                        <div class="pm-qr-info-row">
-                            <div class="pm-qr-col"><img id="pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img" style="display:none; border-radius:14px; object-fit:contain; background:#fff; padding:8px; border:1px solid var(--border-glass, rgba(127,127,127,.25));"><button type="button" id="pm-qr-save" class="pm-qr-save" onclick="downloadPaymentQr('pm-qr', 'pm-name')"><svg class="ui-icon"><use href="#icon-download"></use></svg><span data-i18n="pm_save_qr">Save QR</span></button></div>
-                            <div class="pm-info-grid">
-                                <div class="pm-info-box">
-                                    <span data-i18n="pm_name" class="pm-info-box-label">Name</span>
-                                    <div class="pm-info-box-row">
-                                        <span class="pm-name-wrap"><p id="pm-name"></p><svg class="pm-name-verified" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                                        <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-name', this)" title="Copy name">
-                                            <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="pm-info-box">
-                                    <span data-i18n="pm_no" class="pm-info-box-label">No.</span>
-                                    <div class="pm-info-box-row">
-                                        <p id="pm-number"></p>
-                                        <button type="button" class="pm-copy-btn" onclick="copyPaymentField('pm-number', this)" title="Copy phone number">
-                                            <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                                        </button>
-                                    </div>
+                        <div class="pmx pmx-bank">
+                            <div class="pmx-head"><div class="pmx-logo" id="pm-method-logo"></div><div class="pmx-hname"><b id="pm-method-name"></b><small>Official account</small></div><span class="pmx-ver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span></div>
+                            <div class="pmx-mid">
+                                <div class="pmx-qrw" id="pm-qr-wrap"><img id="pm-qr" loading="lazy" decoding="async" src="" alt="QR code" class="pm-qr-img pmx-qr" style="display:none;"></div>
+                                <div class="pmx-info">
+                                    <small data-i18n="pm_name">Name</small>
+                                    <div class="pmx-nm"><p id="pm-name"></p><svg class="pmx-tick" viewBox="0 0 24 24" aria-label="Verified"><circle cx="12" cy="12" r="11" fill="#22C55E"/><path d="M7 12.5l3.4 3.4L17 9.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                    <small data-i18n="pm_no" style="margin-top:12px">No.</small>
+                                    <div class="pmx-num"><p id="pm-number"></p></div>
                                 </div>
                             </div>
+                            <div class="pmx-btns"><button type="button" class="pmx-b w" onclick="copyPaymentField('pm-number', this)"><svg class="ui-icon"><use href="#icon-copy"></use></svg><span>Copy number</span></button><button type="button" id="pm-qr-save" class="pm-qr-save pmx-save pmx-b" onclick="downloadPaymentQr('pm-qr', 'pm-name')"><svg class="ui-icon"><use href="#icon-download"></use></svg><span data-i18n="pm_save_qr">Save QR</span></button></div>
                         </div>
-
-                        <div class="pm-verify-note">
-                            <svg class="ui-icon"><use href="#icon-shield"></use></svg>
-                            <span>Only send to the exact Number &amp; Name above. If it looks different from before, <a onclick="contactAdmin()">contact Support</a> before paying.</span>
-                        </div>
+                        <div class="pmx-note out"><svg class="ui-icon"><use href="#icon-shield"></use></svg><span>Only send to the exact Number &amp; Name above. If it looks different from before, <a onclick="contactAdmin()">contact Support</a> before paying.</span></div>
 
                         <label data-i18n="pm_upload_receipt">Upload Payment Receipt</label>
                         <label class="upload-shot-box" id="upload-shot-box" for="receipt-file">
@@ -12563,8 +12545,31 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
 
             document.getElementById('detail-game-name').innerText = game.name;
-            document.getElementById('detail-game-banner').src = game.banner || game.image;
-            document.getElementById('detail-game-banner').alt = game.name;
+            (function(){
+                var bEl = document.getElementById('detail-game-banner');
+                var bSrc = game.banner || game.image || '';
+                var bToken = (window._bannerToken = (window._bannerToken || 0) + 1);
+                // Clear the previous game's image immediately so it never lingers
+                bEl.onload = bEl.onerror = null;
+                bEl.removeAttribute('src');
+                bEl.removeAttribute('srcset');
+                bEl.loading = 'eager';
+                bEl.style.transition = 'none';
+                bEl.style.opacity = '0';
+                void bEl.offsetWidth;
+                bEl.style.transition = 'opacity .5s ease-in-out';
+                bEl.alt = game.name;
+                var show = function(){ if (bToken === window._bannerToken) bEl.style.opacity = '1'; };
+                bEl.onload = show;
+                bEl.onerror = show;
+                bEl.style.transition = 'opacity .5s ease-in-out';
+                if (bSrc) {
+                    var pre = new Image();
+                    pre.onload = function(){ if (bToken === window._bannerToken) { bEl.src = bSrc; } };
+                    pre.onerror = function(){ if (bToken === window._bannerToken) { bEl.src = bSrc; } };
+                    pre.src = bSrc;
+                }
+            })();
             updateFavoriteButtonState();
             renderGameDescCard(game.description || '', game.redeemLink || '', game);
             loadSavedContactIntoForm();
@@ -12609,8 +12614,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     const _lbl = String(pkgTabLabel(orderedTabs[0]) || '').trim();
                     if (_lbl && _lbl !== 'Currency' && _lbl !== 'Package') window.__pkgTitleLabel = _lbl;
                 }
-                const _pkgTitleEl = document.querySelector('[data-i18n="sec_select_currency_pkg"]');
-                if (_pkgTitleEl) _pkgTitleEl.textContent = t('sec_select_currency_pkg');
+                window.__pkgTitleMulti = orderedTabs.length > 1;
+                updatePkgTitle(false);
                 renderDetailPackageList();
             } catch (err) {
                 console.error('openGameDetail: package list render failed for', gameId, err);
@@ -12646,9 +12651,30 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
         }
 
+        // Section-2 heading follows the active tab: "Select Currency" / "Select Diamond" / ...
+        function updatePkgTitle(animate) {
+            const el = document.querySelector('[data-i18n="sec_select_currency_pkg"]');
+            if (!el) return;
+            if (window.__pkgTitleMulti) {
+                const lbl = String(pkgTabLabel(activePackageTab) || '').trim();
+                if (lbl) window.__pkgTitleLabel = lbl;
+            }
+            const txt = t('sec_select_currency_pkg');
+            if (el.textContent === txt) return;
+            if (!animate) { el.textContent = txt; return; }
+            el.style.transition = 'opacity .12s ease, transform .12s ease';
+            el.style.opacity = '0'; el.style.transform = 'translateY(-4px)';
+            setTimeout(() => {
+                el.textContent = txt;
+                el.style.opacity = '1'; el.style.transform = 'none';
+            }, 120);
+        }
+        window.updatePkgTitle = updatePkgTitle;
+
         function switchPackageTab(tabId) {
             if (tabId === activePackageTab) return;
             activePackageTab = tabId;
+            updatePkgTitle(true);
             pkgZoomDone = false; // price cards play their zoom-in motion again on every tab switch
             document.querySelectorAll('.pkg-type-tab').forEach(el => el.classList.toggle('active', el.dataset.type === tabId));
             // let the tab highlight paint first, then swap the cards (one cheap fade, no per-card animation)
@@ -12989,6 +13015,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             confirmBtn.innerText = 'Choose How to Pay';
 
             document.getElementById('detail-payment-section').style.display = 'block';
+            try { if (window.__autoScrollToPayment && !window.__suppressPayScroll) window.__autoScrollToPayment(); } catch (e) { /* ignore */ }
         }
 
         // Builds a direct link to a specific package (so it can be shared)
@@ -13215,6 +13242,11 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             document.querySelector(`#detail-payment-methods .payment-option[data-payment-id="${id}"]`).classList.add('selected');
 
             document.getElementById('pm-number').innerText = p.number;
+            try { const _e = window.escapeHtml || (x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))); const _p = '';
+                const _mn = document.getElementById(_p + 'pm-method-name'); if (_mn) _mn.textContent = p.name || '';
+                const _ml = document.getElementById(_p + 'pm-method-logo'); if (_ml) _ml.innerHTML = p.image ? '<img src="' + _e(p.image) + '" alt="">' : _e(String(p.name || '?').trim().charAt(0).toUpperCase());
+                const _qw = document.getElementById(_p + 'pm-qr-wrap'); if (_qw) _qw.style.display = p.qrImage ? '' : 'none'; } catch (e) { /* ignore */ }
+
             document.getElementById('pm-name').innerText = p.accountName;
             const qrEl = document.getElementById('pm-qr');
             if (p.qrImage) { qrEl.src = p.qrImage; qrEl.style.display = 'block'; } else { qrEl.src = ''; qrEl.style.display = 'none'; }
@@ -13392,6 +13424,11 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             };
             reader.readAsDataURL(file);
             receiptOcrPromise = detectTransactionId(file, 'detail-transaction-id', 'receipt-upload-status');
+            try {
+                if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({ name: 'geolocation' }).then(st => { if (st.state === 'granted') window.__orderLocPromise = getOrderLocation(2500); }).catch(() => {});
+                }
+            } catch (e) { /* best effort */ }
         }
 
         // Fallback copy for browsers/webviews (common on older Android / in-app
@@ -13805,7 +13842,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
             // Transaction ID is auto-detected from the receipt (see previewReceiptImage);
             // wait for that to finish rather than asking the customer to type it in.
-            if (receiptOcrPromise) { try { await Promise.race([receiptOcrPromise, new Promise(r => setTimeout(r, 4000))]); } catch (e) { /* detectTransactionId already falls back to "None" internally */ } }
+            if (receiptOcrPromise) { try { await Promise.race([receiptOcrPromise, new Promise(r => setTimeout(r, 2000))]); } catch (e) { /* detectTransactionId already falls back to "None" internally */ } }
             const transactionId = document.getElementById('detail-transaction-id').value.trim() || 'None';
 
             await doSubmitOrder(inGameId, serverId, btnElement, transactionId);
@@ -15661,6 +15698,11 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             document.querySelectorAll('#wallet-topup-payment-methods .payment-option').forEach(el => el.classList.remove('selected'));
             document.querySelector(`#wallet-topup-payment-methods .payment-option[data-wallet-payment-id="${id}"]`).classList.add('selected');
             document.getElementById('wallet-pm-number').innerText = p.number;
+            try { const _e = window.escapeHtml || (x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))); const _p = 'wallet-';
+                const _mn = document.getElementById(_p + 'pm-method-name'); if (_mn) _mn.textContent = p.name || '';
+                const _ml = document.getElementById(_p + 'pm-method-logo'); if (_ml) _ml.innerHTML = p.image ? '<img src="' + _e(p.image) + '" alt="">' : _e(String(p.name || '?').trim().charAt(0).toUpperCase());
+                const _qw = document.getElementById(_p + 'pm-qr-wrap'); if (_qw) _qw.style.display = p.qrImage ? '' : 'none'; } catch (e) { /* ignore */ }
+
             document.getElementById('wallet-pm-name').innerText = p.accountName;
             const walletQrEl = document.getElementById('wallet-pm-qr');
             if (p.qrImage) { walletQrEl.src = p.qrImage; walletQrEl.style.display = 'block'; } else { walletQrEl.src = ''; walletQrEl.style.display = 'none'; }
@@ -16633,7 +16675,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         async function workerNewAccountId(kind, profile) {
             const u = auth.currentUser;
             if (!u) throw new Error('Please sign in first.');
-            if (window.__lockScreen) window.__lockScreen.show('အကောင့်ဖွင့်နေပါသည်...');
+            if (window.__lockScreen) window.__lockScreen.show('Account Create လုပ်နေပါသည်...');
             try {
                 const base = (typeof TELEGRAM_BOT_WORKER_URL !== 'undefined' ? TELEGRAM_BOT_WORKER_URL : 'https://linnmanagebot.linngamestore.workers.dev');
                 const res = await fetch(`${base}/account/create`, {
@@ -16666,7 +16708,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 localStorage.setItem(ownerKey, ownerUid);
                 localStorage.setItem('gz_profile', JSON.stringify(profile));
             } catch (e) { /* private browsing */ }
-            if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
+            
             window.__lockCountdown(() => window.__safeReload());
         }
 
@@ -16774,7 +16816,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             localStorage.setItem('gz_gid_owner_uid', user.uid);
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
-                        if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
+                        
                         window.__lockCountdown(() => window.__safeReload());
                         return;
                     }
@@ -16905,7 +16947,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             localStorage.setItem('gz_gid_owner_uid_fb', user.uid);
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
-                        if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
+                        
                         window.__lockCountdown(() => window.__safeReload());
                         return;
                     }
@@ -17051,7 +17093,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                             localStorage.setItem('gz_gid_owner_uid_tg', user.uid);
                             localStorage.setItem('gz_profile', JSON.stringify(newProfile));
                         } catch (e) { /* private browsing */ }
-                        if (window.showToast) window.showToast('အကောင့်အသစ် ဖွင့်နေသည်...', 'success');
+                        
                         notifyTelegramConnected(tgUser.id, newGid, newProfile.name, 0);
                         window.__lockCountdown(() => window.__safeReload());
                         return;
@@ -17570,7 +17612,40 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         }
         window.handleFacebookSignIn = handleFacebookSignIn;
 
-        function handleGoogleSignOut() {
+        function confirmSignOutUI() {
+            if (document.getElementById('signout-confirm-overlay')) return;
+            if (!document.getElementById('signout-confirm-style')) {
+                const st = document.createElement('style'); st.id = 'signout-confirm-style';
+                st.textContent = '@keyframes soFade{from{opacity:0}to{opacity:1}}@keyframes soPop{from{transform:scale(.9) translateY(8px);opacity:0}to{transform:none;opacity:1}}' +
+                    '#signout-confirm-overlay{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:24px;animation:soFade .2s ease}' +
+                    '#signout-confirm-overlay .so-box{width:100%;max-width:320px;background:var(--surface,#fff);color:var(--text,#050505);border:1px solid var(--border,rgba(0,0,0,.1));border-radius:20px;padding:22px 20px 16px;text-align:center;animation:soPop .25s cubic-bezier(.34,1.56,.64,1)}' +
+                    '#signout-confirm-overlay .so-ic{width:52px;height:52px;margin:0 auto 12px;border-radius:50%;background:rgba(231,76,60,.14);border:1.5px solid rgba(231,76,60,.5);display:flex;align-items:center;justify-content:center}' +
+                    '#signout-confirm-overlay h3{margin:0 0 6px;font-size:17px;font-weight:600}' +
+                    '#signout-confirm-overlay p{margin:0 0 16px;font-size:13.5px;line-height:1.55;color:var(--text-secondary,#65676b)}' +
+                    '#signout-confirm-overlay .so-row{display:flex;gap:10px}' +
+                    '#signout-confirm-overlay button{flex:1;border:none;border-radius:12px;padding:12px 10px;font-size:14.5px;font-weight:600;cursor:pointer}' +
+                    '#signout-confirm-overlay .so-no{background:var(--surface-alt,#f0f2f5);color:var(--text,#050505)}' +
+                    '#signout-confirm-overlay .so-yes{background:#e74c3c;color:#fff}' +
+                    '#signout-confirm-overlay button:active{transform:scale(.97)}';
+                document.head.appendChild(st);
+            }
+            const ov = document.createElement('div');
+            ov.id = 'signout-confirm-overlay';
+            ov.setAttribute('role', 'alertdialog');
+            ov.innerHTML = '<div class="so-box">' +
+                '<div class="so-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></div>' +
+                '<h3>Log Out ထွက်မှာ သေချာပါသလား?</h3>' +
+                '<p>ထွက်လိုက်ရင် ဒီဖုန်းထဲက အကောင့်ကနေ ထွက်သွားပါမယ်။</p>' +
+                '<div class="so-row"><button type="button" class="so-no">မထွက်တော့ဘူး</button><button type="button" class="so-yes">ထွက်မယ်</button></div></div>';
+            const close = () => { if (ov.parentNode) ov.parentNode.removeChild(ov); };
+            ov.addEventListener('click', (e) => { if (e.target === ov) close(); });
+            ov.querySelector('.so-no').addEventListener('click', close);
+            ov.querySelector('.so-yes').addEventListener('click', () => { close(); doGoogleSignOut(); });
+            document.body.appendChild(ov);
+        }
+        function handleGoogleSignOut() { confirmSignOutUI(); }
+
+        function doGoogleSignOut() {
             signOut(auth)
                 .then(() => {
                     // Signing out ends this customer's session on the device: drop the
@@ -19009,7 +19084,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // support, the customer denies the permission prompt, or it just takes
         // too long, this quietly resolves to null and the order goes through
         // with no location field at all.
-        function getOrderLocation(timeoutMs = 4000) {
+        function getOrderLocation(timeoutMs = 2000) {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) { resolve(null); return; }
                 let settled = false;
@@ -19041,6 +19116,11 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (!auth.currentUser) { await window.gzAuthReady(); }
             if (!auth.currentUser) { sendToLoginForm(btnElement, originalText); return; }
 
+            // Speed: the receipt upload and the location lookup do not depend on the ban check, so they start
+            // right now and run together with it instead of one after another.
+            const _upP = uploadReceiptImage(receiptFile); _upP.catch(() => {});
+            const _locP = (window.__orderLocPromise || getOrderLocation()).catch(() => null);
+            window.__orderLocPromise = null;
             try {
                 const guestId = window.getGuestId ? window.getGuestId() : '';
 
@@ -19048,7 +19128,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 // submit time (not cached) so a ban applied mid-session still works.
                 if (guestId) {
                     try {
-                        const userSnap = await getDoc(doc(db, "users", guestId));
+                        const userSnap = await Promise.race([
+                            getDoc(doc(db, "users", guestId)),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('ban check timeout')), 3000))
+                        ]);
                         if (userSnap.exists() && userSnap.data().banned) {
                             window.showToast('Your account has been restricted. Contact support.', 'fail');
                             btnElement.innerText = originalText;
@@ -19062,7 +19145,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     }
                 }
 
-                const receiptUrl = await uploadReceiptImage(receiptFile);
+                const receiptUrl = await _upP;
 
                 // ---------- Fake-slip risk signals ----------
                 // Best-effort, computed from the OCR run at upload time (see
@@ -19094,7 +19177,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
                 // Doesn't block the order if the customer denies/ignores the
                 // permission prompt or geolocation just isn't available.
-                const location = await getOrderLocation();
+                const location = await _locP;
 
                 const orderRef = { id: '' }; // id is assigned by the Worker
 
@@ -19657,6 +19740,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (tgt.pkgIndex >= 0 && game.packages[tgt.pkgIndex]) {
                 const targetPkg = game.packages[tgt.pkgIndex];
                 try { const tab = pkgTabOf(targetPkg); if (tab !== activePackageTab) switchPackageTab(tab); } catch (e) {}
+                window.__suppressPayScroll = true; setTimeout(() => { window.__suppressPayScroll = false; }, 1800);
                 try { selectPackageOption(tgt.pkgIndex); } catch (e) { console.error('buy again select failed', e); }
             }
             // Page-in and card animations are still running for ~0.7s, so re-run the scroll until the layout settles.
@@ -20039,22 +20123,17 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // Shown while the history listener is attaching/fetching its first
         // snapshot, in place of a plain spinner/"Loading..." text.
         function historySkeletonHTML(count = 4) {
-            const card = `
-                <div class="skel-history-card">
-                    <div class="skel-hc-left">
-                        <div class="skel skel-thumb"></div>
-                        <div class="skel-hc-lines">
-                            <div class="skel skel-line1"></div>
-                            <div class="skel skel-line2"></div>
-                        </div>
-                    </div>
-                    <div class="skel-hc-right">
-                        <div class="skel skel-line3"></div>
-                        <div class="skel skel-line4"></div>
-                    </div>
-                </div>
-            `;
-            return card.repeat(count);
+            return `<div class="skel-history-card"><div class="skel-hc-left"><div class="skel skel-thumb"></div><div class="skel-hc-lines"><div class="skel skel-line1"></div><div class="skel skel-line2"></div></div></div><div class="skel-hc-right"><div class="skel-hc-col"><div class="skel skel-line3"></div><div class="skel skel-line4"></div></div><div class="skel skel-chev"></div></div></div>`.repeat(count);
+        }
+
+        // Skeleton cards with exactly the same boxes as the real cards, used while the games
+        // listener has not answered yet (instead of a spinner that replaced the whole grid).
+        // kind: 'game' (Top Up + Software grids) | 'voucher'
+        function skelCardsHTML(kind = 'game', count = 6) {
+            const one = kind === 'voucher'
+                ? `<div class="voucher-card vc-skel" aria-hidden="true"><div class="vc-art"></div><div class="vc-body"><div class="vc-name"><i class="skel"></i><i class="skel"></i></div><span class="vc-tag skel"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Instant</span></div></div>`
+                : '<div class="skel-game-card"><div class="skel skel-img"></div><div class="skel skel-name"></div></div>';
+            return one.repeat(count);
         }
 
         // Marks a scrollable container as "being touched" between touchstart and
@@ -21395,7 +21474,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             // Sign-in state not restored yet: keep the loader up (never the empty
             // state). The auth handler calls loadHistory() again once it resolves.
             if (!window.authResolvedOnce) {
-                container.innerHTML = loadingStateHTML('bars');
+                container.innerHTML = historySkeletonHTML(3);
                 return;
             }
 
@@ -21418,7 +21497,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
             HISTORY_PREV_STATUS = null;
             HISTORY_SERVER_SEEN = false;
-            container.innerHTML = loadingStateHTML('bars');
+            container.innerHTML = historySkeletonHTML(3);
             // No server answer after 12s (slow / dropped connection): replace the endless loader with a retry state.
             clearTimeout(window.__historyLoadTimer);
             window.__historyLoadTimer = setTimeout(() => {
@@ -22156,7 +22235,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (signature === lastHomeGamesSignature && grid.children.length > 0) return;
             lastHomeGamesSignature = signature;
             if (ids.length === 0) {
-                grid.innerHTML = __provCS ? provComingSoonHtml() : (gamesLoadedOnce ? '<p class="empty-msg">No games available yet.</p>' : loadingStateHTML('grid'));
+                grid.innerHTML = __provCS ? provComingSoonHtml() : (gamesLoadedOnce ? '<p class="empty-msg">No games available yet.</p>' : skelCardsHTML('game', 6));
                 popularSection.style.display = 'none';
                 popularScroll.innerHTML = '';
                 if (countEl) countEl.textContent = '';
@@ -22323,7 +22402,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (ids.length === 0) {
                 grid.innerHTML = __provCS ? provComingSoonHtml() : (gamesLoadedOnce
                     ? emptyStateHTML('icon-gift', 'No vouchers yet', 'Gift cards & vouchers will show up here once added.')
-                    : loadingStateHTML('flip'));
+                    : skelCardsHTML('voucher', 6));
                 if (popularSection) popularSection.style.display = 'none';
                 if (popularScroll) popularScroll.innerHTML = '';
                 return;
@@ -22449,7 +22528,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (ids.length === 0) {
                 grid.innerHTML = gamesLoadedOnce
                     ? emptyStateHTML('icon-grid', 'No software yet', 'Software & top-up tools will show up here once added.')
-                    : loadingStateHTML('grid');
+                    : skelCardsHTML('game', 6);
                 return;
             }
             const groups = groupGamesByName(ids);
@@ -23565,7 +23644,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         };
         function updateThemeAutoNote() {
             const link = document.getElementById('theme-auto-reset-link');
-            if (link) link.style.display = hasManualTheme() ? 'inline' : 'none';
+            if (link) link.style.display = hasManualTheme() ? 'inline-block' : 'none';
         }
         function applyAutoThemeIfDue() {
             if (hasManualTheme()) return; // user has an explicit preference — automation stays out of the way
@@ -31419,6 +31498,214 @@ html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):
 html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note svg,html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note a{color:var(--accent)}
 html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-verify-note span{color:var(--text-secondary)}
 html:not([data-theme="dark"]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .wallet-pay-info-card .pm-qr-img{border:1px solid var(--border)!important}
+</style>
+
+<style id="pkg-motion-css">
+#detail-package-list .package-card.rv-pre{opacity:0;translate:0 var(--rv-y,28px)}
+#detail-package-list .package-card.rv-in{opacity:1;translate:0 0;transition:opacity .45s ease var(--rv-d,0ms),translate .6s cubic-bezier(.2,.8,.2,1) var(--rv-d,0ms)}
+#detail-package-list.pk-scr .package-card,#detail-package-list.pk-scr .package-card *{animation-play-state:paused!important}
+html.perf-low #detail-package-list .package-card.rv-pre{opacity:1;translate:none}
+@media (prefers-reduced-motion:reduce){#detail-package-list .package-card.rv-pre{opacity:1;translate:none}}
+</style>
+<script id="pkg-motion-js">
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- 1) After a package is picked: slowly glide down to "Payment method" ---- */
+  var anim = 0;
+  function scrollParent(el) {
+    for (var n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      var oy = getComputedStyle(n).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 4) return n;
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+  function glide(el, dur) {
+    var sp = scrollParent(el), isDoc = (sp === document.scrollingElement || sp === document.documentElement);
+    var start = isDoc ? window.pageYOffset : sp.scrollTop;
+    var top = el.getBoundingClientRect().top - (isDoc ? 0 : sp.getBoundingClientRect().top);
+    var target = start + top - 96;
+    var max = sp.scrollHeight - (isDoc ? window.innerHeight : sp.clientHeight);
+    target = Math.max(0, Math.min(target, max));
+    var dist = target - start;
+    if (dist < 24) return;                       /* already in view */
+    if (anim) cancelAnimationFrame(anim);
+    var t0 = 0, stopped = false;
+    function stop() { stopped = true; }
+    ['touchstart', 'wheel', 'mousedown', 'keydown'].forEach(function (ev) { window.addEventListener(ev, stop, { passive: true, once: true }); });
+    function ease(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+    function step(ts) {
+      if (stopped) { anim = 0; return; }
+      if (!t0) t0 = ts;
+      var k = Math.min(1, (ts - t0) / dur), y = start + dist * ease(k);
+      if (isDoc) window.scrollTo(0, y); else sp.scrollTop = y;
+      if (k < 1) anim = requestAnimationFrame(step); else anim = 0;
+    }
+    anim = requestAnimationFrame(step);
+  }
+  window.__autoScrollToPayment = function () {
+    var el = document.getElementById('detail-payment-section');
+    if (!el) return;
+    /* wait for the section to be laid out (display:block was just set), then glide slowly */
+    setTimeout(function () {
+      if (el.offsetHeight <= 0) return;
+      glide(el, reduce ? 1 : Math.min(1600, 900 + Math.abs(el.getBoundingClientRect().top) * 0.5));
+    }, 160);
+  };
+
+  /* ---- 2) Price cards: rise in from below when scrolling down, drop in from above when scrolling up ---- */
+  if (!('IntersectionObserver' in window)) return;
+  var list = null, io = null, lastY = window.pageYOffset, dir = 1, dirAt = 0, pk = 0;
+  window.addEventListener('scroll', function () {
+    var y = window.pageYOffset;
+    if (Math.abs(y - lastY) > 2) { dir = y > lastY ? 1 : -1; dirAt = Date.now(); }
+    lastY = y;
+    if (list) { if (!list.classList.contains('pk-scr')) list.classList.add('pk-scr'); clearTimeout(pk); pk = setTimeout(function () { list.classList.remove('pk-scr'); }, 140); }
+  }, { passive: true });
+
+  var batch = 0, batchTimer = 0;
+  function reveal(card) {
+    if (card.classList.contains('card-zoom')) { card.classList.remove('rv-pre'); return; }   /* first render already has its own pop-in */
+    var fromTop = dir < 0 && (Date.now() - dirAt) < 700;
+    card.style.setProperty('--rv-y', (fromTop ? -30 : 30) + 'px');
+    card.style.setProperty('--rv-d', (batch % 3) * 55 + 'ms');
+    batch++; clearTimeout(batchTimer); batchTimer = setTimeout(function () { batch = 0; }, 120);
+    void card.offsetWidth;                                       /* commit the start position, then animate to rest */
+    card.classList.add('rv-in'); card.classList.remove('rv-pre');
+    setTimeout(function () { card.classList.remove('rv-in'); card.style.removeProperty('--rv-d'); }, 800);
+  }
+  function onIO(entries) {
+    entries.forEach(function (en) {
+      var c = en.target;
+      if (en.isIntersecting) {
+        if (c.classList.contains('rv-pre')) reveal(c);
+      } else if (!c.classList.contains('rv-in')) {
+        c.classList.add('rv-pre');                               /* fully out of view: arm it so it animates again next time */
+      }
+    });
+  }
+  function watch() {
+    if (!list) return;
+    list.querySelectorAll('.package-card').forEach(function (c) { if (!c.__rv) { c.__rv = 1; io.observe(c); } });
+  }
+  function init() {
+    list = document.getElementById('detail-package-list');
+    if (!list) return;
+    io = new IntersectionObserver(onIO, { rootMargin: '0px 0px -30px 0px', threshold: 0 });
+    new MutationObserver(watch).observe(list, { childList: true });
+    watch();
+  }
+  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+
+<style id="skel-fix">
+/* ===== Loading skeletons = exact size/shape of the real cards (so nothing jumps when data arrives) ===== */
+/* Top Up / Software / Popular: same padding, radius and name-pill size as the real .game-card */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-game-card, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-software-card, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-popular-card { padding: 5px 5px 7px; border-radius: 20px; }
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-game-card .skel-img, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-software-card .skel-img, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-popular-card .skel-img { border-radius: 15px; }
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-game-card .skel-name, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-software-card .skel-name { height: 21px; margin-top: 5px; border-radius: 10px; }
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-popular-card .skel-name { height: 17.5px; margin-top: 5px; border-radius: 10px; }
+@media (max-width:699px){
+  html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-game-card, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-software-card { padding: 3px 3px 4px; border-radius: 14px; }
+  html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-game-card .skel-img, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-software-card .skel-img { border-radius: 11px; }
+  html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-game-card .skel-name, html:not(#_):not(#__):not(#___):not(#____):not(#_____) .skel-software-card .skel-name { height: 16px; margin-top: 5px; border-radius: 8px; }
+}
+/* Voucher: skeleton built from the real .voucher-card boxes (art block + 2 name lines + "Instant" chip) */
+.voucher-card.vc-skel { pointer-events: none; box-shadow: none; border-color: var(--border); will-change: auto; }
+.vc-skel .vc-art { background: linear-gradient(90deg, #dbeafe 25%, #eff6ff 37%, #dbeafe 63%); background-size: 400% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite; }
+.vc-skel .vc-art { display:flex; align-items:center; justify-content:center; }
+.vc-skel .vc-art::before { content:''; width:58%; aspect-ratio:1/1; border-radius:22%; background:rgba(255,255,255,.6); }
+html[data-theme="dark"] .vc-skel .vc-art::before { background:rgba(255,255,255,.1); }
+.vc-skel .vc-art::after { display: none; }
+html[data-theme="dark"] .vc-skel .vc-art { background: linear-gradient(90deg, #1e3a5f 25%, #2a4a75 37%, #1e3a5f 63%); background-size: 400% 100%; }
+.vc-skel .vc-name { display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; height: 2.56em; overflow: visible; -webkit-line-clamp: unset; }
+.vc-skel .vc-name i { display: block; height: .72em; border-radius: 6px; }
+.vc-skel .vc-name i:nth-child(1) { width: 88%; }
+.vc-skel .vc-name i:nth-child(2) { width: 58%; }
+.vc-skel .vc-tag { color: transparent; background: var(--border); }
+.vc-skel .vc-tag svg { fill: transparent; }
+/* History: same boxes as the real order card (36px thumb, name/date lines, amount + status pill, chevron) */
+.skel-history-card { padding: 0 13px 0 19px; border-radius: 20px; box-shadow: inset 4px 0 0 var(--border); }
+.skel-history-card .skel-hc-left { gap: 10px; }
+.skel-history-card .skel-thumb { width: 36px; height: 36px; border-radius: 12px; }
+.skel-history-card .skel-line1 { height: 13px; width: 62%; border-radius: 6px; }
+.skel-history-card .skel-line2 { height: 10px; width: 44%; border-radius: 6px; margin-top: 8px; }
+.skel-history-card .skel-hc-right { flex-direction: row; align-items: center; justify-content: flex-end; gap: 8px; flex: 0 0 116px; width: 116px; }
+.skel-history-card .skel-hc-col { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.skel-history-card .skel-line3 { height: 13px; width: 76px; border-radius: 6px; }
+.skel-history-card .skel-line4 { height: 24px; width: 82px; border-radius: 20px; }
+.skel-history-card .skel-chev { width: 8px; height: 14px; border-radius: 4px; margin: 0 4px 0 3px; }
+</style>
+
+<style id="pmx-css">
+/* ===== Payment transfer cards: A = Ticket (Wallet top up), B = Bank card (paying for an order). Glass style. ===== */
+html:not(#_):not(#__) .pmx{--fg:#0f1d33;--mut:#64748f;--tile:rgba(59,130,246,.08);--ln:rgba(59,130,246,.25);position:relative;border-radius:24px;overflow:hidden;color:var(--fg);isolation:isolate;margin:6px 0 4px;text-align:left}
+html[data-theme="dark"]:not(#_):not(#__) .pmx{--fg:#eaf1ff;--mut:#9fb1cf;--tile:rgba(255,255,255,.07);--ln:rgba(255,255,255,.18)}
+html:not(#_):not(#__) .pmx p{margin:0}
+html:not(#_):not(#__) .pmx small{display:block;font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--mut)}
+html:not(#_):not(#__) .pmx-head{display:flex;align-items:center;gap:10px;padding:14px 16px 12px}
+html:not(#_):not(#__) .pmx-logo{width:38px;height:38px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;overflow:hidden;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(150deg,#60a5fa,#2563eb);box-shadow:0 4px 10px -4px rgba(37,99,235,.6),inset 0 0 0 1px rgba(255,255,255,.35)}
+html:not(#_):not(#__) .pmx-logo img{width:100%;height:100%;object-fit:cover;display:block}
+html:not(#_):not(#__) .pmx-hname{min-width:0;flex:1}
+html:not(#_):not(#__) .pmx-hname b{display:block;font-size:14px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html:not(#_):not(#__) .pmx-hname small{text-transform:none;letter-spacing:0;font-size:11px}
+html:not(#_):not(#__) .pmx-ver{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;font-size:10.5px;font-weight:500;padding:4px 9px;border-radius:99px;color:#15803d;background:rgba(34,197,94,.16);box-shadow:inset 0 0 0 1px rgba(34,197,94,.3)}
+html:not(#_):not(#__) .pmx-ver svg{width:11px;height:11px}
+html[data-theme="dark"]:not(#_):not(#__) .pmx-ticket .pmx-ver{color:#4ade80}
+html:not(#_):not(#__) .pmx .pmx-tick{width:16px;height:16px;flex-shrink:0}
+html:not(#_):not(#__) .pmx-save{display:none;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+html:not(#_):not(#__) .pmx-save .ui-icon{width:14px;height:14px}
+html:not(#_):not(#__) .pmx-note{display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.5;color:var(--mut)}
+html:not(#_):not(#__) .pmx-note svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;color:#3b82f6}
+html:not(#_):not(#__) .pmx-note a{color:#3b82f6;font-weight:500;cursor:pointer;white-space:nowrap}
+/* ---- A: ticket (glass, light) ---- */
+html:not(#_):not(#__) .pmx-ticket{background:linear-gradient(160deg,rgba(255,255,255,.85),rgba(255,255,255,.56));border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 30px -14px rgba(40,90,200,.38),inset 0 1px 0 #fff;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5)}
+html[data-theme="dark"]:not(#_):not(#__) .pmx-ticket{background:linear-gradient(160deg,rgba(40,60,100,.62),rgba(20,32,58,.55));border-color:rgba(255,255,255,.14);box-shadow:0 12px 30px -14px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.1)}
+html:not(#_):not(#__) .pmx-ticket .pmx-scan{margin:0 14px;border-radius:20px;padding:18px 12px 14px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(160deg,rgba(59,130,246,.12),rgba(96,165,250,.05));box-shadow:inset 0 0 0 1px rgba(59,130,246,.14)}
+html:not(#_):not(#__) .pmx-frame{position:relative;width:min(176px,62vw);aspect-ratio:1;background:#fff;border-radius:16px;padding:10px;box-shadow:0 8px 20px -10px rgba(40,90,200,.45)}
+html:not(#_):not(#__) .pmx-frame i{position:absolute;width:22px;height:22px;border:3px solid #3b82f6;pointer-events:none}
+html:not(#_):not(#__) .pmx-frame i:nth-child(1){left:-5px;top:-5px;border-right:0;border-bottom:0;border-radius:10px 0 0 0}
+html:not(#_):not(#__) .pmx-frame i:nth-child(2){right:-5px;top:-5px;border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+html:not(#_):not(#__) .pmx-frame i:nth-child(3){left:-5px;bottom:-5px;border-right:0;border-top:0;border-radius:0 0 0 10px}
+html:not(#_):not(#__) .pmx-frame i:nth-child(4){right:-5px;bottom:-5px;border-left:0;border-top:0;border-radius:0 0 10px 0}
+html:not(#_):not(#__) .pmx-qr{width:100%;height:100%;object-fit:contain;border-radius:8px}
+html:not(#_):not(#__) .pmx-ticket .pmx-save{margin-top:14px;color:#2563eb;background:rgba(255,255,255,.9);border:0;border-radius:99px;padding:7px 16px;box-shadow:0 2px 8px -3px rgba(40,90,200,.4)}
+html[data-theme="dark"]:not(#_):not(#__) .pmx-ticket .pmx-save{background:rgba(255,255,255,.14);color:#cfe1ff}
+html:not(#_):not(#__) .pmx-perf{height:0;margin:16px 18px 12px;border-top:2px dashed var(--ln)}
+html:not(#_):not(#__) .pmx-rows{padding:0 14px 12px;display:grid;gap:8px}
+html:not(#_):not(#__) .pmx-row{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:16px;background:var(--tile);box-shadow:inset 0 0 0 1px var(--ln)}
+html:not(#_):not(#__) .pmx-f{min-width:0;flex:1}
+html:not(#_):not(#__) .pmx-f strong{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600;min-width:0}
+html:not(#_):not(#__) .pmx-f strong p{min-width:0;overflow-wrap:anywhere}
+html:not(#_):not(#__) .pmx-row.num strong{font-size:17px;letter-spacing:1px;font-variant-numeric:tabular-nums}
+html:not(#_):not(#__) .pmx-copy{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;border:0;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:500;color:#fff;background:#3b82f6;border-radius:12px;padding:8px 12px;box-shadow:0 4px 10px -4px rgba(59,130,246,.7);transition:transform .12s}
+html:not(#_):not(#__) .pmx-copy.ghost{background:rgba(59,130,246,.14);color:#2563eb;box-shadow:none}
+html[data-theme="dark"]:not(#_):not(#__) .pmx-copy.ghost{color:#bcd5ff}
+html:not(#_):not(#__) .pmx-copy:active{transform:scale(.94)}
+html:not(#_):not(#__) .pmx-copy .ui-icon{width:13px;height:13px}
+html:not(#_):not(#__) .pmx-ticket .pmx-note{padding:0 16px 16px}
+/* ---- B: bank card (frosted blue glass) ---- */
+html:not(#_):not(#__) .pmx-bank{--fg:#fff;--mut:rgba(255,255,255,.78);background:linear-gradient(135deg,rgba(37,99,235,.9) 0%,rgba(59,130,246,.72) 55%,rgba(125,180,255,.62) 100%);border:1px solid rgba(255,255,255,.45);box-shadow:0 18px 34px -16px rgba(37,99,235,.75),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.12);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6);padding:0 0 16px;margin-bottom:10px}
+html[data-theme="dark"]:not(#_):not(#__) .pmx-bank{background:linear-gradient(135deg,rgba(30,64,160,.9),rgba(37,99,235,.62) 60%,rgba(70,130,230,.5));border-color:rgba(255,255,255,.22)}
+html:not(#_):not(#__) .pmx-bank::before{content:"";position:absolute;z-index:-1;right:-60px;top:-70px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.4),rgba(255,255,255,.04) 70%)}
+html:not(#_):not(#__) .pmx-bank::after{content:"";position:absolute;z-index:-1;left:-50px;bottom:-90px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%)}
+html:not(#_):not(#__) .pmx-bank .pmx-ver{color:#fff;background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+html:not(#_):not(#__) .pmx-bank .pmx-logo{box-shadow:0 4px 10px -4px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.5)}
+html:not(#_):not(#__) .pmx-mid{display:flex;gap:14px;align-items:flex-end;padding:6px 16px 0}
+html:not(#_):not(#__) .pmx-qrw{width:116px;flex-shrink:0;aspect-ratio:1;background:#fff;border-radius:16px;padding:8px;box-shadow:0 8px 18px -8px rgba(0,0,0,.35)}
+html:not(#_):not(#__) .pmx-info{flex:1;min-width:0}
+html:not(#_):not(#__) .pmx-nm{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;margin-top:3px;min-width:0}
+html:not(#_):not(#__) .pmx-nm p{min-width:0;overflow-wrap:anywhere}
+html:not(#_):not(#__) .pmx-num{margin-top:3px;font-size:18px;font-weight:700;letter-spacing:.6px;line-height:1.25;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+html:not(#_):not(#__) .pmx-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px 0}
+html:not(#_):not(#__) .pmx-b{display:flex;align-items:center;justify-content:center;gap:6px;border:0;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:#fff;padding:10px 6px;border-radius:14px;background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);transition:transform .12s}
+html:not(#_):not(#__) .pmx-b:active{transform:scale(.96)}
+html:not(#_):not(#__) .pmx-b.w{background:#fff;color:#2563eb;box-shadow:0 6px 14px -6px rgba(0,0,0,.35)}
+html:not(#_):not(#__) .pmx-b .ui-icon{width:14px;height:14px}
+html:not(#_):not(#__) .pmx-btns .pmx-b.pmx-save{display:none}
+html:not(#_):not(#__) .pmx-note.out{padding:2px 6px 0}
+html:not(#_):not(#__) .pmx-b.copied,html:not(#_):not(#__) .pmx-copy.copied{background:#22c55e;color:#fff}
 </style>
 </body>
 </html>
