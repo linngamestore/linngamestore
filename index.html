@@ -31791,7 +31791,29 @@ html.perf-low .game-card, html.perf-low .voucher-card, html.perf-low .order-card
   .pwa-promo { padding: 14px !important; }
   .pwa-ico { width: 56px !important; height: 56px !important; }
 }
-html, body { max-width: 100%; overflow-x: hidden; }
+</style>
+<style id="payment-vivid-blue">
+/* Payment method: vivid bright blue instead of pale blue (selected method row + the account/QR ticket card) */
+html:not(#_):not(#__):not(#___) .payment-option.selected{background:linear-gradient(135deg,#2F8CFF 0%,#0A6CFF 55%,#0057F5 100%) !important;border-color:#0A6CFF !important;
+  box-shadow:0 10px 22px -10px rgba(10,108,255,.75),inset 0 1px 0 rgba(255,255,255,.35) !important}
+html:not(#_):not(#__):not(#___) .payment-option.selected .payment-option-name{color:#fff !important}
+html:not(#_):not(#__):not(#___) .payment-option.selected .payment-option-availability{color:rgba(255,255,255,.88) !important}
+html:not(#_):not(#__):not(#___) .payment-option.selected .payment-option-icon{background:#fff !important;color:#0A6CFF !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket{--fg:#fff;--mut:rgba(255,255,255,.82);--tile:rgba(255,255,255,.18);--ln:rgba(255,255,255,.4);
+  background:linear-gradient(150deg,#2F8CFF 0%,#0A6CFF 52%,#0057F5 100%) !important;border:1px solid rgba(255,255,255,.4) !important;
+  box-shadow:0 16px 32px -14px rgba(10,108,255,.8),inset 0 1.5px 1px rgba(255,255,255,.45) !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+html[data-theme="dark"]html:not(#_):not(#__):not(#___) .pmx-ticket{--fg:#fff;--mut:rgba(255,255,255,.82);--tile:rgba(255,255,255,.18);--ln:rgba(255,255,255,.4)}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-scan{background:rgba(255,255,255,.16) !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35) !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-frame{box-shadow:0 10px 22px -10px rgba(0,30,110,.6) !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-frame i{border-color:#0A6CFF !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-logo{background:#fff !important;color:#0A6CFF !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-ver{background:#fff !important;color:#15803d !important;box-shadow:none !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-copy{background:#fff !important;color:#0A6CFF !important;font-weight:600}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-copy.ghost{background:rgba(255,255,255,.22) !important;color:#fff !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-copy.copied{background:#22c55e !important;color:#fff !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-save{background:#fff !important;color:#0A6CFF !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note svg, html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{color:#fff !important}
+html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{text-decoration:underline}
 </style>
 </body>
 </html>
