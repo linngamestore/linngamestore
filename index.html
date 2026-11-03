@@ -9369,7 +9369,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 </div>
                 </div>
                 </div>
-            </div>
 
             <!-- Security: optional Security Code (4-digit PIN) + Authenticator. Verified by the Worker, not the browser. -->
             <div class="detail-form-card profile-card-anim" id="security-card" style="margin-top:14px;animation-delay:80ms;">
@@ -21765,6 +21764,13 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             // (was a flat 200px, which got stretched on 2.5-3x phones and looked blurry).
             const dpr = Math.min(3, Math.max(1.5, window.devicePixelRatio || 1));
             const w = Math.min(640, Math.round((width || 200) * dpr));
+            // Images on our own R2 domain: resize + WebP on Cloudflare itself (same CDN, no 3rd-party hop).
+            // Needs "Image Transformations" enabled on the zone; if it isn't, the first failed load flips
+            // window.__cfImgOff (see cf-img-fallback script) and everything uses wsrv.nl as before.
+            if (!window.__cfImgOff) {
+                const m = url.match(/^https:\/\/img\.linngamestore\.com\/(.+)$/i);
+                if (m && !/^cdn-cgi\//.test(m[1])) return `https://img.linngamestore.com/cdn-cgi/image/width=${w},height=${w},fit=cover,format=webp,quality=85/${m[1]}`;
+            }
             return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${w}&h=${w}&fit=cover&we&output=webp&q=90`;
         }
         window.optimizedGameImg = optimizedGameImg;
@@ -22601,6 +22607,17 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     if (window.updateHomeProductsStat) window.updateHomeProductsStat();
                 };
                 if (!gamesLoadedOnce) {
+                    if (snap.metadata.fromCache && !snap.empty) {
+                        // Saved games on this phone -> paint them right now (stale-while-revalidate).
+                        // pollSnapshot() already asks the server again when the copy is older than its TTL, and a
+                        // changed catalogue then re-renders through the diff check below.
+                        clearTimeout(gamesInitialRenderTimer);
+                        gamesLoadedOnce = true;
+                        rerenderAll();
+                        window.__gzDataReady = true; try { window.gzSyncAuthUI && window.gzSyncAuthUI(); } catch (e) {}
+                        if (window.onSiteDataReady) window.onSiteDataReady();
+                        return;
+                    }
                     if (snap.metadata.fromCache) {
                         // Cache answered first - hold this paint briefly and
                         // let a same-tick/near-tick server snapshot (the
@@ -25391,8 +25408,25 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (!track) return;
             const hideCarousel = () => { const c = document.getElementById('home-banner-carousel'); if (c) c.style.display = 'none'; };
             try {
-                const snap = await getDoc(doc(db, "settings", "homeBanners"));
-                const data = snap.exists() ? snap.data() : {};
+                // Cache-first: a banner list saved on this phone paints at once (no waiting for Firestore).
+                // Older than 10 min -> refresh it in the background; the new list shows on the next open
+                // (so the carousel never gets rebuilt under the user's finger).
+                const BK = 'gz_banners_cache_v1';
+                let cachedB = null;
+                try { const c = JSON.parse(localStorage.getItem(BK) || 'null'); if (c && c.data && Array.isArray(c.data.images)) cachedB = c; } catch (e) {}
+                const fetchBanners = async () => {
+                    const sn = await getDoc(doc(db, "settings", "homeBanners"));
+                    const d0 = sn.exists() ? sn.data() : {};
+                    try { localStorage.setItem(BK, JSON.stringify({ ts: Date.now(), data: { images: Array.isArray(d0.images) ? d0.images : [], links: Array.isArray(d0.links) ? d0.links : [] } })); } catch (e) {}
+                    return d0;
+                };
+                let data;
+                if (cachedB) {
+                    data = cachedB.data;
+                    if (Date.now() - (cachedB.ts || 0) > 10 * 60 * 1000) setTimeout(() => { fetchBanners().catch(() => {}); }, 2500);
+                } else {
+                    data = await fetchBanners();
+                }
                 const raw = Array.isArray(data.images) ? data.images : [];
                 const links = Array.isArray(data.links) ? data.links : [];
                 // Each banner is either a plain image URL, or an object { url, game } where
@@ -26843,7 +26877,13 @@ document.addEventListener('keydown',function(e){
       pop.parentNode.insertBefore(sec, pop.nextSibling);
     }
     sec.style.display = '';
-    document.getElementById('recent-games-scroll').innerHTML = ids.map(function (id) {
+    // Same list as last time -> leave the row alone. Re-writing it on every dashboard class change
+    // (scroll toggles classes) rebuilt every card and replayed the fade = the flicker while scrolling.
+    var rs = document.getElementById('recent-games-scroll');
+    var sig = ids.map(function (id) { return id + '|' + (G[id].image || '') + '|' + (G[id].name || ''); }).join('~');
+    if (rs.__sig === sig && rs.children.length) return;
+    rs.__sig = sig;
+    rs.innerHTML = ids.map(function (id) {
       var g = G[id], u = img(g.image);
       return '<div class="game-card popular-card" data-game-id="' + esc(id) + '" onclick="openGameDetail(\'' + esc(id) + '\')">' +
         '<div class="game-card-img-wrap" style="--card-bg-img:url(\'' + esc(u) + '\')"><img src="' + esc(u) + '" alt="' + esc(g.name || '') + '" loading="lazy" decoding="async"></div>' +
@@ -31706,6 +31746,52 @@ html:not(#_):not(#__) .pmx-b .ui-icon{width:14px;height:14px}
 html:not(#_):not(#__) .pmx-btns .pmx-b.pmx-save{display:none}
 html:not(#_):not(#__) .pmx-note.out{padding:2px 6px 0}
 html:not(#_):not(#__) .pmx-b.copied,html:not(#_):not(#__) .pmx-copy.copied{background:#22c55e;color:#fff}
+</style>
+<style id="fade-popular-recent">
+/* Home > Popular Games / Recently Viewed (and Popular Vouchers): cards simply fade in - no rise, spin or bob */
+@keyframes prFadeIn{from{opacity:0}to{opacity:1}}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .popular-scroll-wrap > .popular-card,
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .popular-scroll-wrap > .game-card,
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .popular-scroll-wrap > .popular-voucher-card,
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .popular-scroll-wrap > .voucher-card{
+  animation:prFadeIn .55s ease-out both !important;animation-delay:calc(var(--i,0)*70ms) !important;transform:none;will-change:opacity}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .popular-scroll-wrap .game-card-img-wrap,
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .popular-scroll-wrap .game-card-img-wrap.img-ready{animation:none !important;will-change:auto}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .page-section.revisit .popular-scroll-wrap > *{animation:none !important;opacity:1 !important}
+@media (prefers-reduced-motion:reduce){html:not(#_) .popular-scroll-wrap > *{animation:none !important}}
+</style>
+<script id="cf-img-fallback">
+/* If Cloudflare Image Transformations isn't enabled for img.linngamestore.com, fall back to wsrv.nl once and stop trying. */
+(function(){
+  try{ if(sessionStorage.getItem('cfImgOff')==='1') window.__cfImgOff=true; }catch(e){}
+  document.addEventListener('error',function(ev){
+    var t=ev.target; if(!t||t.tagName!=='IMG') return;
+    var m=(t.currentSrc||t.src||'').match(/^https:\/\/img\.linngamestore\.com\/cdn-cgi\/image\/width=(\d+)[^/]*\/(.+)$/i);
+    if(!m||t.__cfTried) return; t.__cfTried=1;
+    window.__cfImgOff=true; try{sessionStorage.setItem('cfImgOff','1');}catch(e){}
+    var orig='https://img.linngamestore.com/'+m[2], w=m[1];
+    t.src='https://wsrv.nl/?url='+encodeURIComponent(orig)+'&w='+w+'&h='+w+'&fit=cover&we&output=webp&q=90';
+  },true);
+})();
+</script>
+<style id="lowend-phone-fixes">
+/* Weak / small phones: stop the last always-running decorative loops (shine sweeps, floating icon, pulses),
+   keep layout identical, and make the two "Install App" banners fit 320-360px screens. */
+html.perf-low .pwa-promo::after, html.perf-low .pwa-ico, html.perf-low .home-banner-slide:empty::after,
+html.perf-low .slide-confirm-hint svg, html.perf-low .hls-live-dot, html.perf-low .live-badge i,
+html.perf-low .logo-status-text, html.perf-low .onboarding-logo-status { animation: none !important; }
+html.perf-low .home-banner-slide:empty::after { display: none !important; }
+/* long lists: let the browser skip off-screen cards (big win for Home / Voucher / Software on slow CPUs) */
+html.perf-low .game-card, html.perf-low .voucher-card, html.perf-low .order-card, html.perf-low .list-card { content-visibility: auto; contain-intrinsic-size: auto 150px; }
+@media (max-width: 360px) {
+  #pwa-top { left: 8px !important; right: 8px !important; gap: 8px !important; padding: 8px 10px !important; }
+  #pwa-top .pt-ic { width: 36px !important; height: 36px !important; }
+  #pwa-top .pt-d { display: none !important; }
+  #pwa-top .pt-t, #pwa-top b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pwa-promo { padding: 14px !important; }
+  .pwa-ico { width: 56px !important; height: 56px !important; }
+}
+html, body { max-width: 100%; overflow-x: hidden; }
 </style>
 </body>
 </html>
