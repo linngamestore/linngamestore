@@ -185,7 +185,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&family=Noto+Sans+Myanmar:wght@400;500&display=swap">
     <title>Linn Game Store — Game Top-Up & Voucher Store</title>
-    <meta name="description" content="Linn Game Store: fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay, Wave, or Crypto (USDT).">
+    <meta name="description" content="Linn Game Store: fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay or Wave.">
     <link rel="canonical" href="https://linngamestore.com/">
 
     <!-- Open Graph / social preview. og:image points at a real hosted file
@@ -195,12 +195,12 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Linn Game Store">
     <meta property="og:title" content="Linn Game Store — Game Top-Up & Voucher Store">
-    <meta property="og:description" content="Fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay, Wave, or Crypto (USDT).">
+    <meta property="og:description" content="Fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay or Wave.">
     <meta property="og:url" content="https://linngamestore.com/">
     <meta property="og:image" content="https://linngamestore.com/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Linn Game Store — Game Top-Up & Voucher Store">
-    <meta name="twitter:description" content="Fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay, Wave, or Crypto (USDT).">
+    <meta name="twitter:description" content="Fast, reliable game top-ups and vouchers. Pay with Wallet balance, KPay or Wave.">
     <meta name="twitter:image" content="https://linngamestore.com/og-image.png">
 
     <!-- Favicon: static branded fallback shown until (or unless) an admin
@@ -1644,22 +1644,6 @@
         .prov-tab.unlock { animation: provUnlock 1.6s cubic-bezier(.2,1.2,.3,1) both; }
         @keyframes provNewPulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.14) } }
         @keyframes provUnlock { 0% { transform: scale(.85); box-shadow: 0 0 0 0 rgba(234,88,12,.7) } 40% { transform: scale(1.08) } 100% { transform: scale(1); box-shadow: 0 0 0 16px rgba(234,88,12,0) } }
-        @keyframes p2Launch { 0% { opacity: 0; transform: translateY(26px) scale(.7) rotate(-5deg); } 60% { opacity: 1; transform: translateY(-5px) scale(1.05) rotate(1deg); } 100% { opacity: 1; transform: none; } }
-        html:not(#_) .p2-launch .game-card, html:not(#_) .p2-launch .voucher-card { animation: p2Launch .8s cubic-bezier(.2,1.1,.3,1) both !important; animation-delay: calc(var(--i, 0) * 70ms) !important; }
-        .p2w-ov { position: fixed; inset: 0; z-index: 2147483000; display: none; align-items: center; justify-content: center; padding: 22px; background: rgba(8,16,28,.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-        .p2w-ov.show { display: flex; animation: p2wFade .3s ease-out both; }
-        .p2w-card { position: relative; width: 100%; max-width: 340px; padding: 30px 22px 22px; border-radius: 28px; text-align: center; overflow: hidden; background: var(--glass-bg-strong); -webkit-backdrop-filter: blur(26px) saturate(180%); backdrop-filter: blur(26px) saturate(180%); border: 1px solid var(--glass-border); box-shadow: 0 24px 60px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,.5); animation: p2wPop .55s cubic-bezier(.2,1.2,.3,1) both; }
-        .p2w-card::before { content: ""; position: absolute; top: -40%; left: 50%; width: 260px; height: 260px; margin-left: -130px; border-radius: 50%; background: radial-gradient(circle, rgba(234,88,12,.35), transparent 70%); pointer-events: none; }
-        .p2w-ico { position: relative; width: 78px; height: 78px; margin: 0 auto 14px; border-radius: 26px; display: flex; align-items: center; justify-content: center; color: #EA580C; background: linear-gradient(145deg, rgba(255,255,255,.6), rgba(255,255,255,.14)); border: 1px solid var(--glass-border); box-shadow: 0 10px 28px rgba(234,88,12,.3); }
-        .p2w-ico svg { width: 38px; height: 38px; animation: provSoonFloat 2.4s ease-in-out infinite; }
-        .p2w-tag { position: relative; display: inline-block; margin-bottom: 8px; padding: 3px 10px; border-radius: 99px; font-size: 10.5px; font-weight: 600; letter-spacing: .12em; color: #fff; background: #EA580C; }
-        .p2w-card h3 { position: relative; margin: 0 0 8px; font-size: 20px; font-weight: 600; color: var(--text); }
-        .p2w-card p { position: relative; margin: 0 0 18px; font-size: 13px; line-height: 1.75; color: var(--text-secondary); }
-        .p2w-card button { position: relative; width: 100%; padding: 13px; border: 1px solid rgba(255,255,255,.35); border-radius: 15px; background: linear-gradient(135deg, #EA580C, #F59E0B); color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 10px 24px rgba(234,88,12,.35), inset 0 1px 1px rgba(255,255,255,.45); }
-        .p2w-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; opacity: 0; animation: p2wSpark 2.2s ease-out infinite; pointer-events: none; }
-        @keyframes p2wFade { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes p2wPop { from { opacity: 0; transform: translateY(24px) scale(.85) } to { opacity: 1; transform: none } }
-        @keyframes p2wSpark { 0% { opacity: 0; transform: translateY(0) scale(.4) } 25% { opacity: 1 } 100% { opacity: 0; transform: translateY(-60px) scale(1) } }
         @media (prefers-reduced-motion: reduce) { .p2w-card, .p2w-ico svg, .p2w-dot, .prov-tab.unlock, .prov-tab em.new { animation: none !important; } html:not(#_) .p2-launch .game-card, html:not(#_) .p2-launch .voucher-card { animation: none !important; } }
 
         /* Category filter chips row, above the All Games grid */
@@ -7969,16 +7953,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 <body>
 
 <div id="maint-banner" role="status" aria-live="polite"><span style="display:inline-flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span id="maint-banner-text"></span></div>
-<div class="p2w-ov" id="p2-welcome" role="dialog" aria-modal="true" aria-label="Provider 2" onclick="if(event.target===this) closeP2Welcome()">
-  <div class="p2w-card">
-    <span class="p2w-dot" style="left:18%;bottom:30%;animation-delay:0s"></span><span class="p2w-dot" style="left:78%;bottom:36%;animation-delay:.5s"></span><span class="p2w-dot" style="left:30%;bottom:18%;animation-delay:1s"></span><span class="p2w-dot" style="left:64%;bottom:22%;animation-delay:1.5s"></span>
-    <div class="p2w-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-rocket"></use></svg></div>
-    <span class="p2w-tag">P2 · NEW</span>
-    <h3 data-i18n="p2w_title">P2 မှ ကြိုဆိုပါတယ်</h3>
-    <p data-i18n="p2w_text">Provider 2 server ကို စတင်ဖွင့်လှစ်လိုက်ပါပြီ။ ဂိမ်းအသစ်တွေ၊ package တွေကို P2 tab မှာ ကြည့်ရှုဝယ်ယူနိုင်ပါပြီ။</p>
-    <button type="button" onclick="closeP2Welcome()" data-i18n="p2w_btn">စတင်ကြည့်မည်</button>
-  </div>
-</div>
 <div id="maint-overlay" role="alertdialog" aria-modal="true" aria-label="Maintenance">
   <span class="mt-orb"></span>
   <div class="maint-card">
@@ -8290,7 +8264,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 </div>
                 <div class="support-guide-item" id="guide-item-7">
                     <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_wallettopup">How to top up your Wallet - in detail</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                    <div class="support-guide-a" data-i18n="guide_a_wallettopup">1) Tap "Wallet" in the bottom tabs. 2) Tap "Top Up". 3) Enter the amount you want to add. 4) Choose a Payment Method (bank transfer, Crypto, FazerCard, etc.) - the account details to send money to will appear based on what you pick. 5) After transferring outside the app, upload a photo of the receipt or the transaction ID and tap Submit. 6) Once an admin verifies it, the money is added to your Wallet automatically (usually within a few minutes to a few hours). From then on, you can pay for orders instantly from your Wallet balance without uploading a receipt each time.</div>
+                    <div class="support-guide-a" data-i18n="guide_a_wallettopup">1) Tap "Wallet" in the bottom tabs. 2) Tap "Top Up". 3) Enter the amount you want to add. 4) Choose a Payment Method (bank transfer, KPay, Wave, etc.) - the account details to send money to will appear based on what you pick. 5) After transferring outside the app, upload a photo of the receipt or the transaction ID and tap Submit. 6) Once an admin verifies it, the money is added to your Wallet automatically (usually within a few minutes to a few hours). From then on, you can pay for orders instantly from your Wallet balance without uploading a receipt each time.</div>
                 </div>
                 <div class="support-guide-item" id="guide-item-8">
                     <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="guide_q_historyfull">Checking Order History, and what to do if there's a problem</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
@@ -9089,69 +9063,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             </div>
         </div>
 
-        <!-- CRYPTO WALLET TOP UP MODAL: FazerCards-powered, auto-credited invoice.
-             Separate from the manual modal above on purpose - the manual flow
-             is receipt-upload + admin approval, this one is API-verified and
-             never touches receiptUrl/paymentMethod-picker state. -->
-        <div class="modal-overlay" id="wallet-crypto-overlay" onclick="if(event.target===this) closeCryptoTopupModal()">
-            <div class="modal-box">
-                <div class="modal-header">
-                    <h3>Top Up with Crypto</h3>
-                    <div class="modal-close" onclick="closeCryptoTopupModal()">
-                        <svg class="ui-icon" style="width:18px;height:18px;"><use href="#icon-close"></use></svg>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <!-- Stage A: pick a network -->
-                    <div id="crypto-topup-stage-methods">
-                        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 12px;">Amount: <strong id="crypto-topup-amount-display">0 MMK</strong></p>
-                        <div id="crypto-topup-methods-list" style="display:flex; flex-direction:column; gap:10px;">
-                            <p class="empty-msg">Loading payment methods…</p>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="crypto-topup-create-btn" style="width:100%;margin-top:16px;" disabled onclick="createCryptoPayment()" data-i18n="btn_select_network">Select a Network</button>
-                    </div>
-
-                    <!-- Stage B: invoice details + live status -->
-                    <div id="crypto-topup-stage-invoice" style="display:none;">
-                        <div class="wallet-pay-info-card">
-                            <p class="wallet-pay-info-label">Send exactly</p>
-                            <div class="pm-info-box-row">
-                                <p id="crypto-pm-amount" style="font-weight:500;font-size:17px;"></p>
-                                <button type="button" class="pm-copy-btn" onclick="copyPaymentField('crypto-pm-amount', this)" title="Copy amount">
-                                    <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                                </button>
-                            </div>
-                            <p class="wallet-pay-info-label" style="margin-top:10px;">To this address</p>
-                            <div class="pm-info-box-row">
-                                <p id="crypto-pm-address" style="word-break:break-all;font-size:13px;"></p>
-                                <button type="button" class="pm-copy-btn" onclick="copyPaymentField('crypto-pm-address', this)" title="Copy address">
-                                    <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                                </button>
-                            </div>
-                            <p id="crypto-pm-memo-row" style="display:none;margin-top:10px;">
-                                <span class="wallet-pay-info-label">Memo / Tag</span>
-                                <span class="pm-info-box-row"><span id="crypto-pm-memo"></span></span>
-                            </p>
-                            <p id="crypto-pm-network-line" style="font-size:12.5px;color:var(--text-secondary);margin-top:10px;"></p>
-                            <p id="crypto-pm-expires-line" style="font-size:12.5px;color:var(--text-secondary);margin-top:4px;"></p>
-                        </div>
-
-                        <!-- Only shown for network === binancepay -->
-                        <div id="crypto-binance-verify-box" style="display:none;margin-top:14px;">
-                            <label style="display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px;">Binance Order ID</label>
-                            <input type="text" id="crypto-binance-order-id" class="wallet-topup-amount-input" style="font-size:14px;" placeholder="Paste your Binance Pay order ID">
-                            <button type="button" class="btn" style="width:100%;margin-top:8px;" onclick="verifyBinancePayment()">Submit for Verification</button>
-                        </div>
-
-                        <div id="crypto-status-box" style="margin-top:16px;text-align:center;font-size:13.5px;color:var(--text-secondary);">
-                            <span id="crypto-status-spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.25);border-top-color:var(--primary,#589afa);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:-2px;margin-right:6px;"></span>
-                            <span id="crypto-status-text">Waiting for payment…</span>
-                        </div>
-                        <button type="button" class="btn" style="width:100%;margin-top:14px;" onclick="cancelCryptoInvoiceUI()">Choose a different network</button>
-                    </div>
-                </div>
-            </div>
-        </div>
         
 
         <!-- WALLET TOP UP DETAIL MODAL: tap a history row to see its full status -->
@@ -9677,7 +9588,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_payments">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_payments">Payments</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="terms_b_payments">We accept manual payment methods (Kpay/Wave/etc. with receipt upload), Wallet balance, and Crypto/USDT top-up. Payments must use accurate details. Orders placed with incorrect In-Game ID, Server ID, or payment proof may be delayed or rejected — see the Refund tab for what happens in that case.</div>
+                        <div class="support-guide-a" data-i18n="terms_b_payments">We accept manual payment methods (Kpay/Wave/etc. with receipt upload) and Wallet balance. Payments must use accurate details. Orders placed with incorrect In-Game ID, Server ID, or payment proof may be delayed or rejected — see the Refund tab for what happens in that case.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-terms_l_account">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="terms_l_account">Account &amp; Wallet</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
@@ -9754,10 +9665,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     <div class="support-guide-item" id="term-card-refund_l_manual">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_manual">Manual Top-Ups (Kpay/Wave/etc.)</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
                         <div class="support-guide-a" data-i18n="refund_b_manual">If a manual top-up request is rejected (e.g. unclear or invalid receipt), no Wallet balance is credited — since the money never passed through our Wallet system, please keep your own payment app's transaction record and contact Support if you believe the rejection was a mistake.</div>
-                    </div>
-                    <div class="support-guide-item" id="term-card-refund_l_crypto">
-                        <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_crypto">Crypto/USDT Top-Ups</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
-                        <div class="support-guide-a" data-i18n="refund_b_crypto">Blockchain transactions are irreversible. Please confirm you're sending the correct amount on the correct network shown in the app. We can't recover funds sent to the wrong address, wrong network, or wrong amount.</div>
                     </div>
                     <div class="support-guide-item" id="term-card-refund_l_wallet">
                         <div class="support-guide-q" onclick="window.toggleGuideItem(this.parentElement)"><div class="guide-card-dots"><span></span><span></span><span></span></div><span class="guide-card-label" data-i18n="refund_l_wallet">Wallet Balance</span><button type="button" class="guide-card-close" onclick="event.stopPropagation(); window.toggleGuideItem(this.closest('.support-guide-item'))" aria-label="Close"><svg class="ui-icon"><use href="#icon-close"></use></svg><span data-i18n="guide_card_close">Close</span></button></div>
@@ -10184,7 +10091,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 terms_l_orders: 'Orders & Delivery',
                 terms_b_orders: 'Orders are processed automatically once payment is confirmed. Delivery time depends on the game/voucher provider and is usually instant to a few minutes; some orders may need manual admin review.',
                 terms_l_payments: 'Payments',
-                terms_b_payments: 'We accept manual payment methods (Kpay/Wave/etc. with receipt upload), Wallet balance, and Crypto/USDT top-up. Payments must use accurate details. Orders placed with incorrect In-Game ID, Server ID, or payment proof may be delayed or rejected — see the Refund tab for what happens in that case.',
+                terms_b_payments: 'We accept manual payment methods (Kpay/Wave/etc. with receipt upload) and Wallet balance. Payments must use accurate details. Orders placed with incorrect In-Game ID, Server ID, or payment proof may be delayed or rejected — see the Refund tab for what happens in that case.',
                 terms_l_account: 'Account & Wallet',
                 terms_b_account: 'You\'re responsible for keeping your account details accurate. Wallet balance is tied to your account/guest ID, is non-transferable between accounts, and can only be used for purchases on this store.',
                 terms_l_fairuse: 'Fair Use',
@@ -10220,8 +10127,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 refund_b_cancel: 'Orders still in Pending status can usually be cancelled by contacting Support. Once an order has moved to Processing (sent to the game/voucher provider), it can no longer be cancelled.',
                 refund_l_manual: 'Manual Top-Ups (Kpay/Wave/etc.)',
                 refund_b_manual: 'If a manual top-up request is rejected (e.g. unclear or invalid receipt), no Wallet balance is credited — since the money never passed through our Wallet system, please keep your own payment app\'s transaction record and contact Support if you believe the rejection was a mistake.',
-                refund_l_crypto: 'Crypto/USDT Top-Ups',
-                refund_b_crypto: 'Blockchain transactions are irreversible. Please confirm you\'re sending the correct amount on the correct network shown in the app. We can\'t recover funds sent to the wrong address, wrong network, or wrong amount.',
                 refund_l_wallet: 'Wallet Balance',
                 refund_b_wallet: 'Wallet balance can only be used for purchases on this store and isn\'t redeemable for cash or transferable to another account, except where we choose to resolve a specific issue that way.',
                 refund_l_dispute: 'How to Raise a Dispute',
@@ -10231,7 +10136,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 biz_identity_pre: 'Operator: Linn Game Store \u00a0\u00b7\u00a0 Site: linngamestore.com \u00a0\u00b7\u00a0 Support: ',
                 title_favorites: 'My Favorites', title_popular_games: 'Popular Games',
                 prov_name_p1: 'Provider 1', prov_name_p2: 'Provider 2', prov_name_p3: 'Provider 3', prov_other: 'Other',
-                prov_new_badge: 'NEW', p2w_title: 'Welcome to P2', p2w_text: 'Provider 2 server is now open. Browse the new games and packages in the P2 tab.', p2w_btn: 'Start browsing',
+                prov_new_badge: 'NEW',
                 prov_soon_badge: 'Soon', prov_soon_bot: 'AI BOT IS SETTING UP', prov_soon_title: 'Coming Soon', prov_soon_text: 'This server is not open yet. It will be available very soon - for now please use Provider 1.', prov_soon_btn: 'Go to Provider 1',
                 prov_desc_p3: 'Provider 3 server (JCPlays). Redeem-code vouchers.',
                 title_all_games: 'All Games', title_popular: 'Popular',
@@ -10324,7 +10229,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 guide_q_orderfull: 'Placing an order - a full step-by-step guide',
                 guide_a_orderfull: '1) On the Home page ("Top Up" tab), scroll to the game you want and tap it. 2) On the game\'s page, choose a Package/Currency (e.g. how many Diamonds). 3) In the "In-Game ID" field, enter your Player ID (some games also need a Server ID) - you can find this on your profile inside the game. 4) Tap "Confirm ID" - the system automatically shows your account name; double-check it\'s correct (re-enter the ID if the name looks wrong). 5) Choose a payment type - pay instantly from your Wallet balance if you have enough, or pick a Payment Method (bank transfer, KBZPay, Wave, etc.) and upload a photo of your transfer receipt. 6) Drag the slide button at the bottom to confirm and your order is placed. 7) Track its status any time under "History" in the Drawer menu.',
                 guide_q_wallettopup: 'How to top up your Wallet - in detail',
-                guide_a_wallettopup: '1) Tap "Wallet" in the bottom tabs. 2) Tap "Top Up". 3) Enter the amount you want to add. 4) Choose a Payment Method (bank transfer, Crypto, FazerCard, etc.) - the account details to send money to will appear based on what you pick. 5) After transferring outside the app, upload a photo of the receipt or the transaction ID and tap Submit. 6) Once an admin verifies it, the money is added to your Wallet automatically (usually within a few minutes to a few hours). From then on, you can pay for orders instantly from your Wallet balance without uploading a receipt each time.',
+                guide_a_wallettopup: '1) Tap "Wallet" in the bottom tabs. 2) Tap "Top Up". 3) Enter the amount you want to add. 4) Choose a Payment Method (bank transfer, KPay, Wave, etc.) - the account details to send money to will appear based on what you pick. 5) After transferring outside the app, upload a photo of the receipt or the transaction ID and tap Submit. 6) Once an admin verifies it, the money is added to your Wallet automatically (usually within a few minutes to a few hours). From then on, you can pay for orders instantly from your Wallet balance without uploading a receipt each time.',
                 guide_q_historyfull: 'Checking Order History, and what to do if there\'s a problem',
                 guide_a_historyfull: 'Open the Drawer from the top-left menu icon and choose "History". You can see each order\'s status here - "Pending", "Processing", "Success" or "Fail". Tap an order to see its details such as ID, amount and time. If Processing takes too long, or you run into any other issue, use the "Ticket" tab in the Support widget - the admin logs it as a ticket and gets back to you. For a faster, direct line, use the "Telegram" tab instead.',
                 guide_q_otherfeatures: 'What else can I do in the app?',
@@ -10415,7 +10320,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 terms_l_orders: 'Order နှင့် ပေးပို့မှု',
                 terms_b_orders: 'ငွေပေးချေမှု အတည်ပြုပြီးသည်နှင့် Order များကို အလိုအလျောက် လုပ်ဆောင်ပါသည်။ ပေးပို့ချိန်မှာ game/voucher provider ပေါ်မူတည်ပြီး များသောအားဖြင့် ချက်ချင်းမှ မိနစ်အနည်းငယ်အထိ ကြာနိုင်ပါသည်၊ တချို့ order များကို admin မှ manual စစ်ဆေးရန် လိုအပ်နိုင်ပါသည်။',
                 terms_l_payments: 'ငွေပေးချေမှု',
-                terms_b_payments: 'Kpay/Wave/etc (ပြေစာတင်ရန်)၊ Wallet လက်ကျန်ငွေ၊ Crypto/USDT top-up အပါအဝင် manual ငွေပေးချေမှု နည်းလမ်းများကို လက်ခံပါသည်။ ငွေပေးချေရာတွင် မှန်ကန်သော အချက်အလက်များကို အသုံးပြုရပါမည်။ In-Game ID၊ Server ID၊ သို့မဟုတ် ငွေပေးချေမှု အထောက်အထားများ မှားယွင်းစွာ တင်ထားသော order များကို နှောင့်နှေးခြင်း သို့မဟုတ် ပယ်ချခြင်း ဖြစ်နိုင်ပါသည် — ထိုသို့ဖြစ်ပါက ဆောင်ရွက်မည့်ပုံစံကို Refund tab တွင် ကြည့်ပါ။',
+                terms_b_payments: 'Kpay/Wave/etc (ပြေစာတင်ရန်)၊ Wallet လက်ကျန်ငွေ အပါအဝင် manual ငွေပေးချေမှု နည်းလမ်းများကို လက်ခံပါသည်။ ငွေပေးချေရာတွင် မှန်ကန်သော အချက်အလက်များကို အသုံးပြုရပါမည်။ In-Game ID၊ Server ID၊ သို့မဟုတ် ငွေပေးချေမှု အထောက်အထားများ မှားယွင်းစွာ တင်ထားသော order များကို နှောင့်နှေးခြင်း သို့မဟုတ် ပယ်ချခြင်း ဖြစ်နိုင်ပါသည် — ထိုသို့ဖြစ်ပါက ဆောင်ရွက်မည့်ပုံစံကို Refund tab တွင် ကြည့်ပါ။',
                 terms_l_account: 'Account နှင့် Wallet',
                 terms_b_account: 'သင်၏ account အချက်အလက်များကို မှန်ကန်စွာ ထားရှိရန် သင့်တွင် တာဝန်ရှိပါသည်။ Wallet လက်ကျန်ငွေသည် သင်၏ account/guest ID နှင့် ချိတ်ဆက်ထားပြီး account တစ်ခုမှ တစ်ခုသို့ လွှဲပြောင်း၍ မရပါ၊ ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပါသည်။',
                 terms_l_fairuse: 'တရားမျှတသော အသုံးပြုမှု',
@@ -10451,8 +10356,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 refund_b_cancel: 'Pending အခြေအနေရှိနေသေးသော order များကို Support ကို ဆက်သွယ်ခြင်းဖြင့် ပုံမှန်အားဖြင့် ပယ်ဖျက်၍ ရပါသည်။ Order တစ်ခု Processing (game/voucher provider ထံ ပို့ပြီးသား) အခြေအနေသို့ ရောက်သွားပါက နောက်ထပ် ပယ်ဖျက်၍ မရတော့ပါ။',
                 refund_l_manual: 'Manual Top-Up များ (Kpay/Wave/etc.)',
                 refund_b_manual: 'Manual top-up တောင်းဆိုမှုတစ်ခုကို ပယ်ချခံရပါက (ဥပမာ ပြေစာ မရှင်းလင်းခြင်း သို့မဟုတ် မမှန်ကန်ခြင်းကြောင့်) Wallet လက်ကျန်ငွေထဲသို့ ငွေထည့်ပေးမည် မဟုတ်ပါ — ငွေသည် ကျွန်ုပ်တို့၏ Wallet စနစ်ထဲသို့ ဝင်ရောက်ခြင်း မရှိခဲ့သောကြောင့် ဖြစ်ပါသည်။ သင်၏ ငွေပေးချေမှု app ရှိ transaction မှတ်တမ်းကို သိမ်းထားပြီး ပယ်ချမှုသည် အမှားဟု ယူဆပါက Support ကို ဆက်သွယ်ပါ။',
-                refund_l_crypto: 'Crypto/USDT Top-Up များ',
-                refund_b_crypto: 'Blockchain transaction များသည် ပြန်ပြင်၍ မရပါ။ App ထဲတွင် ပြသထားသော မှန်ကန်သော ပမာဏနှင့် မှန်ကန်သော network ပေါ်တွင် ပေးပို့ကြောင်း ကျေးဇူးပြု၍ အတည်ပြုပါ။ လိပ်စာမှား၊ network မှား၊ သို့မဟုတ် ပမာဏမှား ပေးပို့မိသော ငွေများကို ကျွန်ုပ်တို့ ပြန်ယူပေး၍ မရနိုင်ပါ။',
                 refund_l_wallet: 'Wallet လက်ကျန်ငွေ',
                 refund_b_wallet: 'Wallet လက်ကျန်ငွေကို ဤ store တွင် ဝယ်ယူမှုများအတွက်သာ အသုံးပြု၍ ရပြီး ငွေသားအဖြစ် ထုတ်ယူခြင်း၊ အခြား account သို့ လွှဲပြောင်းခြင်း မပြုလုပ်နိုင်ပါ — တိကျသော ပြဿနာတစ်ခုကို ကျွန်ုပ်တို့ကိုယ်တိုင် ထိုနည်းဖြင့် ဖြေရှင်းပေးသည့် အခြေအနေမှလွဲ၍ ဖြစ်ပါသည်။',
                 refund_l_dispute: 'အငြင်းပွားမှုတစ်ခု ဖော်ပြနည်း',
@@ -10462,7 +10365,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 biz_identity_pre: 'လုပ်ငန်းရှင်: Linn Game Store \u00a0\u00b7\u00a0 ဝက်ဘ်ဆိုက်: linngamestore.com \u00a0\u00b7\u00a0 အကူအညီ: ',
                 title_favorites: 'အနှစ်သက်ဆုံးများ', title_popular_games: 'ခေတ်စားနေသောဂိမ်းများ',
                 prov_name_p1: 'Provider 1', prov_name_p2: 'Provider 2', prov_name_p3: 'Provider 3', prov_other: 'အခြား',
-                prov_new_badge: 'အသစ်', p2w_title: 'P2 မှ ကြိုဆိုပါတယ်', p2w_text: 'Provider 2 server ကို စတင်ဖွင့်လှစ်လိုက်ပါပြီ။ ဂိမ်းအသစ်တွေ၊ package တွေကို P2 tab မှာ ကြည့်ရှုဝယ်ယူနိုင်ပါပြီ။', p2w_btn: 'စတင်ကြည့်မည်',
+                prov_new_badge: 'အသစ်',
                 prov_soon_badge: 'မကြာမီ', prov_soon_bot: 'AI BOT ပြင်ဆင်နေပါတယ်', prov_soon_title: 'မကြာမီ ဖွင့်မည်', prov_soon_text: 'ဒီ server ကို မဖွင့်သေးပါဘူး။ မကြာခင် ဖွင့်ပေးပါမယ် — ခုလောလောဆယ် Provider 1 ကို အသုံးပြုပေးပါ။', prov_soon_btn: 'Provider 1 သို့သွားမည်',
                 prov_desc_p3: 'Provider 3 server (JCPlays) — Redeem code voucher များ။',
                 title_all_games: 'ဂိမ်းအားလုံး', title_popular: 'ခေတ်စားနေသော',
@@ -10555,7 +10458,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 guide_q_orderfull: 'Order တင်ခြင်း - အစအဆုံး အသေးစိတ် လမ်းညွှန်',
                 guide_a_orderfull: '၁) Home page ("Top Up" tab) မှာ သင်ဝယ်ချင်တဲ့ ဂိမ်းကို ရွှေ့ကြည့်ပြီး နှိပ်ပါ။ ၂) ဂိမ်းစာမျက်နှာပေါ်မှာ Package/Currency (ဥပမာ - Diamond ဘယ်နှစ်ခု) ကို ရွေးပါ။ ၃) "In-Game ID" ကွက်ထဲမှာ သင့်ဂိမ်းရဲ့ Player ID ကို ရိုက်ထည့်ပါ (တချို့ဂိမ်းတွေဆို Server ID ပါ ထပ်ထည့်ရပါမယ်) - ID ကို ဂိမ်းထဲက Profile page မှာ ရှာတွေ့နိုင်ပါတယ်။ ၄) "Confirm ID" ခလုတ်ကို နှိပ်ပါ - system က အလိုအလျောက် သင့် Account နာမည်ကို ပြပေးပါလိမ့်မယ်၊ မှန်မမှန် ပြန်စစ်ပါ (နာမည်မှားရင် ID ပြန်ပြင်ပါ)။ ၅) ငွေပေးချေမှု အမျိုးအစား ရွေးပါ - Wallet ထဲမှာ လက်ကျန်ငွေ ရှိရင် တိုက်ရိုက် နှိပ်ပေးလို့ရသလို၊ Payment Method (ဘဏ်လွှဲ/KBZPay/Wave စသည်) ရွေးပြီး ငွေလွှဲပြေစာ ဓာတ်ပုံတင်ပြီးလည်း ပေးချေနိုင်ပါတယ်။ ၆) အောက်ခြေက Slide ခလုတ်ကို ဆွဲပြီး အတည်ပြုလိုက်ရင် Order တင်ပြီးပါပြီ။ ၇) Order ရဲ့ အခြေအနေကို "History" (Drawer ထဲမှာ ရှိပါတယ်) မှာ အချိန်နှင့်တပြေးညီ ပြန်ကြည့်နိုင်ပါတယ်။',
                 guide_q_wallettopup: 'Wallet ထဲ ငွေဖြည့်နည်း - အသေးစိတ်',
-                guide_a_wallettopup: '၁) အောက်ခြေ tab က "Wallet" ကို နှိပ်ပါ။ ၂) "Top Up" ခလုတ်ကို နှိပ်ပါ။ ၃) ဖြည့်ချင်တဲ့ ပမာဏ (ငွေပမာဏ) ကို ရိုက်ထည့်ပါ။ ၄) Payment Method (ဘဏ်လွှဲ၊ Crypto, FazerCard စသည်) ထဲက တစ်ခုကို ရွေးပါ - ရွေးလိုက်တဲ့ Method အလိုက် ငွေလွှဲရမယ့် အကောင့်အချက်အလက် ပေါ်လာပါလိမ့်မယ်။ ၅) ပြင်ပက ငွေလွှဲပြီးရင် ပြေစာ (Receipt) ဓာတ်ပုံ သို့ Transaction ID ကို တင်ပြီး Submit နှိပ်ပါ။ ၆) Admin မှ စစ်ဆေးပြီးပါက Wallet ထဲ ငွေအလိုအလျောက် ဝင်ပါလိမ့်မယ် (ပုံမှန်အားဖြင့် မိနစ်အနည်းငယ်မှ နာရီအနည်းငယ်အတွင်း)။ Wallet ထဲရှိငွေကို နောက်ပိုင်း Order တင်တိုင်း တိုက်ရိုက် အသုံးပြုနိုင်ပါတယ်၊ ငွေလွှဲပြေစာ ထပ်တင်စရာ မလိုတော့ပါ။',
+                guide_a_wallettopup: '၁) အောက်ခြေ tab က "Wallet" ကို နှိပ်ပါ။ ၂) "Top Up" ခလုတ်ကို နှိပ်ပါ။ ၃) ဖြည့်ချင်တဲ့ ပမာဏ (ငွေပမာဏ) ကို ရိုက်ထည့်ပါ။ ၄) Payment Method (ဘဏ်လွှဲ၊ KPay, Wave စသည်) ထဲက တစ်ခုကို ရွေးပါ - ရွေးလိုက်တဲ့ Method အလိုက် ငွေလွှဲရမယ့် အကောင့်အချက်အလက် ပေါ်လာပါလိမ့်မယ်။ ၅) ပြင်ပက ငွေလွှဲပြီးရင် ပြေစာ (Receipt) ဓာတ်ပုံ သို့ Transaction ID ကို တင်ပြီး Submit နှိပ်ပါ။ ၆) Admin မှ စစ်ဆေးပြီးပါက Wallet ထဲ ငွေအလိုအလျောက် ဝင်ပါလိမ့်မယ် (ပုံမှန်အားဖြင့် မိနစ်အနည်းငယ်မှ နာရီအနည်းငယ်အတွင်း)။ Wallet ထဲရှိငွေကို နောက်ပိုင်း Order တင်တိုင်း တိုက်ရိုက် အသုံးပြုနိုင်ပါတယ်၊ ငွေလွှဲပြေစာ ထပ်တင်စရာ မလိုတော့ပါ။',
                 guide_q_historyfull: 'Order History ကြည့်နည်းနှင့် ပြဿနာ ဖြစ်ရင်',
                 guide_a_historyfull: 'ဖန်သားပြင် ဘယ်ဘက်အပေါ် icon ကို နှိပ်ပြီး Drawer ဖွင့်ပါ၊ "History" ကို ရွေးပါ။ Order တစ်ခုချင်းစီရဲ့ Status ကို ဒီနေရာမှာ ကြည့်နိုင်ပါတယ် - "Pending" (စောင့်ဆိုင်းနေဆဲ)၊ "Processing" (လုပ်ဆောင်နေဆဲ)၊ "Success" (ပြီးမြောက်ပြီ) သို့မဟုတ် "Fail" (မအောင်မြင်)။ Order တစ်ခုကို နှိပ်ရင် အသေးစိတ် အချက်အလက်တွေ ဖြစ်တဲ့ ID, ပမာဏ, အချိန် စတာတွေ ပြပါလိမ့်မယ်။ Processing မှာ အချိန်ကြာနေရင် (သို့) တခြား ပြဿနာ ရှိရင် Support widget ထဲက "Ticket" tab ကနေ အကြောင်းကြားနိုင်ပါတယ်၊ Admin က လက်ခံပြီး ပြန်ကြည့်ပေးပါလိမ့်မယ်။ တိုက်ရိုက် အမြန်ဆက်သွယ်ချင်ရင် "Telegram" tab ကို အသုံးပြုနိုင်ပါတယ်။',
                 guide_q_otherfeatures: 'App ထဲက အခြား features တွေ ဘာတွေရှိလဲ',
@@ -11293,9 +11196,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // Voucher tab - never in the Home / direct top-up grid or Name Check.
         function isVoucherGame(g) {
             if (!g) return false;
-            if (g.fulfillProvider === 'g2bulk_voucher' || g.fulfillProvider === 'fazercard_giftcard' || g.fulfillProvider === 'jcplays' || g.fulfillProvider === 'voucher_manual') return true;
-            if (g.g2bulkVoucherCategory || g.fazercardGiftCategoryId) return true;
-            return Array.isArray(g.packages) && g.packages.some(p => p && (p.voucherId || p.fazercardGiftCardId));
+            if (g.fulfillProvider === 'g2bulk_voucher' || g.fulfillProvider === 'jcplays' || g.fulfillProvider === 'voucher_manual') return true;
+            if (g.g2bulkVoucherCategory) return true;
+            return Array.isArray(g.packages) && g.packages.some(p => p && p.voucherId);
         }
         window.isVoucherGame = isVoucherGame;
         let currentGameTabLabels = {};
@@ -11312,12 +11215,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             return (pkg && (pkg.tab || pkg.type)) || 'currency';
         }
         let selectedGameName = null;
-        // The store never calls FazerCards directly (see the comment on
-        // selectedGameFazerCardCategory below) — this Worker holds the
-        // FazerCards API key server-side and only ever returns back the
-        // { valid, playerName, region } result. See fazercards-functions
-        // worker.js.
-        const FAZERCARD_VALIDATE_URL = 'https://fazercards-provider.linngamestore.workers.dev/fazercard-validate';
         // Telegram approval bot Worker (telegram-worker.js) — also used below
         // for the fire-and-forget "wake up now" ping.
         const TELEGRAM_BOT_WORKER_URL = 'https://linnmanagebot.linngamestore.workers.dev';
@@ -11351,34 +11248,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         let selectedGameNeedsPlayerId = true;
         let selectedGameNeedsCharName = false;   // game.charNameRequired (G2Bulk games whose /games/fields lists charname)
         let selectedGameJCPlaysProduct = null;
-        // Category id for the currently-open game's FazerCards game top-up
-        // link, if any. Unlike G2Bulk/JCPlays, the store never calls
-        // FazerCards directly (every FazerCards route needs the reseller's
-        // X-API-Key, so doing that from a public customer page would leak
-        // it) - this is only carried along so submitOrder can write it onto
-        // the order doc; the actual authenticated call happens admin-side
-        // (see placeFazerCardOrder in admin.html).
-        let selectedGameFazerCardCategory = null;
-        // Same idea for FazerCards Gift Cards (fulfillProvider ===
-        // 'fazercard_giftcard') - the category id for the currently-open
-        // game's gift-card link, if any. The card_id itself lives per
-        // package (selectedPackage.fazercardGiftCardId), same as
-        // selectedPackage.voucherId for G2Bulk vouchers - only carried
-        // along so submitOrder can write both onto the order doc for the
-        // admin panel's placeFazerCardGiftCardOrder to read.
-        let selectedGameFazerCardGiftCategory = null;
-        // The `fields` keys FazerCards expects at order/validate time for this
-        // category (almost always ['player_id'], sometimes also a zone/server
-        // key) — saved onto the game doc at import time (importFazerCardCatalogue
-        // in admin.html), same source placeFazerCardOrder reads admin-side.
-        let selectedGameFazerCardFields = ['player_id'];
         // Optional fallback (Game editor → G2Bulk ID-Check Code) - only
-        // meaningful when selectedGameFazerCardCategory is set. Not every
-        // FazerCards category supports validate-id, and the Worker that
-        // proxies it can itself be down - when the FazerCards check can't
         // produce a result, this lets runPlayerIdCheck try the same game via
         // G2Bulk's public checkPlayerId purely to show the player's name.
-        // The order still fulfills through FazerCards either way.
         let selectedGameG2BulkIdCheckCode = null;
         let selectedPaymentMethod = null;
         let editingReceiptFile = null;
@@ -11492,7 +11364,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             clearTimeout(playerIdCheckTimer);
             idgSet(document.getElementById('detail-ingame-id').value.trim() ? 'typing' : 'idle');
 
-            if (!selectedGameG2BulkCode && !selectedGameFazerCardCategory) { statusEl.style.display = 'none'; confirmBtn.style.display = 'none'; return; }
+            if (!selectedGameG2BulkCode) { statusEl.style.display = 'none'; confirmBtn.style.display = 'none'; return; }
 
             const playerId = document.getElementById('detail-ingame-id').value.trim();
             if (!playerId) { statusEl.style.display = 'none'; confirmBtn.style.display = 'none'; return; }
@@ -11772,14 +11644,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             // Kept in sync with onPlayerIdFieldChange's guard above so a
             // stray manual call can't run a check neither provider is
             // actually wired up to answer.
-            if ((!selectedGameG2BulkCode && !selectedGameFazerCardCategory) || !playerId) return;
-
-            // FazerCards categories that need a zone/server field can't be
-            // checked until that field is filled in too — an incomplete
-            // fields object would just come back as a FazerCards-side
-            // "missing field" error, not a real invalid-ID result.
-            const fazerNeedsServerField = selectedGameFazerCardCategory && selectedGameFazerCardFields.some(k => /server|zone/i.test(k));
-            if (fazerNeedsServerField && !serverId) { statusEl.style.display = 'none'; confirmBtn.style.display = 'none'; return; }
+            if (!selectedGameG2BulkCode || !playerId) return;
 
             // Game needs a Server ID (field is visible) but it's empty: say so instead of guessing.
             const serverWrapEl = document.getElementById('detail-server-id-wrap');
@@ -11811,12 +11676,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             try {
                 // Three possible outcomes, not two: 'valid', 'invalid' (a
                 // real "this ID doesn't exist" answer), or 'unknown' (the
-                // check itself couldn't run — bad config, FazerCards down,
                 // a non-2xx status, etc.). 'unknown' must NOT be treated
                 // the same as 'invalid': after the earlier fix that makes
                 // confirmPackagePurchase block checkout on playerIdVerified
                 // === false, collapsing a config/outage error into "ID not
-                // found" would wrongly block every FazerCards customer
                 // whenever the service side has a hiccup, not just the ones
                 // who actually typed a bad ID.
                 let outcome, resolvedName = null;
@@ -11825,30 +11688,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     checkResult = await g2bulkCheckPlayer(selectedGameG2BulkCode, playerId, serverId, charNameVal);
                     outcome = checkResult.outcome;
                     if (outcome === 'valid') resolvedName = checkResult.name;
-                } else if (selectedGameFazerCardCategory) {
-                    // fields keys mirror placeFazerCardOrder's mapping in
-                    // admin.html: a server/zone-looking key gets the Server ID
-                    // input, everything else gets the in-game ID input.
-                    const fields = {};
-                    selectedGameFazerCardFields.forEach(key => {
-                        fields[key] = /server|zone/i.test(key) ? serverId : playerId;
-                    });
-                    const res = await fetch(FAZERCARD_VALIDATE_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ categoryId: selectedGameFazerCardCategory, fields })
-                    });
-                    const data = await res.json();
-                    // data.ok reflects whether fazercard-validate could run the
-                    // check at all (Worker/Firestore/upstream error otherwise) -
-                    // that's separate from data.valid, which is the actual
-                    // found-or-not answer once the check did run.
-                    if (!res.ok || !data.ok) outcome = 'unknown';
-                    else if (data.valid === true) { outcome = 'valid'; resolvedName = data.playerName || null; }
-                    else outcome = 'invalid';
-                    checkResult = { outcome, reason: outcome === 'invalid' ? 'id' : 'unavailable', data };
-
-                    // No cross-provider fallback: FazerCards answers for itself only.
                 }
 
                 if (outcome === 'valid') {
@@ -12105,10 +11944,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // games where the customer must pick a region/server from a fixed
         // list rather than type a code they'd have no way to know (MLBB's
         // os_asia/os_euro/os_cht/os_usa, PUBGM/Free Fire region splits, etc.
-        // — the same pattern G2Bulk and FazerCard's own storefronts
         // use). Either provider can drive select mode; whichever
         // one supplies a non-empty options array wins:
-        //   FazerCard  -> game.fazercardServerMode === 'select' + game.fazercardServerOptions
         //   G2Bulk     -> game.g2bulkServerMode === 'select'    + game.g2bulkServerOptions
         // Each options array is [{value, label}], saved onto the game doc by
         // that provider's catalogue-import step in admin.html.
@@ -12179,7 +12016,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         function renderServerIdField(game) {
             const old = document.getElementById('detail-server-id');
             const providerOptions = game && (
-                (game.fazercardServerMode === 'select' && game.fazercardServerOptions) ||
                 (game.g2bulkServerMode === 'select' && game.g2bulkServerOptions)
             );
             const useSelect = Array.isArray(providerOptions) && providerOptions.length > 0;
@@ -12472,9 +12308,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             selectedGameServerName = game.serverName || '';
             selectedGameG2BulkCode = game.g2bulkCode || null;
             selectedGameJCPlaysProduct = game.jcplaysProduct || null;
-            selectedGameFazerCardCategory = game.fazercardCategoryId || null;
-            selectedGameFazerCardGiftCategory = game.fazercardGiftCategoryId || null;
-            selectedGameFazerCardFields = (Array.isArray(game.fazercardFields) && game.fazercardFields.length) ? game.fazercardFields : ['player_id'];
             selectedGameG2BulkIdCheckCode = game.g2bulkIdCheckCode || null;
             selectedPackage = null;
             pkgZoomDone = false;
@@ -13077,19 +12910,14 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
         // Bulk buying: voucher packages (G2Bulk /products/:id/purchase), and normal G2Bulk game top-ups.
         // G2Bulk's game top-up only takes ONE unit per call, so for those the Worker places the order `quantity`
-        // times (separate sub-orders, partial refund for any unit that fails). JCPlays / FazerCard packages have no
         // such loop in the Worker, so they stay at 1 - otherwise the customer would pay N and get 1.
-        // (UPDATE: worker.js now loops JCPlays / FazerCards per unit too - fulfillJCPlaysMulti / fulfillFazerCardMulti.)
         const GAME_QTY_CAP = 5;
         function gameQtyOk() {
             try {
                 if (!selectedPackage || selectedPackage.voucherId || selectedPackage.accountId) return false;
                 // G2Bulk game top-up (same test the Worker uses to pick G2Bulk)
                 if (!window.currentGameIsVoucher && selectedPackage.g2bulk && selectedGameG2BulkCode) return true;
-                // JCPlays / FazerCards have no quantity parameter at the provider: the Worker places the order
-                // once per unit (fulfillJCPlaysMulti / fulfillFazerCardMulti), so the stepper is safe here too.
                 if (selectedPackage.jcplays && selectedGameJCPlaysProduct) return true;
-                if (selectedPackage.fazercardOfferId && selectedGameFazerCardCategory) return true;
                 return false;
             } catch (e) { return false; }
         }
@@ -13537,7 +13365,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 // reach out. Only shown for orders that were actually
                 // code-linked in the first place, never for a normal top-up
                 // order.
-                if (!data.g2bulkVoucherProductId && !data.jcplaysProductId && !data.fazercardGiftCardId) return '';
+                if (!data.g2bulkVoucherProductId && !data.jcplaysProductId) return '';
                 return `
                     <div class="voucher-code-highlight">
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
@@ -13809,10 +13637,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (!selectedPaymentType) { window.showToast('Please choose how you want to pay', 'fail'); if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb(); return; }
 
             // Same "ID not found, continue anyway?" guard as G2Bulk - without
-            // this, runPlayerIdCheck's FazerCards branch (see renderIdFailCard)
             // would show the customer a red "ID not found" card but do nothing
             // to actually stop them from paying against a bad ID.
-            if ((selectedGameG2BulkCode || selectedGameFazerCardCategory) && playerIdVerified === false) {
+            if (selectedGameG2BulkCode && playerIdVerified === false) {
                 if (!confirm('We could not find this In-Game ID on the server. Continue with this order anyway?')) {
                     if (window.resetSlideConfirmThumb) window.resetSlideConfirmThumb();
                     return;
@@ -13929,11 +13756,25 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 wrap.classList.toggle('in-progress', x > 4);
             }
 
+            let completing = false, resetRef = null;
             function complete() {
+                // A 2nd slide / key press while the 1st order is still being placed must not fire a 2nd order.
+                if (completing) return;
+                completing = true;
+                const _origHTML = track.innerHTML;
                 thumb.classList.add('completed');
                 wrap.classList.add('completed');
                 thumb.innerHTML = '<svg class="ui-icon"><use href="#icon-check"></use></svg>';
-                onConfirm(track);
+                let r;
+                try { r = onConfirm(track); } catch (err) { r = Promise.reject(err); }
+                // Any error that escapes the confirm handler used to leave the slider on "completed" and the
+                // button on "Processing" forever (and became an unhandled rejection) - unlock everything instead.
+                Promise.resolve(r).catch((err) => {
+                    console.error('Slide confirm failed:', err);
+                    try { window.showToast((err && err.message) || 'Something went wrong. Please try again.', 'fail'); } catch (e) { /* toast is best effort */ }
+                    try { track.disabled = false; track.innerHTML = _origHTML; } catch (e) { /* ignore */ }
+                    if (resetRef) resetRef();
+                }).finally(() => { completing = false; });
             }
 
             thumb.addEventListener('pointerdown', (e) => {
@@ -13992,13 +13833,15 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 }
             });
 
-            return function reset() {
+            const _reset = function reset() {
                 thumb.classList.remove('completed', 'dragging');
                 wrap.classList.remove('completed', 'in-progress');
                 thumb.innerHTML = '<svg class="ui-icon"><use href="#icon-chevron-right"></use></svg>';
                 dragging = false;
                 setThumbX(0);
             };
+            resetRef = _reset;
+            return _reset;
         }
 
         function initSlideConfirm() {
@@ -14048,10 +13891,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 // directly on the package (no game-level link needed) - see
                 // pkg-voucher-id in the admin game editor.
                 g2bulkVoucherProductId: selectedPackage.voucherId || null,
-                fazercardCategoryId: selectedGameFazerCardCategory,
-                fazercardOfferId: selectedPackage.fazercardOfferId || null,
-                fazercardGiftCategoryId: selectedGameFazerCardGiftCategory,
-                fazercardGiftCardId: selectedPackage.fazercardGiftCardId || null
             }, btnElement);
         }
 
@@ -14071,10 +13910,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 jcplaysProduct: selectedGameJCPlaysProduct,
                 jcplaysProductId: selectedPackage.jcplays || null,
                 g2bulkVoucherProductId: selectedPackage.voucherId || null,
-                fazercardCategoryId: selectedGameFazerCardCategory,
-                fazercardOfferId: selectedPackage.fazercardOfferId || null,
-                fazercardGiftCategoryId: selectedGameFazerCardGiftCategory,
-                fazercardGiftCardId: selectedPackage.fazercardGiftCardId || null
             }, btnElement);
         }
 
@@ -14728,7 +14563,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         }
         function _imgUploadDone(file) { const e = file && typeof file === 'object' && _upCache.get(file); return !!(e && e.done); }
         async function _imgHostUploadImpl(file, label) {
-            const prepared = await prepareImageForUpload(file);
+            const prepared = await Promise.race([prepareImageForUpload(file), new Promise(r => setTimeout(() => r(file), 15000))]); // a stuck resize falls back to the original file
             const type = (prepared && prepared.type && /^image\//i.test(prepared.type)) ? prepared.type : 'image/jpeg';
             const ext = (type.split('/')[1] || 'jpg').replace(/[^a-z0-9]/gi, '').slice(0, 5) || 'jpg';
             // The Worker only accepts uploads/receipt, uploads/photo and uploads/img for customers: any other label
@@ -15090,7 +14925,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         window.isGamePinned = isGamePinned;
 
         // Same codes as the admin panel's game cards (PROVIDER_CODE there): change both together.
-        const PROVIDER_CODE = { g2bulk: 'P1', g2bulk_voucher: 'P1', fazercard: 'P2', fazercard_giftcard: 'P2', jcplays: 'P3' };
+        const PROVIDER_CODE = { g2bulk: 'P1', g2bulk_voucher: 'P1', jcplays: 'P3' };
         const PROV_CHIP_SVG = '<svg viewBox="0 0 26 20" aria-hidden="true"><rect x="1" y="1" width="24" height="18" rx="4" fill="rgba(255,255,255,.22)" stroke="#fff" stroke-width="1.6"/><rect x="5" y="6" width="8" height="7" rx="1.6" fill="#fff"/><path d="M13 9.5h5M13 7.5h3M18 12.5h3" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>';
         function providerChipHtml(g) {
             const c = g && PROVIDER_CODE[g.fulfillProvider];
@@ -15098,10 +14933,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         }
 
         // ---------- P1 / P2 provider tabs (Top Up + Voucher pages) ----------
-        // The same game can be listed under two providers (P1 = G2Bulk, P2 = FazerCards, P3 = JCPlays).
+        // The same game can be listed under two providers (P1 = G2Bulk, P3 = JCPlays).
         // Each tab shows ONE provider's games only, so the two catalogues are never grouped into one card.
         // Games with no provider (manual / hand-delivered) get their own "Other" tab so they never disappear.
-        const PROV_TAB_ORDER = ['P1', 'P2', 'P3', 'PO'];
+        const PROV_TAB_ORDER = ['P1', 'P3', 'PO'];
         let providerTab = 'P1';
         try { providerTab = sessionStorage.getItem('linnProvTab') || 'P1'; } catch (e) {}
         function gameProvTab(g) { return (g && PROVIDER_CODE[g.fulfillProvider]) || 'PO'; }
@@ -15115,7 +14950,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         }
         // Admin can mark a provider "Coming Soon" (settings/<provider>.comingSoon, mirrored into settings/providerFlags by the Worker).
         // Its tab stays visible with a Soon badge, but shows a Coming Soon card instead of games.
-        const PROV_CS_KEY = { P2: 'fazercard', P1: 'g2bulk', P3: 'jcplays' };
+        const PROV_CS_KEY = { P1: 'g2bulk', P3: 'jcplays' };
         function provIsSoon(c) { return !!(PROV_CS_KEY[c] && PROVIDER_CS[PROV_CS_KEY[c]]); }
         let __provCS = false;
         function filterIdsByProvTab(ids, pageKey) {
@@ -15138,43 +14973,18 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (!bar) return;
             if (tabs.length < 2) { bar.classList.remove('show'); bar.innerHTML = ''; if (info) info.classList.remove('show'); return; }
             const open = !!(info && info.classList.contains('show'));
-            const html = tabs.map(c => `<div class="prov-tab ${c.toLowerCase()}${c === active ? ' active' : ''}" data-prov="${c}" role="button"><i>${c === 'PO' ? '•' : c}</i>${c === 'PO' ? escapeHtml(t('prov_other')) : escapeHtml(t('prov_name_' + c.toLowerCase()))}${provIsSoon(c) ? `<em>${escapeHtml(t('prov_soon_badge'))}</em>` : (c === 'P2' && !p2Seen() ? `<em class="new">${escapeHtml(t('prov_new_badge'))}</em>` : '')}</div>`).join('');
+            const html = tabs.map(c => `<div class="prov-tab ${c.toLowerCase()}${c === active ? ' active' : ''}" data-prov="${c}" role="button"><i>${c === 'PO' ? '•' : c}</i>${c === 'PO' ? escapeHtml(t('prov_other')) : escapeHtml(t('prov_name_' + c.toLowerCase()))}${provIsSoon(c) ? `<em>${escapeHtml(t('prov_soon_badge'))}</em>` : ''}</div>`).join('');
             if (bar.dataset.sig !== html) { bar.innerHTML = html; bar.dataset.sig = html; }
             bar.classList.add('show');
-            if (active === 'P2' && window.currentStorePage === pageKey) maybeShowP2Welcome();
             if (info) { info.innerHTML = ''; info.classList.remove('show'); }
         }
-        // P2 first-visit welcome + launch motion
-        function p2Seen() { try { return localStorage.getItem('linnP2Seen') === '1'; } catch (e) { return true; } }
-        function playP2Launch() {
-            ['all-games-grid', 'voucher-games-grid'].forEach(id => { const g = document.getElementById(id); if (g) { g.classList.add('p2-launch'); setTimeout(() => g.classList.remove('p2-launch'), 2200); } });
-        }
-        function playP2Unlock() {
-            const tabs = document.querySelectorAll('.prov-tab.p2');
-            tabs.forEach(el => { el.classList.add('unlock'); setTimeout(() => el.classList.remove('unlock'), 1800); });
-        }
-        function maybeShowP2Welcome() {
-            if (p2Seen() || provIsSoon('P2')) return;
-            const ov = document.getElementById('p2-welcome');
-            if (!ov || ov.classList.contains('show')) return;
-            ov.classList.add('show');
-        }
-        function closeP2Welcome() {
-            const ov = document.getElementById('p2-welcome');
-            if (ov) ov.classList.remove('show');
-            try { localStorage.setItem('linnP2Seen', '1'); } catch (e) {}
-            document.querySelectorAll('.prov-tab.p2 em.new').forEach(el => el.remove());
-            playP2Launch();
-        }
-        window.closeP2Welcome = closeP2Welcome;
         function setProviderTab(code) {
-            if (providerTab === code) { if (code === 'P2') maybeShowP2Welcome(); return; }
+            if (providerTab === code) return;
             providerTab = code;
             try { sessionStorage.setItem('linnProvTab', code); } catch (e) {}
             lastHomeGamesSignature = null;
             renderHomeGames();
             if (window.renderVoucherGames) { __vRenderSig = null; renderVoucherGames(); }
-            if (code === 'P2') maybeShowP2Welcome();
         }
         document.addEventListener('click', (e) => {
             const bar = e.target.closest && e.target.closest('.prov-tabs');
@@ -15192,11 +15002,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             const r = [
                 test(o.g2bulkGameCode, String(g.g2bulkCode || '') === String(o.g2bulkGameCode)),
                 test(o.jcplaysProduct, String(g.jcplaysProduct || '') === String(o.jcplaysProduct)),
-                test(o.fazercardCategoryId, String(g.fazercardCategoryId || '') === String(o.fazercardCategoryId)),
-                test(o.fazercardGiftCategoryId, String(g.fazercardGiftCategoryId || '') === String(o.fazercardGiftCategoryId)),
                 test(o.g2bulkVoucherProductId, pk.some(p => p && String(p.voucherId || '') === String(o.g2bulkVoucherProductId))),
-                test(o.jcplaysProductId, pk.some(p => p && String(p.jcplays || '') === String(o.jcplaysProductId))),
-                test(o.fazercardGiftCardId, pk.some(p => p && String(p.fazercardGiftCardId || '') === String(o.fazercardGiftCardId)))
+                test(o.jcplaysProductId, pk.some(p => p && String(p.jcplays || '') === String(o.jcplaysProductId)))
             ];
             return checked && r.every(Boolean);
         }
@@ -15566,7 +15373,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
         function closeWalletTopupModal() {
             document.getElementById('wallet-topup-overlay').classList.remove('show');
-            if (window.stopCryptoPolling) window.stopCryptoPolling();
         }
         window.closeWalletTopupModal = closeWalletTopupModal;
 
@@ -15662,18 +15468,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 if (typeof ob === 'number') return 1;
                 return (methods[a].name || '').localeCompare(methods[b].name || '');
             });
-            // FazerCards-powered - hidden the moment admin turns FazerCards off.
-            const cryptoCard = PROVIDER_ENABLED.fazercard === false ? '' : `
-                <div class="payment-option" data-wallet-payment-id="__crypto__" onclick="openCryptoTopupModal()">
-                    <div class="payment-option-icon"><svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg></div>
-                    <div class="payment-option-text">
-                        <span class="payment-option-name">Pay with Crypto (auto top-up)</span>
-                        <span class="payment-option-availability">Instant - available 24/7</span>
-                    </div>
-                </div>
-            `;
             if (ids.length === 0) {
-                container.innerHTML = cryptoCard + '<p class="empty-msg">No manual payment methods configured yet.</p>';
+                container.innerHTML = '<p class="empty-msg">No manual payment methods configured yet.</p>';
                 return;
             }
             container.innerHTML = ids.map(id => {
@@ -15687,7 +15483,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         </div>
                     </div>
                 `;
-            }).join('') + cryptoCard;
+            }).join('');
         }
 
         function selectWalletPaymentMethod(id) {
@@ -15712,223 +15508,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             btn.innerText = 'Submit Top Up Request';
         }
         window.selectWalletPaymentMethod = selectWalletPaymentMethod;
-
-        // ---------- Crypto top-up (FazerCards-powered, auto-credited) ----------
-        // Mirrors FAZERCARD_VALIDATE_URL's pattern: same Worker, key never
-        // reaches the browser. See fazercards-worker.js for what each does.
-        const FAZERCARD_PAYMENT_METHODS_URL = 'https://fazercards-provider.linngamestore.workers.dev/fazercard-payment-methods';
-        const FAZERCARD_PAYMENT_CREATE_URL = 'https://fazercards-provider.linngamestore.workers.dev/fazercard-payment-create';
-        const FAZERCARD_PAYMENT_STATUS_URL = 'https://fazercards-provider.linngamestore.workers.dev/fazercard-payment-status';
-        const FAZERCARD_PAYMENT_VERIFY_URL = 'https://fazercards-provider.linngamestore.workers.dev/fazercard-payment-verify';
-
-        let cryptoMethodsCache = [];
-        let selectedCryptoMethod = null;
-        let cryptoPollTimer = null;
-        let cryptoActiveTopupId = null;
-
-        function openCryptoTopupModal() {
-            const amount = walletAmtNum();
-            if (!amount || amount <= 0) { window.showToast('Please enter an amount first.', 'fail'); return; }
-            if (amount < WALLET_TOPUP_MIN) { window.showToast(walletMinToast(), 'fail'); return; }
-            document.getElementById('crypto-topup-amount-display').innerText = `${amount.toLocaleString()} MMK`;
-            document.getElementById('crypto-topup-stage-methods').style.display = 'block';
-            document.getElementById('crypto-topup-stage-invoice').style.display = 'none';
-            selectedCryptoMethod = null;
-            const btn = document.getElementById('crypto-topup-create-btn');
-            btn.disabled = true;
-            btn.innerText = 'Select a Network';
-            document.getElementById('wallet-crypto-overlay').classList.add('show');
-            loadCryptoPaymentMethods(amount);
-        }
-        window.openCryptoTopupModal = openCryptoTopupModal;
-
-        function closeCryptoTopupModal() {
-            document.getElementById('wallet-crypto-overlay').classList.remove('show');
-            stopCryptoPolling();
-        }
-        window.closeCryptoTopupModal = closeCryptoTopupModal;
-
-        // Back from the invoice screen to picking a network again (e.g. the
-        // invoice expired, or the customer picked the wrong network).
-        function cancelCryptoInvoiceUI() {
-            stopCryptoPolling();
-            document.getElementById('crypto-topup-stage-methods').style.display = 'block';
-            document.getElementById('crypto-topup-stage-invoice').style.display = 'none';
-        }
-        window.cancelCryptoInvoiceUI = cancelCryptoInvoiceUI;
-
-        async function loadCryptoPaymentMethods(amount) {
-            const list = document.getElementById('crypto-topup-methods-list');
-            list.innerHTML = '<p class="empty-msg">Loading payment methods…</p>';
-            try {
-                const res = await fetch(FAZERCARD_PAYMENT_METHODS_URL);
-                const data = await res.json();
-                if (!data.ok) throw new Error(data.error || 'Could not load payment methods.');
-                cryptoMethodsCache = data.items || [];
-                // Methods' min/maxAmountUsd are in USD; the amount typed in
-                // the store is MMK. Convert using the same admin-configured
-                // rate (settings/fazercard.usdRate) the Worker will use when
-                // it actually creates the invoice, so this preview matches.
-                const usdRate = Number(data.usdRate) > 0 ? Number(data.usdRate) : 4500;
-                const amountUsd = amount / usdRate;
-                if (cryptoMethodsCache.length === 0) {
-                    list.innerHTML = '<p class="empty-msg">No crypto methods available right now.</p>';
-                    return;
-                }
-                list.innerHTML = cryptoMethodsCache.map(m => {
-                    const outOfRange = (typeof m.minAmountUsd === 'number' && amountUsd < m.minAmountUsd) ||
-                                        (typeof m.maxAmountUsd === 'number' && amountUsd > m.maxAmountUsd);
-                    const rangeHint = (typeof m.minAmountUsd === 'number' || typeof m.maxAmountUsd === 'number')
-                        ? `<span class="payment-option-name" style="display:block;font-size:11px;color:var(--text-secondary);font-weight:400;">
-                             ${Math.round((m.minAmountUsd || 0) * usdRate).toLocaleString()}–${m.maxAmountUsd ? Math.round(m.maxAmountUsd * usdRate).toLocaleString() : '∞'} MMK</span>`
-                        : '';
-                    return `
-                        <div class="payment-option ${outOfRange ? 'disabled' : ''}" data-crypto-method="${m.code}"
-                             style="${outOfRange ? 'opacity:0.45;pointer-events:none;' : ''}"
-                             onclick="selectCryptoMethod('${m.code}')">
-                            <div class="payment-option-icon"><svg class="ui-icon" style="width:20px;"><use href="#icon-wallet"></use></svg></div>
-                            <span class="payment-option-name">${escapeHtml(m.label || m.code)}${rangeHint}</span>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('loadCryptoPaymentMethods error:', error);
-                list.innerHTML = `<p class="empty-msg">${escapeHtml(error.message || 'Could not load payment methods.')}</p>`;
-            }
-        }
-
-        function selectCryptoMethod(code) {
-            selectedCryptoMethod = code;
-            document.querySelectorAll('#crypto-topup-methods-list .payment-option').forEach(el => el.classList.remove('selected'));
-            const el = document.querySelector(`#crypto-topup-methods-list .payment-option[data-crypto-method="${code}"]`);
-            if (el) el.classList.add('selected');
-            const btn = document.getElementById('crypto-topup-create-btn');
-            btn.disabled = false;
-            btn.innerText = 'Create Invoice';
-        }
-        window.selectCryptoMethod = selectCryptoMethod;
-
-        async function createCryptoPayment() {
-            if (!selectedCryptoMethod) return;
-            const amount = walletAmtNum();
-            const guestId = window.getGuestId ? window.getGuestId() : null;
-            if (!guestId) { window.showToast('Could not identify your account. Please reload.', 'fail'); return; }
-
-            const btn = document.getElementById('crypto-topup-create-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="gx-sp"></span>Creating invoice';
-            try {
-                const savedProfile = window.getSavedProfile ? window.getSavedProfile() : {};
-                const res = await fetch(FAZERCARD_PAYMENT_CREATE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: guestId,
-                        userName: (savedProfile.name && savedProfile.name.trim()) || guestId,
-                        userPhone: (savedProfile.phone && savedProfile.phone.trim()) || '',
-                        amount,
-                        method: selectedCryptoMethod
-                    })
-                });
-                const data = await res.json();
-                if (!data.ok) throw new Error(data.error || 'Could not create payment.');
-                showCryptoInvoice(data.topupId, data.payment);
-            } catch (error) {
-                console.error('createCryptoPayment error:', error);
-                window.showToast(error.message || 'Could not create payment.', 'fail');
-                btn.disabled = false;
-                btn.innerText = 'Create Invoice';
-            }
-        }
-        window.createCryptoPayment = createCryptoPayment;
-
-        function showCryptoInvoice(topupId, payment) {
-            cryptoActiveTopupId = topupId;
-            document.getElementById('crypto-topup-stage-methods').style.display = 'none';
-            document.getElementById('crypto-topup-stage-invoice').style.display = 'block';
-
-            // uniqueAmount (when FazerCards sets one) is the exact figure to
-            // send so they can tell this payment apart from others on the
-            // same address - always prefer it over the plain amount.
-            document.getElementById('crypto-pm-amount').innerText = payment.uniqueAmount || payment.amount || '';
-            document.getElementById('crypto-pm-address').innerText = payment.address || payment.binanceId || '';
-
-            const memoRow = document.getElementById('crypto-pm-memo-row');
-            if (payment.memo) {
-                document.getElementById('crypto-pm-memo').innerText = payment.memo;
-                memoRow.style.display = 'block';
-            } else {
-                memoRow.style.display = 'none';
-            }
-
-            document.getElementById('crypto-pm-network-line').innerText = `Network: ${payment.network || selectedCryptoMethod}`;
-            document.getElementById('crypto-pm-expires-line').innerText = payment.expiresAt
-                ? `Expires: ${new Date(payment.expiresAt).toLocaleString()}` : '';
-
-            document.getElementById('crypto-binance-verify-box').style.display =
-                (payment.network === 'binancepay' || selectedCryptoMethod === 'binancepay') ? 'block' : 'none';
-
-            setCryptoStatus('Waiting for payment…', true);
-            startCryptoPolling(topupId);
-        }
-
-        function setCryptoStatus(text, spinning) {
-            document.getElementById('crypto-status-text').innerText = text;
-            document.getElementById('crypto-status-spinner').style.display = spinning ? 'inline-block' : 'none';
-        }
-
-        function startCryptoPolling(topupId) {
-            stopCryptoPolling();
-            const poll = async () => {
-                try {
-                    const res = await fetch(`${FAZERCARD_PAYMENT_STATUS_URL}?topupId=${encodeURIComponent(topupId)}`);
-                    const data = await res.json();
-                    if (!data.ok) { setCryptoStatus(data.error || 'Checking…', true); return; }
-                    if (data.status === 'Completed') {
-                        stopCryptoPolling();
-                        setCryptoStatus(`Wallet credited ${Number(data.amount || 0).toLocaleString()} MMK ✓`, false);
-                        window.showToast('Top up complete! Wallet credited.', 'success');
-                        setTimeout(() => { closeCryptoTopupModal(); if (window.closeWalletTopupModal) window.closeWalletTopupModal(); }, 1500);
-                    } else if (['Expired', 'Cancelled', 'Rejected'].includes(data.status)) {
-                        stopCryptoPolling();
-                        setCryptoStatus(`Payment ${data.status.toLowerCase()}. Choose a different network to try again.`, false);
-                    } else {
-                        setCryptoStatus('Waiting for payment…', true);
-                    }
-                } catch (error) {
-                    console.error('crypto status poll error:', error);
-                    setCryptoStatus('Connection issue — retrying…', true);
-                }
-            };
-            poll();
-            cryptoPollTimer = setInterval(poll, 5000);
-        }
-
-        function stopCryptoPolling() {
-            if (cryptoPollTimer) { clearInterval(cryptoPollTimer); cryptoPollTimer = null; }
-        }
-        window.stopCryptoPolling = stopCryptoPolling;
-
-        async function verifyBinancePayment() {
-            const binanceOrderId = document.getElementById('crypto-binance-order-id').value.trim();
-            if (!binanceOrderId || !cryptoActiveTopupId) { window.showToast('Enter your Binance order ID first.', 'fail'); return; }
-            setCryptoStatus('Verifying with Binance Pay…', true);
-            try {
-                const res = await fetch(FAZERCARD_PAYMENT_VERIFY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topupId: cryptoActiveTopupId, binanceOrderId })
-                });
-                const data = await res.json();
-                if (!data.ok) throw new Error(data.error || 'Verification failed.');
-                setCryptoStatus('Submitted — waiting for confirmation…', true);
-            } catch (error) {
-                console.error('verifyBinancePayment error:', error);
-                window.showToast(error.message || 'Verification failed.', 'fail');
-                setCryptoStatus('Waiting for payment…', true);
-            }
-        }
-        window.verifyBinancePayment = verifyBinancePayment;
 
         function previewWalletReceiptImage(e) {
             const file = e.target.files[0];
@@ -19097,6 +18676,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             });
         }
 
+        window.getOrderLocation = getOrderLocation; // the receipt-picker script (classic) pre-warms the location through this
+
         // Not logged in -> send the customer to the Login form (Telegram / Google / Email).
         function sendToLoginForm(btnElement, originalText) {
             try { window.gzLoginNeeded ? window.gzLoginNeeded('buy') : window.showToast('Order တင်ရန် Login အရင်ဝင်ပါ။', 'fail'); } catch (e) {}
@@ -19106,7 +18687,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
         async function submitOrder(orderData, btnElement) {
             if (window.__MAINT_CLOSED) { window.showToast('ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
-                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
+                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, paymentMethodName, receiptFile, transactionId, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerHTML = '<span class="gx-sp"></span>Processing';
@@ -19227,20 +18808,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     // the game top-up order flow (see g2bulkVoucherProductId
                     // handling in the admin panel's fulfillment code).
                     ...(g2bulkVoucherProductId ? { g2bulkVoucherProductId } : {}),
-                    // Same idea again for FazerCards - lets the admin panel
-                    // route this order through FazerCards' /topups/order
-                    // (see placeFazerCardOrder in the admin panel). The
-                    // store never calls FazerCards itself (see the comment
-                    // on selectedGameFazerCardCategory above) - it only
-                    // carries these two ids so the admin-side authenticated
-                    // call knows what to order.
-                    ...(fazercardCategoryId && fazercardOfferId ? { fazercardCategoryId, fazercardOfferId } : {}),
-                    // Same idea again for FazerCards Gift Cards - a separate
-                    // catalog/order endpoint from the top-up flow above (see
-                    // placeFazerCardGiftCardOrder in the admin panel). Also
-                    // store-never-calls-FazerCards-directly, same reasoning
-                    // as fazercardCategoryId above.
-                    ...(fazercardGiftCategoryId && fazercardGiftCardId ? { fazercardGiftCategoryId, fazercardGiftCardId } : {})
                 };
                 orderRef.id = (await window.workerCreateOrder(receiptOrderPayload)).id;
 
@@ -19269,7 +18836,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // balance that only actually covers one of them.
         async function submitWalletOrder(orderData, btnElement) {
             if (window.__MAINT_CLOSED) { window.showToast('ခေတ္တပိတ်ထားပါသည် / Temporarily closed for maintenance', 'fail'); return; }
-                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId, fazercardCategoryId, fazercardOfferId, fazercardGiftCategoryId, fazercardGiftCardId } = orderData;
+                        const { gameName, serverRegion, amount, price, cost, quantity, inGameId, inGameName, serverId, charName, g2bulkGameCode, g2bulkCatalogueName, jcplaysProduct, jcplaysProductId, g2bulkVoucherProductId } = orderData;
 
             const originalText = btnElement.innerText;
             btnElement.innerHTML = '<span class="gx-sp"></span>Processing';
@@ -19285,7 +18852,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
                 let walletBalanceSeen = null; // filled by the ban-check read below
                 try {
-                    const userSnap = await getDoc(doc(db, "users", guestId));
+                    const userSnap = await Promise.race([
+                        getDoc(doc(db, "users", guestId)),
+                        new Promise((_, rej) => setTimeout(() => rej(new Error('balance check timeout')), 6000))
+                    ]);
                     walletBalanceSeen = userSnap.exists() ? Number(userSnap.data().walletBalance || 0) : 0;
                     // Ownership pre-check: firestore.rules + the Worker only accept a wallet order from the
                     // login that OWNS this wallet. Tell the customer clearly BEFORE we try (and fail) to write.
@@ -19345,8 +18915,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     ...(g2bulkGameCode && g2bulkCatalogueName ? { g2bulkGameCode, g2bulkCatalogueName } : {}),
                     ...(jcplaysProduct && jcplaysProductId ? { jcplaysProduct, jcplaysProductId } : {}),
                     ...(g2bulkVoucherProductId ? { g2bulkVoucherProductId } : {}),
-                    ...(fazercardCategoryId && fazercardOfferId ? { fazercardCategoryId, fazercardOfferId } : {}),
-                    ...(fazercardGiftCategoryId && fazercardGiftCardId ? { fazercardGiftCategoryId, fazercardGiftCardId } : {})
                 };
                 // ATOMIC: the wallet debit and the order creation happen in ONE
                 // transaction. Previously the debit committed first and setDoc(orderRef)
@@ -20079,7 +19647,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 if (!data || data.status !== 'Success') return '';
                 const g = findGameForOrder(data);
                 if (!g || !g.redeemLink) return '';
-                const isVch = isVoucherGame(g) || !!(data.g2bulkVoucherProductId || data.jcplaysProductId || data.fazercardGiftCardId);
+                const isVch = isVoucherGame(g) || !!(data.g2bulkVoucherProductId || data.jcplaysProductId);
                 return isVch ? String(g.redeemLink).trim() : '';
             } catch (e) { return ''; }
         }
@@ -20273,7 +19841,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 : '';
             // Same rule as the history card: the real provider Order ID only
             // shows up once the order is actually Success — never before.
-            const providerOrderId = data.g2bulkOrderId || data.jcplaysOrderId || data.fazercardOrderId;
+            const providerOrderId = data.g2bulkOrderId || data.jcplaysOrderId;
             const orderIdRow = (data.status === 'Success' && providerOrderId)
                 ? `<div class="od-row"><span>${t('od_order_id')}</span><b style="font-family:monospace;">${providerOrderId}</b></div>`
                 : '';
@@ -20572,8 +20140,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             const toD = (ts) => (ts && typeof ts.toDate === 'function') ? ts.toDate() : null;
             const orderedAt = toD(data.timestamp);
             const completedAt = toD(data.confirmedAt);
-            // Order ID on the receipt = the API provider's order id only (G2Bulk / JCPlays / FazerCard) — never the internal doc id
-            const providerOrderId = data.g2bulkOrderId || data.jcplaysOrderId || data.fazercardOrderId || null;
+            const providerOrderId = data.g2bulkOrderId || data.jcplaysOrderId || null;
 
             const userName = data.userName || '-';
             const itemTitle = (data.game || '-') + (data.itemAmount ? ' \u00B7 ' + data.itemAmount : '');
@@ -21326,7 +20893,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
         async function renderVerifiedReceiptCanvas(data, theme) {
             await vrEnsureFonts();
-            const providerId = data.g2bulkOrderId || data.jcplaysOrderId || data.fazercardOrderId || '';
+            const providerId = data.g2bulkOrderId || data.jcplaysOrderId || '';
             const docId = data.id || providerId;
             const qr = LinnQR.encode(`${VR_SITE}?verify=${encodeURIComponent(docId)}`);
             if (!qr) throw new Error('QR too long');
@@ -21388,7 +20955,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         function saveVerifiedReceipt() {
             if (!vrState.blob || !vrState.data) return;
             const d = vrState.data;
-            const id = d.g2bulkOrderId || d.jcplaysOrderId || d.fazercardOrderId || d.id || 'order';
+            const id = d.g2bulkOrderId || d.jcplaysOrderId || d.id || 'order';
             deliverPngBlob(vrState.blob, `verified-receipt-${id}-${vrState.theme}.png`);
         }
         window.openVerifiedReceipt = openVerifiedReceipt;
@@ -21615,20 +21182,19 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 
         // Whether each import source is currently turned on in the admin panel
         // (Dashboard → that provider's Settings → "Enabled" toggle). Mirrors
-        // admin.html's own G2BULK_SETTINGS.enabled / FAZERCARD_SETTINGS.enabled /
+        // admin.html's own G2BULK_SETTINGS.enabled /
         // etc. defaults (missing doc or missing field = enabled), kept live via
         // onSnapshot below so a toggle flip in admin reflects here immediately,
         // with no store reload needed.
-        let PROVIDER_ENABLED = { g2bulk: true, fazercard: true, jcplays: true };
+        let PROVIDER_ENABLED = { g2bulk: true, jcplays: true };
         // Provider marked "Coming Soon" in admin: its games stay hidden and its tab shows a Coming Soon card.
-        let PROVIDER_CS = { g2bulk: false, fazercard: false, jcplays: false };
+        let PROVIDER_CS = { g2bulk: false, jcplays: false };
 
         // Maps a game's fulfillProvider to the toggle family that controls it.
         // 'manual' (or no provider at all) is never hidden by these toggles.
         function gameProviderFamily(g) {
             const fp = g && g.fulfillProvider;
             if (fp === 'g2bulk' || fp === 'g2bulk_voucher') return 'g2bulk';
-            if (fp === 'fazercard' || fp === 'fazercard_giftcard') return 'fazercard';
             if (fp === 'jcplays') return 'jcplays';
             return null;
         }
@@ -21642,6 +21208,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             Object.keys(RAW_GAMES).forEach(id => {
                 const g = RAW_GAMES[id];
                 const family = gameProviderFamily(g);
+                if (g && (g.fulfillProvider === 'fazercard' || g.fulfillProvider === 'fazercard_giftcard')) return; // provider removed
                 if (family && PROVIDER_ENABLED[family] === false) return; // hidden: source turned off
                 if (family && PROVIDER_CS[family]) return; // hidden: marked Coming Soon
                 filtered[id] = g;
@@ -21676,14 +21243,11 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // readable by a customer's browser once Firestore Rules are locked down.
         onSnapshot(doc(db, "settings", "providerFlags"), (docSnap) => {
             const data = docSnap.exists() ? docSnap.data() : {};
-            ['g2bulk', 'fazercard', 'jcplays'].forEach(provider => {
+            ['g2bulk', 'jcplays'].forEach(provider => {
                 PROVIDER_ENABLED[provider] = data[provider] !== false;
-                const wasCS = PROVIDER_CS[provider] === true;
                 PROVIDER_CS[provider] = data[provider + 'ComingSoon'] === true;
-                if (provider === 'fazercard' && wasCS && !PROVIDER_CS[provider]) window.__p2JustUnlocked = true;
             });
             applyProviderFilterAndRerender();
-            if (window.__p2JustUnlocked) { window.__p2JustUnlocked = false; setTimeout(() => { playP2Unlock(); if (providerTab === 'P2') playP2Launch(); }, 60); }
         }, (error) => {
             console.error("providerFlags fetch error:", error);
         });
@@ -22235,7 +21799,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 lastHomeGamesFilterKey = filterKey;
             }
             const signature = JSON.stringify([
-                gamesLoadedOnce, selectedGameCategory, gameSearchQuery, homeGamesVisibleCount, providerTab, !!PROVIDER_CS.fazercard,
+                gamesLoadedOnce, selectedGameCategory, gameSearchQuery, homeGamesVisibleCount, providerTab,
                 ids.map(id => { const g = GAMES[id]; return [id, g.name, g.image, g.category, g.serverName, g.order, !!g.popular]; })
             ]);
             if (signature === lastHomeGamesSignature && grid.children.length > 0) return;
@@ -23349,7 +22913,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             return status === 'Success' ? t('notif_order_success') : t('notif_order_failed');
         }
         function orderProviderId(d) {
-            return d.g2bulkOrderId || d.jcplaysOrderId || d.fazercardOrderId || '';
+            return d.g2bulkOrderId || d.jcplaysOrderId || '';
         }
 
         function orderNotifCardHTML(item, unreadCls) {
@@ -25266,7 +24830,6 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             if (isShown('vr-overlay')) return closeVerifiedReceipt();
             if (isShown('order-detail-overlay')) return closeOrderDetail();
             if (isShown('wallet-topup-detail-overlay')) return closeWalletTopupDetail();
-            if (isShown('wallet-crypto-overlay')) return closeCryptoTopupModal();
             if (isShown('wallet-google-gate-overlay')) return closeWalletGoogleGate();
             if (isShown('wallet-topup-overlay')) return closeWalletTopupModal();
             if (isShown('profile-edit-overlay')) return closeProfileEditModal();
@@ -26405,8 +25968,9 @@ if (window.TELEGRAM_BOT_ID && !(window.Telegram && window.Telegram.Login)) { var
       try {
         const r = indexedDB.open('gz_dev', 1);
         r.onupgradeneeded = () => r.result.createObjectStore('k');
-        r.onsuccess = () => { const g = r.result.transaction('k').objectStore('k').get('id'); g.onsuccess = () => res(g.result || ''); g.onerror = () => res(''); };
+        r.onsuccess = () => { try { const g = r.result.transaction('k').objectStore('k').get('id'); g.onsuccess = () => res(g.result || ''); g.onerror = () => res(''); } catch (e) { res(''); } };
         r.onerror = () => res('');
+        r.onblocked = () => res('');
       } catch (e) { res(''); }
     });
   }
@@ -26421,7 +25985,7 @@ if (window.TELEGRAM_BOT_ID && !(window.Telegram && window.Telegram.Login)) { var
   async function devId() {
     if (_dev) return _dev;
     let id = ''; try { id = localStorage.getItem(DEV_KEY) || ''; } catch (e) { /* private mode */ }
-    if (!id) id = await idbGet();
+    if (!id) id = await Promise.race([idbGet(), new Promise(r => setTimeout(() => r(''), 1500))]); // never wait on a stuck IndexedDB
     if (!id) id = b64(crypto.getRandomValues(new Uint8Array(24))).replace(/[^A-Za-z0-9]/g, '');
     try { localStorage.setItem(DEV_KEY, id); } catch (e) { /* ignore */ }
     idbSet(id);
