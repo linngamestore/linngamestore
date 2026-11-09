@@ -215,6 +215,21 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#060d18">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Linn Game Store">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-startup-image" href="/splash/1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/1668x2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/splash/2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
     <script>
         // Apply the theme before CSS paints (no light-mode flash).
         // Admin panel controls the default (settings/branding.darkMode, cached in lg_dm):
@@ -9228,6 +9243,20 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                         </span>
                     </div>
                 </div>
+                <div id="push-prefs-box" style="display:none;margin-top:6px;padding:2px 0 0 4px;">
+                    <div class="prefs-row" style="margin-top:8px;">
+                        <span class="prefs-row-label"><span>Order Success / Fail<small style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">Order ပြီးရင် / မအောင်မြင်ရင်</small></span></span>
+                        <div class="push-toggle on" id="push-pref-order" onclick="togglePushPref('order')" role="button" aria-label="Order alerts"><span class="push-toggle-thumb"></span></div>
+                    </div>
+                    <div class="prefs-row" style="margin-top:8px;">
+                        <span class="prefs-row-label"><span>Wallet Top Up<small style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">Wallet ထဲ ငွေဝင်ရင်</small></span></span>
+                        <div class="push-toggle on" id="push-pref-wallet" onclick="togglePushPref('wallet')" role="button" aria-label="Wallet alerts"><span class="push-toggle-thumb"></span></div>
+                    </div>
+                    <div class="prefs-row" style="margin-top:8px;">
+                        <span class="prefs-row-label"><span>Promo / Event<small style="display:block;font-size:11px;font-weight:400;color:var(--text-muted);">ပရိုမိုးရှင်း၊ ကြေညာချက်</small></span></span>
+                        <div class="push-toggle on" id="push-pref-promo" onclick="togglePushPref('promo')" role="button" aria-label="Promo alerts"><span class="push-toggle-thumb"></span></div>
+                    </div>
+                </div>
                 <div class="prefs-row" style="margin-top:10px;">
                     <span class="prefs-row-label">
                         <span class="prefs-row-icon"><svg class="ui-icon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect fill="currentColor" fill-opacity=".16" x="8" y="3" width="8" height="18" rx="2.5"></rect><path d="M4.5 8v8M19.5 8v8"></path></svg></span>
@@ -10587,6 +10616,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 try { localStorage.setItem('gz_lang', currentLang); } catch (e) { /* private browsing - ignore */ }
                 applyI18n();
                 if (window.updateHomeStatsTimestampLabel) window.updateHomeStatsTimestampLabel();
+                try { if (window.__pushLangSync) window.__pushLangSync(currentLang); } catch (e) {}
             };
             const root = document.documentElement;
             const main = document.querySelector('main.content-area');
@@ -22454,6 +22484,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 el.textContent = count ? (count > 99 ? '99+' : String(count)) : '';
                 el.classList.toggle('show', count > 0);
             });
+            // Unread count on the installed app's icon (Android / desktop PWA; iPhone from the Home Screen app).
+            try { if (navigator.setAppBadge) { if (count > 0) navigator.setAppBadge(count); else navigator.clearAppBadge(); } } catch (e) {}
         }
         function refreshNotifUI() {
             updateNotifBadge();
@@ -22586,7 +22618,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 try {
                     const gid = window.getGuestId ? window.getGuestId() : null;
                     if (!gid || !token || !token.value) return;
-                    await window.workerProfile({ op: 'push', userId: gid, token: token.value });
+                    await window.workerProfile({ op: 'push', userId: gid, token: token.value, lang: (function(){try{return localStorage.getItem('gz_lang')==='my'?'my':'en'}catch(e){return 'en'}})() });
                     try { localStorage.setItem('gz_fcm_token_registered', '1'); } catch (e) {}
                     renderPushToggleUI();
                 } catch (e) { console.error('Native push token save error:', e); }
@@ -22599,10 +22631,38 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             // token back through the same 'registration' listener.
             if (pushEnabled()) PN.register();
         }
+        // Per-type switches (Order / Wallet / Promo). Saved on users/{id}.pushPrefs through the Worker's existing
+        // op:'push' + prefs; the Worker already skips a push type the customer turned off.
+        function getPushPrefs() {
+            try {
+                const p = JSON.parse(localStorage.getItem('gz_push_prefs') || '{}') || {};
+                return { order: p.order !== false, wallet: p.wallet !== false, promo: p.promo !== false };
+            } catch (e) { return { order: true, wallet: true, promo: true }; }
+        }
+        function renderPushPrefsUI() {
+            const box = document.getElementById('push-prefs-box');
+            if (!box) return;
+            let on = false; try { on = pushEnabled(); } catch (e) {}
+            box.style.display = on ? '' : 'none';
+            const p = getPushPrefs();
+            ['order', 'wallet', 'promo'].forEach(k => { const el = document.getElementById('push-pref-' + k); if (el) el.classList.toggle('on', p[k]); });
+        }
+        async function togglePushPref(k) {
+            const p = getPushPrefs();
+            p[k] = !p[k];
+            try { localStorage.setItem('gz_push_prefs', JSON.stringify(p)); } catch (e) {}
+            renderPushPrefsUI();
+            try {
+                const gid = window.getGuestId ? window.getGuestId() : null;
+                if (gid && window.workerProfile) await window.workerProfile({ op: 'push', userId: gid, prefs: p });
+            } catch (e) { console.error('Push prefs save error:', e); showToast('Save မရပါ — ထပ်ကြိုးစားပါ', 'error'); }
+        }
+        window.togglePushPref = togglePushPref;
         function renderPushToggleUI() {
             const toggle = document.getElementById('push-toggle');
             const stateEl = document.getElementById('push-toggle-state');
             if (!toggle || !stateEl) return;
+            renderPushPrefsUI();
             if (!pushSupported()) {
                 toggle.classList.add('blocked');
                 stateEl.textContent = 'Not supported on this browser';
@@ -22648,10 +22708,12 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 }
                 await messagingReady;
                 if (!messaging) return;
-                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                // Own scope: the PWA's /sw.js owns '/', so registering this file on '/' too made the two
+                // replace each other (push then showed as a plain Chrome notification).
+                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/firebase-cloud-messaging-push-scope' });
                 const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: registration });
                 if (!token) return;
-                await window.workerProfile({ op: 'push', userId: gid, token });
+                await window.workerProfile({ op: 'push', userId: gid, token, lang: (function(){try{return localStorage.getItem('gz_lang')==='my'?'my':'en'}catch(e){return 'en'}})() });
                 try { localStorage.setItem('gz_fcm_token_registered', '1'); } catch (e) {}
             } catch (error) { console.error("FCM token registration error:", error); }
         }
@@ -22715,12 +22777,21 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             const result = await Notification.requestPermission();
             if (result === 'granted') {
                 try { localStorage.setItem('gz_push_opt_in', '1'); } catch (e) {}
-                new Notification('Linn Game Store', { body: 'Notifications are on — you\'ll be alerted here.', icon: APP_LOGO_URL || undefined });
+                new Notification('Linn Game Store', { body: ((function(){try{return localStorage.getItem('gz_lang')==='my'?'my':'en'}catch(e){return 'en'}})() === 'my' ? '🔔 Notification ဖွင့်ပြီးပါပြီ — Order နဲ့ Wallet သတင်းတွေ ဒီမှာ ရပါမယ်။' : '🔔 Notifications are on — you\'ll be alerted here.'), icon: APP_LOGO_URL || undefined });
                 registerFcmToken();
             }
             renderPushToggleUI();
         }
         window.togglePushNotifications = togglePushNotifications;
+        // Keep the server's notification language in step with the app language.
+        window.__pushLangSync = function (l) {
+            try {
+                if (!pushEnabled() || !window.workerProfile) return;
+                const gid = window.getGuestId ? window.getGuestId() : null;
+                if (!gid) return;
+                window.workerProfile({ op: 'push', userId: gid, lang: l === 'my' ? 'my' : 'en' }).catch(function () {});
+            } catch (e) {}
+        };
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initNativePush);
         } else {
@@ -22741,6 +22812,32 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         if (!isNativeApp() && !inTgMiniAppForSw && 'serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('/sw.js')
+                    .then(function (reg) {
+                        // New version downloaded in the background -> slide-in banner, tap to refresh.
+                        function banner(w) {
+                            if (document.getElementById('lg-update-banner')) return;
+                            const b = document.createElement('div');
+                            b.id = 'lg-update-banner';
+                            b.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:99999;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#2f6bff;color:#fff;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25);transform:translateY(-140%);transition:transform .35s ease;';
+                            b.innerHTML = '<span style="flex:1;">Update ရပြီ — နှိပ်ပြီး အသစ်သုံးပါ</span><button type="button" style="border:0;border-radius:9px;padding:7px 12px;background:#fff;color:#2f6bff;font-weight:600;">Update</button>';
+                            b.querySelector('button').onclick = function () {
+                                let done = false; const go = function () { if (!done) { done = true; location.reload(); } };
+                                navigator.serviceWorker.addEventListener('controllerchange', go);
+                                try { w.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+                                setTimeout(go, 1500);
+                            };
+                            document.body.appendChild(b);
+                            requestAnimationFrame(function () { requestAnimationFrame(function () { b.style.transform = 'translateY(0)'; }); });
+                        }
+                        if (reg.waiting && navigator.serviceWorker.controller) banner(reg.waiting);
+                        // The saved home page was refreshed in the background and differs: same banner, tap to load it.
+                        navigator.serviceWorker.addEventListener('message', function (e) { if (e.data && e.data.type === 'SHELL_UPDATED') banner({ postMessage: function () {} }); });
+                        reg.addEventListener('updatefound', function () {
+                            const nw = reg.installing; if (!nw) return;
+                            nw.addEventListener('statechange', function () { if (nw.state === 'installed' && navigator.serviceWorker.controller) banner(nw); });
+                        });
+                        setInterval(function () { reg.update().catch(function () {}); }, 30 * 60 * 1000);
+                    })
                     .catch(err => console.warn('Service worker registration error:', err));
             });
         }
@@ -22884,7 +22981,14 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 // it out here since Firestore has no per-doc user ACL to do it
                 // server-side.
                 const myGuestId = window.getGuestId ? window.getGuestId() : '';
-                const isMine = (data) => !data.targetUserId || data.targetUserId === myGuestId;
+                const _nowMs = Date.now();
+                // A promo the admin scheduled for later has a future timestamp: hide it until that time arrives.
+                const isDue = (data) => !(data.timestamp && data.timestamp.toMillis && data.timestamp.toMillis() > Date.now());
+                const isMine = (data) => isDue(data) && (!data.targetUserId || data.targetUserId === myGuestId);
+                try {
+                    const nextAt = snap.docs.map(d => d.data().timestamp).filter(x => x && x.toMillis && x.toMillis() > _nowMs).map(x => x.toMillis()).sort((a, b) => a - b)[0];
+                    if (nextAt) { clearTimeout(window.__lnSchedNotifT); window.__lnSchedNotifT = setTimeout(() => { try { NOTIFICATIONS = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(isMine); refreshNotifUI(); } catch (e) {} }, Math.min(nextAt - _nowMs + 1500, 2147000000)); }
+                } catch (e) {}
                 NOTIFICATIONS = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(isMine);
                 if (!(snap.empty && snap.metadata.fromCache)) notifLoadedOnce = true;
                 refreshNotifUI();
@@ -23145,6 +23249,34 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             wrap.style.display = '';
             showPage('notif-detail');
         }
+
+        // Push tap lands on /?order=ID (or ?page=wallet): wait for the order list to load, then open that order's detail.
+        function runStoreDeepLink() {
+            let u; try { u = new URL(location.href); } catch (e) { return; }
+            const oid = u.searchParams.get('order'), pg = u.searchParams.get('page');
+            if (!oid && !pg) return;
+            try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            const t0 = Date.now();
+            const iv = setInterval(() => {
+                if (Date.now() - t0 > 25000) {
+                    clearInterval(iv);
+                    try { if (oid) showPage('notif-page'); } catch (e) {}
+                    return;
+                }
+                try {
+                    if (oid) {
+                        const d = ORDER_NOTIF_SRC && ORDER_NOTIF_SRC[oid];
+                        if (!d || (d.status !== 'Success' && d.status !== 'Fail')) return;
+                        clearInterval(iv);
+                        openOrderNotificationDetail({ kind: 'order', id: 'order:' + oid + ':' + d.status, raw: d, status: d.status });
+                    } else if (pg === 'wallet' || pg === 'history') {
+                        clearInterval(iv);
+                        showPage(pg);
+                    } else { clearInterval(iv); }
+                } catch (e) { /* retry on next tick */ }
+            }, 600);
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runStoreDeepLink); else runStoreDeepLink();
 
         function closeNotificationDetail() {
             renderNotificationList(); // the card you just opened has moved to the Read tab
@@ -31379,5 +31511,70 @@ html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-save{background:#fff !important
 html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note svg, html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{color:#fff !important}
 html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{text-decoration:underline}
 </style>
+
+<script>
+/* Ask for notification permission when the customer enters the app.
+   A small in-app sheet comes first (the browser's one-shot prompt is only spent when they tap Allow);
+   "Later" hides it for 3 days, a second "Later" for 14 days. Texts follow the app language. */
+(function () {
+  var KEY = 'gz_push_ask';
+  function lang() { try { return localStorage.getItem('gz_lang') === 'my' ? 'my' : 'en'; } catch (e) { return 'en'; } }
+  function native() { try { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); } catch (e) { return false; } }
+  function inTg() { try { return !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData); } catch (e) { return false; } }
+  function needAsk() {
+    try {
+      if (native()) { if (localStorage.getItem('gz_push_opt_in') !== null) return false; }
+      else if (!('Notification' in window) || Notification.permission !== 'default') return false;
+      var st = JSON.parse(localStorage.getItem(KEY) || '{}');
+      return !(st.until && Date.now() < st.until);
+    } catch (e) { return false; }
+  }
+  function later() {
+    try {
+      var st = JSON.parse(localStorage.getItem(KEY) || '{}');
+      st.n = (st.n || 0) + 1; st.until = Date.now() + (st.n >= 2 ? 14 : 3) * 864e5;
+      localStorage.setItem(KEY, JSON.stringify(st));
+    } catch (e) {}
+  }
+  var T = {
+    my: { t: 'Notification ဖွင့်မလား', d: 'Order ပြီးတာ၊ Wallet ငွေဝင်တာ၊ Promo အသစ်တွေကို App မဖွင့်ဘဲ ချက်ချင်း သိရပါမယ်။', a: 'ဖွင့်မယ်', l: 'နောက်မှ' },
+    en: { t: 'Turn on notifications', d: 'Get told right away when your order is done, your wallet is topped up, or a new promo drops.', a: 'Allow', l: 'Later' }
+  };
+  function show() {
+    if (document.getElementById('push-ask') || !needAsk()) return;
+    var x = T[lang()];
+    var st = document.createElement('style'); st.id = 'push-ask-css';
+    st.textContent = '#push-ask{position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,10,25,.45);opacity:0;transition:opacity .25s}' +
+      '#push-ask.on{opacity:1}#push-ask .pa-box{width:100%;max-width:440px;margin:0 12px calc(env(safe-area-inset-bottom,0px) + 12px);padding:22px 20px 16px;border-radius:24px;background:#fff;color:#0F1B3D;text-align:center;transform:translateY(30px);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 20px 50px -18px rgba(10,30,90,.5)}' +
+      '#push-ask.on .pa-box{transform:none}#push-ask .pa-ic{width:58px;height:58px;margin:0 auto 12px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#1B6BFF,#4C93FF)}' +
+      '#push-ask .pa-ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}' +
+      '#push-ask h4{margin:0 0 6px;font-size:17px;font-weight:600}#push-ask p{margin:0 0 16px;font-size:13.5px;line-height:1.7;color:#5B6B8F}' +
+      '#push-ask button{display:block;width:100%;border:0;border-radius:14px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}' +
+      '#push-ask .pa-ok{background:#1B6BFF;color:#fff}#push-ask .pa-no{margin-top:6px;background:transparent;color:#5B6B8F;font-weight:500}' +
+      'html[data-theme="dark"] #push-ask .pa-box{background:#0E1730;color:#EAF0FF}html[data-theme="dark"] #push-ask p,html[data-theme="dark"] #push-ask .pa-no{color:#8FA0C8}';
+    document.head.appendChild(st);
+    var ov = document.createElement('div'); ov.id = 'push-ask'; ov.setAttribute('role', 'dialog');
+    ov.innerHTML = '<div class="pa-box"><div class="pa-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div><h4></h4><p></p><button type="button" class="pa-ok"></button><button type="button" class="pa-no"></button></div>';
+    ov.querySelector('h4').textContent = x.t; ov.querySelector('p').textContent = x.d;
+    ov.querySelector('.pa-ok').textContent = x.a; ov.querySelector('.pa-no').textContent = x.l;
+    function close() { ov.classList.remove('on'); setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 280); }
+    ov.querySelector('.pa-ok').onclick = function () { close(); try { if (window.togglePushNotifications) window.togglePushNotifications(); } catch (e) {} };
+    ov.querySelector('.pa-no').onclick = function () { later(); close(); };
+    ov.addEventListener('click', function (e) { if (e.target === ov) { later(); close(); } });
+    document.body.appendChild(ov);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { ov.classList.add('on'); }); });
+  }
+  function start() {
+    if (inTg()) return;
+    var tries = 0;
+    (function wait() {
+      // wait until the app is ready (togglePushNotifications defined, splash gone), then ask once
+      if (window.togglePushNotifications && !document.getElementById('lnSplash')) { setTimeout(show, 1800); return; }
+      if (++tries < 40) setTimeout(wait, 500);
+    })();
+  }
+  if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
+})();
+</script>
 </body>
 </html>

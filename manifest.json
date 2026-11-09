@@ -28,5 +28,64 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "lang": "my",
+  "categories": [
+    "shopping",
+    "games"
+  ],
+  "shortcuts": [
+    {
+      "name": "Voucher",
+      "short_name": "Voucher",
+      "description": "Voucher store",
+      "url": "/?tab=voucher",
+      "icons": [
+        {
+          "src": "/favicon-192.png?v=4",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Software",
+      "short_name": "Software",
+      "description": "Software store",
+      "url": "/?tab=software",
+      "icons": [
+        {
+          "src": "/favicon-192.png?v=4",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "short_name": "Wallet",
+      "description": "Wallet & top up",
+      "url": "/?tab=wallet",
+      "icons": [
+        {
+          "src": "/favicon-192.png?v=4",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "short_name": "History",
+      "description": "Order history",
+      "url": "/?tab=history",
+      "icons": [
+        {
+          "src": "/favicon-192.png?v=4",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }
