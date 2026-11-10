@@ -1,14 +1,14 @@
-/* Linn Game Store - PWA service worker (v4)
+/* Linn Game Store - PWA service worker (v5)
  * - Pages: always network. If the network fails, show the branded /offline.html
  * - Icons / offline page: pre-cached, served instantly (refreshed in the background)
  * - Everything else (Firebase, APIs, other origins): untouched
  */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = 'linn-static-' + VERSION;
 const OFFLINE_URL = '/offline.html';
 const SHELL_KEY = '/__shell';
 const SIG_KEY = '/__shell-sig';
-const PRECACHE = [OFFLINE_URL, '/favicon-192.png?v=4', '/favicon-48.png?v=4'];
+const PRECACHE = [OFFLINE_URL, '/favicon-192.png?v=4', '/favicon-48.png?v=4', '/fz-scenes.js?v=1'];
 const ICON_RE = /^\/(favicon[^/]*|apple-touch-icon|maskable-512)\.(png|ico)$/;
 
 self.addEventListener('install', event => {
