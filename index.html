@@ -9132,6 +9132,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                     <span class="rank1-spark sp-2"></span>
                     <span class="rank1-spark sp-3"></span>
                 </div>
+                <!-- Gradient banner (design: Light centered) -->
+                <div class="pc-banner" aria-hidden="true"></div>
                 <div class="pc-top">
                     <div class="pc-avatar-wrap">
                         <!-- Shown only when this account is the #1 leaderboard spender
@@ -9157,6 +9159,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                                 <img decoding="async" id="profile-photo-preview" src="" alt="Profile photo" style="display:none;">
                                 <div class="avatar-upload-placeholder" id="avatar-upload-placeholder">
                                     <svg class="ui-icon"><use href="#icon-user"></use></svg>
+                                    <span class="pc-initial" id="pc-initial" aria-hidden="true"></span>
                                 </div>
                             </span>
                             <span class="avatar-upload-badge"><svg class="ui-icon"><use href="#icon-camera"></use></svg></span>
@@ -9172,15 +9175,16 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                                 <path d="m9 12 2 2 4-4" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </div>
-                        <div class="pc-id-row">
-                            <span class="profile-hero-id" id="profile-hero-id"></span>
-                            <button type="button" class="pm-copy-btn profile-id-copy-btn" id="profile-id-copy-btn" onclick="copyProfileId(this)" title="Copy ID">
-                                <svg class="ui-icon"><use href="#icon-copy"></use></svg>
-                            </button>
+                        <div class="pc-chip-row">
+                            <div class="pc-id-row">
+                                <span class="profile-hero-id" id="profile-hero-id"></span>
+                                <button type="button" class="pm-copy-btn profile-id-copy-btn" id="profile-id-copy-btn" onclick="copyProfileId(this)" title="Copy ID">
+                                    <svg class="ui-icon"><use href="#icon-copy"></use></svg>
+                                </button>
+                            </div>
+                            <div class="profile-hero-tier" id="vip-tier-badge-hero"></div>
                         </div>
                     </div>
-
-                    <div class="profile-hero-tier" id="vip-tier-badge-hero"></div>
                 </div>
 
                 <div class="pc-divider"></div>
@@ -31592,6 +31596,82 @@ html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-save{background:#fff !important
 html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note svg, html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{color:#fff !important}
 html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{text-decoration:underline}
 </style>
+<style id="pc-card-redesign">
+/* ===== Profile card — "Light centered" design (overrides all earlier profile-card themes) ===== */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main,html:not(#_):not(#__):not(#___):not(#____) #profile-card-main.rank1-aura{
+  --pc-tile:#eff3fa; --pc-avatar:#e7ecf9; --pc-blue:#1f5fe6;
+  padding:0 16px 14px !important; border-radius:28px !important; overflow:hidden;
+  background:var(--surface) !important; background-image:none !important;
+  border:1px solid rgba(15,23,42,.06) !important;
+  box-shadow:0 10px 30px -14px rgba(15,23,42,.22) !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; color:var(--text) !important;
+}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____) #profile-card-main{ --pc-tile:rgba(255,255,255,.07); --pc-avatar:rgba(255,255,255,.14); border-color:rgba(255,255,255,.08) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main.rank1-aura{ border:1.5px solid rgba(255,190,60,.75) !important; box-shadow:0 0 0 1px rgba(255,190,60,.15),0 12px 32px -12px rgba(255,170,40,.45) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main::before,html:not(#_):not(#__):not(#___):not(#____) #profile-card-main::after,html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-sky,html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .rank1-fx,html:not(#_):not(#__):not(#___):not(#____) #profile-card-main #pc-hang,html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-divider{ display:none !important; }
+
+/* banner + centered avatar overlapping it */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-banner{ height:84px; margin:0 -16px; background:linear-gradient(110deg,#2563eb 0%,#5b4ee6 55%,#7c3aed 100%); }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-top{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:0; margin-top:-42px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap{ width:84px; height:84px; margin:0 auto; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap::before{ content:''; position:absolute; left:50%; top:50%; width:92px; height:92px; transform:translate(-50%,-50%); border-radius:50%; background:var(--surface); z-index:0; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap:has(.avatar-tier-frame:not([data-tier=""]))::before{ width:108px; height:108px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-frame-inner{ transform:translate(-50%,-50%) scale(1); z-index:1; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap .avatar-upload-box{ width:84px; height:84px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .avatar-upload-circle{ border:0 !important; box-shadow:none !important; background:var(--pc-avatar) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .avatar-upload-placeholder{ color:var(--text) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-initial{ display:none; font-size:36px; font-weight:600; line-height:1; color:var(--text); }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .avatar-upload-placeholder.has-initial svg{ display:none; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .avatar-upload-placeholder.has-initial .pc-initial{ display:block; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap .avatar-upload-placeholder svg{ width:32px; height:32px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap .avatar-upload-badge{ width:26px; height:26px; right:-6px; bottom:-2px; border:2px solid var(--surface); }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap .avatar-upload-badge svg{ width:12px; height:12px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main #profile-crown{ top:-34px; }
+
+/* name + verify badge */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-id-block{ flex:none; width:100%; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-name-row{ justify-content:center; gap:6px; margin-top:16px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-name{ font-size:20px; font-weight:600; letter-spacing:0; color:var(--text) !important; text-shadow:none !important; }
+#profile-hero-verified-badge{ width:20px; height:20px; filter:drop-shadow(0 2px 3px rgba(34,197,94,.35)); }
+#profile .verified-badge path:first-child{ stroke:#22C55E; stroke-width:1.6px; stroke-linejoin:round; transform-box:fill-box; transform-origin:50% 50%; animation:pcVerifySpin 5s linear infinite; }
+@keyframes pcVerifySpin{ to{ transform:rotate(360deg); } }
+html.perf-low #profile .verified-badge path:first-child{ animation:none; }
+html.is-scrolling #profile .verified-badge path:first-child{ animation-play-state:paused; }
+@media (prefers-reduced-motion:reduce){ #profile .verified-badge path:first-child{ animation:none; } }
+
+/* ID pill + tier chip */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-chip-row{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; margin-top:8px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-id-row{ margin:0; gap:2px; background:var(--pc-tile); border:0; border-radius:999px; padding:3px 6px 3px 14px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-id{ padding:0; border:0; background:none; border-radius:0; font-size:13px; letter-spacing:.2px; color:var(--text-secondary) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-id-copy-btn{ width:26px; height:26px; background:none !important; border:0 !important; color:var(--text-secondary) !important; box-shadow:none; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-id-copy-btn svg{ width:14px; height:14px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-tier{ justify-content:center; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-tier .tier-badge{ padding:6px 14px; font-size:13px; font-weight:600; border-radius:999px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-tier .tier-badge svg{ display:none; }
+
+/* wallet balance tile */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-balance-row{ margin-top:18px; background:var(--pc-tile); border-radius:20px; padding:14px 14px 14px 16px; text-align:left; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-label{ font-size:12.5px; font-weight:400; letter-spacing:0; color:var(--text-secondary) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-balance{ margin-top:4px; font-size:28px; font-weight:600; line-height:1.15; color:var(--text) !important; -webkit-text-fill-color:currentColor !important; background:none !important; text-shadow:none !important; filter:none !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-balance .pc-unit{ font-size:14px; font-weight:500; margin-left:4px; color:var(--text-secondary); -webkit-text-fill-color:currentColor; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-topup-btn,.pc-topup-btn{ min-height:0 !important; padding:11px 16px !important; gap:6px !important; border-radius:14px !important; font-size:14px !important; font-weight:600 !important; letter-spacing:0 !important; color:#fff !important; background:var(--pc-blue) !important; background-image:none !important; border:0 !important; box-shadow:0 8px 16px -8px rgba(31,95,230,.7) !important; animation:none !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-topup-btn::after{ display:none !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-topup-btn svg{ width:16px !important; height:16px !important; padding:0 !important; border-radius:0 !important; background:none !important; box-shadow:none !important; color:#fff !important; stroke-width:2.4; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-topup-btn span{ text-shadow:none !important; }
+
+/* stats */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-stats{ gap:10px; margin-top:10px; text-align:left; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-stat{ padding:12px 14px; border-radius:18px; background:var(--pc-tile) !important; border:0 !important; box-shadow:none !important; -webkit-backdrop-filter:none; backdrop-filter:none; gap:4px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-stat .pc-label{ color:var(--text-secondary) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-stat b{ font-size:17px; font-weight:600; color:var(--text) !important; }
+
+/* Edit profile = plain blue text link */
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-edit-btn{ margin-top:12px; padding:10px 16px; background:none !important; border:0 !important; box-shadow:none !important; border-radius:14px; color:var(--pc-blue) !important; font-size:14px; font-weight:600; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-edit-btn:active{ background:rgba(31,95,230,.08) !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-edit-btn svg{ width:16px; height:16px; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .thd-wish{ margin-top:10px; padding:10px 13px; border-radius:16px; font-size:12.5px; color:var(--text-secondary) !important; background:var(--pc-tile) !important; border:0 !important; }
+html:not(#_):not(#__):not(#___):not(#____) #profile-card-main #profile-completion-badge{ margin-top:12px; margin-bottom:0 !important; border-radius:16px !important; }
+</style>
 
 <script>
 /* Ask for notification permission when the customer enters the app.
@@ -31655,6 +31735,43 @@ html:not(#_):not(#__):not(#___) .pmx-ticket .pmx-note a{text-decoration:underlin
     })();
   }
   if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
+})();
+</script>
+<script>
+/* Profile card (Light centered): initial letter in the avatar + small "MMK" unit in the balance */
+(function () {
+  function ready(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+  ready(function () {
+    var nameEl = document.getElementById('profile-hero-name');
+    var ph = document.getElementById('avatar-upload-placeholder');
+    var ini = document.getElementById('pc-initial');
+    function setInitial() {
+      if (!nameEl || !ph || !ini) return;
+      var n = (nameEl.textContent || '').trim();
+      var ch = n && n.toLowerCase() !== 'guest' ? Array.from(n)[0].toUpperCase() : '';
+      ini.textContent = ch;
+      ph.classList.toggle('has-initial', !!ch);
+    }
+    if (nameEl) { new MutationObserver(setInitial).observe(nameEl, { childList: true, characterData: true, subtree: true }); setInitial(); }
+
+    var bal = document.getElementById('profile-card-balance');
+    if (bal) {
+      var obs = new MutationObserver(fix);
+      function fix() {
+        var last = bal.lastElementChild;
+        if (last && last.classList.contains('pc-unit') && bal.childNodes.length === 2) return;
+        var m = /^\s*(.+?)\s*MMK\s*$/.exec(bal.textContent || '');
+        if (!m) return;
+        obs.disconnect();
+        bal.textContent = m[1];
+        var u = document.createElement('small'); u.className = 'pc-unit'; u.textContent = 'MMK';
+        bal.appendChild(u);
+        obs.observe(bal, { childList: true, characterData: true, subtree: true });
+      }
+      obs.observe(bal, { childList: true, characterData: true, subtree: true });
+      fix();
+    }
+  });
 })();
 </script>
 </body>
