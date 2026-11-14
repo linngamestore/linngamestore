@@ -5210,7 +5210,7 @@ html[data-theme="dark"] .home-live-stat .home-live-stat-label { color: rgb(var(-
 /* One-line game names: starts a little smaller than before, shrinks further as the name gets longer. */
 function gameNameStyle(name) {
     var n = Array.from(String(name == null ? '' : name)).length;
-    return 'font-size:10.5px'; /* one size for every card; long names scroll (auto-marquee) instead of shrinking */
+    return 'font-size:9.5px'; /* one size for every card; long names scroll (auto-marquee) instead of shrinking */
 }
 </script>
 <style id="linn-fix-css">
@@ -7302,6 +7302,54 @@ html[data-theme="dark"] .srv-panel:not(.is-scan):not(.is-ok):not(.is-bad) .srv-c
 @keyframes srvIn{from{opacity:0;transform:translate3d(0,10px,0) scale(.97)}to{opacity:1;transform:none}}
 @keyframes srvPop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.srv-panel *,.srv-panel{animation:none!important}.srv-panel::before,.srv-panel::after{transition-duration:.01s}}
+</style>
+<style id="srv-v4">
+/* ===== Server Check v4 · clean card =====
+   Same markup/JS as v3. The panel no longer floods blue while scanning (that made the text unreadable);
+   it stays a normal surface card, and state is shown with an accent stripe, spinner, progress bar and result tint. */
+html .srv-panel{--srv-c:var(--accent,#3681f1);padding:0 0 14px;border-radius:22px;background:var(--surface);border:1px solid var(--border);box-shadow:0 12px 28px -18px rgba(var(--accent-rgb,54,129,241),.55);color:var(--text)}
+html .srv-panel::before,html .srv-panel::after{display:none!important}
+html .srv-panel.is-ok{--srv-c:#16A34A}html .srv-panel.is-bad{--srv-c:#E11D48}
+html .srv-panel{border-top:3px solid var(--srv-c);transition:border-color .3s ease}
+html .srv-head{margin:0;padding:14px 14px 12px;gap:11px;border-bottom:1px solid var(--border)}
+html .srv-ic{width:38px;height:38px;border-radius:13px}
+html .srv-tt b{font-size:15px;font-weight:600;color:var(--text)!important}
+html .srv-tt small{font-size:10.5px;line-height:1.4;color:var(--text-secondary)!important}
+html .srv-tag{padding:4px 10px;font-size:9.5px;letter-spacing:.08em;color:#fff!important;background:var(--accent,#3681f1)!important;box-shadow:none!important}
+html .srv-x{width:30px;height:30px;background:var(--surface-alt,rgba(0,0,0,.06))!important}
+html .srv-x::before,html .srv-x::after{background:var(--text-secondary)!important}
+html .srv-plate,html .srv-go,html .srv-bar,html .srv-status,html .srv-result{margin-left:14px;margin-right:14px}
+html .srv-plate{margin-top:14px;margin-bottom:10px;grid-template-columns:minmax(0,1fr) 1px 96px;border-radius:16px;background:var(--surface-alt,#f4f6fb)!important;border:1.5px solid var(--border);box-shadow:none}
+html .srv-plate:focus-within{border-color:var(--srv-c);background:var(--surface)!important}
+html .srv-cell{padding:9px 14px 8px}
+html .srv-cell span{font-size:9px;letter-spacing:.14em;color:var(--text-secondary)!important}
+html .srv-plate:focus-within .srv-cell span{color:var(--srv-c)!important}
+html .srv-cell input{height:26px;font-size:16px;color:var(--text)!important}
+html .srv-cell input::placeholder{color:var(--text-secondary);opacity:.6}
+html .srv-ring{display:none}
+html .srv-go{width:calc(100% - 28px);height:48px;border-radius:14px;font-size:14px;background:var(--accent,#3681f1)!important;color:#fff!important;box-shadow:0 3px 0 rgba(0,0,0,.18)!important;display:flex;align-items:center;justify-content:center;gap:8px}
+html .srv-go:active{box-shadow:0 0 0 rgba(0,0,0,0)!important}
+html .srv-go:disabled{opacity:1;filter:saturate(.8) brightness(.96)}
+html .srv-panel.is-scan .srv-go{background:var(--accent,#3681f1)!important;color:#fff!important}
+html .srv-bar{height:3px;margin-top:10px;background:var(--border)}
+html .srv-bar i{background:var(--accent,#3681f1)}
+html .srv-status{margin-top:8px;font-size:11.5px;color:var(--text-secondary)!important}
+html .srv-result{margin:10px 14px 0}html .srv-result:empty{margin:0}
+/* result cards: tinted by outcome, always readable in light + dark */
+html .srv-player,html .srv-tile,html .srv-err{background:var(--surface-alt,#f4f6fb)!important;color:var(--text)!important;border:1px solid var(--border)}
+html .srv-panel.is-ok .srv-player{border-color:rgba(22,163,74,.45);background:rgba(22,163,74,.1)!important}
+html .srv-panel.is-bad .srv-err{border-color:rgba(225,29,72,.4);background:rgba(225,29,72,.08)!important}
+html .srv-pn{color:var(--text)!important;font-size:13.5px}
+html .srv-pi{color:var(--text-secondary)!important}
+html .srv-tile small{color:var(--text-secondary)!important}
+html .srv-tile b{color:var(--accent,#3681f1)!important}
+html .srv-tile.y b{color:#D97706!important}
+html .srv-err{color:#DC2626!important}html .srv-err.warn{color:#B45309!important}
+html .srv-btns{margin-top:8px}
+html .srv-btns button{height:42px}
+html .srv-btns .srv-again{background:var(--surface-alt,rgba(0,0,0,.06))!important;color:var(--text)!important;border:1px solid var(--border)}
+html .srv-btns .srv-cta{background:var(--accent,#3681f1)!important;color:#fff!important}
+html .srv-panel .srv-beam{display:none}
 </style>
 <style id="motion-guard">
 /* While Server Check animates (html.srv-busy) or the page scrolls, always-running decorative loops that repaint
@@ -13800,6 +13848,20 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             }
 
             let completing = false, resetRef = null;
+            let tapStartX = 0, tapStartT = 0, tapMoved = false;
+            // Tap: thumb glides to the end by itself, then confirms like a finished drag.
+            function autoSlide() {
+                if (completing || track.disabled) return;
+                maxTravel = travelRange();
+                if (maxTravel <= 0) return;
+                setThumbX(maxTravel);
+                setTimeout(complete, 260);
+            }
+            // Tap anywhere on the bar (not only the thumb) also confirms
+            wrap.addEventListener('click', (e) => {
+                if (thumb.contains(e.target) || dragging) return;
+                autoSlide();
+            });
             function complete() {
                 // A 2nd slide / key press while the 1st order is still being placed must not fire a 2nd order.
                 if (completing) return;
@@ -13832,6 +13894,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 dragging = true;
                 maxTravel = travelRange();
                 startX = e.clientX - currentX;
+                tapStartX = e.clientX; tapStartT = Date.now(); tapMoved = false;
                 thumb.classList.add('dragging');
                 thumb.setPointerCapture(e.pointerId);
             }, { passive: false });
@@ -13840,6 +13903,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 if (!dragging) return;
                 e.preventDefault();
                 e.stopPropagation();
+                if (Math.abs(e.clientX - tapStartX) > 8) tapMoved = true;
                 let x = e.clientX - startX;
                 x = Math.max(0, Math.min(maxTravel, x));
                 setThumbX(x);
@@ -13851,6 +13915,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 dragging = false;
                 thumb.classList.remove('dragging');
                 const threshold = maxTravel * 0.82; // has to reach ~82% of the way across
+                // Plain tap on the thumb: auto-slide across and confirm (tap OR drag both work)
+                if (e.type === 'pointerup' && !tapMoved && (Date.now() - tapStartT) < 600) { autoSlide(); return; }
                 if (maxTravel > 0 && currentX >= threshold) {
                     setThumbX(maxTravel);
                     complete();
@@ -15267,6 +15333,74 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             setInterval(() => { if (!document.hidden) ping(false); }, EVERY_MS);
             document.addEventListener('visibilitychange', () => { ping(document.hidden); });
             window.addEventListener('pagehide', () => ping(true));
+        })();
+        // ---------- Location on login ----------
+        // Every sign-in: the Worker stores the network location it derives from the connection (city level, no prompt).
+        // A precise GPS fix is added only when the customer allows it: browsers always ask, and we show a short
+        // explanation first. "Not now" is remembered for 14 days; a blocked permission is never asked again.
+        (function () {
+            let doneUid = '', busy = false;
+            const K_ASK = 'gz_loc_ask';
+            function send(extra) {
+                const u = auth.currentUser, userId = window.getGuestId ? window.getGuestId() : '';
+                if (!u || !userId) return Promise.resolve();
+                return window.workerProfile(Object.assign({ op: 'location', userId }, extra || {})).catch(() => {});
+            }
+            function getFix() {
+                return new Promise(res => {
+                    if (!navigator.geolocation) return res(null);
+                    navigator.geolocation.getCurrentPosition(
+                        p => res({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }),
+                        () => res(null),
+                        { enableHighAccuracy: true, timeout: 12000, maximumAge: 300000 }
+                    );
+                });
+            }
+            function askedRecently() {
+                try { const v = JSON.parse(localStorage.getItem(K_ASK) || 'null'); return !!(v && v.no && Date.now() - v.at < 14 * 86400000); } catch (e) { return false; }
+            }
+            function consentSheet() {
+                return new Promise(res => {
+                    const ov = document.createElement('div');
+                    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;';
+                    ov.innerHTML = '<div style="width:100%;max-width:480px;background:var(--surface,#fff);color:var(--text,#111);border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 40px rgba(0,0,0,.25)">' +
+                        '<div style="font-size:16px;font-weight:600;margin-bottom:6px">Location ခွင့်ပြုပါ</div>' +
+                        '<div style="font-size:12.5px;line-height:1.55;color:var(--text-secondary,#666);margin-bottom:14px">သင့်တည်နေရာကို account လုံခြုံရေးစစ်ဆေးရန်နှင့် ဝန်ဆောင်မှုပိုမိုကောင်းမွန်စေရန်သာ မှတ်သားပါမည်။ နောက်တစ်ဆင့်တွင် ဖုန်း/browser က ခွင့်ပြုချက် ထပ်မေးပါမည်။ ဖုန်း Settings ထဲမှာ အချိန်မရွေး ပိတ်နိုင်ပါတယ်။</div>' +
+                        '<div style="display:flex;gap:8px"><button type="button" data-a="no" style="flex:1;height:44px;border:1px solid var(--border,#ddd);background:transparent;color:var(--text,#111);border-radius:12px;font:inherit;font-size:14px">Not now</button>' +
+                        '<button type="button" data-a="yes" style="flex:1.4;height:44px;border:0;background:var(--accent,#3681f1);color:#fff;border-radius:12px;font:inherit;font-size:14px;font-weight:600">Allow</button></div></div>';
+                    ov.addEventListener('click', e => {
+                        const a = e.target.closest && e.target.closest('[data-a]');
+                        if (!a) return;
+                        ov.remove(); res(a.getAttribute('data-a') === 'yes');
+                    });
+                    document.body.appendChild(ov);
+                });
+            }
+            async function report(uid) {
+                if (busy) return; busy = true;
+                try {
+                    await send();                                   // network location, every login
+                    if (!navigator.geolocation) return;
+                    let state = 'prompt';
+                    try { if (navigator.permissions && navigator.permissions.query) state = (await navigator.permissions.query({ name: 'geolocation' })).state; } catch (e) { /* not supported */ }
+                    if (state === 'denied') return;
+                    if (state === 'prompt') {
+                        if (askedRecently()) return;
+                        const ok = await consentSheet();
+                        if (!ok) { try { localStorage.setItem(K_ASK, JSON.stringify({ no: 1, at: Date.now() })); } catch (e) {} return; }
+                    }
+                    const fix = await getFix();
+                    if (fix) await send(fix);
+                } finally { busy = false; doneUid = uid; }
+            }
+            setInterval(() => {
+                try {
+                    const u = auth.currentUser;
+                    if (!u || busy || u.uid === doneUid) return;
+                    if (!(window.hasAccountOnDevice && window.hasAccountOnDevice())) return;
+                    report(u.uid);
+                } catch (e) { /* best-effort */ }
+            }, 3000);
         })();
         window.workerCreateOrder = async function (payload) {
             const u = auth.currentUser;
@@ -31777,6 +31911,11 @@ html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-topup-btn{ bac
 html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .profile-hero-edit-btn:active{ background:rgba(255,255,255,.35) !important; }
 html.perf-low html:not(#_):not(#__):not(#___):not(#____) #profile-card-main,html.perf-low html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-id-row,html.perf-low html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-balance-row,html.perf-low html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-stat,html.perf-low html:not(#_):not(#__):not(#___):not(#____) #profile-card-main .pc-avatar-wrap::before{ -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
 html.perf-low:not(#_):not(#__):not(#___):not(#____) #profile-card-main{ background:var(--surface) !important; }
+
+/* Price pill: text perfectly centred vertically + horizontally */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______):not(#________):not(#_________):not(#__________) .package-card:not(.type-software) .pc-price{display:flex!important;align-items:center!important;align-content:center!important;justify-content:center!important;height:28px!important;min-height:28px!important;padding:0 8px!important;line-height:1!important;box-sizing:border-box!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______):not(#________):not(#_________):not(#__________) .package-card:not(.type-software) .pc-price .pc-cur{align-self:center!important;line-height:1!important;margin-top:0!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______):not(#________):not(#_________):not(#__________) .package-card:not(.type-software) .pc-price-bar{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:stretch!important}
 </style>
 
 <script>
