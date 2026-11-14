@@ -11446,6 +11446,10 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         // Debounced live check against G2Bulk's checkPlayerId - only runs for
         // games linked to a G2Bulk code. Shows the resolved in-game name so the
         // customer can catch a typo'd ID before paying.
+        // A package can carry its own provider game code (pcode) - then that package is bought and its
+        // player ID checked through THAT code instead of the game-level one.
+        function activeG2Code() { return (selectedPackage && selectedPackage.g2bulk && selectedPackage.pcode) ? String(selectedPackage.pcode) : selectedGameG2BulkCode; }
+        function activeJcProduct() { return (selectedPackage && selectedPackage.jcplays && selectedPackage.pcode) ? String(selectedPackage.pcode) : selectedGameJCPlaysProduct; }
         function onPlayerIdFieldChange() {
             autoFillServerIdFromBrackets();
             const statusEl = document.getElementById('detail-id-status');
@@ -11776,7 +11780,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 let outcome, resolvedName = null;
                 let checkResult = { outcome: 'unknown', reason: 'unavailable' };
                 if (selectedGameG2BulkCode) {
-                    checkResult = await g2bulkCheckPlayer(selectedGameG2BulkCode, playerId, serverId, charNameVal);
+                    window.__idCheckCode = activeG2Code();
+                    checkResult = await g2bulkCheckPlayer(activeG2Code(), playerId, serverId, charNameVal);
                     outcome = checkResult.outcome;
                     if (outcome === 'valid') resolvedName = checkResult.name;
                 }
@@ -12906,6 +12911,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             // stripped out for out-of-stock cards - see renderDetailPackageList).
             if (pkgToSelect && pkgToSelect.voucherId && voucherStockMap[String(pkgToSelect.voucherId)] === 0) return;
             selectedPackage = pkgToSelect;
+            // package from a different provider game than the one the ID was verified against -> verify again
+            try { if (window.__idCheckCode && activeG2Code() !== window.__idCheckCode && (document.getElementById('detail-ingame-id') || {}).value) onPlayerIdFieldChange(); } catch (e) {}
             window.voucherQty = 1;
             document.querySelectorAll('#detail-package-list .package-card').forEach(el => el.classList.remove('selected'));
             document.querySelector(`#detail-package-list .package-card[data-index="${index}"]`).classList.add('selected');
@@ -13992,9 +13999,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 paymentMethodName: selectedPaymentMethod.name,
                 receiptFile: editingReceiptFile,
                 transactionId,
-                g2bulkGameCode: selectedGameG2BulkCode,
+                g2bulkGameCode: activeG2Code(),
                 g2bulkCatalogueName: selectedPackage.g2bulk || null,
-                jcplaysProduct: selectedGameJCPlaysProduct,
+                jcplaysProduct: activeJcProduct(),
                 jcplaysProductId: selectedPackage.jcplays || null,
                 // Voucher/giftcard packages carry their own G2Bulk product ID
                 // directly on the package (no game-level link needed) - see
@@ -14014,9 +14021,9 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
                 serverId,
                 charName: selectedGameNeedsCharName ? ((document.getElementById('detail-charname') || {}).value || '').trim() : '',
                 inGameName: playerIdVerified === true ? verifiedPlayerName : null,
-                g2bulkGameCode: selectedGameG2BulkCode,
+                g2bulkGameCode: activeG2Code(),
                 g2bulkCatalogueName: selectedPackage.g2bulk || null,
-                jcplaysProduct: selectedGameJCPlaysProduct,
+                jcplaysProduct: activeJcProduct(),
                 jcplaysProductId: selectedPackage.jcplays || null,
                 g2bulkVoucherProductId: selectedPackage.voucherId || null,
             }, btnElement);
