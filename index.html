@@ -7992,6 +7992,8 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
 </div>
 
 
+<style id="boot-veil">html:not(.gx-ready) .page-section{visibility:hidden}</style>
+<script id="boot-veil-js">setTimeout(function(){document.documentElement.classList.add('gx-ready')},2200);</script>
 <style id="maint-pre-css">html.maint-pre #maint-overlay{display:flex!important}</style>
 <script id="maint-pre-js">
 /* Maintenance: the real state comes from Firestore (a moment later). Until then use the last state this device saw,
@@ -23753,7 +23755,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
         function runThemeTransition(theme, kind, x, y) {
             const root = document.documentElement;
             const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-            if (reduce || root.classList.contains('perf-low') || root.classList.contains('vt-running')) {
+            if (reduce || (root.classList.contains('perf-low') && kind !== 'circle') || root.classList.contains('vt-running')) {
                 setThemeSmooth(theme);
                 return;
             }
@@ -23803,6 +23805,7 @@ html.is-scrolling .pwa-promo::after,html.is-scrolling .pwa-ico{animation-play-st
             else if (e && e.currentTarget && e.currentTarget.getBoundingClientRect) {
                 const b = e.currentTarget.getBoundingClientRect(); px = b.left + b.width / 2; py = b.top + b.height / 2;
             }
+            px = window.innerWidth; py = 0; // circle always sweeps out from the top-right corner
             runThemeTransition(next, 'circle', px, py);
             try { localStorage.setItem('gz_theme', next); } catch (err) { /* private browsing */ }
             updateThemeAutoNote();
@@ -28887,7 +28890,7 @@ html[data-theme="dark"] .gx-ibg{background:linear-gradient(150deg,rgba(255,255,2
   var RO=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){var c=e.target,b=c.querySelector(':scope > .gx-bg');if(b&&c.offsetWidth)paintBg(c,b)})}):null;
   function fold(){document.querySelectorAll('.gx-card:not([data-fold])').forEach(function(c){c.setAttribute('data-fold','1');var b=document.createElement('i');b.className='gx-bg';var p=document.createElement('i');p.className='gx-pill';c.insertBefore(p,c.firstChild);var n=document.createElement('i');n.className='gx-in';b.appendChild(n);c.insertBefore(b,c.firstChild);if(c.offsetWidth)paintBg(c,b);if(RO)RO.observe(c)})}
   setInterval(function(){if(!document.hidden&&!document.documentElement.classList.contains('ev-open'))fold()},2500);
-  function boot(){run();buildProfile();paintSubs();watch();fold()}
+  function boot(){try{run();buildProfile();paintSubs();watch();fold()}finally{requestAnimationFrame(function(){document.documentElement.classList.add('gx-ready')})}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
   /* dynamically created "Recently Viewed" section */
   var dash=document.getElementById('dashboard');
@@ -30704,6 +30707,80 @@ html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) :is(#home,#v
 html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) :is(#home,#voucher,#software) .games-grid-scroll .game-card .game-card-img-wrap{border-radius:10px}
 html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) :is(#home,#voucher,#software) .games-grid-scroll .game-card .game-card-name{font-size:10px;padding:3px 1px 1px;line-height:1.2}
 }
+</style>
+<style id="card-sharp-blue">
+/* Game cards: sharper (not razor) corners, vivid bright-blue game-name pill. Respects the data-frad radius setting. */
+html:not([data-frad]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card{border-radius:10px!important}
+html:not([data-frad]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-img-wrap,
+html:not([data-frad]):not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-img-wrap img{border-radius:7px!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-name,
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-name{
+  border:0!important;border-radius:6px!important;
+  background:linear-gradient(180deg,#3F8CFF 0%,#1766F2 100%)!important;
+  box-shadow:0 3px 8px -3px rgba(23,102,242,.6),inset 0 1px 0 rgba(255,255,255,.28)!important;
+  font-weight:600!important;letter-spacing:.1px}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-name,
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-name *,
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-name,
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) .game-card .game-card-name *{color:#fff!important}
+</style>
+<style id="glass-header-profile">
+/* Header + Profile tab: same liquid glass as the bottom nav bar (translucent + blur). Hero card keeps its night-sky look. */
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) .header,
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) #profile .profile-card:not(#profile-card-main),
+html:not(#_):not(#__):not(#___):not(#____):not(#_____) #profile .gx-card > .gx-bg{
+  background:linear-gradient(180deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.26) 55%,rgba(255,255,255,.36) 100%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(190%)!important;backdrop-filter:blur(18px) saturate(190%)!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95),inset 0 -8px 14px rgba(255,255,255,.18),0 12px 26px -10px rgba(31,54,90,.28)!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) .header,
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) #profile .profile-card:not(#profile-card-main),
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____) #profile .gx-card > .gx-bg{
+  background:linear-gradient(180deg,rgba(60,90,160,.38) 0%,rgba(22,38,74,.34) 100%)!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.22),0 12px 26px -10px rgba(0,0,0,.6)!important}
+html.perf-low:not(#_):not(#__):not(#___):not(#____):not(#_____) .header,
+html.perf-low:not(#_):not(#__):not(#___):not(#____):not(#_____) #profile .profile-card:not(#profile-card-main),
+html.perf-low:not(#_):not(#__):not(#___):not(#____):not(#_____) #profile .gx-card > .gx-bg{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+</style>
+<style id="dark-glass-calm">
+/* Dark mode glass: denser navy tint, stronger blur, much lower saturation (190% turned the dark navy into neon cyan), so the page behind no longer shows through harshly. */
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .header,
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) #profile .profile-card:not(#profile-card-main),
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gx-card > .gx-bg,
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-shell i{
+  background:linear-gradient(180deg,rgba(26,40,76,.82) 0%,rgba(12,20,42,.90) 100%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(120%)!important;backdrop-filter:blur(24px) saturate(120%)!important;
+  border-color:rgba(255,255,255,.09)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 1px rgba(255,255,255,.14),0 14px 28px -12px rgba(0,0,0,.65)!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .nav-shell i{box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 1px 1px rgba(255,255,255,.16)!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gx-pill{background:rgba(255,255,255,.05)!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .dash-guide-step{
+  background:linear-gradient(150deg,rgba(var(--sc),.22),rgba(var(--sc),.07)),rgba(14,24,48,.80)!important}
+html.perf-low[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .header,
+html.perf-low[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .gx-card > .gx-bg{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+</style>
+<style id="mini-glass-topup-grid">
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .mini-profile-bar{
+  background:linear-gradient(180deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.26) 55%,rgba(255,255,255,.36) 100%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(190%)!important;backdrop-filter:blur(18px) saturate(190%)!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95),inset 0 -8px 14px rgba(255,255,255,.18),0 12px 26px -10px rgba(31,54,90,.28)!important}
+html[data-theme="dark"]:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .mini-profile-bar{
+  background:linear-gradient(180deg,rgba(26,40,76,.82) 0%,rgba(12,20,42,.90) 100%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(120%)!important;backdrop-filter:blur(24px) saturate(120%)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.14),0 14px 28px -12px rgba(0,0,0,.65)!important}
+html.perf-low:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______) .mini-profile-bar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* Top Up page: still 3 columns, but smaller cards with clearer space between them */
+@media (max-width:699px){
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) #home .gx-card .games-grid-scroll{padding:8px 28px 14px!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______) #home .games-grid-scroll .cards-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 16px}
+}
+</style>
+<style id="price-center-fix">
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______):not(#________):not(#_________) #detail-package-list .package-card .pc-price{align-items:center!important;align-content:center!important}
+html:not(#_):not(#__):not(#___):not(#____):not(#_____):not(#______):not(#_______):not(#________):not(#_________) #detail-package-list .package-card .pc-price-bar{display:flex;flex-direction:column;justify-content:center}
 </style>
 <style id="toast-pill-motion">
 html:not(#_):not(#__) body #toast{--tw:min(calc(100vw - 32px),440px);left:50%!important;right:auto!important;margin:0!important;max-width:none!important;box-sizing:border-box;width:46px!important;padding:10px!important;gap:0!important;border-radius:23px!important;opacity:0;transform:translate(-50%,calc(-100% - 40px))!important;transition:transform .38s cubic-bezier(.5,0,.8,.4),opacity .2s ease .18s,width .45s cubic-bezier(.3,1.1,.4,1),padding .45s ease,gap .45s ease,background-color .3s ease,border-color .3s ease!important}
